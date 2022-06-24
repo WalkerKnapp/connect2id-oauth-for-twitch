@@ -45,7 +45,7 @@ import com.nimbusds.oauth2.sdk.util.*;
  * <pre>
  * POST /token HTTP/1.1
  * Host: server.example.com
- * Content-Type: application/x-www-form-URIencoded
+ * Content-Type: application/x-www-form-urlencoded
  * Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
  *
  * grant_type=authorization_code
@@ -387,7 +387,7 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 	 * resource=http://xxxxxx/PartyOData
 	 * </pre>
 	 *
-	 * @return The additional custom parameters as a unmodifiable map,
+	 * @return The additional custom parameters as an unmodifiable map,
 	 *         empty map if none.
 	 */
 	public Map<String,List<String>> getCustomParameters () {
