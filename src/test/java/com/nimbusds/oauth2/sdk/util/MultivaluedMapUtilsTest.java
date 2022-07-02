@@ -109,7 +109,7 @@ public class MultivaluedMapUtilsTest extends TestCase {
 		Set<String> found = MultivaluedMapUtils.getKeysWithMoreThanOneValue(params, null);
 		assertEquals(Collections.singleton("client_id"), found);
 	}
-	
+
 	
 	public void testGetKeysWithMoreThanOneValue_two() {
 		
@@ -121,8 +121,18 @@ public class MultivaluedMapUtilsTest extends TestCase {
 		Set<String> found = MultivaluedMapUtils.getKeysWithMoreThanOneValue(params, null);
 		assertEquals(new HashSet<>(Arrays.asList("client_id", "response_type")), found);
 	}
-	
-	
+
+	public void testGetKeysWithMoreThanOneValue_duplicates() {
+
+		Map<String,List<String>> params = new HashMap<>();
+		params.put("client_id", Arrays.asList("123", "123"));
+		params.put("response_type", Arrays.asList("code", "code"));
+		params.put("redirect_uri", Arrays.asList("http://localhost", "http://localhost"));
+		params.put("scope", Collections.singletonList("read"));
+
+		assertTrue(MultivaluedMapUtils.getKeysWithMoreThanOneValue(params, null).isEmpty());
+	}
+
 	public void testGetKeysWithMoreThanOneValue_exception() {
 		
 		Map<String,List<String>> params = new HashMap<>();
