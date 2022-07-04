@@ -1049,7 +1049,7 @@ public class AuthenticationRequestTest extends TestCase {
 		AuthenticationRequest req = new AuthenticationRequest(uri, rts, scope, clientID, redirectURI, state, null);
 		
 		Map<String,List<String>> params = req.toParameters();
-		params.put("client_id", Arrays.asList(clientID.getValue(), clientID.getValue()));
+		params.put("client_id", Arrays.asList("injected", clientID.getValue()));
 		
 		try {
 			AuthorizationRequest.parse(uri, params);
