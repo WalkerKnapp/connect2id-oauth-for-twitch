@@ -2022,7 +2022,7 @@ version 9.37.2 (2022-06-02)
     * ErrorObject description set / append, uri set, HTTP status code set
       methods must copy the customParams field (iss #392).
 
-version 9.37.3 (2022-07-05)
+version 9.37.3 (2022-07-04)
     * Updates MultivaluedMapUtils.getKeysWithMoreThanOneValue to treat keys
       that map to two or more identical values are treated as single-valued.
       Intended to work around authorisation and other requests from libraries
