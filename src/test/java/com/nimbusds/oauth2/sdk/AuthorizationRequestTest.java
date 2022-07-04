@@ -1672,8 +1672,34 @@ public class AuthorizationRequestTest extends TestCase {
 	
 	
 	// https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/issues/345/token-and-authz-request-must-fail-with-400
-	public void testParse_repeatedParameter_clientID()
+	public void testParse_parameterWithTwoDifferentValues_clientID()
 		throws URISyntaxException {
+		
+		URI uri = new URI("https://c2id.com/authz/");
+		
+		ResponseType rts = new ResponseType();
+		rts.add(ResponseType.Value.CODE);
+		
+		ClientID clientID = new ClientID("123");
+
+		AuthorizationRequest req = new AuthorizationRequest(uri, rts, clientID);
+		
+		Map<String,List<String>> params = req.toParameters();
+		params.put("client_id", Arrays.asList("injected", clientID.getValue()));
+		
+		try {
+			AuthorizationRequest.parse(uri, params);
+			fail();
+		} catch (ParseException e) {
+			assertEquals(OAuth2Error.INVALID_REQUEST.getCode(), e.getErrorObject().getCode());
+			assertEquals("Parameter(s) present more than once: [client_id]", e.getErrorObject().getDescription());
+		}
+	}
+	
+	
+	// https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/issues/394/ignore-duplicates-in-http-request-check
+	public void testParse_duplicatedParameter_clientID()
+		throws URISyntaxException, ParseException {
 		
 		URI uri = new URI("https://c2id.com/authz/");
 		
@@ -1685,15 +1711,11 @@ public class AuthorizationRequestTest extends TestCase {
 		AuthorizationRequest req = new AuthorizationRequest(uri, rts, clientID);
 		
 		Map<String,List<String>> params = req.toParameters();
-		params.put("client_id", Arrays.asList(new ClientID("123").getValue(), clientID.getValue()));
+		params.put("client_id", Arrays.asList(clientID.getValue(), clientID.getValue()));
 		
-		try {
-			AuthorizationRequest.parse(uri, params);
-			fail();
-		} catch (ParseException e) {
-			assertEquals(OAuth2Error.INVALID_REQUEST.getCode(), e.getErrorObject().getCode());
-			assertEquals("Parameter(s) present more than once: [client_id]", e.getErrorObject().getDescription());
-		}
+		AuthorizationRequest parsed = AuthorizationRequest.parse(uri, params);
+		
+		assertEquals(parsed.toParameters(), req.toParameters());
 	}
 	
 	

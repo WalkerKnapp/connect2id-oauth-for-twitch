@@ -96,27 +96,31 @@ public final class MultivaluedMapUtils {
 	
 	
 	/**
-	 * Returns the keys with more than one value.
+	 * Returns the keys with more than one distinct value. Keys that map to
+	 * two or more identical values are treated as single-valued.
 	 *
 	 * @param map      The multi-valued map, {@code null} if not specified.
 	 * @param excepted The excepted keys, {@code null} or empty if none.
 	 *
-	 * @return The keys with more than one value, empty set if none.
+	 * @return The keys with more than one distinct value, empty set if
+	 *         none.
 	 */
 	public static <K,V> Set<K> getKeysWithMoreThanOneValue(final Map<K,List<V>> map, final Set<K> excepted) {
 		
-		if (map == null || map.isEmpty()) {
+		if (MapUtils.isEmpty(map)) {
 			return Collections.emptySet();
 		}
 		
 		Set<K> found = new HashSet<>();
 		for (Map.Entry<K,List<V>> en: map.entrySet()) {
-			Set<V> entryValue = new HashSet<>(en.getValue());
+			
 			if (CollectionUtils.contains(excepted, en.getKey())) {
 				continue;
 			}
 			
-			if (CollectionUtils.isNotEmpty(entryValue) && entryValue.size() > 1) {
+			Set<V> entryValues = new HashSet<>(en.getValue());
+			
+			if (CollectionUtils.isNotEmpty(entryValues) && entryValues.size() > 1) {
 				found.add(en.getKey());
 			}
 		}
