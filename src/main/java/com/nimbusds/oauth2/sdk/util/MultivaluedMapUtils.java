@@ -111,11 +111,12 @@ public final class MultivaluedMapUtils {
 		
 		Set<K> found = new HashSet<>();
 		for (Map.Entry<K,List<V>> en: map.entrySet()) {
+			Set<V> entryValue = new HashSet<>(en.getValue());
 			if (CollectionUtils.contains(excepted, en.getKey())) {
 				continue;
 			}
 			
-			if (en.getValue() != null && en.getValue().size() > 1) {
+			if (CollectionUtils.isNotEmpty(entryValue) && entryValue.size() > 1) {
 				found.add(en.getKey());
 			}
 		}

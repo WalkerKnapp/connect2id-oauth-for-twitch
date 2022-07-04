@@ -1680,12 +1680,12 @@ public class AuthorizationRequestTest extends TestCase {
 		ResponseType rts = new ResponseType();
 		rts.add(ResponseType.Value.CODE);
 		
-		ClientID clientID = new ClientID("123456");
-		
+		ClientID clientID = new ClientID("456");
+
 		AuthorizationRequest req = new AuthorizationRequest(uri, rts, clientID);
 		
 		Map<String,List<String>> params = req.toParameters();
-		params.put("client_id", Arrays.asList(clientID.getValue(), clientID.getValue()));
+		params.put("client_id", Arrays.asList(new ClientID("123").getValue(), clientID.getValue()));
 		
 		try {
 			AuthorizationRequest.parse(uri, params);

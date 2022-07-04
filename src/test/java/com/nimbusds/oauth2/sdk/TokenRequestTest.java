@@ -1719,7 +1719,7 @@ public class TokenRequestTest extends TestCase {
 		for (String paramName: Arrays.asList("grant_type", "code", "scope")) {
 			Map<String, List<String>> paramsCopy = new HashMap<>(params);
 			String value = MultivaluedMapUtils.getFirstValue(params, paramName);
-			paramsCopy.put(paramName, Arrays.asList(value, value));
+			paramsCopy.put(paramName, Arrays.asList("injected", value));
 			httpRequest.setQuery(URLUtils.serializeParameters(paramsCopy));
 			
 			try {
