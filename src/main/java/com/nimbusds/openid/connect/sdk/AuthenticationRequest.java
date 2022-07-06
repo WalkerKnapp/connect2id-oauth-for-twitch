@@ -1727,51 +1727,24 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		}
 
 
-		v = MultivaluedMapUtils.getFirstValue(params, "ui_locales");
-
-		List<LangTag> uiLocales = null;
-
-		if (StringUtils.isNotBlank(v)) {
-
-			uiLocales = new LinkedList<>();
-
-			StringTokenizer st = new StringTokenizer(v, " ");
-
-			while (st.hasMoreTokens()) {
-
-				try {
-					uiLocales.add(LangTag.parse(st.nextToken()));
-
-				} catch (LangTagException e) {
-					String msg = "Invalid ui_locales parameter: " + e.getMessage();
-					throw new ParseException(msg, OAuth2Error.INVALID_REQUEST.appendDescription(": " + msg),
-						                 ar.getClientID(), ar.getRedirectionURI(), ar.impliedResponseMode(), ar.getState(), e);
-				}
-			}
+		List<LangTag> uiLocales;
+		try {
+			uiLocales = LangTagUtils.parseLangTagList(MultivaluedMapUtils.getFirstValue(params, "ui_locales"));
+		} catch (LangTagException e) {
+			String msg = "Invalid ui_locales parameter: " + e.getMessage();
+			throw new ParseException(msg, OAuth2Error.INVALID_REQUEST.appendDescription(": " + msg),
+				ar.getClientID(), ar.getRedirectionURI(), ar.impliedResponseMode(), ar.getState(), e);
 		}
 
 
-		v = MultivaluedMapUtils.getFirstValue(params, "claims_locales");
-
-		List<LangTag> claimsLocales = null;
-
-		if (StringUtils.isNotBlank(v)) {
-
-			claimsLocales = new LinkedList<>();
-
-			StringTokenizer st = new StringTokenizer(v, " ");
-
-			while (st.hasMoreTokens()) {
-
-				try {
-					claimsLocales.add(LangTag.parse(st.nextToken()));
-
-				} catch (LangTagException e) {
-					String msg = "Invalid claims_locales parameter: " + e.getMessage();
-					throw new ParseException(msg, OAuth2Error.INVALID_REQUEST.appendDescription(": " + msg),
-						                 ar.getClientID(), ar.getRedirectionURI(), ar.impliedResponseMode(), ar.getState(), e);
-				}
-			}
+		List<LangTag> claimsLocales;
+		try {
+			claimsLocales = LangTagUtils.parseLangTagList(MultivaluedMapUtils.getFirstValue(params, "claims_locales"));
+			
+		} catch (LangTagException e) {
+			String msg = "Invalid claims_locales parameter: " + e.getMessage();
+			throw new ParseException(msg, OAuth2Error.INVALID_REQUEST.appendDescription(": " + msg),
+				ar.getClientID(), ar.getRedirectionURI(), ar.impliedResponseMode(), ar.getState(), e);
 		}
 
 

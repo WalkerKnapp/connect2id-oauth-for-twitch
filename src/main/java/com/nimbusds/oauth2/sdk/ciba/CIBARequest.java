@@ -1424,18 +1424,12 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 			}
 		}
 		
-		v = MultivaluedMapUtils.getFirstValue(params, "claims_locales");
-		List<LangTag> claimsLocales = null;
-		if (StringUtils.isNotBlank(v)) {
-			claimsLocales = new LinkedList<>();
-			StringTokenizer st = new StringTokenizer(v, " ");
-			while (st.hasMoreTokens()) {
-				try {
-					claimsLocales.add(LangTag.parse(st.nextToken()));
-				} catch (LangTagException e) {
-					throw new ParseException("Invalid claims_locales parameter: " + e.getMessage(), e);
-				}
-			}
+		
+		List<LangTag> claimsLocales;
+		try {
+			claimsLocales = LangTagUtils.parseLangTagList(MultivaluedMapUtils.getFirstValue(params, "claims_locales"));
+		} catch (LangTagException e) {
+			throw new ParseException("Invalid claims_locales parameter: " + e.getMessage(), e);
 		}
 		
 		String purpose = MultivaluedMapUtils.getFirstValue(params, "purpose");
