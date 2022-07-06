@@ -28,10 +28,10 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import net.jcip.annotations.ThreadSafe;
 
 import com.nimbusds.common.contenttype.ContentType;
@@ -41,16 +41,16 @@ import com.nimbusds.oauth2.sdk.util.X509CertificateUtils;
 
 
 /**
- * HTTP Servlet utilities.
+ * HTTP Jakarta Servlet utilities.
  *
- * <p>Requires the optional javax.servlet dependency (or newer):
+ * <p>Requires the optional jakarta.servlet dependency (or newer):
  *
  * <pre>
- * javax.servlet:javax.servlet-api:3.0.1
+ * jakarta.servlet:jakarta.servlet-api:5.0.0
  * </pre>
  */
 @ThreadSafe
-public class ServletUtils {
+public class JakartaServletUtils {
 
 
 	/**
@@ -337,5 +337,5 @@ public class ServletUtils {
 	/**
 	 * Prevents public instantiation.
 	 */
-	private ServletUtils() { }
+	private JakartaServletUtils() { }
 }

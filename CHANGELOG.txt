@@ -2032,4 +2032,6 @@ version 9.37.3 (2022-07-04)
 version 9.38 (2022-07-06)
     * Updates LogoutRequest to OpenID Connect RP-Initiated Logout 1.0 (draft
       02).
+    * Adds JakartaServletUtils (identical to ServletUtils) with optional
+      jakarta.servlet:jakarta.servlet-api:5.0.0 dependency.
     * Upgrades to Nimbus LangTag 1.7.

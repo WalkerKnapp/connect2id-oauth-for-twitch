@@ -37,15 +37,15 @@ import com.nimbusds.oauth2.sdk.util.X509CertificateUtilsTest;
 
 
 /**
- * Tests the HTTP to / from Servlet request / response.
+ * Tests the HTTP to / from Jakarta Servlet request / response.
  */
-public class ServletUtilsTest extends TestCase {
+public class JakartaServletUtilsTest extends TestCase {
 
 
 	public void testConstructFromServletRequestWithJSONEntityBody()
 		throws Exception {
 
-		MockServletRequest servletRequest = new MockServletRequest();
+		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
 		servletRequest.setMethod("POST");
 		servletRequest.setHeader("Content-Type", ContentType.APPLICATION_JSON.toString());
 		servletRequest.setHeader("Accept", ContentType.APPLICATION_JSON.toString());
@@ -57,7 +57,7 @@ public class ServletUtilsTest extends TestCase {
 		String entityBody = "{\"grant_types\":[\"code\"]}";
 		servletRequest.setEntityBody(entityBody);
 
-		HTTPRequest httpRequest = ServletUtils.createHTTPRequest(servletRequest);
+		HTTPRequest httpRequest = JakartaServletUtils.createHTTPRequest(servletRequest);
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_JSON.toString(), httpRequest.getEntityContentType().toString());
 		assertEquals(ContentType.APPLICATION_JSON.toString(), httpRequest.getAccept());
@@ -73,7 +73,7 @@ public class ServletUtilsTest extends TestCase {
 	public void testConstructFromServletRequestWithMultiValuedHeader()
 		throws Exception {
 
-		MockServletRequest servletRequest = new MockServletRequest();
+		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
 		servletRequest.setMethod("POST");
 		servletRequest.setHeader("Content-Type", ContentType.APPLICATION_JSON.toString());
 		servletRequest.setHeader("Multivalued-Header", "A", "B", "C");
@@ -84,7 +84,7 @@ public class ServletUtilsTest extends TestCase {
 		String entityBody = "{\"grant_types\":[\"code\"]}";
 		servletRequest.setEntityBody(entityBody);
 
-		HTTPRequest httpRequest = ServletUtils.createHTTPRequest(servletRequest);
+		HTTPRequest httpRequest = JakartaServletUtils.createHTTPRequest(servletRequest);
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals("http://c2id.com/clients", httpRequest.getURI().toString());
 		assertEquals(ContentType.APPLICATION_JSON.toString(), httpRequest.getEntityContentType().toString());
@@ -102,7 +102,7 @@ public class ServletUtilsTest extends TestCase {
 	public void testConstructFromServletRequestWithClientIPAddress()
 		throws Exception {
 
-		MockServletRequest servletRequest = new MockServletRequest();
+		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
 		servletRequest.setMethod("GET");
 		servletRequest.setLocalAddr("c2id.com");
 		servletRequest.setLocalPort(8080);
@@ -110,7 +110,7 @@ public class ServletUtilsTest extends TestCase {
 		servletRequest.setQueryString(null);
 		servletRequest.setRemoteAddr("192.168.0.1");
 
-		HTTPRequest httpRequest = ServletUtils.createHTTPRequest(servletRequest);
+		HTTPRequest httpRequest = JakartaServletUtils.createHTTPRequest(servletRequest);
 		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
 		assertEquals("http://c2id.com:8080/", httpRequest.getURI().toString());
 		assertNull(httpRequest.getEntityContentType());
@@ -127,14 +127,14 @@ public class ServletUtilsTest extends TestCase {
 		
 		String localIPv6Address = "FE80:0000:0000:0000:0202:B3FF:FE1E:8329";
 
-		MockServletRequest servletRequest = new MockServletRequest();
+		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
 		servletRequest.setMethod("GET");
 		servletRequest.setLocalAddr("[" + localIPv6Address + "]");
 		servletRequest.setLocalPort(8080);
 		servletRequest.setRequestURI("/");
 		servletRequest.setQueryString(null);
 
-		HTTPRequest httpRequest = ServletUtils.createHTTPRequest(servletRequest);
+		HTTPRequest httpRequest = JakartaServletUtils.createHTTPRequest(servletRequest);
 		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
 		assertEquals("http://[" + localIPv6Address + "]:8080/", httpRequest.getURI().toString());
 		assertNull(httpRequest.getEntityContentType());
@@ -149,7 +149,7 @@ public class ServletUtilsTest extends TestCase {
 
 		X509Certificate cert = X509CertificateGenerator.generateSampleClientCertificate();
 		
-		MockServletRequest servletRequest = new MockServletRequest();
+		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
 		servletRequest.setMethod("POST");
 		servletRequest.setHeader("Content-Type", ContentType.APPLICATION_JSON.toString());
 		servletRequest.setLocalAddr("c2id.com");
@@ -161,7 +161,7 @@ public class ServletUtilsTest extends TestCase {
 		servletRequest.setAttribute("javax.servlet.request.X509Certificate", new X509Certificate[]{cert});
 		
 
-		HTTPRequest httpRequest = ServletUtils.createHTTPRequest(servletRequest);
+		HTTPRequest httpRequest = JakartaServletUtils.createHTTPRequest(servletRequest);
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_JSON.toString(), httpRequest.getEntityContentType().toString());
 		assertNull(httpRequest.getAccept());
@@ -186,7 +186,7 @@ public class ServletUtilsTest extends TestCase {
 			X509CertificateUtilsTest.RSA_PRIVATE_KEY
 		);
 		
-		MockServletRequest servletRequest = new MockServletRequest();
+		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
 		servletRequest.setMethod("POST");
 		servletRequest.setHeader("Content-Type", ContentType.APPLICATION_JSON.toString());
 		servletRequest.setLocalAddr("c2id.com");
@@ -198,7 +198,7 @@ public class ServletUtilsTest extends TestCase {
 		servletRequest.setAttribute("javax.servlet.request.X509Certificate", new X509Certificate[]{cert});
 		
 
-		HTTPRequest httpRequest = ServletUtils.createHTTPRequest(servletRequest);
+		HTTPRequest httpRequest = JakartaServletUtils.createHTTPRequest(servletRequest);
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_JSON.toString(), httpRequest.getEntityContentType().toString());
 		assertNull(httpRequest.getAccept());
@@ -216,7 +216,7 @@ public class ServletUtilsTest extends TestCase {
 	public void testConstructFromServletRequestURLEncoded()
 		throws Exception {
 
-		MockServletRequest servletRequest = new MockServletRequest();
+		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
 		servletRequest.setMethod("POST");
 		servletRequest.setHeader("Content-Type", ContentType.APPLICATION_URLENCODED.toString());
 		servletRequest.setLocalAddr("c2id.com");
@@ -227,7 +227,7 @@ public class ServletUtilsTest extends TestCase {
 		servletRequest.setParameter("token", "abc");
 		servletRequest.setParameter("type", "bearer");
 
-		HTTPRequest httpRequest = ServletUtils.createHTTPRequest(servletRequest);
+		HTTPRequest httpRequest = JakartaServletUtils.createHTTPRequest(servletRequest);
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
 		assertNull(httpRequest.getAccept());
@@ -242,14 +242,14 @@ public class ServletUtilsTest extends TestCase {
 	public void testConstructFromServletRequestWithQueryString()
 		throws Exception {
 
-		MockServletRequest servletRequest = new MockServletRequest();
+		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
 		servletRequest.setMethod("GET");
 		servletRequest.setLocalAddr("c2id.com");
 		servletRequest.setLocalPort(8080);
 		servletRequest.setRequestURI("/token");
 		servletRequest.setQueryString("token=abc&type=bearer");
 
-		HTTPRequest httpRequest = ServletUtils.createHTTPRequest(servletRequest);
+		HTTPRequest httpRequest = JakartaServletUtils.createHTTPRequest(servletRequest);
 		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
 		assertNull(httpRequest.getEntityContentType());
 		assertNull(httpRequest.getAccept());
@@ -263,7 +263,7 @@ public class ServletUtilsTest extends TestCase {
 
 	public void testServletRequestWithExceededEntityLengthLimit() {
 
-		MockServletRequest servletRequest = new MockServletRequest();
+		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
 		servletRequest.setMethod("POST");
 		servletRequest.setLocalAddr("c2id.com");
 		servletRequest.setLocalPort(8080);
@@ -278,7 +278,7 @@ public class ServletUtilsTest extends TestCase {
 		servletRequest.setEntityBody(sb.toString());
 
 		try {
-			ServletUtils.createHTTPRequest(servletRequest, 1000);
+			JakartaServletUtils.createHTTPRequest(servletRequest, 1000);
 			fail();
 		} catch (IOException e) {
 			assertEquals("Request entity body is too large, limit is 1000 chars", e.getMessage());
@@ -289,7 +289,7 @@ public class ServletUtilsTest extends TestCase {
 	public void testServletRequestWithinEntityLengthLimit()
 		throws Exception {
 
-		MockServletRequest servletRequest = new MockServletRequest();
+		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
 		servletRequest.setMethod("POST");
 		servletRequest.setHeader("Content-Type", ContentType.APPLICATION_URLENCODED.toString());
 		servletRequest.setLocalAddr("c2id.com");
@@ -304,7 +304,7 @@ public class ServletUtilsTest extends TestCase {
 
 		servletRequest.setEntityBody(sb.toString());
 
-		ServletUtils.createHTTPRequest(servletRequest, 1000);
+		JakartaServletUtils.createHTTPRequest(servletRequest, 1000);
 	}
 
 
@@ -314,9 +314,9 @@ public class ServletUtilsTest extends TestCase {
 		HTTPResponse response = new HTTPResponse(302);
 		response.setLocation(new URI("https://client.com/cb"));
 
-		MockServletResponse servletResponse = new MockServletResponse();
+		MockJakartaServletResponse servletResponse = new MockJakartaServletResponse();
 
-		ServletUtils.applyHTTPResponse(response, servletResponse);
+		JakartaServletUtils.applyHTTPResponse(response, servletResponse);
 
 		assertFalse(response.indicatesSuccess());
 		assertEquals(302, servletResponse.getStatus());
@@ -333,9 +333,9 @@ public class ServletUtilsTest extends TestCase {
 		response.setPragma("no-cache");
 		response.setContent("{\"apples\":\"123\"}");
 
-		MockServletResponse servletResponse = new MockServletResponse();
+		MockJakartaServletResponse servletResponse = new MockJakartaServletResponse();
 
-		ServletUtils.applyHTTPResponse(response, servletResponse);
+		JakartaServletUtils.applyHTTPResponse(response, servletResponse);
 
 		assertTrue(response.indicatesSuccess());
 		assertEquals(200, servletResponse.getStatus());
@@ -350,7 +350,7 @@ public class ServletUtilsTest extends TestCase {
 	public void testRequestWithNullLocalAddress()
 		throws Exception {
 		
-		MockServletRequest servletRequest = new MockServletRequest();
+		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
 		servletRequest.setMethod("POST");
 		servletRequest.setHeader("Content-Type", ContentType.APPLICATION_JSON.toString());
 		servletRequest.setLocalAddr(null);
@@ -360,7 +360,7 @@ public class ServletUtilsTest extends TestCase {
 		String entityBody = "{\"grant_types\":[\"code\"]}";
 		servletRequest.setEntityBody(entityBody);
 		
-		HTTPRequest httpRequest = ServletUtils.createHTTPRequest(servletRequest);
+		HTTPRequest httpRequest = JakartaServletUtils.createHTTPRequest(servletRequest);
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_JSON.toString(), httpRequest.getEntityContentType().toString());
 		assertNull(httpRequest.getAccept());
@@ -374,16 +374,16 @@ public class ServletUtilsTest extends TestCase {
 	
 	public void testExtractClientCertificate_none() {
 		
-		assertNull(ServletUtils.extractClientX509Certificate(new MockServletRequest()));
+		assertNull(JakartaServletUtils.extractClientX509Certificate(new MockJakartaServletRequest()));
 	}
 	
 	
 	public void testExtractClientCertificate_emptyArray() {
 		
-		MockServletRequest servletRequest = new MockServletRequest();
+		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
 		servletRequest.setAttribute("javax.servlet.request.X509Certificate", new X509Certificate[]{});
 		
-		assertNull(ServletUtils.extractClientX509Certificate(servletRequest));
+		assertNull(JakartaServletUtils.extractClientX509Certificate(servletRequest));
 	}
 	
 	
@@ -394,9 +394,9 @@ public class ServletUtilsTest extends TestCase {
 		
 		X509Certificate[] certArray = new X509Certificate[]{cert};
 		
-		MockServletRequest servletRequest = new MockServletRequest();
+		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
 		servletRequest.setAttribute("javax.servlet.request.X509Certificate", certArray);
 		
-		assertEquals(cert, ServletUtils.extractClientX509Certificate(servletRequest));
+		assertEquals(cert, JakartaServletUtils.extractClientX509Certificate(servletRequest));
 	}
 }
