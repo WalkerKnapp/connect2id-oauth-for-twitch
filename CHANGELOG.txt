@@ -2028,3 +2028,8 @@ version 9.37.3 (2022-07-04)
       work around authorisation and other requests from libraries that include
       multiple duplicate parameters values, for instance duplicate redirect_uri
       values (iss #394).
+
+version 9.38 (2022-07-06)
+    * Updates LogoutRequest to OpenID Connect RP-Initiated Logout 1.0 (draft
+      02).
+    * Upgrades to Nimbus LangTag 1.7.

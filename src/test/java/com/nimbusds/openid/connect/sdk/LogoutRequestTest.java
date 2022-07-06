@@ -19,29 +19,27 @@ package com.nimbusds.openid.connect.sdk;
 
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import junit.framework.TestCase;
 
 import com.nimbusds.jose.Algorithm;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.langtag.LangTag;
+import com.nimbusds.langtag.LangTagUtils;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
-import com.nimbusds.oauth2.sdk.id.Audience;
-import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.id.State;
-import com.nimbusds.oauth2.sdk.id.Subject;
+import com.nimbusds.oauth2.sdk.id.*;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
-import junit.framework.TestCase;
 
 
 public class LogoutRequestTest extends TestCase {
@@ -58,7 +56,13 @@ public class LogoutRequestTest extends TestCase {
 
 		IDTokenClaimsSet claimsSet = new IDTokenClaimsSet(iss, sub, audList, exp, iat);
 
-		return new PlainJWT(claimsSet.toJWTClaimsSet());
+		SignedJWT idToken = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet.toJWTClaimsSet());
+		try {
+			idToken.sign(new RSASSASigner(new RSAKeyGenerator(2048).generate()));
+		} catch (JOSEException e) {
+			throw new RuntimeException(e);
+		}
+		return idToken;
 	}
 	
 	
@@ -67,8 +71,11 @@ public class LogoutRequestTest extends TestCase {
 		URI endpoint = URI.create("https://c2id.com/logout");
 		LogoutRequest logoutRequest = new LogoutRequest(endpoint);
 		assertNull(logoutRequest.getIDTokenHint());
+		assertNull(logoutRequest.getLogoutHint());
+		assertNull(logoutRequest.getClientID());
 		assertNull(logoutRequest.getPostLogoutRedirectionURI());
 		assertNull(logoutRequest.getState());
+		assertNull(logoutRequest.getUILocales());
 		assertEquals(endpoint, logoutRequest.getEndpointURI());
 		
 		String query = logoutRequest.toQueryString();
@@ -90,8 +97,11 @@ public class LogoutRequestTest extends TestCase {
 
 		assertEquals(endpoint, request.getEndpointURI());
 		assertEquals(idToken, request.getIDTokenHint());
+		assertNull(request.getLogoutHint());
+		assertNull(request.getClientID());
 		assertNull(request.getPostLogoutRedirectionURI());
 		assertNull(request.getState());
+		assertNull(request.getUILocales());
 		
 		assertEquals(endpoint + "?id_token_hint=" + idToken.serialize(), request.toURI().toString());
 
@@ -100,14 +110,17 @@ public class LogoutRequestTest extends TestCase {
 
 		request = LogoutRequest.parse(httpRequest);
 
-		assertEquals(Algorithm.NONE, request.getIDTokenHint().getHeader().getAlgorithm());
+		assertEquals(JWSAlgorithm.RS256, request.getIDTokenHint().getHeader().getAlgorithm());
 		assertEquals(idToken.getJWTClaimsSet().getIssuer(), request.getIDTokenHint().getJWTClaimsSet().getIssuer());
 		assertEquals(idToken.getJWTClaimsSet().getSubject(), request.getIDTokenHint().getJWTClaimsSet().getSubject());
 		assertEquals(idToken.getJWTClaimsSet().getAudience().get(0), request.getIDTokenHint().getJWTClaimsSet().getAudience().get(0));
 		assertEquals(idToken.getJWTClaimsSet().getExpirationTime(), request.getIDTokenHint().getJWTClaimsSet().getExpirationTime());
 		assertEquals(idToken.getJWTClaimsSet().getIssueTime(), request.getIDTokenHint().getJWTClaimsSet().getIssueTime());
+		assertNull(request.getLogoutHint());
+		assertNull(request.getClientID());
 		assertNull(request.getPostLogoutRedirectionURI());
 		assertNull(request.getState());
+		assertNull(request.getUILocales());
 	}
 
 
@@ -115,40 +128,58 @@ public class LogoutRequestTest extends TestCase {
 		throws Exception {
 
 		JWT idToken = createIDTokenHint();
-
+		
+		String logoutHint = "alice@example.com";
+		
+		ClientID clientID = new ClientID("123");
+		
 		URI postLogoutRedirectURI = new URI("https://client.com/post-logout");
 		State state = new State();
+		
+		List<LangTag> uiLocales = Arrays.asList(new LangTag("bg"), new LangTag("en"));
 
 		URI endpoint = new URI("https://c2id.com/logout");
 
-		LogoutRequest request = new LogoutRequest(endpoint, idToken, postLogoutRedirectURI, state);
+		LogoutRequest request = new LogoutRequest(endpoint, idToken, logoutHint, clientID, postLogoutRedirectURI, state, uiLocales);
 
 		assertEquals(endpoint, request.getEndpointURI());
 		assertEquals(idToken, request.getIDTokenHint());
+		assertEquals(logoutHint, request.getLogoutHint());
+		assertEquals(clientID, request.getClientID());
 		assertEquals(postLogoutRedirectURI, request.getPostLogoutRedirectionURI());
 		assertEquals(state, request.getState());
+		assertEquals(uiLocales, request.getUILocales());
 
 		Map<String,List<String>> params = request.toParameters();
 		assertEquals(Collections.singletonList(idToken.serialize()), params.get("id_token_hint"));
+		assertEquals(Collections.singletonList(logoutHint), params.get("logout_hint"));
+		assertEquals(Collections.singletonList(clientID.getValue()), params.get("client_id"));
 		assertEquals(Collections.singletonList(postLogoutRedirectURI.toString()), params.get("post_logout_redirect_uri"));
 		assertEquals(Collections.singletonList(state.getValue()), params.get("state"));
-		assertEquals(3, params.size());
+		assertEquals(Collections.singletonList(LangTagUtils.concat(uiLocales)), params.get("ui_locales"));
+		assertEquals(6, params.size());
 
 		URI outputURI = request.toURI();
 
 		assertTrue(outputURI.toString().startsWith("https://c2id.com/logout"));
 		params = URLUtils.parseParameters(outputURI.getQuery());
 		assertEquals(Collections.singletonList(idToken.serialize()), params.get("id_token_hint"));
+		assertEquals(Collections.singletonList(logoutHint), params.get("logout_hint"));
+		assertEquals(Collections.singletonList(clientID.getValue()), params.get("client_id"));
 		assertEquals(Collections.singletonList(postLogoutRedirectURI.toString()), params.get("post_logout_redirect_uri"));
 		assertEquals(Collections.singletonList(state.getValue()), params.get("state"));
-		assertEquals(3, params.size());
+		assertEquals(Collections.singletonList(LangTagUtils.concat(uiLocales)), params.get("ui_locales"));
+		assertEquals(6, params.size());
 
 		request = LogoutRequest.parse(outputURI);
 
 		assertEquals(endpoint, request.getEndpointURI());
 		assertEquals(idToken.serialize(), request.getIDTokenHint().serialize());
+		assertEquals(logoutHint, request.getLogoutHint());
+		assertEquals(clientID, request.getClientID());
 		assertEquals(postLogoutRedirectURI, request.getPostLogoutRedirectionURI());
 		assertEquals(state, request.getState());
+		assertEquals(uiLocales, request.getUILocales());
 	}
 
 
@@ -189,7 +220,7 @@ public class LogoutRequestTest extends TestCase {
 			new LogoutRequest(endpoint, idToken, null, new State());
 			fail();
 		} catch (IllegalArgumentException e) {
-			assertEquals("The state parameter required a post-logout redirection URI", e.getMessage());
+			assertEquals("The state parameter requires a post-logout redirection URI", e.getMessage());
 		}
 	}
 
@@ -214,6 +245,32 @@ public class LogoutRequestTest extends TestCase {
 		assertNull(request.getState());
 		assertNotNull(request.getIDTokenHint());
 		assertEquals("https://server.example.com/logout", request.getEndpointURI().toString());
+	}
+	
+	
+	public void testParseWithInvalidIDTokenHint() {
+
+		URI requestURI = URI.create("https://server.example.com/logout?id_token_hint=XXX");
+
+		try {
+			LogoutRequest.parse(requestURI);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Invalid id_token_hint: Invalid JWT serialization: Missing dot delimiter(s)", e.getMessage());
+		}
+	}
+	
+	
+	public void testParseWithInvalidUILocalesLangTag() {
+
+		URI requestURI = URI.create("https://server.example.com/logout?ui_locales=ZZZZ");
+
+		try {
+			LogoutRequest.parse(requestURI);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Invalid ui_locales parameter: Either the primary language or the extended language subtags, or both must be defined", e.getMessage());
+		}
 	}
 	
 	

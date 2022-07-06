@@ -28,10 +28,14 @@ import net.jcip.annotations.Immutable;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.langtag.LangTag;
+import com.nimbusds.langtag.LangTagException;
+import com.nimbusds.langtag.LangTagUtils;
 import com.nimbusds.oauth2.sdk.AbstractRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
@@ -54,7 +58,7 @@ import com.nimbusds.oauth2.sdk.util.URLUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Session Management 1.0, section 5.
+ *     <li>OpenID Connect RP-Initiated Logout 1.0 (draft 2), section 2.
  * </ul>
  */
 @Immutable
@@ -65,20 +69,80 @@ public class LogoutRequest extends AbstractRequest {
 	 * The ID token hint (recommended).
 	 */
 	private final JWT idTokenHint;
+	
+	
+	/**
+	 * The logout hint (optional).
+	 */
+	private final String logoutHint;
+	
+	
+	/**
+	 * The client ID (optional).
+	 */
+	private final ClientID clientID;
 
 
 	/**
-	 * The optional post-logout redirection URI.
+	 * The post-logout redirection URI (optional).
 	 */
 	private final URI postLogoutRedirectURI;
 
 
 	/**
-	 * The optional state parameter.
+	 * The state parameter (optional).
 	 */
 	private final State state;
-
-
+	
+	
+	/**
+	 * The UI locales (optional).
+	 */
+	private final List<LangTag> uiLocales;
+	
+	
+	/**
+	 * Creates a new OpenID Connect logout request.
+	 *
+	 * @param uri                   The URI of the end-session endpoint.
+	 *                              May be {@code null} if the
+	 *                              {@link #toHTTPRequest} method will not
+	 *                              be used.
+	 * @param idTokenHint           The ID token hint (recommended),
+	 *                              {@code null} if not specified.
+	 * @param logoutHint            The optional logout hint, {@code null}
+	 *                              if not specified.
+	 * @param clientID              The optional client ID, {@code null} if
+	 *                              not specified.
+	 * @param postLogoutRedirectURI The optional post-logout redirection
+	 *                              URI, {@code null} if not specified.
+	 * @param state                 The optional state parameter for the
+	 *                              post-logout redirection URI,
+	 *                              {@code null} if not specified.
+	 * @param uiLocales             The optional end-user's preferred
+	 *                              languages and scripts for the user
+	 *                              interface, ordered by preference.
+	 */
+	public LogoutRequest(final URI uri,
+			     final JWT idTokenHint,
+			     final String logoutHint,
+			     final ClientID clientID,
+			     final URI postLogoutRedirectURI,
+			     final State state,
+			     final List<LangTag> uiLocales) {
+		super(uri);
+		this.idTokenHint = idTokenHint;
+		this.logoutHint = logoutHint;
+		this.clientID = clientID;
+		this.postLogoutRedirectURI = postLogoutRedirectURI;
+		if (postLogoutRedirectURI == null && state != null) {
+			throw new IllegalArgumentException("The state parameter requires a post-logout redirection URI");
+		}
+		this.state = state;
+		this.uiLocales = uiLocales;
+	}
+	
+	
 	/**
 	 * Creates a new OpenID Connect logout request.
 	 *
@@ -98,18 +162,7 @@ public class LogoutRequest extends AbstractRequest {
 			     final JWT idTokenHint,
 			     final URI postLogoutRedirectURI,
 			     final State state) {
-
-		super(uri);
-
-		this.idTokenHint = idTokenHint;
-
-		this.postLogoutRedirectURI = postLogoutRedirectURI;
-
-		if (postLogoutRedirectURI == null && state != null) {
-			throw new IllegalArgumentException("The state parameter required a post-logout redirection URI");
-		}
-
-		this.state = state;
+		this(uri, idTokenHint, null, null, postLogoutRedirectURI, state, null);
 	}
 
 
@@ -125,7 +178,6 @@ public class LogoutRequest extends AbstractRequest {
 	 */
 	public LogoutRequest(final URI uri,
 			     final JWT idTokenHint) {
-
 		this(uri, idTokenHint, null, null);
 	}
 	
@@ -138,22 +190,43 @@ public class LogoutRequest extends AbstractRequest {
 	 *            if the {@link #toHTTPRequest} method will not be used.
 	 */
 	public LogoutRequest(final URI uri) {
-		
 		this(uri, null, null, null);
 	}
 
 
 	/**
-	 * Returns the ID token hint.
+	 * Returns the ID token hint. Corresponds to the optional
+	 * {@code id_token_hint} parameter.
 	 *
 	 * @return The ID token hint, {@code null} if not specified.
 	 */
 	public JWT getIDTokenHint() {
-
 		return idTokenHint;
 	}
-
-
+	
+	
+	/**
+	 * Returns the logout hint. Corresponds to the optional
+	 * {@code logout_hint}  parameter.
+	 *
+	 * @return The logout hint, {@code null} if not specified.
+	 */
+	public String getLogoutHint() {
+		return logoutHint;
+	}
+	
+	
+	/**
+	 * Returns the client ID. Corresponds to the optional {@code client_id}
+	 * parameter.
+	 *
+	 * @return The client ID, {@code null} if not specified.
+	 */
+	public ClientID getClientID() {
+		return clientID;
+	}
+	
+	
 	/**
 	 * Return the post-logout redirection URI.
 	 *
@@ -168,14 +241,27 @@ public class LogoutRequest extends AbstractRequest {
 
 	/**
 	 * Returns the state parameter for a post-logout redirection URI.
+	 * Corresponds to the optional {@code state} parameter.
 	 *
 	 * @return The state parameter, {@code null} if not specified.
 	 */
 	public State getState() {
-
 		return state;
 	}
-
+	
+	
+	/**
+	 * Returns the end-user's preferred languages and scripts for the user
+	 * interface, ordered by preference. Corresponds to the optional
+	 * {@code ui_locales} parameter.
+	 *
+	 * @return The preferred UI locales, {@code null} if not specified.
+	 */
+	public List<LangTag> getUILocales() {
+		return uiLocales;
+	}
+	
+	
 	/**
 	 * Returns the URI query parameters for this logout request.
 	 *
@@ -193,20 +279,32 @@ public class LogoutRequest extends AbstractRequest {
 
 		Map <String,List<String>> params = new LinkedHashMap<>();
 		
-		if (idTokenHint != null) {
+		if (getIDTokenHint() != null) {
 			try {
-				params.put("id_token_hint", Collections.singletonList(idTokenHint.serialize()));
+				params.put("id_token_hint", Collections.singletonList(getIDTokenHint().serialize()));
 			} catch (IllegalStateException e) {
 				throw new SerializeException("Couldn't serialize ID token: " + e.getMessage(), e);
 			}
 		}
-
-		if (postLogoutRedirectURI != null) {
-			params.put("post_logout_redirect_uri", Collections.singletonList(postLogoutRedirectURI.toString()));
+		
+		if (getLogoutHint() != null) {
+			params.put("logout_hint", Collections.singletonList(getLogoutHint()));
+		}
+		
+		if (getClientID() != null) {
+			params.put("client_id", Collections.singletonList(getClientID().getValue()));
 		}
 
-		if (state != null) {
-			params.put("state", Collections.singletonList(state.getValue()));
+		if (getPostLogoutRedirectionURI() != null) {
+			params.put("post_logout_redirect_uri", Collections.singletonList(getPostLogoutRedirectionURI().toString()));
+		}
+
+		if (getState() != null) {
+			params.put("state", Collections.singletonList(getState().getValue()));
+		}
+		
+		if (getUILocales() != null) {
+			params.put("ui_locales", Collections.singletonList(LangTagUtils.concat(getUILocales())));
 		}
 
 		return params;
@@ -354,8 +452,18 @@ public class LogoutRequest extends AbstractRequest {
 			try {
 				idTokenHint = JWTParser.parse(v);
 			} catch (java.text.ParseException e) {
-				throw new ParseException("Invalid ID token hint: " + e.getMessage(), e);
+				throw new ParseException("Invalid id_token_hint: " + e.getMessage(), e);
 			}
+		}
+		
+		String logoutHint = MultivaluedMapUtils.getFirstValue(params, "logout_hint");
+		
+		ClientID clientID = null;
+		
+		v = MultivaluedMapUtils.getFirstValue(params, "client_id");
+		
+		if (StringUtils.isNotBlank(v)) {
+			clientID = new ClientID(v);
 		}
 
 		v = MultivaluedMapUtils.getFirstValue(params, "post_logout_redirect_uri");
@@ -363,11 +471,10 @@ public class LogoutRequest extends AbstractRequest {
 		URI postLogoutRedirectURI = null;
 
 		if (StringUtils.isNotBlank(v)) {
-
 			try {
 				postLogoutRedirectURI = new URI(v);
 			} catch (URISyntaxException e) {
-				throw new ParseException("Invalid \"post_logout_redirect_uri\" parameter: " + e.getMessage(),  e);
+				throw new ParseException("Invalid post_logout_redirect_uri parameter: " + e.getMessage(),  e);
 			}
 		}
 
@@ -378,8 +485,15 @@ public class LogoutRequest extends AbstractRequest {
 		if (postLogoutRedirectURI != null && StringUtils.isNotBlank(v)) {
 			state = new State(v);
 		}
+		
+		List<LangTag> uiLocales;
+		try {
+			uiLocales = LangTagUtils.parseLangTagList(MultivaluedMapUtils.getFirstValue(params, "ui_locales"));
+		} catch (LangTagException e) {
+			throw new ParseException("Invalid ui_locales parameter: " + e.getMessage(), e);
+		}
 
-		return new LogoutRequest(uri, idTokenHint, postLogoutRedirectURI, state);
+		return new LogoutRequest(uri, idTokenHint, logoutHint, clientID, postLogoutRedirectURI, state, uiLocales);
 	}
 
 
