@@ -1523,22 +1523,10 @@ public class AuthenticationRequest extends AuthorizationRequest {
 			params.put("max_age", Collections.singletonList("" + maxAge));
 
 		if (uiLocales != null) {
-
-			StringBuilder sb = new StringBuilder();
-
-			for (LangTag locale: uiLocales) {
-
-				if (sb.length() > 0)
-					sb.append(' ');
-
-				sb.append(locale.toString());
-			}
-
-			params.put("ui_locales", Collections.singletonList(sb.toString()));
+			params.put("ui_locales", Collections.singletonList(LangTagUtils.concat(uiLocales)));
 		}
 
 		if (CollectionUtils.isNotEmpty(claimsLocales)) {
-
 			params.put("claims_locales", Collections.singletonList(LangTagUtils.concat(claimsLocales)));
 		}
 

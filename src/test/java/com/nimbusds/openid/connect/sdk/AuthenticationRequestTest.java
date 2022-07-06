@@ -314,8 +314,8 @@ public class AuthenticationRequestTest extends TestCase {
 		uiLocales.add(LangTag.parse("en-GB"));
 
 		List<LangTag> claimsLocales = new LinkedList<>();
-		claimsLocales.add(LangTag.parse("en-US"));
-		claimsLocales.add(LangTag.parse("en-GB"));
+		claimsLocales.add(LangTag.parse("de-DE"));
+		claimsLocales.add(LangTag.parse("de-AT"));
 
 		JWT idTokenHint = JWTParser.parse(EXAMPLE_JWT_STRING);
 
@@ -390,8 +390,8 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals("UI locales size", 2, uiLocales.size());
 
 		claimsLocales = request.getClaimsLocales();
-		assertEquals("Claims locale en-US", claimsLocales.get(0), LangTag.parse("en-US"));
-		assertEquals("Claims locale en-US", claimsLocales.get(1), LangTag.parse("en-GB"));
+		assertEquals("Claims locale de-DE", claimsLocales.get(0), LangTag.parse("de-DE"));
+		assertEquals("Claims locale de-AT", claimsLocales.get(1), LangTag.parse("de-AT"));
 		assertEquals("Claims locales size", 2, claimsLocales.size());
 
 		assertEquals(EXAMPLE_JWT_STRING, request.getIDTokenHint().getParsedString());
@@ -467,8 +467,8 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals("UI locales size", 2, uiLocales.size());
 
 		claimsLocales = request.getClaimsLocales();
-		assertEquals("Claims locale en-US", claimsLocales.get(0), LangTag.parse("en-US"));
-		assertEquals("Claims locale en-US", claimsLocales.get(1), LangTag.parse("en-GB"));
+		assertEquals("Claims locale de-DE", claimsLocales.get(0), LangTag.parse("de-DE"));
+		assertEquals("Claims locale de-AT", claimsLocales.get(1), LangTag.parse("de-AT"));
 		assertEquals("Claims locales size", 2, claimsLocales.size());
 
 		assertEquals(EXAMPLE_JWT_STRING, request.getIDTokenHint().getParsedString());
