@@ -215,8 +215,7 @@ public final class ISO3166_3CountryCode extends CountryCode {
 	public String getCountryName() {
 		
 		if (CODES_RESOURCE.isEmpty()) {
-			InputStream is = getClass().getClassLoader().getResourceAsStream("iso3166_3-codes.properties");
-			try {
+			try (InputStream is = getClass().getClassLoader().getResourceAsStream("iso3166_3-codes.properties")) {
 				CODES_RESOURCE.load(is);
 			} catch (IOException e) {
 				return null;

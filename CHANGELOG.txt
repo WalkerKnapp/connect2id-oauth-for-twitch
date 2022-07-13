@@ -2035,3 +2035,10 @@ version 9.38 (2022-07-06)
     * Adds JakartaServletUtils (identical to ServletUtils) with optional
       jakarta.servlet:jakarta.servlet-api:5.0.0 dependency.
     * Upgrades to Nimbus LangTag 1.7.
+
+version 9.38.1 (2022-07-13)
+    * Fixes missing resource close ISO3166_3CountryCode.getCountryName,
+      ISO3166_1Alpha2CountryCode.getCountryName and
+      ISO3166_1Alpha3CountryCode.getCountryName by switching to try with
+      resources. The InputStream resource leak was negligible due to the one
+      time static use of the InputStream (iss #395).

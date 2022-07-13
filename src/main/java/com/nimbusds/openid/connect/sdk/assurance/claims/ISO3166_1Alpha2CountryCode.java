@@ -832,8 +832,7 @@ public final class ISO3166_1Alpha2CountryCode extends ISO3166_1AlphaCountryCode 
 	public String getCountryName() {
 		
 		if (CODES_RESOURCE.isEmpty()) {
-			InputStream is = getClass().getClassLoader().getResourceAsStream("iso3166_1alpha2-codes.properties");
-			try {
+			try (InputStream is = getClass().getClassLoader().getResourceAsStream("iso3166_1alpha2-codes.properties")) {
 				CODES_RESOURCE.load(is);
 			} catch (IOException e) {
 				return null;
