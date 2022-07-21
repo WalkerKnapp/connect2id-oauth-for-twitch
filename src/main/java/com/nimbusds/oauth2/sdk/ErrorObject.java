@@ -585,7 +585,7 @@ public class ErrorObject implements Serializable {
 	 *
 	 * <p>See RFC 6749, section 5.2.
 	 *
-	 * @param s The string to check. May be be {@code null}.
+	 * @param s The string to check. May be {@code null}.
 	 *
 	 * @return {@code true} if the string is legal, else {@code false}.
 	 */
