@@ -18,12 +18,14 @@
 package com.nimbusds.oauth2.sdk;
 
 
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
 
 
 public class TokenResponseTest extends TestCase {
@@ -54,5 +56,27 @@ public class TokenResponseTest extends TestCase {
 		tokenErrorResponse = TokenResponse.parse(httpResponse).toErrorResponse();
 		
 		assertEquals(BearerTokenError.INVALID_TOKEN, tokenErrorResponse.getErrorObject());
+	}
+	
+	
+	public void testParse_errorDescriptionWithIllegalChars()
+		throws Exception {
+		
+		String errorDescription = "\"Client authentication failed\r\nInvalid client_id\"";
+		
+		HTTPResponse httpResponse = new HTTPResponse(401);
+		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
+		
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("error", OAuth2Error.INVALID_CLIENT.getCode());
+		jsonObject.put("error_description", errorDescription);
+		httpResponse.setContent(jsonObject.toJSONString());
+		
+		TokenErrorResponse errorResponse = TokenResponse.parse(httpResponse).toErrorResponse();
+		
+		assertFalse(errorResponse.indicatesSuccess());
+		assertEquals(OAuth2Error.INVALID_CLIENT.getCode(), errorResponse.getErrorObject().getCode());
+		assertEquals(ErrorObject.removeIllegalChars(errorDescription), errorResponse.getErrorObject().getDescription());
+		assertNull(errorResponse.getErrorObject().getURI());
 	}
 }

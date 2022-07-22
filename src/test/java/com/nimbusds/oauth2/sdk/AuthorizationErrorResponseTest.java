@@ -20,6 +20,7 @@ package com.nimbusds.oauth2.sdk;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -311,6 +312,27 @@ public class AuthorizationErrorResponseTest extends TestCase {
 	}
 	
 	
+	public void testParse_errorDescriptionWithIllegalChars()
+		throws ParseException {
+		
+		String errorDescription = "\"Invalid request\"";
+		
+		String s = "https://client.example.com/cb?error=invalid_request&error_description=" + URLEncoder.encode(errorDescription) + "&state=123";
+
+		AuthorizationErrorResponse r = AuthorizationErrorResponse.parse(URI.create(s));
+
+		assertFalse(r.indicatesSuccess());
+		assertEquals("https://client.example.com/cb", r.getRedirectionURI().toString());
+		assertEquals(OAuth2Error.INVALID_REQUEST.getCode(), r.getErrorObject().getCode());
+		assertEquals(ErrorObject.removeIllegalChars(errorDescription), r.getErrorObject().getDescription());
+		assertNull(r.getErrorObject().getURI());
+		assertEquals(new State("123"), r.getState());
+		
+		assertNull(r.getResponseMode());
+		assertEquals(ResponseMode.QUERY, r.impliedResponseMode());
+	}
+	
+	
 	public void testParseExceptions()
 		throws URISyntaxException {
 		
@@ -326,8 +348,7 @@ public class AuthorizationErrorResponseTest extends TestCase {
 	}
 
 
-	public void testRedirectionURIWithQueryString()
-		throws Exception {
+	public void testRedirectionURIWithQueryString() {
 		// See https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/issues/140
 
 		URI redirectURI = URI.create("https://example.com/myservice/?action=oidccallback");

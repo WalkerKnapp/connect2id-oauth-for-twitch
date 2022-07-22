@@ -472,10 +472,6 @@ public class ErrorObject implements Serializable {
 			// ignore and continue
 		}
 		
-		if (! isLegal(description)) {
-			description = null;
-		}
-		
 		URI uri = null;
 		try {
 			uri = JSONObjectUtils.getURI(jsonObject, "error_uri", null);
@@ -495,7 +491,7 @@ public class ErrorObject implements Serializable {
 			}
 		}
 
-		return new ErrorObject(code, description, 0, uri, customParams);
+		return new ErrorObject(code, removeIllegalChars(description), 0, uri, customParams);
 	}
 	
 	
@@ -515,10 +511,6 @@ public class ErrorObject implements Serializable {
 		
 		if (! isLegal(code)) {
 			code = null;
-		}
-		
-		if (! isLegal(description)) {
-			description = null;
 		}
 		
 		URI uri = null;
@@ -546,7 +538,7 @@ public class ErrorObject implements Serializable {
 			}
 		}
 		
-		return new ErrorObject(code, description, 0, uri, customParams);
+		return new ErrorObject(code, removeIllegalChars(description), 0, uri, customParams);
 	}
 
 
@@ -579,8 +571,38 @@ public class ErrorObject implements Serializable {
 	
 	
 	/**
+	 * Removes any characters from the specified string that are not
+	 * within the {@link #isLegal(char) legal range} for OAuth 2.0 error
+	 * codes and messages.
+	 *
+	 * <p>See RFC 6749, section 5.2.
+	 *
+	 * @param s The string to check. May be {@code null}.
+	 *
+	 * @return The string with removed illegal characters, {@code null} if
+	 *         the original string was {@code null}.
+	 */
+	public static String removeIllegalChars(final String s) {
+		
+		if (s == null) {
+			return null;
+		}
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for (char c: s.toCharArray()) {
+			if (isLegal(c)) {
+				sb.append(c);
+			}
+		}
+		
+		return sb.toString();
+	}
+	
+	
+	/**
 	 * Returns {@code true} if the characters in the specified string are
-	 * within the {@link #isLegal(char)} legal ranges} for OAuth 2.0 error
+	 * within the {@link #isLegal(char) legal ranges} for OAuth 2.0 error
 	 * codes and messages.
 	 *
 	 * <p>See RFC 6749, section 5.2.

@@ -176,6 +176,28 @@ public class TokenErrorResponseTest extends TestCase {
 	}
 
 
+	public void testParse_errorDescriptionWithIllegalChars()
+		throws Exception {
+
+		String errorDescription = "\"Client authentication failed\r\nInvalid client_id\"";
+		
+		HTTPResponse httpResponse = new HTTPResponse(401);
+		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
+		
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("error", OAuth2Error.INVALID_CLIENT.getCode());
+		jsonObject.put("error_description", errorDescription);
+		httpResponse.setContent(jsonObject.toJSONString());
+
+		TokenErrorResponse errorResponse = TokenErrorResponse.parse(httpResponse);
+
+		assertFalse(errorResponse.indicatesSuccess());
+		assertEquals(OAuth2Error.INVALID_CLIENT.getCode(), errorResponse.getErrorObject().getCode());
+		assertEquals(ErrorObject.removeIllegalChars(errorDescription), errorResponse.getErrorObject().getDescription());
+		assertNull(errorResponse.getErrorObject().getURI());
+	}
+
+
 	public void testTokenErrorWithoutObject()
 		throws Exception {
 

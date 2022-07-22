@@ -2042,3 +2042,11 @@ version 9.38.1 (2022-07-13)
       ISO3166_1Alpha3CountryCode.getCountryName by switching to try with
       resources. The InputStream resource leak was negligible due to the one
       time static use of the InputStream (iss #395).
+
+version 9.39 (2022-07-22)
+    * Adds static ErrorObject.removeIllegalChars method that removes any
+      characters from the specified string that are not within the legal range
+      for OAuth 2.0 error codes and messages. See RFC 6749, section 5.2.
+    * Updates ErrorObject.parse methods to remove illegal characters from an
+      error_description instead of setting the entire parsed error description
+      string to null.

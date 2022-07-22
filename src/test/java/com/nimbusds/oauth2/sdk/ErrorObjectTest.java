@@ -28,11 +28,9 @@ import static org.junit.Assert.assertNotEquals;
 
 import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
 
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 
 
 public class ErrorObjectTest extends TestCase {
@@ -175,7 +173,7 @@ public class ErrorObjectTest extends TestCase {
 	}
 
 
-	public void testParseFull_httpRequest() {
+	public void testParseHTTPRequest_full() {
 
 		HTTPResponse httpResponse = new HTTPResponse(403);
 		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
@@ -198,7 +196,7 @@ public class ErrorObjectTest extends TestCase {
 	}
 
 
-	public void testParseWithOmittedURI_httpRequest() {
+	public void testParseHTTPRequest_withOmittedURI() {
 
 		HTTPResponse httpResponse = new HTTPResponse(403);
 		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
@@ -217,7 +215,7 @@ public class ErrorObjectTest extends TestCase {
 	}
 
 
-	public void testParseWithCodeOnly_httpRequest() {
+	public void testParseHTTPRequest_withCodeOnly() {
 
 		HTTPResponse httpResponse = new HTTPResponse(403);
 		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
@@ -233,9 +231,30 @@ public class ErrorObjectTest extends TestCase {
 		assertNull(errorObject.getDescription());
 		assertNull(errorObject.getURI());
 	}
+
+
+	public void testParseHTTPRequest_errorDescriptionWithIllegalChars() {
+		
+		String errorDescription = "\"Access denied\"\r\nConsent denied by user";
+		
+		HTTPResponse httpResponse = new HTTPResponse(403);
+		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("error", "access_denied");
+		jsonObject.put("error_description", errorDescription);
+
+		httpResponse.setContent(jsonObject.toJSONString());
+
+		ErrorObject errorObject = ErrorObject.parse(httpResponse);
+
+		assertEquals(403, errorObject.getHTTPStatusCode());
+		assertEquals("access_denied", errorObject.getCode());
+		assertEquals(ErrorObject.removeIllegalChars(errorDescription), errorObject.getDescription());
+		assertNull(errorObject.getURI());
+	}
 	
 	
-	public void testParseNone_httpRequest() {
+	public void testParseHTTPRequest_none() {
 		
 		HTTPResponse httpResponse = new HTTPResponse(403);
 		
@@ -248,7 +267,7 @@ public class ErrorObjectTest extends TestCase {
 	}
 
 
-	public void testParseFull_params() {
+	public void testParseParams_full() {
 
 		Map<String, List<String>> params = new HashMap<>();
 		params.put("error", Collections.singletonList("access_denied"));
@@ -265,7 +284,7 @@ public class ErrorObjectTest extends TestCase {
 	}
 
 
-	public void testParseWithOmittedURI_params() {
+	public void testParseParams_withOmittedUR() {
 		
 		Map<String, List<String>> params = new HashMap<>();
 		params.put("error", Collections.singletonList("access_denied"));
@@ -280,7 +299,7 @@ public class ErrorObjectTest extends TestCase {
 	}
 
 
-	public void testParseWithCodeOnly_params() {
+	public void testParseParams_withCodeOnly() {
 		
 		Map<String, List<String>> params = new HashMap<>();
 		params.put("error", Collections.singletonList("access_denied"));
@@ -294,13 +313,31 @@ public class ErrorObjectTest extends TestCase {
 	}
 
 
-	public void testParseNone_params() {
+	public void testParseParams_none() {
 		
 		ErrorObject errorObject = ErrorObject.parse(new HashMap<String, List<String>>());
 
 		assertEquals(0, errorObject.getHTTPStatusCode());
 		assertNull(errorObject.getCode());
 		assertNull(errorObject.getDescription());
+		assertNull(errorObject.getURI());
+	}
+	
+	
+	public void testParseParams_errorDescriptionWithIllegalChars() {
+		
+		String errorDescription = "\"Access denied\"\r\nConsent denied by user";
+		
+		Map<String, List<String>> params = new HashMap<>();
+		params.put("error", Collections.singletonList("access_denied"));
+		params.put("error_description", Collections.singletonList(errorDescription));
+		
+		
+		ErrorObject errorObject = ErrorObject.parse(params);
+		
+		assertEquals(0, errorObject.getHTTPStatusCode());
+		assertEquals("access_denied", errorObject.getCode());
+		assertEquals(ErrorObject.removeIllegalChars(errorDescription), errorObject.getDescription());
 		assertNull(errorObject.getURI());
 	}
 
@@ -482,5 +519,44 @@ public class ErrorObjectTest extends TestCase {
 		
 		assertFalse(ErrorObject.isLegal('"'));
 		assertFalse(ErrorObject.isLegal('\\'));
+	}
+	
+	
+	// Values for the "error" parameter MUST NOT include characters outside the
+	// set %x20-21 / %x23-5B / %x5D-7E.
+	//
+	// Values for the "error_description" parameter MUST NOT include characters
+	// outside the set %x20-21 / %x23-5B / %x5D-7E.
+	public void testRemoveIllegalChars() {
+		
+		for (char c=0; c < 128; c++) {
+		
+			String in = c + "";
+			if (c >= 0x20 && c <= 0x21) {
+				assertTrue(ErrorObject.isLegal(c));
+				assertEquals(in, ErrorObject.removeIllegalChars(in));
+			} else if (c >= 0x23 && c <= 0x5B) {
+				assertTrue(ErrorObject.isLegal(c));
+				assertEquals(in, ErrorObject.removeIllegalChars(in));
+			} else if (c >= 0x5D && c <= 0x7e) {
+				assertTrue(ErrorObject.isLegal(c));
+				assertEquals(in, ErrorObject.removeIllegalChars(in));
+			} else {
+				assertFalse(ErrorObject.isLegal(c));
+				assertEquals("", ErrorObject.removeIllegalChars(in));
+			}
+		}
+	}
+	
+	
+	public void testRemoveIllegalChars_sample() {
+		
+		assertEquals("Invalid client: Invalid client_id", ErrorObject.removeIllegalChars("\"Invalid client\":\r\n Invalid client_id"));
+	}
+	
+	
+	public void testRemoveIllegalChars_null() {
+		
+		assertNull(ErrorObject.removeIllegalChars(null));
 	}
 }
