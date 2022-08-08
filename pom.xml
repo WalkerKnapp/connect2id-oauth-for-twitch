@@ -180,6 +180,12 @@
 			<version>3.6.1</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.thetransactioncompany</groupId>
+			<artifactId>pretty-json</artifactId>
+			<version>1.4.3</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
