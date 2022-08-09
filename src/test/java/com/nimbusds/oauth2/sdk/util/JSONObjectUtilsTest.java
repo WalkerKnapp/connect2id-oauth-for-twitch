@@ -18,7 +18,9 @@
 package com.nimbusds.oauth2.sdk.util;
 
 
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.*;
 
 import junit.framework.TestCase;
@@ -38,9 +40,6 @@ import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.id.Actor;
 
 
-/**
- * Tests the JSON object utility methods.
- */
 public class JSONObjectUtilsTest extends TestCase {
 	
 	
@@ -446,6 +445,26 @@ public class JSONObjectUtilsTest extends TestCase {
 		assertEquals(value, JSONObjectUtils.getURI(o, "key", null));
 		
 		assertEquals(value, JSONObjectUtils.getURI(o, "key", def));
+	}
+	
+	
+	public void testGetURL_defaultValue()
+		throws ParseException, MalformedURLException {
+		
+		JSONObject o = new JSONObject();
+		assertNull(JSONObjectUtils.getURL(o, "key", null));
+		
+		URL def = new URL("https://c2id.com");
+		assertEquals(def, JSONObjectUtils.getURL(o, "key", def));
+		
+		o.put("key", null);
+		assertEquals(def, JSONObjectUtils.getURL(o, "key", def));
+		
+		URL value = new URL("https://example.com");
+		o.put("key", value.toString());
+		assertEquals(value, JSONObjectUtils.getURL(o, "key", null));
+		
+		assertEquals(value, JSONObjectUtils.getURL(o, "key", def));
 	}
 	
 	

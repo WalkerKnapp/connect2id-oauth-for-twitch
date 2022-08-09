@@ -583,6 +583,29 @@ public final class JSONObjectUtils {
 	
 	
 	/**
+	 * Gets a string member of a JSON object as {@code java.net.URL}.
+	 *
+	 * @param o   The JSON object. Must not be {@code null}.
+	 * @param key The JSON object member key. Must not be {@code null}.
+	 * @param def The default value to return if the key is not present or
+	 *            the value is {@code null}. May be {@code null}.
+	 *
+	 * @return The member value.
+	 *
+	 * @throws ParseException If the value is not of the expected type.
+	 */
+	public static URL getURL(final JSONObject o, final String key, final URL def)
+		throws ParseException {
+		
+		if (o.get(key) != null) {
+			return getURL(o, key);
+		}
+		
+		return def;
+	}
+	
+	
+	/**
 	 * Gets a JSON array member of a JSON object.
 	 *
 	 * @param o   The JSON object. Must not be {@code null}.

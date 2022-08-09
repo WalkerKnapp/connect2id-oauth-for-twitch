@@ -2053,3 +2053,6 @@ version 9.39 (2022-07-22)
 
 version 9.39.1 (2022-08-09)
     * Fixes NPE in TokenExchangeGrant.equals (iss #396).
+
+version 9.40 (2022-08-09)
+    * Adds JSONObjectUtils.getURL(JSONObject,String,URL) method.
