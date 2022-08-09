@@ -331,20 +331,34 @@ public class TokenExchangeGrant extends AuthorizationGrant {
 	
 	
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
+		
 		if (this == o) return true;
+		
 		if (!(o instanceof TokenExchangeGrant)) return false;
+		
 		TokenExchangeGrant that = (TokenExchangeGrant) o;
-		return requestedTokenType.equals(that.requestedTokenType) &&
-			subjectToken.equals(that.subjectToken) &&
-			subjectTokenType.equals(that.subjectTokenType) &&
-			Objects.equals(actorToken, that.actorToken) &&
-			Objects.equals(actorTokenType, that.actorTokenType);
+		
+		return
+			getSubjectToken().equals(that.getSubjectToken()) &&
+			getSubjectTokenType().equals(that.getSubjectTokenType()) &&
+			
+			Objects.equals(getActorToken(), that.getActorToken()) &&
+			Objects.equals(getActorTokenType(), that.getActorTokenType()) &&
+			Objects.equals(getRequestedTokenType(), that.getRequestedTokenType()) &&
+			Objects.equals(getAudience(), that.getAudience());
 	}
 	
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(requestedTokenType, subjectToken, subjectTokenType, actorToken, actorTokenType);
+		return Objects.hash(
+			getSubjectToken(),
+			getSubjectTokenType(),
+			getActorToken(),
+			getActorTokenType(),
+			getRequestedTokenType(),
+			getAudience()
+		);
 	}
 }

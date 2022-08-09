@@ -2050,3 +2050,6 @@ version 9.39 (2022-07-22)
     * Updates ErrorObject.parse methods to remove illegal characters from an
       error_description instead of setting the entire parsed error description
       string to null.
+
+version 9.39.1 (2022-08-09)
+    * Fixes NPE in TokenExchangeGrant.equals (iss #396).

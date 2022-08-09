@@ -50,6 +50,8 @@ public class TokenExchangeGrantTest extends TestCase {
 		assertNull(grant.getActorTokenType());
 		assertNull(grant.getRequestedTokenType());
 		assertNull(grant.getAudience());
+		
+		assertEquals(grant, TokenExchangeGrant.parse(params));
 	}
 	
 	
@@ -91,6 +93,8 @@ public class TokenExchangeGrantTest extends TestCase {
 		assertEquals(actorTokenType, grant.getActorTokenType());
 		assertEquals(requestedTokenType, grant.getRequestedTokenType());
 		assertEquals(audience, grant.getAudience());
+		
+		assertEquals(grant, TokenExchangeGrant.parse(params));
 	}
 	
 	
