@@ -157,7 +157,7 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 		
 		if (resources != null) {
 			for (URI resourceURI: resources) {
-				if (! ResourceUtils.isValidResourceURI(resourceURI))
+				if (! ResourceUtils.isLegalResourceURI(resourceURI))
 					throw new IllegalArgumentException("Resource URI must be absolute and with no query or fragment: " + resourceURI);
 			}
 		}
@@ -261,7 +261,7 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 		
 		if (resources != null) {
 			for (URI resourceURI: resources) {
-				if (! ResourceUtils.isValidResourceURI(resourceURI))
+				if (! ResourceUtils.isLegalResourceURI(resourceURI))
 					throw new IllegalArgumentException("Resource URI must be absolute and with no query or fragment: " + resourceURI);
 			}
 		}
@@ -556,11 +556,11 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 				try {
 					resourceURI = new URI(uriValue);
 				} catch (URISyntaxException e) {
-					throw new ParseException(errMsg, OAuth2Error.INVALID_RESOURCE.setDescription(errMsg));
+					throw new ParseException(errMsg, OAuth2Error.INVALID_TARGET.setDescription(errMsg));
 				}
 				
-				if (! ResourceUtils.isValidResourceURI(resourceURI)) {
-					throw new ParseException(errMsg, OAuth2Error.INVALID_RESOURCE.setDescription(errMsg));
+				if (! ResourceUtils.isLegalResourceURI(resourceURI)) {
+					throw new ParseException(errMsg, OAuth2Error.INVALID_TARGET.setDescription(errMsg));
 				}
 				
 				resources.add(resourceURI);

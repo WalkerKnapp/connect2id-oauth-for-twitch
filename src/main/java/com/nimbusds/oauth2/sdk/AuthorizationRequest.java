@@ -1476,7 +1476,7 @@ public class AuthorizationRequest extends AbstractRequest {
 		try {
 			resources = ResourceUtils.parseResourceURIs(params.get("resource"));
 		} catch (ParseException e) {
-			throw new ParseException(e.getMessage(), OAuth2Error.INVALID_RESOURCE.setDescription(e.getMessage()),
+			throw new ParseException(e.getMessage(), OAuth2Error.INVALID_TARGET.setDescription(e.getMessage()),
 				clientID, redirectURI, ResponseMode.resolve(rm, rt), state, e);
 		}
 		

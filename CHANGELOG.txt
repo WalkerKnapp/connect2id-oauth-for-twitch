@@ -2056,3 +2056,7 @@ version 9.39.1 (2022-08-09)
 
 version 9.40 (2022-08-09)
     * Adds JSONObjectUtils.getURL(JSONObject,String,URL) method.
+
+version 9.41 (2022-08-11)
+    * Adds OAuth2Error.INVALID_TARGET, deprecates INVALID_RESOURCE (for RFC
+      8707 conformance).

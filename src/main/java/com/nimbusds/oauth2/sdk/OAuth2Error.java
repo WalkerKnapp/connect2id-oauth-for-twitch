@@ -206,15 +206,31 @@ public final class OAuth2Error {
 
 	/**
 	 * The {@link OAuth2Error#INVALID_RESOURCE} error code string.
+	 * @see #INVALID_TARGET_CODE
 	 */
+	@Deprecated
 	public static final String INVALID_RESOURCE_CODE = "invalid_resource";
 
 	/**
 	 * The specified resource server URI is not valid or accepted by the
-	 * authorisation server.
+	 * authorisation server. @see #INVALID_TARGET
 	 */
+	@Deprecated
 	public static final ErrorObject INVALID_RESOURCE =
 		new ErrorObject(INVALID_RESOURCE_CODE, "Invalid or unaccepted resource", HTTPResponse.SC_BAD_REQUEST);
+
+	/**
+	 * The {@link OAuth2Error#INVALID_RESOURCE} error code string.
+	 */
+	public static final String INVALID_TARGET_CODE = "invalid_target";
+
+	
+	/**
+	 * The specified resource server URI is not valid or accepted by the
+	 * authorisation server.
+	 */
+	public static final ErrorObject INVALID_TARGET =
+		new ErrorObject(INVALID_TARGET_CODE, "Invalid or unaccepted resource", HTTPResponse.SC_BAD_REQUEST);
 
 	/**
 	 * The {@link OAuth2Error#OVERBROAD_SCOPE} error code string.

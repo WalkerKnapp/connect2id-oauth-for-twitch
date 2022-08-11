@@ -570,7 +570,7 @@ public class TokenRequestTest extends TestCase {
 		httpRequest.setQuery(postBody);
 
 		try {
-			TokenRequest tr = TokenRequest.parse(httpRequest);
+			TokenRequest.parse(httpRequest);
 		} catch (ParseException e) {
 			assertEquals("Illegal char(s) in code verifier, see RFC 7636, section 4.1", e.getMessage());
 		}
@@ -1644,7 +1644,7 @@ public class TokenRequestTest extends TestCase {
 			TokenRequest.parse(httpRequest);
 			fail();
 		} catch (ParseException e) {
-			assertEquals(OAuth2Error.INVALID_RESOURCE, e.getErrorObject());
+			assertEquals(OAuth2Error.INVALID_TARGET, e.getErrorObject());
 			assertEquals("Illegal resource parameter: Must be an absolute URI without a fragment: /api/v1", e.getErrorObject().getDescription());
 		}
 	}
@@ -1662,7 +1662,7 @@ public class TokenRequestTest extends TestCase {
 			TokenRequest.parse(httpRequest);
 			fail();
 		} catch (ParseException e) {
-			assertEquals(OAuth2Error.INVALID_RESOURCE, e.getErrorObject());
+			assertEquals(OAuth2Error.INVALID_TARGET, e.getErrorObject());
 			assertEquals("Illegal resource parameter: Must be an absolute URI without a fragment: https://rs.example.com/#fragment", e.getErrorObject().getDescription());
 		}
 	}

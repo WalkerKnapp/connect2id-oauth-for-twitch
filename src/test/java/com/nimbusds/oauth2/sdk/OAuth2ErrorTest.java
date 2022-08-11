@@ -45,6 +45,7 @@ public class OAuth2ErrorTest extends TestCase {
 		assertEquals(400, OAuth2Error.UNSUPPORTED_GRANT_TYPE.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.UNSUPPORTED_RESPONSE_TYPE.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.INVALID_RESOURCE.getHTTPStatusCode());
+		assertEquals(400, OAuth2Error.INVALID_TARGET.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.OVERBROAD_SCOPE.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.INVALID_DPOP_PROOF.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.MISSING_TRUST_ANCHOR.getHTTPStatusCode());
@@ -81,6 +82,14 @@ public class OAuth2ErrorTest extends TestCase {
 		assertEquals("invalid_resource", OAuth2Error.INVALID_RESOURCE.getCode());
 		assertEquals("Invalid or unaccepted resource", OAuth2Error.INVALID_RESOURCE.getDescription());
 		assertEquals(400, OAuth2Error.INVALID_RESOURCE.getHTTPStatusCode());
+	}
+	
+	
+	public void testInvalidTargetError() {
+		
+		assertEquals("invalid_target", OAuth2Error.INVALID_TARGET.getCode());
+		assertEquals("Invalid or unaccepted resource", OAuth2Error.INVALID_TARGET.getDescription());
+		assertEquals(400, OAuth2Error.INVALID_TARGET.getHTTPStatusCode());
 	}
 	
 	
