@@ -2060,3 +2060,7 @@ version 9.40 (2022-08-09)
 version 9.41 (2022-08-11)
     * Adds OAuth2Error.INVALID_TARGET, deprecates INVALID_RESOURCE (for RFC
       8707 conformance).
+
+version 9.41.1 (2022-08-26)
+    * Updates Nimbus JOSE+JWT to 9.24.3
+    * Updates optional Google Tink to 1.7.0.

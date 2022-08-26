@@ -56,10 +56,10 @@ public class BackChannelLogoutRequestTest extends TestCase {
 	private static final RSAKey RSA_JWK;
 	
 	
-	private static URI LOGOUT_ENDPOINT_URI = URI.create("https://rp.example.com/logout");
+	private static final URI LOGOUT_ENDPOINT_URI = URI.create("https://rp.example.com/logout");
 	
 	
-	private static URL LOGOUT_ENDPOINT_URL;
+	private static final URL LOGOUT_ENDPOINT_URL;
 	
 	
 	static {
@@ -156,8 +156,7 @@ public class BackChannelLogoutRequestTest extends TestCase {
 	}
 	
 	
-	public void testParseMissingParams()
-		throws Exception {
+	public void testParseMissingParams() {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, LOGOUT_ENDPOINT_URL);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
@@ -171,8 +170,7 @@ public class BackChannelLogoutRequestTest extends TestCase {
 	}
 	
 	
-	public void testParseInvalidJWT()
-		throws Exception {
+	public void testParseInvalidJWT() {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, LOGOUT_ENDPOINT_URL);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
@@ -182,13 +180,12 @@ public class BackChannelLogoutRequestTest extends TestCase {
 			BackChannelLogoutRequest.parse(httpRequest);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Invalid logout token: Invalid unsecured/JWS/JWE header: Invalid JSON: Unexpected token  at position 1.", e.getMessage());
+			assertEquals("Invalid logout token: Invalid unsecured/JWS/JWE header: Invalid JSON: java.io.EOFException: End of input at line 1 column 2 path $.", e.getMessage());
 		}
 	}
 	
 	
-	public void testRejectPlainJWT_constructor()
-		throws Exception {
+	public void testRejectPlainJWT_constructor() {
 		
 		URI LOGOUT_ENDPOINT_URI = URI.create("https://rp.example.com/logout");
 		
@@ -203,8 +200,7 @@ public class BackChannelLogoutRequestTest extends TestCase {
 	}
 	
 	
-	public void testRejectPlainJWT_parse()
-		throws Exception {
+	public void testRejectPlainJWT_parse() {
 		
 		PlainJWT jwt = new PlainJWT(createLogoutTokenClaimsSet());
 		
@@ -221,8 +217,7 @@ public class BackChannelLogoutRequestTest extends TestCase {
 	}
 	
 	
-	public void testRejectGET()
-		throws Exception {
+	public void testRejectGET() {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, LOGOUT_ENDPOINT_URL);
 		JWT logoutToken = createSignedLogoutToken();

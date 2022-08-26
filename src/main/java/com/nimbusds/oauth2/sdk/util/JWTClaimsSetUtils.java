@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.nimbusds.jose.util.JSONObjectUtils;
 import com.nimbusds.jwt.JWTClaimsSet;
 
 
@@ -85,7 +86,14 @@ public final class JWTClaimsSetUtils {
 			if (entry.getValue() == null)
 				continue; // skip null value
 			
-			params.put(entry.getKey(), Collections.singletonList(entry.getValue().toString()));
+			String value;
+			if (entry.getValue() instanceof Map) {
+				value = JSONObjectUtils.toJSONString((Map<String, ?>) entry.getValue());
+			} else {
+				value = entry.getValue().toString();
+			}
+			
+			params.put(entry.getKey(), Collections.singletonList(value));
 		}
 		
 		return params;

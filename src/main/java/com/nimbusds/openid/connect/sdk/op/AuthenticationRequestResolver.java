@@ -20,10 +20,11 @@ package com.nimbusds.openid.connect.sdk.op;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import net.jcip.annotations.ThreadSafe;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.proc.BadJOSEException;
@@ -35,9 +36,8 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.proc.JWTProcessor;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.util.JWTClaimsSetUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
-
-import net.jcip.annotations.ThreadSafe;
 
 
 /**
@@ -164,24 +164,13 @@ public class AuthenticationRequestResolver<C extends SecurityContext> {
 	 *
 	 * @return The JWT claims set as an unmodifiable map of string keys / 
 	 *         string values.
+	 *
+	 * @deprecated Use {@link JWTClaimsSetUtils#toJWTClaimsSet}.
 	 */
+	@Deprecated
 	public static Map<String,List<String>> reformatClaims(final JWTClaimsSet claimsSet) {
 
-		Map<String,Object> claims = claimsSet.getClaims();
-
-		// Reformat all claim values as strings
-		Map<String,List<String>> reformattedClaims = new HashMap<>();
-
-		for (Map.Entry<String,Object> entry: claims.entrySet()) {
-
-			if (entry.getValue() == null) {
-				continue; // skip
-			}
-
-			reformattedClaims.put(entry.getKey(), Collections.singletonList(entry.getValue().toString()));
-		}
-
-		return Collections.unmodifiableMap(reformattedClaims);
+		return JWTClaimsSetUtils.toMultiValuedParameters(claimsSet);
 	}
 
 
@@ -256,7 +245,7 @@ public class AuthenticationRequestResolver<C extends SecurityContext> {
 
 		Map<String,List<String>> finalParams = new HashMap<>();
 		finalParams.putAll(request.toParameters());
-		finalParams.putAll(reformatClaims(jwtClaims)); // Merge params from request object
+		finalParams.putAll(JWTClaimsSetUtils.toMultiValuedParameters(jwtClaims)); // Merge params from request object
 		finalParams.remove("request"); // make sure request object is deleted
 		finalParams.remove("request_uri"); // make sure request_uri is deleted
 
