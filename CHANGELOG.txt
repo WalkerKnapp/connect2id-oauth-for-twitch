@@ -2064,3 +2064,6 @@ version 9.41 (2022-08-11)
 version 9.41.1 (2022-08-26)
     * Updates Nimbus JOSE+JWT to 9.24.3
     * Updates optional Google Tink to 1.7.0.
+    * Updates optional transitive dependencies to OpenSAML 3.x
+      org.apache.santuario:xmlsec and ommons-codec:commons-codec to address
+      CVEs reported by Snyk.
