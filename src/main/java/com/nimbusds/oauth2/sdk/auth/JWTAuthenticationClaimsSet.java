@@ -50,6 +50,19 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * }
  * </pre>
  *
+ * <p>Example client authentication claims set where the issuer is a 3rd party:
+ *
+ * <pre>
+ * {
+ *   "iss" : "http://sts.example.com",
+ *   "sub" : "http://client.example.com",
+ *   "aud" : [ "http://idp.example.com/token" ],
+ *   "jti" : "d396036d-c4d9-40d8-8e98-f7e8327002d9",
+ *   "exp" : 1311281970,
+ *   "iat" : 1311280970
+ * }
+ * </pre>
+ *
  * <p>Related specifications:
  *
  * <ul>
@@ -77,6 +90,29 @@ public class JWTAuthenticationClaimsSet extends JWTAssertionDetails {
 					  final Audience aud) {
 
 		this(clientID, aud.toSingleAudienceList(), new Date(new Date().getTime() + 5*60* 1000L), null, null, new JWTID());
+	}
+
+
+	/**
+	 * Creates a new JWT client authentication claims set. The expiration
+	 * time (exp) is set to five minutes from the current system time.
+	 * Generates a default identifier (jti) for the JWT. The issued-at
+	 * (iat) and not-before (nbf) claims are not set.
+	 *
+	 * @param iss      The issuer. May be different from the client
+	 *                 identifier that is used to specify the subject. Must
+	 *                 not be {@code null}.
+	 * @param clientID The client identifier. Used to specify the issuer
+	 *                 and the subject. Must not be {@code null}.
+	 * @param aud      The audience identifier, typically the URI of the
+	 *                 authorisation server's Token endpoint. Must not be
+	 *                 {@code null}.
+	 */
+	public JWTAuthenticationClaimsSet(final Issuer iss,
+					  final ClientID clientID,
+					  final Audience aud) {
+
+		this(iss, clientID, aud.toSingleAudienceList(), new Date(new Date().getTime() + 5*60* 1000L), null, null, new JWTID());
 	}
 
 	
@@ -107,16 +143,47 @@ public class JWTAuthenticationClaimsSet extends JWTAssertionDetails {
 		super(new Issuer(clientID.getValue()), new Subject(clientID.getValue()), aud, exp, nbf, iat, jti, null);
 	}
 
+	
+	/**
+	 * Creates a new JWT client authentication claims set.
+	 *
+	 * @param iss      The issuer. May be different from the client
+	 *                 identifier that is used to specify the subject. Must
+	 *                 not be {@code null}.
+	 * @param clientID The client identifier. Used to specify the subject.
+	 *                 Must not be {@code null}.
+	 * @param aud      The audience, typically including the URI of the
+	 *                 authorisation server's Token endpoint. Must not be
+	 *                 {@code null}.
+	 * @param exp      The expiration time. Must not be {@code null}.
+	 * @param nbf      The time before which the token must not be
+	 *                 accepted for processing, {@code null} if not
+	 *                 specified.
+	 * @param iat      The time at which the token was issued,
+	 *                 {@code null} if not specified.
+	 * @param jti      Unique identifier for the JWT, {@code null} if
+	 *                 not specified.
+	 */
+	public JWTAuthenticationClaimsSet(final Issuer iss,
+					  final ClientID clientID,
+					  final List<Audience> aud,
+					  final Date exp,
+					  final Date nbf,
+					  final Date iat,
+					  final JWTID jti) {
+
+		super(iss, new Subject(clientID.getValue()), aud, exp, nbf, iat, jti, null);
+	}
+
 
 	/**
-	 * Gets the client identifier. Corresponds to the {@code iss} and
-	 * {@code sub} claims.
+	 * Gets the client identifier. Corresponds to the {@code sub} claim.
 	 *
 	 * @return The client identifier.
 	 */
 	public ClientID getClientID() {
 
-		return new ClientID(getIssuer());
+		return new ClientID(getSubject());
 	}
 	
 	/**
@@ -136,7 +203,8 @@ public class JWTAuthenticationClaimsSet extends JWTAssertionDetails {
 		JWTAssertionDetails assertion = JWTAssertionDetails.parse(jsonObject);
 
 		return new JWTAuthenticationClaimsSet(
-			new ClientID(assertion.getIssuer()), // iss=sub
+			assertion.getIssuer(),
+			new ClientID(assertion.getSubject()),
 			assertion.getAudience(),
 			assertion.getExpirationTime(),
 			assertion.getNotBeforeTime(),

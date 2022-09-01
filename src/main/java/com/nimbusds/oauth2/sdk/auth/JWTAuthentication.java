@@ -101,9 +101,6 @@ public abstract class JWTAuthentication extends ClientAuthentication {
 		if (issuerValue == null)
 			throw new IllegalArgumentException("Missing issuer in client JWT assertion");
 
-		if (!subjectValue.equals(issuerValue))
-			throw new IllegalArgumentException("Issuer and subject in client JWT assertion must designate the same client identifier");
-
 		return new ClientID(subjectValue);
 	}
 	
@@ -307,11 +304,7 @@ public abstract class JWTAuthentication extends ClientAuthentication {
 		
 		String clientIDString = MultivaluedMapUtils.getFirstValue(params, "client_id");
 
-		if (clientIDString == null)
-			return null;
-
-		else
-			return new ClientID(clientIDString);
+		return clientIDString != null ? new ClientID(clientIDString) : null;
 	}
 	
 	

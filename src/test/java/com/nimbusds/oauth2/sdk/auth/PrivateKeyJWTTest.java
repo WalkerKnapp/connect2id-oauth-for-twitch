@@ -72,6 +72,7 @@ public class PrivateKeyJWTTest extends TestCase {
 	public void testWithRSA()
 		throws Exception {
 
+		Issuer iss = new Issuer("https://sts.c2id.com");
 		ClientID clientID = new ClientID("123");
 		URI tokenEndpoint = new URI("https://c2id.com/token");
 		
@@ -83,30 +84,43 @@ public class PrivateKeyJWTTest extends TestCase {
 
 		for (JWSAlgorithm alg: JWSAlgorithm.Family.RSA) {
 			
-			PrivateKeyJWT privateKeyJWT = new PrivateKeyJWT(clientID, tokenEndpoint, alg, priv, null, null);
-			
-			assertEquals(new HashSet<>(Arrays.asList("client_id", "client_assertion", "client_assertion_type")), privateKeyJWT.getFormParameterNames());
-			
-			privateKeyJWT = PrivateKeyJWT.parse(privateKeyJWT.toParameters());
-			
-			assertEquals(alg, privateKeyJWT.getClientAssertion().getHeader().getAlgorithm());
-			
-			assertTrue(privateKeyJWT.getClientAssertion().verify(new RSASSAVerifier(pub)));
-			
-			assertEquals(clientID, privateKeyJWT.getJWTAuthenticationClaimsSet().getClientID());
-			assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getIssuer().getValue());
-			assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
-			assertEquals(tokenEndpoint.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
-			
-			// 4 min < exp < 6 min
-			final long now = new Date().getTime();
-			final Date fourMinutesFromNow = new Date(now + 4 * 60 * 1000L);
-			final Date sixMinutesFromNow = new Date(now + 6 * 60 * 1000L);
-			assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(fourMinutesFromNow));
-			assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(sixMinutesFromNow));
-			assertNotNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getJWTID());
-			assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getIssueTime());
-			assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getNotBeforeTime());
+			for (boolean issAndSubSame: Arrays.asList(true, false)) {
+				
+				PrivateKeyJWT privateKeyJWT;
+				if (issAndSubSame) {
+					privateKeyJWT = new PrivateKeyJWT(clientID, tokenEndpoint, alg, priv, null, null);
+				} else {
+					privateKeyJWT = new PrivateKeyJWT(iss, clientID, tokenEndpoint, alg, priv, null, null);
+				}
+				
+				assertEquals(new HashSet<>(Arrays.asList("client_id", "client_assertion", "client_assertion_type")), privateKeyJWT.getFormParameterNames());
+				
+				privateKeyJWT = PrivateKeyJWT.parse(privateKeyJWT.toParameters());
+				
+				assertEquals(alg, privateKeyJWT.getClientAssertion().getHeader().getAlgorithm());
+				
+				assertTrue(privateKeyJWT.getClientAssertion().verify(new RSASSAVerifier(pub)));
+				
+				assertEquals(clientID, privateKeyJWT.getJWTAuthenticationClaimsSet().getClientID());
+				if (issAndSubSame) {
+					assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getIssuer().getValue());
+				} else {
+					assertEquals(iss, privateKeyJWT.getJWTAuthenticationClaimsSet().getIssuer());
+				}
+				assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
+				assertEquals(tokenEndpoint.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
+				
+				// 4 min < exp < 6 min
+				final long now = new Date().getTime();
+				final Date fourMinutesFromNow = new Date(now + 4 * 60 * 1000L);
+				final Date sixMinutesFromNow = new Date(now + 6 * 60 * 1000L);
+				assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(fourMinutesFromNow));
+				assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(sixMinutesFromNow));
+				assertNotNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getJWTID());
+				assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getIssueTime());
+				assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getNotBeforeTime());
+				
+			}
 		}
 	}
 
@@ -114,6 +128,7 @@ public class PrivateKeyJWTTest extends TestCase {
 	public void testWithRSA_multipleKeyParams()
 		throws Exception {
 
+		Issuer iss = new Issuer("https://sts.c2id.com");
 		ClientID clientID = new ClientID("123");
 		URI tokenEndpoint = new URI("https://c2id.com/token");
 		
@@ -139,37 +154,51 @@ public class PrivateKeyJWTTest extends TestCase {
 		List<com.nimbusds.jose.util.Base64> x5c = Collections.singletonList(Base64.encode(cert.getEncoded()));
 		
 		Base64URL x5t256 = X509CertUtils.computeSHA256Thumbprint(cert);
-
-		PrivateKeyJWT privateKeyJWT = new PrivateKeyJWT(clientID, tokenEndpoint, JWSAlgorithm.RS256, priv, rsaJWK.getKeyID(), x5c, x5t256, null);
-		assertEquals(JWSAlgorithm.RS256, privateKeyJWT.getClientAssertion().getHeader().getAlgorithm());
-		assertEquals(rsaJWK.getKeyID(), privateKeyJWT.getClientAssertion().getHeader().getKeyID());
-		assertEquals(x5c, privateKeyJWT.getClientAssertion().getHeader().getX509CertChain());
-		assertEquals(x5t256, privateKeyJWT.getClientAssertion().getHeader().getX509CertSHA256Thumbprint());
-		assertEquals(4, privateKeyJWT.getClientAssertion().getHeader().getIncludedParams().size());
-
-		privateKeyJWT = PrivateKeyJWT.parse(privateKeyJWT.toParameters());
 		
-		assertEquals(JWSAlgorithm.RS256, privateKeyJWT.getClientAssertion().getHeader().getAlgorithm());
-		assertEquals(rsaJWK.getKeyID(), privateKeyJWT.getClientAssertion().getHeader().getKeyID());
-		assertEquals(x5c, privateKeyJWT.getClientAssertion().getHeader().getX509CertChain());
-		assertEquals(x5t256, privateKeyJWT.getClientAssertion().getHeader().getX509CertSHA256Thumbprint());
-		assertEquals(4, privateKeyJWT.getClientAssertion().getHeader().getIncludedParams().size());
-
-		assertTrue(privateKeyJWT.getClientAssertion().verify(new RSASSAVerifier(pub)));
-
-		assertEquals(clientID, privateKeyJWT.getJWTAuthenticationClaimsSet().getClientID());
-		assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getIssuer().getValue());
-		assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
-		assertEquals(tokenEndpoint.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
-
-		// 4 min < exp < 6 min
-		final Date fourMinutesFromNow = new Date(now.getTime() + 4*60*1000L);
-		final Date sixMinutesFromNow = new Date(now.getTime() + 6*60*1000L);
-		assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(fourMinutesFromNow));
-		assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(sixMinutesFromNow));
-		assertNotNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getJWTID());
-		assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getIssueTime());
-		assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getNotBeforeTime());
+		for (boolean issAndSubSame: Arrays.asList(true, false)) {
+			
+			PrivateKeyJWT privateKeyJWT;
+			
+			if (issAndSubSame) {
+				privateKeyJWT = new PrivateKeyJWT(clientID, tokenEndpoint, JWSAlgorithm.RS256, priv, rsaJWK.getKeyID(), x5c, x5t256, null);
+			} else {
+				privateKeyJWT = new PrivateKeyJWT(iss, clientID, tokenEndpoint, JWSAlgorithm.RS256, priv, rsaJWK.getKeyID(), x5c, x5t256, null);
+			}
+			
+			assertEquals(JWSAlgorithm.RS256, privateKeyJWT.getClientAssertion().getHeader().getAlgorithm());
+			assertEquals(rsaJWK.getKeyID(), privateKeyJWT.getClientAssertion().getHeader().getKeyID());
+			assertEquals(x5c, privateKeyJWT.getClientAssertion().getHeader().getX509CertChain());
+			assertEquals(x5t256, privateKeyJWT.getClientAssertion().getHeader().getX509CertSHA256Thumbprint());
+			assertEquals(4, privateKeyJWT.getClientAssertion().getHeader().getIncludedParams().size());
+			
+			privateKeyJWT = PrivateKeyJWT.parse(privateKeyJWT.toParameters());
+			
+			assertEquals(JWSAlgorithm.RS256, privateKeyJWT.getClientAssertion().getHeader().getAlgorithm());
+			assertEquals(rsaJWK.getKeyID(), privateKeyJWT.getClientAssertion().getHeader().getKeyID());
+			assertEquals(x5c, privateKeyJWT.getClientAssertion().getHeader().getX509CertChain());
+			assertEquals(x5t256, privateKeyJWT.getClientAssertion().getHeader().getX509CertSHA256Thumbprint());
+			assertEquals(4, privateKeyJWT.getClientAssertion().getHeader().getIncludedParams().size());
+			
+			assertTrue(privateKeyJWT.getClientAssertion().verify(new RSASSAVerifier(pub)));
+			
+			if (issAndSubSame) {
+				assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getIssuer().getValue());
+			} else {
+				assertEquals(iss, privateKeyJWT.getJWTAuthenticationClaimsSet().getIssuer());
+			}
+			assertEquals(clientID, privateKeyJWT.getJWTAuthenticationClaimsSet().getClientID());
+			assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
+			assertEquals(tokenEndpoint.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
+			
+			// 4 min < exp < 6 min
+			final Date fourMinutesFromNow = new Date(now.getTime() + 4 * 60 * 1000L);
+			final Date sixMinutesFromNow = new Date(now.getTime() + 6 * 60 * 1000L);
+			assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(fourMinutesFromNow));
+			assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(sixMinutesFromNow));
+			assertNotNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getJWTID());
+			assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getIssueTime());
+			assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getNotBeforeTime());
+		}
 	}
 
 
@@ -184,7 +213,6 @@ public class PrivateKeyJWTTest extends TestCase {
 			.generate();
 		
 		PrivateKey priv = rsaJWK.toRSAPrivateKey();
-		RSAPublicKey pub = rsaJWK.toRSAPublicKey();
 		
 		Date now = new Date();
 		Date oneDayAgo = new Date(now.getTime() - 1000*60*60*24);
@@ -304,7 +332,7 @@ public class PrivateKeyJWTTest extends TestCase {
 			PrivateKeyJWT.parse(params);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Invalid private key JWT authentication: The client identifier doesn't match the client assertion subject / issuer", e.getMessage());
+			assertEquals("Invalid private key JWT authentication: The client identifier doesn't match the client assertion subject", e.getMessage());
 		}
 	}
 }

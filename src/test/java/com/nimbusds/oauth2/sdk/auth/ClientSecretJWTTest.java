@@ -21,6 +21,8 @@ package com.nimbusds.oauth2.sdk.auth;
 import java.net.URI;
 import java.util.*;
 
+import junit.framework.TestCase;
+
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSObject;
@@ -31,8 +33,8 @@ import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.JWTID;
-import junit.framework.TestCase;
 
 
 /**
@@ -52,92 +54,115 @@ public class ClientSecretJWTTest extends TestCase {
 	}
 
 
-	public void testRun()
+	public void testLifeCycle()
 		throws Exception {
-
-		ClientID clientID = new ClientID("http://client.com");
-		Audience audience = new Audience("http://idp.com");
+		
+		Issuer iss = new Issuer("https://sts.c2id.com");
+		ClientID clientID = new ClientID("https://client.com");
+		Audience audience = new Audience("https://idp.com");
 		Date exp = DateUtils.fromSecondsSinceEpoch(new Date().getTime() / 1000 + 3600);
 		Date nbf = DateUtils.fromSecondsSinceEpoch(new Date().getTime() / 1000);
 		Date iat = DateUtils.fromSecondsSinceEpoch(new Date().getTime() / 1000);
 		JWTID jti = new JWTID();
 
-		JWTAuthenticationClaimsSet assertion = new JWTAuthenticationClaimsSet(clientID, audience.toSingleAudienceList(), exp, nbf, iat, jti);
-
-//		System.out.println("Client secret JWT claims set: " + assertion.toJSONObject());
-
-
-		JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS256);
-
-		SignedJWT jwt = new SignedJWT(jwsHeader, assertion.toJWTClaimsSet());
-
-		Secret secret = new Secret();
-
-		MACSigner signer = new MACSigner(secret.getValueBytes());
-
-		jwt.sign(signer);
-
-		ClientSecretJWT clientSecretJWT = new ClientSecretJWT(jwt);
-
-		Map<String,List<String>> params = clientSecretJWT.toParameters();
-		params.put("client_id", Collections.singletonList(clientID.getValue())); // add optional client_id to test parser
-
-//		System.out.println("Client secret JWT: " + params);
-
-		clientSecretJWT = ClientSecretJWT.parse(params);
-
-		assertEquals("http://client.com", clientSecretJWT.getClientID().getValue());
-
-		jwt = clientSecretJWT.getClientAssertion();
-		
-		assertEquals(jwt.getState(), JWSObject.State.SIGNED);
-
-		MACVerifier verifier = new MACVerifier(secret.getValueBytes());
-
-		boolean verified = jwt.verify(verifier);
-
-		assertTrue(verified);
-
-		assertion = clientSecretJWT.getJWTAuthenticationClaimsSet();
-
-		assertEquals(clientID.getValue(), assertion.getClientID().getValue());
-		assertEquals(clientID.getValue(), assertion.getIssuer().getValue());
-		assertEquals(clientID.getValue(), assertion.getSubject().getValue());
-		assertEquals(audience.getValue(), assertion.getAudience().get(0).getValue());
-		assertEquals(exp.getTime(), assertion.getExpirationTime().getTime());
-		assertEquals(nbf.getTime(), assertion.getNotBeforeTime().getTime());
-		assertEquals(iat.getTime(), assertion.getIssueTime().getTime());
-		assertEquals(jti.getValue(), assertion.getJWTID().getValue());
+		for (boolean issAndSubSame: Arrays.asList(true, false)) {
+			
+			JWTAuthenticationClaimsSet assertion;
+			
+			if (issAndSubSame) {
+				assertion = new JWTAuthenticationClaimsSet(clientID, audience.toSingleAudienceList(), exp, nbf, iat, jti);
+			} else {
+				assertion = new JWTAuthenticationClaimsSet(iss, clientID, audience.toSingleAudienceList(), exp, nbf, iat, jti);
+			}
+			
+			JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS256);
+			
+			SignedJWT jwt = new SignedJWT(jwsHeader, assertion.toJWTClaimsSet());
+			
+			Secret secret = new Secret();
+			
+			MACSigner signer = new MACSigner(secret.getValueBytes());
+			
+			jwt.sign(signer);
+			
+			ClientSecretJWT clientSecretJWT = new ClientSecretJWT(jwt);
+			
+			Map<String, List<String>> params = clientSecretJWT.toParameters();
+			params.put("client_id", Collections.singletonList(clientID.getValue())); // add optional client_id to test parser
+			
+			clientSecretJWT = ClientSecretJWT.parse(params);
+			
+			assertEquals("https://client.com", clientSecretJWT.getClientID().getValue());
+			
+			jwt = clientSecretJWT.getClientAssertion();
+			
+			assertEquals(jwt.getState(), JWSObject.State.SIGNED);
+			
+			MACVerifier verifier = new MACVerifier(secret.getValueBytes());
+			
+			boolean verified = jwt.verify(verifier);
+			
+			assertTrue(verified);
+			
+			assertion = clientSecretJWT.getJWTAuthenticationClaimsSet();
+			
+			if (issAndSubSame) {
+				assertEquals(clientID.getValue(), assertion.getIssuer().getValue());
+			} else {
+				assertEquals(iss, assertion.getIssuer());
+			}
+			
+			assertEquals(clientID.getValue(), assertion.getClientID().getValue());
+			assertEquals(clientID.getValue(), assertion.getSubject().getValue());
+			assertEquals(audience.getValue(), assertion.getAudience().get(0).getValue());
+			assertEquals(exp.getTime(), assertion.getExpirationTime().getTime());
+			assertEquals(nbf.getTime(), assertion.getNotBeforeTime().getTime());
+			assertEquals(iat.getTime(), assertion.getIssueTime().getTime());
+			assertEquals(jti.getValue(), assertion.getJWTID().getValue());
+		}
 	}
 
 
 	public void testWithJWTHelper()
 		throws Exception {
-
+		
+		Issuer iss = new Issuer("https://sts.c2id.com");
 		ClientID clientID = new ClientID("123");
 		URI tokenEndpoint = new URI("https://c2id.com/token");
 		Secret secret = new Secret(256 / 8); // generate 256 bit secret
-
-		ClientSecretJWT clientSecretJWT = new ClientSecretJWT(clientID, tokenEndpoint, JWSAlgorithm.HS256, secret);
-
-		clientSecretJWT = ClientSecretJWT.parse(clientSecretJWT.toParameters());
-
-		assertTrue(clientSecretJWT.getClientAssertion().verify(new MACVerifier(secret.getValueBytes())));
-
-		assertEquals(clientID, clientSecretJWT.getJWTAuthenticationClaimsSet().getClientID());
-		assertEquals(clientID.getValue(), clientSecretJWT.getJWTAuthenticationClaimsSet().getIssuer().getValue());
-		assertEquals(clientID.getValue(), clientSecretJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
-		assertEquals(tokenEndpoint.toString(), clientSecretJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
-
-		// 4 min < exp < 6 min
-		final long now = new Date().getTime();
-		final Date fourMinutesFromNow = new Date(now + 4*60*1000L);
-		final Date sixMinutesFromNow = new Date(now + 6*60*1000L);
-		assertTrue(clientSecretJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(fourMinutesFromNow));
-		assertTrue(clientSecretJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(sixMinutesFromNow));
-		assertNotNull(clientSecretJWT.getJWTAuthenticationClaimsSet().getJWTID());
-		assertNull(clientSecretJWT.getJWTAuthenticationClaimsSet().getIssueTime());
-		assertNull(clientSecretJWT.getJWTAuthenticationClaimsSet().getNotBeforeTime());
+		
+		for (boolean issAndSubSame: Arrays.asList(true, false)) {
+			
+			ClientSecretJWT clientSecretJWT;
+			if (issAndSubSame) {
+				clientSecretJWT = new ClientSecretJWT(clientID, tokenEndpoint, JWSAlgorithm.HS256, secret);
+			} else {
+				clientSecretJWT = new ClientSecretJWT(iss, clientID, tokenEndpoint, JWSAlgorithm.HS256, secret);
+			}
+			
+			clientSecretJWT = ClientSecretJWT.parse(clientSecretJWT.toParameters());
+			
+			assertTrue(clientSecretJWT.getClientAssertion().verify(new MACVerifier(secret.getValueBytes())));
+			
+			if (issAndSubSame) {
+				assertEquals(clientID.getValue(), clientSecretJWT.getJWTAuthenticationClaimsSet().getIssuer().getValue());
+			} else {
+				assertEquals(iss, clientSecretJWT.getJWTAuthenticationClaimsSet().getIssuer());
+			}
+			assertEquals(clientID, clientSecretJWT.getJWTAuthenticationClaimsSet().getClientID());
+			assertEquals(clientID.getValue(), clientSecretJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
+			assertEquals(tokenEndpoint.toString(), clientSecretJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
+			
+			// 4 min < exp < 6 min
+			final long now = new Date().getTime();
+			final Date fourMinutesFromNow = new Date(now + 4 * 60 * 1000L);
+			final Date sixMinutesFromNow = new Date(now + 6 * 60 * 1000L);
+			assertTrue(clientSecretJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(fourMinutesFromNow));
+			assertTrue(clientSecretJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(sixMinutesFromNow));
+			assertNotNull(clientSecretJWT.getJWTAuthenticationClaimsSet().getJWTID());
+			assertNull(clientSecretJWT.getJWTAuthenticationClaimsSet().getIssueTime());
+			assertNull(clientSecretJWT.getJWTAuthenticationClaimsSet().getNotBeforeTime());
+		}
 	}
 	
 	
@@ -160,7 +185,7 @@ public class ClientSecretJWTTest extends TestCase {
 			ClientSecretJWT.parse(params);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Invalid client secret JWT authentication: The client identifier doesn't match the client assertion subject / issuer", e.getMessage());
+			assertEquals("Invalid client secret JWT authentication: The client identifier doesn't match the client assertion subject", e.getMessage());
 		}
 			
 	}

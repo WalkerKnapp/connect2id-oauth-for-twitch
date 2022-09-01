@@ -32,6 +32,7 @@ import com.nimbusds.oauth2.sdk.assertions.jwt.JWTAssertionFactory;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 
 
@@ -97,8 +98,41 @@ public final class ClientSecretJWT extends JWTAuthentication {
 			       final Secret clientSecret)
 		throws JOSEException {
 
+		this(new Issuer(clientID), clientID, endpoint, jwsAlgorithm, clientSecret);
+	}
+
+
+	/**
+	 * Creates a new client secret JWT authentication. The expiration
+	 * time (exp) is set to five minutes from the current system time.
+	 * Generates a default identifier (jti) for the JWT. The issued-at
+	 * (iat) and not-before (nbf) claims are not set.
+	 *
+	 * @param iss           The issuer. May be different from the client
+	 *                      identifier. Must not be {@code null}.
+	 * @param clientID      The client identifier. Must not be
+	 *                      {@code null}.
+	 * @param endpoint      The endpoint URI where the client will submit
+	 *                      the JWT authentication, for example the token
+	 *                      endpoint. Must not be {@code null}.
+	 * @param jwsAlgorithm  The expected HMAC algorithm (HS256, HS384 or
+	 *                      HS512) for the client secret JWT assertion.
+	 *                      Must be supported and not {@code null}.
+	 * @param clientSecret  The client secret. Must be at least 256-bits
+	 *                      long.
+	 *
+	 * @throws JOSEException If the client secret is too short, or HMAC
+	 *                       computation failed.
+	 */
+	public ClientSecretJWT(final Issuer iss,
+			       final ClientID clientID,
+			       final URI endpoint,
+			       final JWSAlgorithm jwsAlgorithm,
+			       final Secret clientSecret)
+		throws JOSEException {
+
 		this(JWTAssertionFactory.create(
-			new JWTAuthenticationClaimsSet(clientID, new Audience(endpoint.toString())),
+			new JWTAuthenticationClaimsSet(iss, clientID, new Audience(endpoint.toString())),
 			jwsAlgorithm,
 			clientSecret));
 	}
@@ -145,12 +179,9 @@ public final class ClientSecretJWT extends JWTAuthentication {
 		SignedJWT clientAssertion = JWTAuthentication.parseClientAssertion(params);
 
 		ClientSecretJWT clientSecretJWT;
-
 		try {
 			clientSecretJWT = new ClientSecretJWT(clientAssertion);
-
 		} catch (IllegalArgumentException e) {
-
 			throw new ParseException(e.getMessage(), e);
 		}
 
@@ -161,7 +192,7 @@ public final class ClientSecretJWT extends JWTAuthentication {
 		if (clientID != null) {
 
 			if (! clientID.equals(clientSecretJWT.getClientID()))
-				throw new ParseException("Invalid client secret JWT authentication: The client identifier doesn't match the client assertion subject / issuer");
+				throw new ParseException("Invalid client secret JWT authentication: The client identifier doesn't match the client assertion subject");
 		}
 
 		return clientSecretJWT;
