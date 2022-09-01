@@ -414,27 +414,37 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>3.5.1</version>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-maven-plugin</artifactId>
+				<version>6.3.1</version>
 				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Bundle-Version>${project.version}</Bundle-Version>
-						<Export-Package>com.nimbusds.oauth2.*;version=${project.version},com.nimbusds.openid.*;version=${project.version}</Export-Package>
-						<Import-Package>javax.servlet;version="3.0",javax.servlet.http;version="3.0",*</Import-Package>
-					</instructions>
-				</configuration>
 				<executions>
 					<execution>
-						<id>bundle-manifest</id>
-						<phase>process-classes</phase>
+						<id>bnd-process</id>
 						<goals>
-							<goal>manifest</goal>
+							<goal>bnd-process</goal>
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<bnd>
+						<![CDATA[
+							-exportcontents: *
+							-noimportjava: true
+							-noextraheaders: true
+							-snapshot: SNAPSHOT
+							Import-Package: \
+								org.bouncycastle.*;resolution:=optional, \
+								org.cryptomator.siv.*;resolution:=optional, \
+								org.opensaml.*;resolution:=optional, \
+								org.joda.time.*;resolution:=optional, \
+								net.shibboleth.utilities.java.support.*;resolution:=optional, \
+								javax.servlet.*;version="[3,5)";resolution:=optional, \
+								jakarta.servlet.*;version="[5,7)";resolution:=optional, \
+								*
+						]]>
+					</bnd>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>

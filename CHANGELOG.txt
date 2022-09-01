@@ -2067,3 +2067,7 @@ version 9.41.1 (2022-08-26)
     * Updates optional transitive dependencies to OpenSAML 3.x
       org.apache.santuario:xmlsec and ommons-codec:commons-codec to address
       CVEs reported by Snyk.
+
+version 9.41.2 (2022-09-01)
+    * Updates and fixes OSGi manifest (iss #399).
+
