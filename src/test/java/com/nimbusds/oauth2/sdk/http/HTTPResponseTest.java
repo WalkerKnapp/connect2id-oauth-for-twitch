@@ -29,6 +29,7 @@ import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 public class HTTPResponseTest extends TestCase {
@@ -91,6 +92,11 @@ public class HTTPResponseTest extends TestCase {
 		assertNull(response.getWWWAuthenticate());
 		response.setWWWAuthenticate("Basic");
 		assertEquals("Basic", response.getWWWAuthenticate());
+		
+		assertNull(response.getDPoPNonce());
+		response.setDPoPNonce(new Nonce("waeHieMa4dan"));
+		assertEquals(new Nonce("waeHieMa4dan"), response.getDPoPNonce());
+		
 
 		assertNull(response.getContent());
 
@@ -186,5 +192,14 @@ public class HTTPResponseTest extends TestCase {
 		String ip = "192.168.0.1";
 		httpResponse.setClientIPAddress(ip);
 		assertEquals(ip, httpResponse.getClientIPAddress());
+	}
+	
+	
+	public void testDPoPNonce_empty() {
+		
+		HTTPResponse httpResponse = new HTTPResponse(200);
+		httpResponse.setHeader("DPoP-Nonce", "");
+		
+		assertNull(httpResponse.getDPoPNonce());
 	}
 }

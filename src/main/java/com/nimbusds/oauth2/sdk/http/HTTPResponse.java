@@ -32,6 +32,7 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 /**
@@ -58,6 +59,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  *     <li>Cache-Control
  *     <li>Pragma
  *     <li>Www-Authenticate
+ *     <li>DPoP-Nonce
  * </ul>
  */
 @ThreadSafe
@@ -334,6 +336,43 @@ public class HTTPResponse extends HTTPMessage {
 	public void setWWWAuthenticate(final String wwwAuthenticate) {
 	
 		setHeader("WWW-Authenticate", wwwAuthenticate);
+	}
+	
+	
+	/**
+	 * Gets the {@code DPoP-Nonce} header value.
+	 *
+	 * @return The {@code DPoP-Nonce} header value, {@code null} if not
+	 *         specified or parsing failed.
+	 */
+	public Nonce getDPoPNonce() {
+		
+		String nonce = getHeaderValue("DPoP-Nonce");
+		if (nonce == null) {
+			return null;
+		}
+		
+		try {
+			return new Nonce(nonce);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
+	
+	
+	/**
+	 * Sets the {@code DPoP-Nonce} header value.
+	 *
+	 * @param nonce The {@code DPoP-Nonce} header value, {@code null} if
+	 *              not specified.
+	 */
+	public void setDPoPNonce(final Nonce nonce) {
+		
+		if (nonce != null) {
+			setHeader("DPoP-Nonce", nonce.getValue());
+		} else {
+			setHeader("DPoP-Nonce", (String[]) null);
+		}
 	}
 	
 	
