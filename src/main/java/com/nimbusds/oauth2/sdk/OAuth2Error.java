@@ -246,7 +246,7 @@ public final class OAuth2Error {
 	
 	
 	/**
-	 * The {@link OAuth2Error#INVALID_DPOP_PROOF} error code string.
+	 * The {@link OAuth2Error#USE_DPOP_NONCE} error code string.
 	 */
 	public static final String INVALID_DPOP_PROOF_CODE = "invalid_dpop_proof";
 	
@@ -256,6 +256,19 @@ public final class OAuth2Error {
 	 */
 	public static final ErrorObject INVALID_DPOP_PROOF =
 		new ErrorObject(INVALID_DPOP_PROOF_CODE, "Invalid DPoP proof", HTTPResponse.SC_BAD_REQUEST);
+	
+	
+	/**
+	 * The {@link OAuth2Error#USE_DPOP_NONCE} error code string.
+	 */
+	public static final String USE_DPOP_NONCE_CODE = "use_dpop_nonce";
+	
+	
+	/**
+	 * Use of DPoP nonce required.
+	 */
+	public static final ErrorObject USE_DPOP_NONCE =
+		new ErrorObject(USE_DPOP_NONCE_CODE, "Use of DPoP nonce required");
 	
 	
 	// OpenID Connect Federation 1.0

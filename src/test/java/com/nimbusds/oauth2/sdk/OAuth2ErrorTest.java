@@ -48,6 +48,7 @@ public class OAuth2ErrorTest extends TestCase {
 		assertEquals(400, OAuth2Error.INVALID_TARGET.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.OVERBROAD_SCOPE.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.INVALID_DPOP_PROOF.getHTTPStatusCode());
+		assertEquals(0, OAuth2Error.USE_DPOP_NONCE.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.MISSING_TRUST_ANCHOR.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.VALIDATION_FAILED.getHTTPStatusCode());
 	}
@@ -106,6 +107,14 @@ public class OAuth2ErrorTest extends TestCase {
 		assertEquals("invalid_dpop_proof", OAuth2Error.INVALID_DPOP_PROOF.getCode());
 		assertEquals("Invalid DPoP proof", OAuth2Error.INVALID_DPOP_PROOF.getDescription());
 		assertEquals(400, OAuth2Error.INVALID_DPOP_PROOF.getHTTPStatusCode());
+	}
+	
+	
+	public void testDPoPNonce() {
+		
+		assertEquals("use_dpop_nonce", OAuth2Error.USE_DPOP_NONCE.getCode());
+		assertEquals("Use of DPoP nonce required", OAuth2Error.USE_DPOP_NONCE.getDescription());
+		assertEquals(0, OAuth2Error.USE_DPOP_NONCE.getHTTPStatusCode());
 	}
 	
 	
