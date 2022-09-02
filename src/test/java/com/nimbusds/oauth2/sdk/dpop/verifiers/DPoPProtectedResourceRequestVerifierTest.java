@@ -32,6 +32,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.dpop.DPoPProofFactory;
 import com.nimbusds.oauth2.sdk.dpop.DefaultDPoPProofFactory;
 import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.DPoPAccessToken;
 
 
@@ -140,7 +141,7 @@ public class DPoPProtectedResourceRequestVerifierTest extends TestCase {
 		}
 		
 		// Missing ath
-		proof = dPoPProofFactory.createDPoPJWT(htm, htu, null);
+		proof = dPoPProofFactory.createDPoPJWT(htm, htu, (AccessToken) null);
 		try {
 			verifier.verify(htm, htu, issuer, proof, accessToken, cnf);
 			fail();

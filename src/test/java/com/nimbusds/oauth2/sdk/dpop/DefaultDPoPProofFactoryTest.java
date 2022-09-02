@@ -20,6 +20,7 @@ package com.nimbusds.oauth2.sdk.dpop;
 
 import java.net.URI;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Date;
 
 import junit.framework.TestCase;
@@ -40,6 +41,10 @@ import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.util.DateUtils;
+import com.nimbusds.oauth2.sdk.id.JWTID;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 public class DefaultDPoPProofFactoryTest extends TestCase {
@@ -50,10 +55,16 @@ public class DefaultDPoPProofFactoryTest extends TestCase {
 	static final JWK EC_JWK;
 	
 	static final JWK ED_JWK;
+
+	static final JWTID JTI = new JWTID();
 	
 	static final String HTM = "POST";
 	
 	static final URI HTU = URI.create("https://c2id.com/token");
+	
+	static final AccessToken ACCESS_TOKEN = new BearerAccessToken();
+	
+	static final Nonce NONCE = new Nonce();
 	
 	static {
 		try {
@@ -96,22 +107,69 @@ public class DefaultDPoPProofFactoryTest extends TestCase {
 		
 		assertEquals(jwsAlg, factory.getJWSAlgorithm());
 		
-		SignedJWT jwt = factory.createDPoPJWT(HTM, HTU);
+		SignedJWT jwt;
 		
-		assertTrue(jwt.verify(jwsVerifier));
+		for (boolean withNonce: Arrays.asList(false, true)) {
+		
+			if (withNonce) {
+				jwt = factory.createDPoPJWT(HTM, HTU, NONCE);
+			} else {
+				jwt = factory.createDPoPJWT(HTM, HTU);
+			}
+			
+			assertTrue(jwt.verify(jwsVerifier));
+			
+			JWSHeader header = jwt.getHeader();
+			assertEquals(jwsAlg, header.getAlgorithm());
+			assertEquals(DefaultDPoPProofFactory.TYPE, header.getType());
+			assertEquals(factory.getPublicJWK(), header.getJWK());
+			assertEquals(3, header.getIncludedParams().size());
+			
+			JWTClaimsSet claimsSet = jwt.getJWTClaimsSet();
+			String jti = claimsSet.getJWTID();
+			assertEquals(DefaultDPoPProofFactory.MINIMAL_JTI_BYTE_LENGTH, new Base64URL(jti).decode().length);
+			assertEquals(HTM, claimsSet.getStringClaim("htm"));
+			assertEquals(HTU, claimsSet.getURIClaim("htu"));
+			DateUtils.isWithin(claimsSet.getIssueTime(), new Date(), 2);
+			
+			if (withNonce) {
+				assertEquals(NONCE.getValue(), claimsSet.getStringClaim("nonce"));
+				assertEquals(5, claimsSet.getClaims().size());
+			} else {
+				assertEquals(4, claimsSet.getClaims().size());
+			}
+		}
+	}
+	
+	
+	public void testFullySpecified()
+		throws JOSEException, ParseException {
+		
+		DefaultDPoPProofFactory factory = new DefaultDPoPProofFactory(RSA_JWK, JWSAlgorithm.RS256);
+		
+		assertEquals(RSA_JWK.toPublicJWK(), factory.getPublicJWK());
+		
+		assertEquals(JWSAlgorithm.RS256, factory.getJWSAlgorithm());
+		
+		Date iat = DateUtils.fromSecondsSinceEpoch(new Date().getTime() / 1000);
+		
+		SignedJWT jwt = factory.createDPoPJWT(JTI, HTM, HTU, iat, ACCESS_TOKEN, NONCE);
+		
+		assertTrue(jwt.verify(new RSASSAVerifier(RSA_JWK.toPublicJWK().toRSAKey())));
 		
 		JWSHeader header = jwt.getHeader();
-		assertEquals(jwsAlg, header.getAlgorithm());
+		assertEquals(JWSAlgorithm.RS256, header.getAlgorithm());
 		assertEquals(DefaultDPoPProofFactory.TYPE, header.getType());
 		assertEquals(factory.getPublicJWK(), header.getJWK());
 		assertEquals(3, header.getIncludedParams().size());
 		
 		JWTClaimsSet claimsSet = jwt.getJWTClaimsSet();
-		String jti = claimsSet.getJWTID();
-		assertEquals(DefaultDPoPProofFactory.MINIMAL_JTI_BYTE_LENGTH, new Base64URL(jti).decode().length);
+		assertEquals(JTI.getValue(), claimsSet.getJWTID());
 		assertEquals(HTM, claimsSet.getStringClaim("htm"));
 		assertEquals(HTU, claimsSet.getURIClaim("htu"));
-		DateUtils.isWithin(claimsSet.getIssueTime(), new Date(), 2);
-		assertEquals(4, claimsSet.getClaims().size());
+		assertEquals(iat, claimsSet.getIssueTime());
+		assertEquals(DPoPUtils.computeSHA256(ACCESS_TOKEN).toString(), claimsSet.getStringClaim("ath"));
+		assertEquals(NONCE.getValue(), claimsSet.getStringClaim("nonce"));
+		assertEquals(6, claimsSet.getClaims().size());
 	}
 }

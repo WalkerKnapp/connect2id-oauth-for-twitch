@@ -30,6 +30,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 /**
@@ -55,11 +56,42 @@ public final class DPoPUtils {
 	 *
 	 * @throws JOSEException If a cryptographic exception was encountered.
 	 */
+	@Deprecated
 	public static JWTClaimsSet createJWTClaimsSet(final JWTID jti,
 					              final String htm,
 					              final URI htu,
 					              final Date iat,
 					              final AccessToken accessToken)
+		throws JOSEException {
+		
+		return createJWTClaimsSet(jti, htm, htu, iat, accessToken, null);
+	}
+	
+	
+	/**
+	 * Creates a new DPoP JWT claims set.
+	 *
+	 * @param jti         The JWT ID. Must not be {@code null}.
+	 * @param htm         The HTTP request method. Must not be
+	 *                    {@code null}.
+	 * @param htu         The HTTP URI, without a query or fragment. Must
+	 *                    not be {@code null}.
+	 * @param iat         The issue time. Must not be {@code null}.
+	 * @param accessToken The access token for the access token hash
+	 *                    ("ath") claim computation, {@code null} if not
+	 *                    specified.
+	 * @param nonce       The nonce, {@code null} if not specified.
+	 *
+	 * @return The JWT claims set.
+	 *
+	 * @throws JOSEException If a cryptographic exception was encountered.
+	 */
+	public static JWTClaimsSet createJWTClaimsSet(final JWTID jti,
+						      final String htm,
+						      final URI htu,
+						      final Date iat,
+						      final AccessToken accessToken,
+						      final Nonce nonce)
 		throws JOSEException {
 		
 		if (StringUtils.isBlank(htm)) {
@@ -86,6 +118,10 @@ public final class DPoPUtils {
 		
 		if (accessToken != null) {
 			builder = builder.claim("ath", computeSHA256(accessToken).toString());
+		}
+		
+		if (nonce != null) {
+			builder = builder.claim("nonce", nonce.getValue());
 		}
 		
 		return builder.build();

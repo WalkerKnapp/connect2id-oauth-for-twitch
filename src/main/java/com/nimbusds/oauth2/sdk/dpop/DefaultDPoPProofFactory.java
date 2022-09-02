@@ -32,6 +32,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 /**
@@ -142,7 +143,17 @@ public class DefaultDPoPProofFactory implements DPoPProofFactory {
 				       final URI htu)
 		throws JOSEException {
 		
-		return createDPoPJWT(htm, htu, null);
+		return createDPoPJWT(htm, htu, null, null);
+	}
+	
+	
+	@Override
+	public SignedJWT createDPoPJWT(final String htm,
+				       final URI htu,
+				       final Nonce nonce)
+		throws JOSEException {
+		
+		return createDPoPJWT(htm, htu, null, nonce);
 	}
 	
 	
@@ -152,7 +163,18 @@ public class DefaultDPoPProofFactory implements DPoPProofFactory {
 				       final AccessToken accessToken)
 		throws JOSEException {
 		
-		return createDPoPJWT(new JWTID(MINIMAL_JTI_BYTE_LENGTH), htm, htu, new Date(), accessToken);
+		return createDPoPJWT(htm, htu, accessToken, null);
+	}
+	
+	
+	@Override
+	public SignedJWT createDPoPJWT(final String htm,
+				       final URI htu,
+				       final AccessToken accessToken,
+				       final Nonce nonce)
+		throws JOSEException {
+		
+		return createDPoPJWT(new JWTID(MINIMAL_JTI_BYTE_LENGTH), htm, htu, new Date(), accessToken, nonce);
 	}
 	
 	
@@ -164,12 +186,25 @@ public class DefaultDPoPProofFactory implements DPoPProofFactory {
 				       final AccessToken accessToken)
 		throws JOSEException {
 		
+		return createDPoPJWT(jti, htm, htu, iat, accessToken, null);
+	}
+	
+	
+	@Override
+	public SignedJWT createDPoPJWT(final JWTID jti,
+				       final String htm,
+				       final URI htu,
+				       final Date iat,
+				       final AccessToken accessToken,
+				       final Nonce nonce)
+		throws JOSEException {
+		
 		JWSHeader jwsHeader = new JWSHeader.Builder(getJWSAlgorithm())
 			.type(TYPE)
 			.jwk(getPublicJWK())
 			.build();
 		
-		JWTClaimsSet jwtClaimsSet = DPoPUtils.createJWTClaimsSet(jti, htm, htu, iat, accessToken);
+		JWTClaimsSet jwtClaimsSet = DPoPUtils.createJWTClaimsSet(jti, htm, htu, iat, accessToken, nonce);
 		SignedJWT signedJWT = new SignedJWT(jwsHeader, jwtClaimsSet);
 		signedJWT.sign(getJWSSigner());
 		return signedJWT;

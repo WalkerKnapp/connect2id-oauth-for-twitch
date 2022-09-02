@@ -26,6 +26,7 @@ import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 /**
@@ -65,6 +66,24 @@ public interface DPoPProofFactory {
 	/**
 	 * Creates a new DPoP proof.
 	 *
+	 * @param htm The HTTP request method. Must not be {@code null}.
+	 * @param htu The HTTP URI, without a query or fragment. Must not be
+	 *            {@code null}.
+	 * @param nonce The nonce, {@code null} if not specified.
+	 *
+	 * @return The signed DPoP JWT.
+	 *
+	 * @throws JOSEException If signing failed.
+	 */
+	SignedJWT createDPoPJWT(final String htm,
+				final URI htu,
+				final Nonce nonce)
+		throws JOSEException;
+	
+	
+	/**
+	 * Creates a new DPoP proof.
+	 *
 	 * @param htm         The HTTP request method. Must not be
 	 *                    {@code null}.
 	 * @param htu         The HTTP URI, without a query or fragment. Must
@@ -86,6 +105,29 @@ public interface DPoPProofFactory {
 	/**
 	 * Creates a new DPoP proof.
 	 *
+	 * @param htm         The HTTP request method. Must not be
+	 *                    {@code null}.
+	 * @param htu         The HTTP URI, without a query or fragment. Must
+	 *                    not be {@code null}.
+	 * @param accessToken The access token for the access token hash
+	 *                    ("ath") claim computation, {@code null} if not
+	 *                    specified.
+	 * @param nonce       The nonce, {@code null} if not specified.
+	 *
+	 * @return The signed DPoP JWT.
+	 *
+	 * @throws JOSEException If signing failed.
+	 */
+	SignedJWT createDPoPJWT(final String htm,
+				final URI htu,
+				final AccessToken accessToken,
+				final Nonce nonce)
+		throws JOSEException;
+	
+	
+	/**
+	 * Creates a new DPoP proof.
+	 *
 	 * @param jti         The JWT ID. Must not be {@code null}.
 	 * @param htm         The HTTP request method. Must not be
 	 *                    {@code null}.
@@ -100,10 +142,38 @@ public interface DPoPProofFactory {
 	 *
 	 * @throws JOSEException If signing failed.
 	 */
+	@Deprecated
 	SignedJWT createDPoPJWT(final JWTID jti,
 				final String htm,
 				final URI htu,
 				final Date iat,
 				final AccessToken accessToken)
+		throws JOSEException;
+	
+	
+	/**
+	 * Creates a new DPoP proof.
+	 *
+	 * @param jti         The JWT ID. Must not be {@code null}.
+	 * @param htm         The HTTP request method. Must not be
+	 *                    {@code null}.
+	 * @param htu         The HTTP URI, without a query or fragment. Must
+	 *                    not be {@code null}.
+	 * @param iat         The issue time. Must not be {@code null}.
+	 * @param accessToken The access token for the access token hash
+	 *                    ("ath") claim computation, {@code null} if not
+	 *                    specified.
+	 * @param nonce       The nonce, {@code null} if not specified.
+	 *
+	 * @return The signed DPoP JWT.
+	 *
+	 * @throws JOSEException If signing failed.
+	 */
+	SignedJWT createDPoPJWT(final JWTID jti,
+				final String htm,
+				final URI htu,
+				final Date iat,
+				final AccessToken accessToken,
+				final Nonce nonce)
 		throws JOSEException;
 }

@@ -17,6 +17,7 @@ import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.DPoPAccessToken;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 public class DPoPUtilsTest extends TestCase {
@@ -37,6 +38,9 @@ public class DPoPUtilsTest extends TestCase {
 	static final AccessToken ACCESS_TOKEN = new DPoPAccessToken("yie8voch8sae7Uroo4iejah8pohju8sh");
 	
 	
+	static final Nonce NONCE = new Nonce();
+	
+	
 	public void testComputeAccessTokenHash() throws JOSEException, NoSuchAlgorithmException {
 		
 		Base64URL hash = DPoPUtils.computeSHA256(ACCESS_TOKEN);
@@ -49,6 +53,26 @@ public class DPoPUtilsTest extends TestCase {
 
 
 	public void testCreateClaimsSet() throws ParseException, JOSEException {
+		
+		JWTClaimsSet jwtClaimsSet = DPoPUtils.createJWTClaimsSet(
+			JTI,
+			HTM,
+			HTU,
+			IAT,
+			null,
+			null
+		);
+		
+		assertEquals(JTI.getValue(), jwtClaimsSet.getJWTID());
+		assertEquals(HTM, jwtClaimsSet.getStringClaim("htm"));
+		assertEquals(HTU, jwtClaimsSet.getURIClaim("htu"));
+		assertEquals(IAT, jwtClaimsSet.getIssueTime());
+		
+		assertEquals(4, jwtClaimsSet.getClaims().size());
+	}
+
+
+	public void testCreateClaimsSet_deprecated() throws ParseException, JOSEException {
 		
 		JWTClaimsSet jwtClaimsSet = DPoPUtils.createJWTClaimsSet(
 			JTI,
@@ -74,7 +98,8 @@ public class DPoPUtilsTest extends TestCase {
 			HTM,
 			HTU,
 			IAT,
-			ACCESS_TOKEN
+			ACCESS_TOKEN,
+			null
 		);
 		
 		assertEquals(JTI.getValue(), jwtClaimsSet.getJWTID());
@@ -82,6 +107,28 @@ public class DPoPUtilsTest extends TestCase {
 		assertEquals(HTU, jwtClaimsSet.getURIClaim("htu"));
 		assertEquals(IAT, jwtClaimsSet.getIssueTime());
 		assertEquals(DPoPUtils.computeSHA256(ACCESS_TOKEN).toString(), jwtClaimsSet.getStringClaim("ath"));
+		
+		assertEquals(5, jwtClaimsSet.getClaims().size());
+	}
+
+
+	public void testCreateClaimsSet_withNonce() throws ParseException, JOSEException {
+		
+		JWTClaimsSet jwtClaimsSet = DPoPUtils.createJWTClaimsSet(
+			JTI,
+			HTM,
+			HTU,
+			IAT,
+			null,
+			NONCE
+		);
+		
+		assertEquals(JTI.getValue(), jwtClaimsSet.getJWTID());
+		assertEquals(HTM, jwtClaimsSet.getStringClaim("htm"));
+		assertEquals(HTU, jwtClaimsSet.getURIClaim("htu"));
+		assertEquals(IAT, jwtClaimsSet.getIssueTime());
+		assertEquals(DPoPUtils.computeSHA256(ACCESS_TOKEN).toString(), jwtClaimsSet.getStringClaim("ath"));
+		assertEquals(NONCE.getValue(), jwtClaimsSet.getStringClaim("nonce"));
 		
 		assertEquals(5, jwtClaimsSet.getClaims().size());
 	}

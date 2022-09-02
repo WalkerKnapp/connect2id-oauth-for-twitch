@@ -38,6 +38,7 @@ import com.nimbusds.oauth2.sdk.dpop.DPoPProofFactory;
 import com.nimbusds.oauth2.sdk.dpop.DefaultDPoPProofFactory;
 import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.id.JWTID;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.DPoPAccessToken;
 
 
@@ -263,7 +264,7 @@ public class DPoPCommonVerifierTest extends TestCase {
 		assertNotNull(npe);
 		
 		// Missing ath
-		proof = dPoPProofFactory.createDPoPJWT(htm, htu, null);
+		proof = dPoPProofFactory.createDPoPJWT(htm, htu, (AccessToken) null);
 		try {
 			verifier.verify(htm, htu, issuer, proof, accessToken, cnf);
 			fail();
