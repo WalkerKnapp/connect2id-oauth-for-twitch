@@ -54,7 +54,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
  * <ul>
  *     <li>OAuth 2.0 (RFC 6749), sections 1.4 and 5.1.
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
- *         (DPoP) (draft-ietf-oauth-dpop-03)
+ *         (DPoP) (draft-ietf-oauth-dpop-11)
  *     <li>OAuth 2.0 Token Exchange (RFC 8693), section 3.
  * </ul>
  */

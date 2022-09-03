@@ -46,7 +46,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
  *         Access Tokens (RFC 8705).
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
- *         (DPoP) (draft-ietf-oauth-dpop-03)
+ *         (DPoP) (draft-ietf-oauth-dpop-11)
  * </ul>
  */
 @Immutable

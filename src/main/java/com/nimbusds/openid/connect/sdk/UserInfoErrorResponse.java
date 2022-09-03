@@ -63,7 +63,7 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
  *     <li>OpenID Connect Core 1.0, section 5.3.3.
  *     <li>OAuth 2.0 Bearer Token Usage (RFC 6750), section 3.1.
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
- *         (DPoP) (draft-ietf-oauth-dpop-03), section 7.
+ *         (DPoP) (draft-ietf-oauth-dpop-11), section 7.
  * </ul>
  */
 @Immutable
