@@ -112,6 +112,28 @@ public class DPoPUtilsTest extends TestCase {
 	}
 
 
+	public void testCreateClaimsSet_withAccessTokenHash_withNonce() throws ParseException, JOSEException {
+		
+		JWTClaimsSet jwtClaimsSet = DPoPUtils.createJWTClaimsSet(
+			JTI,
+			HTM,
+			HTU,
+			IAT,
+			ACCESS_TOKEN,
+			NONCE
+		);
+		
+		assertEquals(JTI.getValue(), jwtClaimsSet.getJWTID());
+		assertEquals(HTM, jwtClaimsSet.getStringClaim("htm"));
+		assertEquals(HTU, jwtClaimsSet.getURIClaim("htu"));
+		assertEquals(IAT, jwtClaimsSet.getIssueTime());
+		assertEquals(DPoPUtils.computeSHA256(ACCESS_TOKEN).toString(), jwtClaimsSet.getStringClaim("ath"));
+		assertEquals(NONCE.getValue(), jwtClaimsSet.getStringClaim("nonce"));
+		
+		assertEquals(6, jwtClaimsSet.getClaims().size());
+	}
+
+
 	public void testCreateClaimsSet_withNonce() throws ParseException, JOSEException {
 		
 		JWTClaimsSet jwtClaimsSet = DPoPUtils.createJWTClaimsSet(
@@ -122,12 +144,10 @@ public class DPoPUtilsTest extends TestCase {
 			null,
 			NONCE
 		);
-		
 		assertEquals(JTI.getValue(), jwtClaimsSet.getJWTID());
 		assertEquals(HTM, jwtClaimsSet.getStringClaim("htm"));
 		assertEquals(HTU, jwtClaimsSet.getURIClaim("htu"));
 		assertEquals(IAT, jwtClaimsSet.getIssueTime());
-		assertEquals(DPoPUtils.computeSHA256(ACCESS_TOKEN).toString(), jwtClaimsSet.getStringClaim("ath"));
 		assertEquals(NONCE.getValue(), jwtClaimsSet.getStringClaim("nonce"));
 		
 		assertEquals(5, jwtClaimsSet.getClaims().size());
