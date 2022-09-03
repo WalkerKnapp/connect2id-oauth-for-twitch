@@ -2074,6 +2074,8 @@ version 9.42 (2022-09-01)
     * Updates and fixes OSGi manifest (iss #399).
 
 version 9.43 (2022-09-03)
+    * Adds dpop_jkt (DPoP JWK SHA-256 thumbprint parameter) support to
+      AuthorizationRequest.
     * Adds nonce support to DPoPUtils and DPoPProofFactory.
     * Adds nonce support to DPoPTokenRequestVerifier and
       DPoPProtectedResourceRequestVerifier.

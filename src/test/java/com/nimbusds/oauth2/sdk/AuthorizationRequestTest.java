@@ -35,12 +35,14 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.OctetSequenceKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagException;
+import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
@@ -71,7 +73,8 @@ public class AuthorizationRequestTest extends TestCase {
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("request"));
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("request_uri"));
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("prompt"));
-		assertEquals(13, AuthorizationRequest.getRegisteredParameterNames().size());
+		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("dpop_jkt"));
+		assertEquals(14, AuthorizationRequest.getRegisteredParameterNames().size());
 	}
 	
 	
@@ -105,8 +108,6 @@ public class AuthorizationRequestTest extends TestCase {
 		assertTrue(req.getCustomParameters().isEmpty());
 
 		String query = req.toQueryString();
-
-//		System.out.println("Authorization query: " + query);
 
 		Map<String,List<String>> params = URLUtils.parseParameters(query);
 		assertEquals(Collections.singletonList("code"), params.get("response_type"));
@@ -185,7 +186,7 @@ public class AuthorizationRequestTest extends TestCase {
 
 		URI requestURI = req.toURI();
 
-		assertTrue(requestURI.toString().startsWith(endpointURI.toString() + "?"));
+		assertTrue(requestURI.toString().startsWith(endpointURI + "?"));
 		req = AuthorizationRequest.parse(requestURI);
 
 		assertEquals(endpointURI, req.getEndpointURI());
@@ -228,6 +229,8 @@ public class AuthorizationRequestTest extends TestCase {
 		List<URI> resources = Arrays.asList(URI.create("https://rs1.com"), URI.create("https://rs2.com"));
 		
 		Prompt prompt = new Prompt(Prompt.Type.LOGIN);
+		
+		JWKThumbprintConfirmation dpopJKT = new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs"));
 
 		Map<String,List<String>> customParams = new HashMap<>();
 		customParams.put("x", Collections.singletonList("100"));
@@ -235,7 +238,7 @@ public class AuthorizationRequestTest extends TestCase {
 		customParams.put("z", Collections.singletonList("300"));
 
 
-		AuthorizationRequest req = new AuthorizationRequest(uri, rts, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod, resources, true, null, null, prompt, customParams);
+		AuthorizationRequest req = new AuthorizationRequest(uri, rts, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod, resources, true, null, null, prompt, dpopJKT, customParams);
 
 		assertEquals(uri, req.getEndpointURI());
 		assertEquals(rts, req.getResponseType());
@@ -247,10 +250,9 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(state, req.getState());
 		assertEquals(resources, req.getResources());
 		assertEquals(prompt, req.getPrompt());
+		assertEquals(dpopJKT, req.getDPoPJWKThumbprintConfirmation());
 
 		String query = req.toQueryString();
-
-//		System.out.println("Authorization query: " + query);
 
 		Map<String,List<String>> params = URLUtils.parseParameters(query);
 
@@ -264,11 +266,12 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(Collections.singletonList(codeChallengeMethod.getValue()), params.get("code_challenge_method"));
 		assertEquals(Arrays.asList("https://rs1.com", "https://rs2.com"), params.get("resource"));
 		assertEquals(Collections.singletonList(prompt.toString()), params.get("prompt"));
+		assertEquals(Collections.singletonList(dpopJKT.getValue().toString()), params.get("dpop_jkt"));
 		assertEquals(Collections.singletonList("true"), params.get("include_granted_scopes"));
 		assertEquals(Collections.singletonList("100"), params.get("x"));
 		assertEquals(Collections.singletonList("200"), params.get("y"));
 		assertEquals(Collections.singletonList("300"), params.get("z"));
-		assertEquals(14, params.size());
+		assertEquals(15, params.size());
 
 		HTTPRequest httpReq = req.toHTTPRequest();
 		assertEquals(HTTPRequest.Method.GET, httpReq.getMethod());
@@ -289,6 +292,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(resources, req.getResources());
 		assertTrue(req.includeGrantedScopes());
 		assertEquals(prompt, req.getPrompt());
+		assertEquals(dpopJKT, req.getDPoPJWKThumbprintConfirmation());
 		assertEquals(Collections.singletonList("100"), req.getCustomParameter("x"));
 		assertEquals(Collections.singletonList("200"), req.getCustomParameter("y"));
 		assertEquals(Collections.singletonList("300"), req.getCustomParameter("z"));
@@ -319,7 +323,7 @@ public class AuthorizationRequestTest extends TestCase {
 		
 		List<URI> resources = Collections.singletonList(URI.create("https://rs1.com"));
 
-		AuthorizationRequest req = new AuthorizationRequest(uri, rts, null, clientID, redirectURI, scope, state, codeChallenge, null, resources, false, null, null, null, null);
+		AuthorizationRequest req = new AuthorizationRequest(uri, rts, null, clientID, redirectURI, scope, state, codeChallenge, null, resources, false, null, null, null, null, null);
 
 		assertEquals(uri, req.getEndpointURI());
 		assertEquals(rts, req.getResponseType());
@@ -331,6 +335,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(state, req.getState());
 		assertEquals(resources, req.getResources());
 		assertNull(req.getPrompt());
+		assertNull(req.getDPoPJWKThumbprintConfirmation());
 
 		String query = req.toQueryString();
 
@@ -348,6 +353,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(resources, req.getResources());
 		assertFalse(req.includeGrantedScopes());
 		assertNull(req.getCodeChallengeMethod());
+		assertNull(req.getDPoPJWKThumbprintConfirmation());
 	}
 
 
@@ -368,6 +374,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertNull(request.getResources());
 		assertFalse(request.includeGrantedScopes());
 		assertNull(request.getPrompt());
+		assertNull(request.getDPoPJWKThumbprintConfirmation());
 		assertTrue(request.getCustomParameters().isEmpty());
 	}
 
@@ -448,6 +455,7 @@ public class AuthorizationRequestTest extends TestCase {
 			.resources(URI.create("https://rs1.com"), URI.create("https://rs2.com"))
 			.includeGrantedScopes(true)
 			.prompt(new Prompt(Prompt.Type.LOGIN))
+			.dPoPJWKThumbprintConfirmation(new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs")))
 			.build();
 		
 		assertEquals(new ResponseType("code"), request.getResponseType());
@@ -463,6 +471,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(Arrays.asList(URI.create("https://rs1.com"), URI.create("https://rs2.com")), request.getResources());
 		assertTrue(request.includeGrantedScopes());
 		assertEquals(new Prompt(Prompt.Type.LOGIN), request.getPrompt());
+		assertEquals(new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs")), request.getDPoPJWKThumbprintConfirmation());
 	}
 
 
@@ -677,6 +686,7 @@ public class AuthorizationRequestTest extends TestCase {
 			null,
 			null,
 			new Prompt(Prompt.Type.LOGIN, Prompt.Type.CONSENT),
+			new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs")),
 			customParams);
 		
 		AuthorizationRequest out = new AuthorizationRequest.Builder(in).build();
@@ -692,6 +702,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(in.getResources(), out.getResources());
 		assertEquals(in.includeGrantedScopes(), out.includeGrantedScopes());
 		assertEquals(in.getPrompt(), out.getPrompt());
+		assertEquals(in.getDPoPJWKThumbprintConfirmation(), out.getDPoPJWKThumbprintConfirmation());
 		assertEquals(in.getCustomParameters(), out.getCustomParameters());
 		assertEquals(in.getEndpointURI(), out.getEndpointURI());
 		

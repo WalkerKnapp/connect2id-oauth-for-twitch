@@ -24,10 +24,12 @@ import java.util.*;
 
 import net.jcip.annotations.Immutable;
 
+import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
@@ -71,6 +73,8 @@ import com.nimbusds.openid.connect.sdk.Prompt;
  *         Request (JAR) (RFC 9101)
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
  *         OAuth 2.0 (JARM)
+ *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
+ *         (DPoP) (draft-ietf-oauth-dpop-11).
  * </ul>
  */
 @Immutable
@@ -99,6 +103,7 @@ public class AuthorizationRequest extends AbstractRequest {
 		p.add("request_uri");
 		p.add("request");
 		p.add("prompt");
+		p.add("dpop_jkt");
 
 		REGISTERED_PARAMETER_NAMES = Collections.unmodifiableSet(p);
 	}
@@ -181,6 +186,12 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * The requested prompt (optional).
 	 */
 	protected final Prompt prompt;
+	
+	
+	/**
+	 * The DPoP JWK SHA-256 thumbprint (optional).
+	 */
+	private final JWKThumbprintConfirmation dpopJKT;
 
 
 	/**
@@ -279,6 +290,12 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * The requested prompt (optional).
 		 */
 		private Prompt prompt;
+		
+		
+		/**
+		 * The DPoP JWK SHA-256 thumbprint (optional).
+		 */
+		private JWKThumbprintConfirmation dpopJKT;
 
 
 		/**
@@ -317,7 +334,7 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * builder.
 		 *
 		 * @param requestObject The request object. Must not be
-		 *                      {@code null}.'
+		 *                      {@code null}.
 		 * @param clientID      The client ID. Must not be
 		 *                      {@code null}.
 		 */
@@ -380,6 +397,7 @@ public class AuthorizationRequest extends AbstractRequest {
 			requestObject = request.requestObject;
 			requestURI = request.requestURI;
 			prompt = request.prompt;
+			dpopJKT = request.dpopJKT;
 			
 			if (request instanceof AuthenticationRequest) {
 				AuthenticationRequest oidcRequest = (AuthenticationRequest) request;
@@ -627,6 +645,22 @@ public class AuthorizationRequest extends AbstractRequest {
 		
 		
 		/**
+		 * Sets the DPoP JWK SHA-256 thumbprint. Corresponds to the
+		 * optional {@code dpop_jkt} parameter.
+		 *
+		 * @param dpopJKT DPoP JWK SHA-256 thumbprint, {@code null} if
+		 *                not specified.
+		 *
+		 * @return This builder.
+		 */
+		public Builder dPoPJWKThumbprintConfirmation(final JWKThumbprintConfirmation dpopJKT) {
+			
+			this.dpopJKT = dpopJKT;
+			return this;
+		}
+		
+		
+		/**
 		 * Sets a custom parameter.
 		 *
 		 * @param name   The parameter name. Must not be {@code null}.
@@ -673,7 +707,7 @@ public class AuthorizationRequest extends AbstractRequest {
 				return new AuthorizationRequest(uri, rt, rm, clientID, redirectURI, scope, state,
 					codeChallenge, codeChallengeMethod, resources, includeGrantedScopes,
 					requestObject, requestURI,
-					prompt,
+					prompt, dpopJKT,
 					customParams);
 			} catch (IllegalArgumentException e) {
 				throw new IllegalStateException(e.getMessage(), e);
@@ -797,6 +831,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @param customParams         Custom parameters, empty map or
 	 *                             {@code null} if none.
 	 */
+	@Deprecated
 	public AuthorizationRequest(final URI uri,
 				    final ResponseType rt,
 				    final ResponseMode rm,
@@ -811,6 +846,83 @@ public class AuthorizationRequest extends AbstractRequest {
 				    final JWT requestObject,
 				    final URI requestURI,
 				    final Prompt prompt,
+				    final Map<String, List<String>> customParams) {
+
+		this(uri, rt, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod, resources, includeGrantedScopes, requestObject, requestURI, prompt, null, customParams);
+	}
+
+
+	/**
+	 * Creates a new authorisation request with extension and custom
+	 * parameters.
+	 *
+	 * @param uri                  The URI of the authorisation endpoint.
+	 *                             May be {@code null} if the
+	 *                             {@link #toHTTPRequest} method will not
+	 *                             be used.
+	 * @param rt                   The response type. Corresponds to the
+	 *                             {@code response_type} parameter. Must
+	 *                             not be {@code null}, unless a request a
+	 *                             request object or URI is specified.
+	 * @param rm                   The response mode. Corresponds to the
+	 *                             optional {@code response_mode}
+	 *                             parameter. Use of this parameter is not
+	 *                             recommended unless a non-default
+	 *                             response mode is requested (e.g.
+	 *                             form_post).
+	 * @param clientID             The client identifier. Corresponds to
+	 *                             the {@code client_id} parameter. Must
+	 *                             not be {@code null}, unless a request
+	 *                             object or URI is specified.
+	 * @param redirectURI          The redirection URI. Corresponds to the
+	 *                             optional {@code redirect_uri} parameter.
+	 *                             {@code null} if not specified.
+	 * @param scope                The request scope. Corresponds to the
+	 *                             optional {@code scope} parameter.
+	 *                             {@code null} if not specified.
+	 * @param state                The state. Corresponds to the
+	 *                             recommended {@code state} parameter.
+	 *                             {@code null} if not specified.
+	 * @param codeChallenge        The code challenge for PKCE,
+	 *                             {@code null} if not specified.
+	 * @param codeChallengeMethod  The code challenge method for PKCE,
+	 *                             {@code null} if not specified.
+	 * @param resources            The resource URI(s), {@code null} if not
+	 *                             specified.
+	 * @param includeGrantedScopes {@code true} to request incremental
+	 *                             authorisation.
+	 * @param requestObject        The request object. Corresponds to the
+	 *                             optional {@code request} parameter. Must
+	 *                             not be specified together with a request
+	 *                             object URI. {@code null} if not
+	 *                             specified.
+	 * @param requestURI           The request object URI. Corresponds to
+	 *                             the optional {@code request_uri}
+	 *                             parameter. Must not be specified
+	 *                             together with a request object.
+	 *                             {@code null} if not specified.
+	 * @param prompt               The requested prompt. Corresponds to the
+	 *                             optional {@code prompt} parameter.
+	 * @param dpopJKT              The DPoP JWK SHA-256 thumbprint,
+	 *                             {@code null} if not specified.
+	 * @param customParams         Custom parameters, empty map or
+	 *                             {@code null} if none.
+	 */
+	public AuthorizationRequest(final URI uri,
+				    final ResponseType rt,
+				    final ResponseMode rm,
+				    final ClientID clientID,
+				    final URI redirectURI,
+				    final Scope scope,
+				    final State state,
+				    final CodeChallenge codeChallenge,
+				    final CodeChallengeMethod codeChallengeMethod,
+				    final List<URI> resources,
+				    final boolean includeGrantedScopes,
+				    final JWT requestObject,
+				    final URI requestURI,
+				    final Prompt prompt,
+				    final JWKThumbprintConfirmation dpopJKT,
 				    final Map<String, List<String>> customParams) {
 
 		super(uri);
@@ -862,6 +974,8 @@ public class AuthorizationRequest extends AbstractRequest {
 		}
 		
 		this.prompt = prompt; // technically OpenID
+		
+		this.dpopJKT = dpopJKT;
 
 		if (MapUtils.isNotEmpty(customParams)) {
 			this.customParams = Collections.unmodifiableMap(customParams);
@@ -1073,6 +1187,18 @@ public class AuthorizationRequest extends AbstractRequest {
 	
 	
 	/**
+	 * Returns the DPoP JWK SHA-256 thumbprint.
+	 *
+	 * @return The DPoP JWK SHA-256 thumbprint, {@code null} if not
+	 *         specified.
+	 */
+	public JWKThumbprintConfirmation getDPoPJWKThumbprintConfirmation() {
+		
+		return dpopJKT;
+	}
+	
+	
+	/**
 	 * Returns the additional custom parameters.
 	 *
 	 * @return The additional custom parameters as a unmodifiable map,
@@ -1163,6 +1289,9 @@ public class AuthorizationRequest extends AbstractRequest {
 		
 		if (prompt != null)
 			params.put("prompt", Collections.singletonList(prompt.toString()));
+		
+		if (dpopJKT != null)
+			params.put("dpop_jkt", Collections.singletonList(dpopJKT.getValue().toString()));
 
 		return params;
 	}
@@ -1496,6 +1625,12 @@ public class AuthorizationRequest extends AbstractRequest {
 				clientID, redirectURI, ResponseMode.resolve(rm, rt), state, e);
 		}
 		
+		JWKThumbprintConfirmation dpopJKT = null;
+		v = MultivaluedMapUtils.getFirstValue(params, "dpop_jkt");
+		if (StringUtils.isNotBlank(v)) {
+			dpopJKT = new JWKThumbprintConfirmation(new Base64URL(v));
+		}
+		
 		// Parse custom parameters
 		Map<String,List<String>> customParams = null;
 
@@ -1514,7 +1649,7 @@ public class AuthorizationRequest extends AbstractRequest {
 		return new AuthorizationRequest(uri, rt, rm, clientID, redirectURI, scope, state,
 			codeChallenge, codeChallengeMethod, resources, includeGrantedScopes,
 			requestObject, requestURI,
-			prompt,
+			prompt, dpopJKT,
 			customParams);
 	}
 
