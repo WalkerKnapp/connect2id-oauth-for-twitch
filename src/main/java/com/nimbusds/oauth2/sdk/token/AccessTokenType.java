@@ -41,7 +41,7 @@ public final class AccessTokenType extends Identifier {
 	
 	/**
 	 * DPoP, see OAuth 2.0 Demonstrating Proof-of-Possession at the
-	 * Application Layer (DPoP) (draft-ietf-oauth-dpop-03).
+	 * Application Layer (DPoP) (draft-ietf-oauth-dpop-11).
 	 */
 	public static final AccessTokenType DPOP = new AccessTokenType("DPoP");
 	
