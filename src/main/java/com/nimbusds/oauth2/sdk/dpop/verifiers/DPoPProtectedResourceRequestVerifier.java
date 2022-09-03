@@ -32,6 +32,7 @@ import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.token.DPoPAccessToken;
 import com.nimbusds.oauth2.sdk.util.singleuse.SingleUseChecker;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 /**
@@ -86,12 +87,55 @@ public class DPoPProtectedResourceRequestVerifier extends DPoPCommonVerifier {
 	 * @throws JOSEException                  If an internal JOSE exception
 	 *                                        is encountered.
 	 */
+	@Deprecated
 	public void verify(final String method,
 			   final URI uri,
 			   final DPoPIssuer issuer,
 			   final SignedJWT proof,
 			   final DPoPAccessToken accessToken,
 			   final JWKThumbprintConfirmation cnf)
+		throws
+		InvalidDPoPProofException,
+		AccessTokenValidationException,
+		JOSEException {
+		
+		verify(method, uri, issuer, proof, accessToken, cnf, null);
+	}
+	
+	
+	/**
+	 * Verifies the specified DPoP proof and its access token and JWK
+	 * SHA-256 thumbprint bindings.
+	 *
+	 * @param method      The HTTP request method (case-insensitive). Must
+	 *                    not be {@code null}.
+	 * @param uri         The HTTP URI. Any query or fragment component
+	 *                    will be stripped from it before DPoP validation.
+	 *                    Must not be {@code null}.
+	 * @param issuer      Unique identifier for the DPoP proof issuer, such
+	 *                    as its client ID. Must not be {@code null}.
+	 * @param proof       The DPoP proof JWT, {@code null} if not received.
+	 * @param accessToken The received and successfully validated DPoP
+	 *                    access token. Must not be {@code null}.
+	 * @param cnf         The JWK SHA-256 thumbprint confirmation for the
+	 *                    DPoP access token. Must not be {@code null}.
+	 * @param nonce       The expected DPoP proof JWT nonce, {@code null}
+	 *                    if none.
+	 *
+	 * @throws InvalidDPoPProofException      If the DPoP proof is invalid
+	 *                                        or missing.
+	 * @throws AccessTokenValidationException If the DPoP access token
+	 *                                        binding validation failed.
+	 * @throws JOSEException                  If an internal JOSE exception
+	 *                                        is encountered.
+	 */
+	public void verify(final String method,
+			   final URI uri,
+			   final DPoPIssuer issuer,
+			   final SignedJWT proof,
+			   final DPoPAccessToken accessToken,
+			   final JWKThumbprintConfirmation cnf,
+			   final Nonce nonce)
 		throws
 		InvalidDPoPProofException,
 		AccessTokenValidationException,
@@ -105,6 +149,6 @@ public class DPoPProtectedResourceRequestVerifier extends DPoPCommonVerifier {
 		
 		Objects.requireNonNull(cnf, "The DPoP JWK thumbprint confirmation must not be null");
 		
-		super.verify(method, uri, issuer, proof, accessToken, cnf);
+		super.verify(method, uri, issuer, proof, accessToken, cnf, nonce);
 	}
 }

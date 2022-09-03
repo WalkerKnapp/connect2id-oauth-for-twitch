@@ -30,6 +30,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.util.singleuse.SingleUseChecker;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 /**
@@ -92,11 +93,35 @@ public class DPoPTokenRequestVerifier extends DPoPCommonVerifier {
 	 * @throws JOSEException             If an internal JOSE exception is
 	 *                                   encountered.
 	 */
+	@Deprecated
 	public JWKThumbprintConfirmation verify(final DPoPIssuer issuer, final SignedJWT proof)
 		throws InvalidDPoPProofException, JOSEException {
 		
+		return verify(issuer, proof, null);
+	}
+	
+	
+	/**
+	 * Verifies the specified DPoP proof and returns the DPoP JWK SHA-256
+	 * thumbprint confirmation.
+	 *
+	 * @param issuer Unique identifier for the DPoP proof issuer, typically
+	 *               as its client ID. Must not be {@code null}.
+	 * @param proof  The DPoP proof JWT. Must not be {@code null}.
+	 * @param nonce  The expected DPoP proof JWT nonce, {@code null} if
+	 *               none.
+	 *
+	 * @return The DPoP JWK SHA-256 thumbprint confirmation.
+	 *
+	 * @throws InvalidDPoPProofException If the DPoP proof is invalid.
+	 * @throws JOSEException             If an internal JOSE exception is
+	 *                                   encountered.
+	 */
+	public JWKThumbprintConfirmation verify(final DPoPIssuer issuer, final SignedJWT proof, final Nonce nonce)
+		throws InvalidDPoPProofException, JOSEException {
+		
 		try {
-			super.verify("POST", endpointURI, issuer, proof, null, null);
+			super.verify("POST", endpointURI, issuer, proof, null, null, nonce);
 		} catch (AccessTokenValidationException e) {
 			throw new RuntimeException("Unexpected exception", e);
 		}

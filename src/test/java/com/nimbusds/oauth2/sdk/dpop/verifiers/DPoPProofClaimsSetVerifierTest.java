@@ -36,6 +36,7 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.DPoPAccessToken;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 public class DPoPProofClaimsSetVerifierTest extends TestCase {
@@ -61,7 +62,27 @@ public class DPoPProofClaimsSetVerifierTest extends TestCase {
 			.jwtID(jti.getValue())
 			.build();
 		
-		new DPoPProofClaimsSetVerifier(method, endpoint, MAX_CLOCK_SKEW_SECONDS, false, null)
+		new DPoPProofClaimsSetVerifier(endpoint, method, null, MAX_CLOCK_SKEW_SECONDS, false, null)
+			.verify(claimsSet, new DPoPProofContext(ISSUER));
+	}
+
+	
+	public void testPassWithNonce() throws BadJWTException {
+		
+		String method = "POST";
+		URI endpoint = URI.create("https://c2id.com/token");
+		Nonce nonce = new Nonce();
+		JWTID jti = new JWTID(12);
+		Date now = new Date();
+		
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+			.claim("htm", "POST")
+			.claim("htu", endpoint.toString())
+			.issueTime(now)
+			.jwtID(jti.getValue())
+			.build();
+		
+		new DPoPProofClaimsSetVerifier(endpoint, method, nonce, MAX_CLOCK_SKEW_SECONDS, false, null)
 			.verify(claimsSet, new DPoPProofContext(ISSUER));
 	}
 
@@ -81,7 +102,7 @@ public class DPoPProofClaimsSetVerifierTest extends TestCase {
 			.build();
 		
 		try {
-			new DPoPProofClaimsSetVerifier(method, endpoint, MAX_CLOCK_SKEW_SECONDS, false, null)
+			new DPoPProofClaimsSetVerifier(endpoint, method, null, MAX_CLOCK_SKEW_SECONDS, false, null)
 				.verify(claimsSet, new DPoPProofContext(ISSUER));
 			fail();
 		} catch (BadJWTException e) {
@@ -105,11 +126,65 @@ public class DPoPProofClaimsSetVerifierTest extends TestCase {
 			.build();
 		
 		try {
-			new DPoPProofClaimsSetVerifier(method, endpoint, MAX_CLOCK_SKEW_SECONDS, false, null)
+			new DPoPProofClaimsSetVerifier(endpoint, method, null, MAX_CLOCK_SKEW_SECONDS, false, null)
 				.verify(claimsSet, new DPoPProofContext(ISSUER));
 			fail();
 		} catch (BadJWTException e) {
 			assertEquals("JWT htu claim has value https://example.com, must be https://c2id.com/token", e.getMessage());
+		}
+	}
+
+	
+	public void test_invalidNonce() {
+		
+		String method = "POST";
+		URI endpoint = URI.create("https://c2id.com/token");
+		Nonce nonce = new Nonce();
+		JWTID jti = new JWTID(12);
+		Date now = new Date();
+		
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+			.claim("htm", "POST")
+			.claim("htu", endpoint.toString())
+			.claim("nonce", nonce.getValue())
+			.issueTime(now)
+			.jwtID(jti.getValue())
+			.build();
+		
+		Nonce expectedNonce = new Nonce();
+		
+		try {
+			new DPoPProofClaimsSetVerifier(endpoint, method, expectedNonce, MAX_CLOCK_SKEW_SECONDS, false, null)
+				.verify(claimsSet, new DPoPProofContext(ISSUER));
+			fail();
+		} catch (BadJWTException e) {
+			assertEquals("JWT nonce claim has value " + nonce + ", must be " + expectedNonce, e.getMessage());
+		}
+	}
+
+	
+	public void test_nonceNotExpected() {
+		
+		String method = "POST";
+		URI endpoint = URI.create("https://c2id.com/token");
+		Nonce nonce = new Nonce();
+		JWTID jti = new JWTID(12);
+		Date now = new Date();
+		
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+			.claim("htm", "POST")
+			.claim("htu", endpoint.toString())
+			.claim("nonce", nonce.getValue())
+			.issueTime(now)
+			.jwtID(jti.getValue())
+			.build();
+		
+		try {
+			new DPoPProofClaimsSetVerifier(endpoint, method, null, MAX_CLOCK_SKEW_SECONDS, false, null)
+				.verify(claimsSet, new DPoPProofContext(ISSUER));
+			fail();
+		} catch (BadJWTException e) {
+			assertEquals("JWT has prohibited claims: [nonce]", e.getMessage());
 		}
 	}
 
@@ -130,7 +205,7 @@ public class DPoPProofClaimsSetVerifierTest extends TestCase {
 			.build();
 		
 		try {
-			new DPoPProofClaimsSetVerifier(method, endpoint, MAX_CLOCK_SKEW_SECONDS, false, null)
+			new DPoPProofClaimsSetVerifier(endpoint, method, null, MAX_CLOCK_SKEW_SECONDS, false, null)
 				.verify(claimsSet, new DPoPProofContext(ISSUER));
 			fail();
 		} catch (BadJWTException e) {
@@ -155,7 +230,7 @@ public class DPoPProofClaimsSetVerifierTest extends TestCase {
 			.build();
 		
 		try {
-			new DPoPProofClaimsSetVerifier(method, endpoint, MAX_CLOCK_SKEW_SECONDS, false, null)
+			new DPoPProofClaimsSetVerifier(endpoint, method, null, MAX_CLOCK_SKEW_SECONDS, false, null)
 				.verify(claimsSet, new DPoPProofContext(ISSUER));
 			fail();
 		} catch (BadJWTException e) {
@@ -178,7 +253,7 @@ public class DPoPProofClaimsSetVerifierTest extends TestCase {
 			.build();
 		
 		try {
-			new DPoPProofClaimsSetVerifier(method, endpoint, MAX_CLOCK_SKEW_SECONDS, false, null)
+			new DPoPProofClaimsSetVerifier(endpoint, method, null, MAX_CLOCK_SKEW_SECONDS, false, null)
 				.verify(claimsSet, new DPoPProofContext(ISSUER));
 			fail();
 		} catch (BadJWTException e) {
@@ -201,11 +276,35 @@ public class DPoPProofClaimsSetVerifierTest extends TestCase {
 			.build();
 		
 		try {
-			new DPoPProofClaimsSetVerifier(method, endpoint, MAX_CLOCK_SKEW_SECONDS, false, null)
+			new DPoPProofClaimsSetVerifier(endpoint, method, null, MAX_CLOCK_SKEW_SECONDS, false, null)
 				.verify(claimsSet, new DPoPProofContext(ISSUER));
 			fail();
 		} catch (BadJWTException e) {
 			assertEquals("JWT missing required claims: [htu]", e.getMessage());
+		}
+	}
+	
+	
+	public void test_nonceMissing() {
+		
+		String method = "POST";
+		URI endpoint = URI.create("https://c2id.com/token");
+		JWTID jti = new JWTID(12);
+		Date now = new Date();
+		
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+			.claim("htm", "PUT")
+			.claim("htu", endpoint.toString())
+			.issueTime(now)
+			.jwtID(jti.getValue())
+			.build();
+		
+		try {
+			new DPoPProofClaimsSetVerifier(endpoint, method, new Nonce(), MAX_CLOCK_SKEW_SECONDS, false, null)
+				.verify(claimsSet, new DPoPProofContext(ISSUER));
+			fail();
+		} catch (BadJWTException e) {
+			assertEquals("JWT missing required claims: [nonce]", e.getMessage());
 		}
 	}
 	
@@ -223,7 +322,7 @@ public class DPoPProofClaimsSetVerifierTest extends TestCase {
 			.build();
 		
 		try {
-			new DPoPProofClaimsSetVerifier(method, endpoint, MAX_CLOCK_SKEW_SECONDS, false, null)
+			new DPoPProofClaimsSetVerifier(endpoint, method, null, MAX_CLOCK_SKEW_SECONDS, false, null)
 				.verify(claimsSet, new DPoPProofContext(ISSUER));
 			fail();
 		} catch (BadJWTException e) {
@@ -245,7 +344,7 @@ public class DPoPProofClaimsSetVerifierTest extends TestCase {
 			.build();
 		
 		try {
-			new DPoPProofClaimsSetVerifier(method, endpoint, MAX_CLOCK_SKEW_SECONDS, false, null)
+			new DPoPProofClaimsSetVerifier(endpoint, method, null, MAX_CLOCK_SKEW_SECONDS, false, null)
 				.verify(claimsSet, new DPoPProofContext(ISSUER));
 			fail();
 		} catch (BadJWTException e) {
@@ -269,7 +368,7 @@ public class DPoPProofClaimsSetVerifierTest extends TestCase {
 			.build();
 		
 		try {
-			new DPoPProofClaimsSetVerifier(method, endpoint, MAX_CLOCK_SKEW_SECONDS, true, null)
+			new DPoPProofClaimsSetVerifier(endpoint, method, null, MAX_CLOCK_SKEW_SECONDS, true, null)
 				.verify(claimsSet, new DPoPProofContext(ISSUER));
 			fail();
 		} catch (BadJWTException e) {
@@ -294,7 +393,35 @@ public class DPoPProofClaimsSetVerifierTest extends TestCase {
 			.createDPoPJWT(jti, method, endpoint, now, token)
 			.getJWTClaimsSet();
 		
-		DPoPProofClaimsSetVerifier verifier = new DPoPProofClaimsSetVerifier(method, endpoint, MAX_CLOCK_SKEW_SECONDS, true, null);
+		DPoPProofClaimsSetVerifier verifier = new DPoPProofClaimsSetVerifier(endpoint, method, null, MAX_CLOCK_SKEW_SECONDS, true, null);
+		
+		// Pass
+		DPoPProofContext context = new DPoPProofContext(ISSUER);
+		
+		verifier.verify(claimsSet, context);
+		
+		assertEquals(new Base64URL(claimsSet.getStringClaim("ath")), context.getAccessTokenHash());
+	}
+	
+	
+	public void test_ath_withNonce() throws JOSEException, ParseException, BadJWTException {
+		
+		String method = "POST";
+		URI endpoint = URI.create("https://c2id.com/token");
+		Nonce nonce = new Nonce();
+		JWTID jti = new JWTID(12);
+		Date now = new Date();
+		
+		AccessToken token = new DPoPAccessToken("iat5luciwooSa8Ogh5eweicahG8soo8a");
+		
+		JWTClaimsSet claimsSet = new DefaultDPoPProofFactory(
+				new ECKeyGenerator(Curve.P_256).generate(),
+				JWSAlgorithm.ES256
+			)
+			.createDPoPJWT(jti, method, endpoint, now, token, nonce)
+			.getJWTClaimsSet();
+		
+		DPoPProofClaimsSetVerifier verifier = new DPoPProofClaimsSetVerifier(endpoint, method, nonce, MAX_CLOCK_SKEW_SECONDS, true, null);
 		
 		// Pass
 		DPoPProofContext context = new DPoPProofContext(ISSUER);

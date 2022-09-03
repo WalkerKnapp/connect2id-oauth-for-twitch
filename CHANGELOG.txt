@@ -2073,7 +2073,9 @@ version 9.42 (2022-09-01)
       support iss != sub (iss #393).
     * Updates and fixes OSGi manifest (iss #399).
 
-version 9.43 (2022-09-02)
+version 9.43 (2022-09-03)
     * Adds nonce support to DPoPUtils and DPoPProofFactory.
+    * Adds nonce support to DPoPTokenRequestVerifier and
+      DPoPProtectedResourceRequestVerifier.
     * Adds DPoP-Nonce header support to HTTPResponse.
     * Adds OAuth2Error.USE_DPOP_NONCE constant.

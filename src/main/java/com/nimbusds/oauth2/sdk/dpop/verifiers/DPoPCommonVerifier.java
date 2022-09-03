@@ -42,6 +42,7 @@ import com.nimbusds.oauth2.sdk.token.DPoPAccessToken;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.oauth2.sdk.util.singleuse.SingleUseChecker;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 /**
@@ -115,6 +116,8 @@ class DPoPCommonVerifier {
 	 *                    {@code null} if not applicable.
 	 * @param cnf         The JWK SHA-256 thumbprint confirmation for the
 	 *                    DPoP access token, {@code null} if none.
+	 * @param nonce       The expected DPoP proof JWT nonce, {@code null}
+	 *                    if none.
 	 *
 	 * @throws InvalidDPoPProofException      If the DPoP proof is invalid.
 	 * @throws AccessTokenValidationException If an access token is
@@ -128,7 +131,8 @@ class DPoPCommonVerifier {
 		    final DPoPIssuer issuer,
 		    final SignedJWT proof,
 		    final DPoPAccessToken accessToken,
-		    final JWKThumbprintConfirmation cnf)
+		    final JWKThumbprintConfirmation cnf,
+		    final Nonce nonce)
 		throws
 		InvalidDPoPProofException,
 		AccessTokenValidationException,
@@ -152,8 +156,8 @@ class DPoPCommonVerifier {
 		
 		// Validate the JWT claims
 		proc.setJWTClaimsSetVerifier(new DPoPProofClaimsSetVerifier(
-			method,
-			URIUtils.getBaseURI(uri),
+			URIUtils.getBaseURI(uri), method,
+			nonce,
 			maxClockSkewSeconds,
 			accessToken != null,
 			singleUseChecker

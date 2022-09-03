@@ -32,6 +32,7 @@ import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.oauth2.sdk.util.singleuse.AlreadyUsedException;
 import com.nimbusds.oauth2.sdk.util.singleuse.SingleUseChecker;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 /**
@@ -63,6 +64,7 @@ class DPoPProofClaimsSetVerifier extends DefaultJWTClaimsVerifier<DPoPProofConte
 	 *                            fragment component will be stripped from
 	 *                            it before performing the comparison. Must
 	 *                            not be {@code null}.
+	 * @param nonce               The expected nonce, {@code null} if none.
 	 * @param maxClockSkewSeconds The max acceptable clock skew for the
 	 *                            "iat" (issued-at) claim checks, in
 	 *                            seconds. Should be in the order of a few
@@ -73,25 +75,43 @@ class DPoPProofClaimsSetVerifier extends DefaultJWTClaimsVerifier<DPoPProofConte
 	 *                            ID) claims, {@code null} if not
 	 *                            specified.
 	 */
-	public DPoPProofClaimsSetVerifier(final String acceptedMethod,
-					  final URI acceptedURI,
+	public DPoPProofClaimsSetVerifier(final URI acceptedURI,
+					  final String acceptedMethod,
+					  final Nonce nonce,
 					  final long maxClockSkewSeconds,
 					  final boolean requireATH,
 					  final SingleUseChecker<Map.Entry<DPoPIssuer, JWTID>> singleUseChecker) {
 		
-		super(
-			new JWTClaimsSet.Builder()
-				.claim("htm", acceptedMethod)
-				.claim("htu", URIUtils.getBaseURI(acceptedURI).toString())
-				.build(),
+		super(null,
+			composeExpectedJWTClaimsSet(acceptedURI, acceptedMethod, nonce),
 			new HashSet<>(
 				requireATH ? Arrays.asList("jti", "iat", "ath") : Arrays.asList("jti", "iat")
-			)
+			),
+			composeProhibitedClaims(nonce)
 		);
 		
 		this.maxClockSkewSeconds = maxClockSkewSeconds;
 		
 		this.singleUseChecker = singleUseChecker;
+	}
+	
+	
+	private static JWTClaimsSet composeExpectedJWTClaimsSet(final URI uri, final String method, final Nonce nonce) {
+		
+		JWTClaimsSet.Builder b = new JWTClaimsSet.Builder()
+			.claim("htm", method)
+			.claim("htu", URIUtils.getBaseURI(uri).toString());
+		
+		if (nonce != null) {
+			b = b.claim("nonce", nonce.getValue());
+		}
+		
+		return b.build();
+	}
+	
+	
+	private static Set<String> composeProhibitedClaims(final Nonce nonce) {
+		return nonce == null ? Collections.singleton("nonce") : null;
 	}
 	
 	

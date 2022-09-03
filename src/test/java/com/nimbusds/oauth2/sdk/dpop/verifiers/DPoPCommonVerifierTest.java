@@ -40,6 +40,7 @@ import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.DPoPAccessToken;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 public class DPoPCommonVerifierTest extends TestCase {
@@ -98,23 +99,50 @@ public class DPoPCommonVerifierTest extends TestCase {
 			)
 		);
 		
+		// Basic
 		SignedJWT proof = dPoPProofFactory.createDPoPJWT(htm, htu);
 		
-		verifier.verify(htm, htu, issuer, proof, null, null);
+		verifier.verify(htm, htu, issuer, proof, null, null, null);
 		
 		// Replay detection
 		try {
-			verifier.verify(htm, htu, issuer, proof, null, null);
+			verifier.verify(htm, htu, issuer, proof, null, null, null);
 			fail();
 		} catch (InvalidDPoPProofException e) {
 			assertEquals("Invalid DPoP proof: The jti was used before: " + proof.getJWTClaimsSet().getJWTID(), e.getMessage());
 		}
 		
+		// Nonce
+		Nonce nonce = new Nonce();
+		proof = dPoPProofFactory.createDPoPJWT(htm, htu, nonce);
+		
+		verifier.verify(htm, htu, issuer, proof, null, null, nonce);
+		
+		// Replay detection with nonce
+		try {
+			verifier.verify(htm, htu, issuer, proof, null, null, nonce);
+			fail();
+		} catch (InvalidDPoPProofException e) {
+			assertEquals("Invalid DPoP proof: The jti was used before: " + proof.getJWTClaimsSet().getJWTID(), e.getMessage());
+		}
+		
+		// Invalid nonce
+		Nonce proofNonce = new Nonce();
+		Nonce expectedNonce = new Nonce();
+		proof = dPoPProofFactory.createDPoPJWT(htm, htu, proofNonce);
+		try {
+			verifier.verify(htm, htu, issuer, proof, null, null, expectedNonce);
+			fail();
+		} catch (InvalidDPoPProofException e) {
+			assertEquals("Invalid DPoP proof: JWT nonce claim has value " + proofNonce + ", must be " + expectedNonce, e.getMessage());
+		}
+		
+		
 		// Invalid HTTP method
 		proof = dPoPProofFactory.createDPoPJWT("PUT", htu);
 		
 		try {
-			verifier.verify(htm, htu, issuer, proof, null, null);
+			verifier.verify(htm, htu, issuer, proof, null, null, null);
 			fail();
 		} catch (InvalidDPoPProofException e) {
 			assertEquals("Invalid DPoP proof: JWT htm claim has value PUT, must be POST", e.getMessage());
@@ -124,7 +152,7 @@ public class DPoPCommonVerifierTest extends TestCase {
 		proof = dPoPProofFactory.createDPoPJWT(htm, URI.create("https://op.example.com/userinfo"));
 		
 		try {
-			verifier.verify(htm, htu, issuer, proof, null, null);
+			verifier.verify(htm, htu, issuer, proof, null, null, null);
 			fail();
 		} catch (InvalidDPoPProofException e) {
 			assertEquals("Invalid DPoP proof: JWT htu claim has value https://op.example.com/userinfo, must be https://c2id.com/token", e.getMessage());
@@ -137,7 +165,7 @@ public class DPoPCommonVerifierTest extends TestCase {
 			).createDPoPJWT(htm, htu);
 		
 		try {
-			verifier.verify(htm, htu, issuer, proof, null, null);
+			verifier.verify(htm, htu, issuer, proof, null, null, null);
 			fail();
 		} catch (InvalidDPoPProofException e) {
 			assertEquals("Invalid DPoP proof: JWS header algorithm not accepted: RS256", e.getMessage());
@@ -157,7 +185,7 @@ public class DPoPCommonVerifierTest extends TestCase {
 		proof.sign(new ECDSASigner(EC_JWK));
 		
 		try {
-			verifier.verify(htm, htu, issuer, proof, null, null);
+			verifier.verify(htm, htu, issuer, proof, null, null, null);
 			fail();
 		} catch (InvalidDPoPProofException e) {
 			assertEquals("Invalid DPoP proof: Required JOSE header typ (type) parameter is missing", e.getMessage());
@@ -171,7 +199,7 @@ public class DPoPCommonVerifierTest extends TestCase {
 		proof.sign(new ECDSASigner(EC_JWK));
 		
 		try {
-			verifier.verify(htm, htu, issuer, proof, null, null);
+			verifier.verify(htm, htu, issuer, proof, null, null, null);
 			fail();
 		} catch (InvalidDPoPProofException e) {
 			assertEquals("Invalid DPoP proof: Missing JWS jwk header parameter", e.getMessage());
@@ -188,7 +216,7 @@ public class DPoPCommonVerifierTest extends TestCase {
 		proof.sign(new ECDSASigner(EC_JWK));
 		
 		try {
-			verifier.verify(htm, htu, issuer, proof, null, null);
+			verifier.verify(htm, htu, issuer, proof, null, null, null);
 			fail();
 		} catch (InvalidDPoPProofException e) {
 			assertEquals("Invalid DPoP proof: Signed JWT rejected: Invalid signature", e.getMessage());
@@ -205,7 +233,7 @@ public class DPoPCommonVerifierTest extends TestCase {
 		proof.sign(new ECDSASigner(EC_JWK));
 		
 		try {
-			verifier.verify(htm, htu, issuer, proof, null, null);
+			verifier.verify(htm, htu, issuer, proof, null, null, null);
 			fail();
 		} catch (InvalidDPoPProofException e) {
 			assertEquals("Invalid DPoP proof: JWS header alg / jwk mismatch: alg=ES256 jwk.kty=RSA", e.getMessage());
@@ -238,25 +266,50 @@ public class DPoPCommonVerifierTest extends TestCase {
 			)
 		);
 		
-		// Pass
+		// Basic
 		SignedJWT proof = dPoPProofFactory.createDPoPJWT(htm, htu, accessToken);
 		assertNotNull(proof.getJWTClaimsSet().getStringClaim("ath"));
 		
-		verifier.verify(htm, htu, issuer, proof, accessToken, cnf);
+		verifier.verify(htm, htu, issuer, proof, accessToken, cnf, null);
 		
 		// Replay detection
 		try {
-			verifier.verify(htm, htu, issuer, proof, accessToken, cnf);
+			verifier.verify(htm, htu, issuer, proof, accessToken, cnf, null);
 			fail();
 		} catch (InvalidDPoPProofException e) {
 			assertEquals("Invalid DPoP proof: The jti was used before: " + proof.getJWTClaimsSet().getJWTID(), e.getMessage());
+		}
+		
+		// Nonce
+		Nonce nonce = new Nonce();
+		proof = dPoPProofFactory.createDPoPJWT(htm, htu, accessToken, nonce);
+		
+		verifier.verify(htm, htu, issuer, proof, accessToken, cnf, nonce);
+		
+		// Replay detection with nonce
+		try {
+			verifier.verify(htm, htu, issuer, proof, accessToken, cnf, nonce);
+			fail();
+		} catch (InvalidDPoPProofException e) {
+			assertEquals("Invalid DPoP proof: The jti was used before: " + proof.getJWTClaimsSet().getJWTID(), e.getMessage());
+		}
+		
+		// Invalid nonce
+		Nonce proofNonce = new Nonce();
+		Nonce expectedNonce = new Nonce();
+		proof = dPoPProofFactory.createDPoPJWT(htm, htu, accessToken, proofNonce);
+		try {
+			verifier.verify(htm, htu, issuer, proof, accessToken, null, expectedNonce);
+			fail();
+		} catch (InvalidDPoPProofException e) {
+			assertEquals("Invalid DPoP proof: JWT nonce claim has value " + proofNonce + ", must be " + expectedNonce, e.getMessage());
 		}
 		
 		// Missing cnf
 		proof = dPoPProofFactory.createDPoPJWT(htm, htu, accessToken);
 		NullPointerException npe = null;
 		try {
-			verifier.verify(htm, htu, issuer, proof, accessToken, null);
+			verifier.verify(htm, htu, issuer, proof, accessToken, null, null);
 			fail();
 		} catch (NullPointerException e) {
 			npe = e;
@@ -266,7 +319,7 @@ public class DPoPCommonVerifierTest extends TestCase {
 		// Missing ath
 		proof = dPoPProofFactory.createDPoPJWT(htm, htu, (AccessToken) null);
 		try {
-			verifier.verify(htm, htu, issuer, proof, accessToken, cnf);
+			verifier.verify(htm, htu, issuer, proof, accessToken, cnf, null);
 			fail();
 		} catch (InvalidDPoPProofException e) {
 			assertEquals("Invalid DPoP proof: JWT missing required claims: [ath]", e.getMessage());
@@ -276,7 +329,7 @@ public class DPoPCommonVerifierTest extends TestCase {
 		proof = dPoPProofFactory.createDPoPJWT(htm, htu, new DPoPAccessToken("other-value"));
 		
 		try {
-			verifier.verify(htm, htu, issuer, proof, accessToken, cnf);
+			verifier.verify(htm, htu, issuer, proof, accessToken, cnf, null);
 			fail();
 		} catch (AccessTokenValidationException e) {
 			assertEquals("The access token hash doesn't match the JWT ath claim", e.getMessage());
@@ -288,7 +341,7 @@ public class DPoPCommonVerifierTest extends TestCase {
 		JWKThumbprintConfirmation invalidCNF = new JWKThumbprintConfirmation(new ECKeyGenerator(Curve.P_256).generate().computeThumbprint());
 		
 		try {
-			verifier.verify(htm, htu, issuer, proof, accessToken, invalidCNF);
+			verifier.verify(htm, htu, issuer, proof, accessToken, invalidCNF, null);
 			fail();
 		} catch (AccessTokenValidationException e) {
 			assertEquals("The DPoP proof JWK doesn't match the JWK SHA-256 thumbprint confirmation", e.getMessage());
@@ -317,8 +370,8 @@ public class DPoPCommonVerifierTest extends TestCase {
 		SignedJWT proof = dPoPProofFactory.createDPoPJWT(htm, htu);
 		
 		// Replay not detected
-		verifier.verify(htm, htu, issuer, proof, null, null);
-		verifier.verify(htm, htu, issuer, proof, null, null);
+		verifier.verify(htm, htu, issuer, proof, null, null, null);
+		verifier.verify(htm, htu, issuer, proof, null, null, null);
 	}
 	
 	
@@ -345,7 +398,7 @@ public class DPoPCommonVerifierTest extends TestCase {
 			
 			IllegalArgumentException exception = null;
 			try {
-				verifier.verify(method, htu, issuer, proof, null, null);
+				verifier.verify(method, htu, issuer, proof, null, null, null);
 				fail();
 			} catch (IllegalArgumentException e) {
 				exception = e;
@@ -376,7 +429,7 @@ public class DPoPCommonVerifierTest extends TestCase {
 		
 		IllegalArgumentException exception = null;
 		try {
-			verifier.verify(htm, null, issuer, proof, null, null);
+			verifier.verify(htm, null, issuer, proof, null, null, null);
 			fail();
 		} catch (IllegalArgumentException e) {
 			exception = e;
@@ -404,6 +457,6 @@ public class DPoPCommonVerifierTest extends TestCase {
 		
 		SignedJWT proof = dPoPProofFactory.createDPoPJWT(htm, htu);
 		
-		verifier.verify(htm, new URI(htu + "?key=value#fragment"), issuer, proof, null, null);
+		verifier.verify(htm, new URI(htu + "?key=value#fragment"), issuer, proof, null, null, null);
 	}
 }
