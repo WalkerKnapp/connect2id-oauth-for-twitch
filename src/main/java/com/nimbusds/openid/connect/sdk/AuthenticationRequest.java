@@ -30,6 +30,7 @@ import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagException;
 import com.nimbusds.langtag.LangTagUtils;
 import com.nimbusds.oauth2.sdk.*;
+import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
@@ -67,6 +68,8 @@ import com.nimbusds.openid.connect.sdk.claims.ACR;
  *         Request (JAR) (RFC 9101)
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
  *         OAuth 2.0 (JARM)
+ *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
+ *         (DPoP) (draft-ietf-oauth-dpop-11).
  *     <li>OpenID Connect for Identity Assurance 1.0, section 8.
  * </ul>
  */
@@ -241,6 +244,12 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * The requested prompt (optional).
 		 */
 		private Prompt prompt;
+		
+		
+		/**
+		 * The DPoP JWK SHA-256 thumbprint (optional).
+		 */
+		private JWKThumbprintConfirmation dpopJKT;
 
 
 		/**
@@ -460,6 +469,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 			nonce = request.getNonce();
 			display = request.getDisplay();
 			prompt = request.getPrompt();
+			dpopJKT = request.getDPoPJWKThumbprintConfirmation();
 			maxAge = request.getMaxAge();
 			uiLocales = request.getUILocales();
 			claimsLocales = request.getClaimsLocales();
@@ -609,6 +619,21 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		public Builder prompt(final Prompt prompt) {
 
 			this.prompt = prompt;
+			return this;
+		}
+		
+		
+		/**
+		 * Sets the DPoP JWK SHA-256 thumbprint. Corresponds to the
+		 * optional {@code dpop_jkt} parameter.
+		 *
+		 * @param dpopJKT DPoP JWK SHA-256 thumbprint, {@code null} if
+		 *                not specified.
+		 *
+		 * @return This builder.
+		 */
+		public Builder dPoPJWKThumbprintConfirmation(final JWKThumbprintConfirmation dpopJKT) {
+			this.dpopJKT = dpopJKT;
 			return this;
 		}
 
@@ -954,7 +979,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 			try {
 				return new AuthenticationRequest(
 					uri, rt, rm, scope, clientID, redirectURI, state, nonce,
-					display, prompt, maxAge, uiLocales, claimsLocales,
+					display, prompt, dpopJKT, maxAge, uiLocales, claimsLocales,
 					idTokenHint, loginHint, acrValues, claims,
 					purpose,
 					requestObject, requestURI,
@@ -1243,6 +1268,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 * @param customParams         Additional custom parameters, empty map
 	 *                             or {@code null} if none.
 	 */
+	@Deprecated
 	public AuthenticationRequest(final URI uri,
 				     final ResponseType rt,
 				     final ResponseMode rm,
@@ -1269,7 +1295,140 @@ public class AuthenticationRequest extends AuthorizationRequest {
 				     final boolean includeGrantedScopes,
 				     final Map<String,List<String>> customParams) {
 
-		super(uri, rt, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod, resources, includeGrantedScopes, requestObject, requestURI, prompt, customParams);
+		this(uri, rt, rm, scope, clientID, redirectURI, state, nonce, display, prompt, null,
+			maxAge, uiLocales, claimsLocales, idTokenHint, loginHint, acrValues, claims, purpose,
+			requestObject, requestURI, codeChallenge, codeChallengeMethod,
+			resources, includeGrantedScopes,
+			customParams);
+	}
+
+	
+	/**
+	 * Creates a new OpenID Connect authentication request with extension
+	 * and custom parameters.
+	 *
+	 * @param uri                  The URI of the OAuth 2.0 authorisation
+	 *                             endpoint. May be {@code null} if the
+	 *                             {@link #toHTTPRequest} method will not
+	 *                             be used.
+	 * @param rt                   The response type set. Corresponds to
+	 *                             the {@code response_type} parameter.
+	 *                             Must specify a valid OpenID Connect
+	 *                             response type. Must not be {@code null}.
+	 * @param rm                   The response mode. Corresponds to the
+	 *                             optional {@code response_mode}
+	 *                             parameter. Use of this parameter is not
+	 *                             recommended unless a non-default
+	 *                             response mode is requested (e.g.
+	 *                             form_post).
+	 * @param scope                The request scope. Corresponds to the
+	 *                             {@code scope} parameter. Must contain an
+	 *                             {@link OIDCScopeValue#OPENID openid
+	 *                             value}. Must not be {@code null}.
+	 * @param clientID             The client identifier. Corresponds to
+	 *                             the {@code client_id} parameter. Must
+	 *                             not be {@code null}.
+	 * @param redirectURI          The redirection URI. Corresponds to the
+	 *                             {@code redirect_uri} parameter. Must not
+	 *                             be {@code null} unless set by means of
+	 *                             the optional {@code request_object} /
+	 *                             {@code request_uri} parameter.
+	 * @param state                The state. Corresponds to the
+	 *                             recommended {@code state} parameter.
+	 *                             {@code null} if not specified.
+	 * @param nonce                The nonce. Corresponds to the
+	 *                             {@code nonce} parameter. May be
+	 *                             {@code null} for code flow.
+	 * @param display              The requested display type. Corresponds
+	 *                             to the optional {@code display}
+	 *                             parameter.
+	 *                             {@code null} if not specified.
+	 * @param prompt               The requested prompt. Corresponds to the
+	 *                             optional {@code prompt} parameter.
+	 *                             {@code null} if not specified.
+	 * @param dpopJKT              The DPoP JWK SHA-256 thumbprint,
+	 *                             {@code null} if not specified.
+	 * @param maxAge               The required maximum authentication age,
+	 *                             in seconds. Corresponds to the optional
+	 *                             {@code max_age} parameter. -1 if not
+	 *                             specified, zero implies
+	 *                             {@code prompt=login}.
+	 * @param uiLocales            The preferred languages and scripts for
+	 *                             the user interface. Corresponds to the
+	 *                             optional {@code ui_locales} parameter.
+	 *                             {@code null} if not specified.
+	 * @param claimsLocales        The preferred languages and scripts for
+	 *                             claims being returned. Corresponds to
+	 *                             the optional {@code claims_locales}
+	 *                             parameter. {@code null} if not
+	 *                             specified.
+	 * @param idTokenHint          The ID Token hint. Corresponds to the
+	 *                             optional {@code id_token_hint}
+	 *                             parameter. {@code null} if not
+	 *                             specified.
+	 * @param loginHint            The login hint. Corresponds to the
+	 *                             optional {@code login_hint} parameter.
+	 *                             {@code null} if not specified.
+	 * @param acrValues            The requested Authentication Context
+	 *                             Class Reference values. Corresponds to
+	 *                             the optional {@code acr_values}
+	 *                             parameter. {@code null} if not
+	 *                             specified.
+	 * @param claims               The individual OpenID claims to be
+	 *                             returned. Corresponds to the optional
+	 *                             {@code claims} parameter. {@code null}
+	 *                             if not specified.
+	 * @param purpose              The transaction specific purpose,
+	 *                             {@code null} if not specified.
+	 * @param requestObject        The request object. Corresponds to the
+	 *                             optional {@code request} parameter. Must
+	 *                             not be specified together with a request
+	 *                             object URI. {@code null} if not
+	 *                             specified.
+	 * @param requestURI           The request object URI. Corresponds to
+	 *                             the optional {@code request_uri}
+	 *                             parameter. Must not be specified
+	 *                             together with a request object.
+	 *                             {@code null} if not specified.
+	 * @param codeChallenge        The code challenge for PKCE,
+	 *                             {@code null} if not specified.
+	 * @param codeChallengeMethod  The code challenge method for PKCE,
+	 *                             {@code null} if not specified.
+	 * @param resources            The resource URI(s), {@code null} if not
+	 *                             specified.
+	 * @param includeGrantedScopes {@code true} to request incremental
+	 *                             authorisation.
+	 * @param customParams         Additional custom parameters, empty map
+	 *                             or {@code null} if none.
+	 */
+	public AuthenticationRequest(final URI uri,
+				     final ResponseType rt,
+				     final ResponseMode rm,
+				     final Scope scope,
+				     final ClientID clientID,
+				     final URI redirectURI,
+				     final State state,
+				     final Nonce nonce,
+				     final Display display,
+				     final Prompt prompt,
+				     final JWKThumbprintConfirmation dpopJKT,
+				     final int maxAge,
+				     final List<LangTag> uiLocales,
+				     final List<LangTag> claimsLocales,
+				     final JWT idTokenHint,
+				     final String loginHint,
+				     final List<ACR> acrValues,
+				     final OIDCClaimsRequest claims,
+				     final String purpose,
+				     final JWT requestObject,
+				     final URI requestURI,
+				     final CodeChallenge codeChallenge,
+				     final CodeChallengeMethod codeChallengeMethod,
+				     final List<URI> resources,
+				     final boolean includeGrantedScopes,
+				     final Map<String,List<String>> customParams) {
+
+		super(uri, rt, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod, resources, includeGrantedScopes, requestObject, requestURI, prompt, dpopJKT, customParams);
 		
 		if (! specifiesRequestObject()) {
 			
@@ -1824,7 +1983,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 
 		return new AuthenticationRequest(
 			uri, ar.getResponseType(), ar.getResponseMode(), ar.getScope(), ar.getClientID(), ar.getRedirectionURI(), ar.getState(), nonce,
-			display, ar.getPrompt(), maxAge, uiLocales, claimsLocales,
+			display, ar.getPrompt(), ar.getDPoPJWKThumbprintConfirmation(), maxAge, uiLocales, claimsLocales,
 			idTokenHint, loginHint, acrValues, claims, purpose,
 			ar.getRequestObject(), ar.getRequestURI(),
 			ar.getCodeChallenge(), ar.getCodeChallengeMethod(),

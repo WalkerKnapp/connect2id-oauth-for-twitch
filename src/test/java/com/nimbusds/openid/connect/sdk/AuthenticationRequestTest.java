@@ -46,6 +46,7 @@ import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagException;
 import com.nimbusds.langtag.LangTagUtils;
 import com.nimbusds.oauth2.sdk.*;
+import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.JWTID;
@@ -87,6 +88,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("nonce"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("display"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("prompt"));
+		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("dpop_jkt"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("max_age"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("ui_locales"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("claims_locales"));
@@ -95,11 +97,10 @@ public class AuthenticationRequestTest extends TestCase {
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("acr_values"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("claims"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("purpose"));
-		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("purpose"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("request_uri"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("request"));
 
-		assertEquals(23, AuthenticationRequest.getRegisteredParameterNames().size());
+		assertEquals(24, AuthenticationRequest.getRegisteredParameterNames().size());
 	}
 
 	
@@ -151,6 +152,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertNull(request.getResponseMode());
 		assertNull(request.getDisplay());
 		assertNull(request.getPrompt());
+		assertNull(request.getDPoPJWKThumbprintConfirmation());
 		assertEquals(-1, request.getMaxAge());
 		assertNull(request.getUILocales());
 		assertNull(request.getIDTokenHint());
@@ -197,6 +199,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertNull(request.getResponseMode());
 		assertNull(request.getDisplay());
 		assertNull(request.getPrompt());
+		assertNull(request.getDPoPJWKThumbprintConfirmation());
 		assertEquals(-1, request.getMaxAge());
 		assertNull(request.getUILocales());
 		assertNull(request.getIDTokenHint());
@@ -279,6 +282,226 @@ public class AuthenticationRequestTest extends TestCase {
 
 
 	public void testExtendedConstructor_withCustomParams()
+		throws Exception {
+
+		URI uri = new URI("https://c2id.com/login/");
+
+		ResponseType rts = new ResponseType();
+		rts.add(ResponseType.Value.CODE);
+
+		ResponseMode rm = ResponseMode.FORM_POST;
+
+		Scope scope = new Scope();
+		scope.add(OIDCScopeValue.OPENID);
+		scope.add(OIDCScopeValue.EMAIL);
+		scope.add(OIDCScopeValue.PROFILE);
+
+		ClientID clientID = new ClientID("123456789");
+
+		URI redirectURI = new URI("http://www.deezer.com/en/");
+
+		State state = new State("abc");
+		Nonce nonce = new Nonce("xyz");
+
+		// Extended parameters
+		Display display = Display.POPUP;
+
+		Prompt prompt = new Prompt();
+		prompt.add(Prompt.Type.LOGIN);
+		prompt.add(Prompt.Type.CONSENT);
+		
+		JWKThumbprintConfirmation dpopJKT = new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs"));
+
+		int maxAge = 3600;
+
+		List<LangTag> uiLocales = new LinkedList<>();
+		uiLocales.add(LangTag.parse("en-US"));
+		uiLocales.add(LangTag.parse("en-GB"));
+
+		List<LangTag> claimsLocales = new LinkedList<>();
+		claimsLocales.add(LangTag.parse("de-DE"));
+		claimsLocales.add(LangTag.parse("de-AT"));
+
+		JWT idTokenHint = JWTParser.parse(EXAMPLE_JWT_STRING);
+
+		String loginHint = "alice123";
+
+		List<ACR> acrValues = new LinkedList<>();
+		acrValues.add(new ACR("1"));
+		acrValues.add(new ACR("2"));
+
+		OIDCClaimsRequest claims = new OIDCClaimsRequest()
+			.withUserInfoClaimsRequest(new ClaimsSetRequest().add("given_name").add("family_name"));
+		
+		String purpose = "Some identity assurance purpose";
+
+		CodeVerifier codeVerifier = new CodeVerifier();
+		CodeChallengeMethod codeChallengeMethod = CodeChallengeMethod.S256;
+		CodeChallenge codeChallenge = CodeChallenge.compute(codeChallengeMethod, codeVerifier);
+		
+		List<URI> resources = Collections.singletonList(URI.create("https://rs1.com"));
+
+		Map<String,List<String>> customParams = new HashMap<>();
+		customParams.put("x", Collections.singletonList("100"));
+		customParams.put("y", Collections.singletonList("200"));
+		customParams.put("z", Collections.singletonList("300"));
+
+		AuthenticationRequest request = new AuthenticationRequest(
+			uri, rts, rm, scope, clientID, redirectURI, state, nonce,
+			display, prompt, dpopJKT, maxAge, uiLocales, claimsLocales,
+			idTokenHint, loginHint, acrValues, claims, purpose, null, null,
+			codeChallenge, codeChallengeMethod,
+			resources,
+			true,
+			customParams);
+
+		assertEquals(uri, request.getEndpointURI());
+
+		ResponseType rtsOut = request.getResponseType();
+		assertTrue(rtsOut.contains(ResponseType.Value.CODE));
+		assertEquals(1, rtsOut.size());
+
+		Scope scopeOut = request.getScope();
+		assertTrue(scopeOut.contains(OIDCScopeValue.OPENID));
+		assertTrue(scopeOut.contains(OIDCScopeValue.EMAIL));
+		assertTrue(scopeOut.contains(OIDCScopeValue.PROFILE));
+		assertEquals(3, scopeOut.size());
+		
+		assertEquals(new ClientID("123456789"), request.getClientID());
+		
+		assertEquals(new URI("http://www.deezer.com/en/"), request.getRedirectionURI());
+		
+		assertEquals(new State("abc"), request.getState());
+		assertEquals(new Nonce("xyz"), request.getNonce());
+
+		// Check extended parameters
+
+		assertEquals(rm, request.getResponseMode());
+		assertEquals(ResponseMode.FORM_POST, request.impliedResponseMode());
+
+		assertEquals("Display checK", Display.POPUP, request.getDisplay());
+
+		Prompt promptOut = request.getPrompt();
+		assertTrue("Prompt login", promptOut.contains(Prompt.Type.LOGIN));
+		assertTrue("Prompt consent", promptOut.contains(Prompt.Type.CONSENT));
+		assertEquals("Prompt size", 2, promptOut.size());
+		
+		assertEquals(dpopJKT, request.getDPoPJWKThumbprintConfirmation());
+
+		assertEquals(3600, request.getMaxAge());
+
+		uiLocales = request.getUILocales();
+		assertEquals("UI locale en-US", uiLocales.get(0), LangTag.parse("en-US"));
+		assertEquals("UI locale en-GB", uiLocales.get(1), LangTag.parse("en-GB"));
+		assertEquals("UI locales size", 2, uiLocales.size());
+
+		claimsLocales = request.getClaimsLocales();
+		assertEquals("Claims locale de-DE", claimsLocales.get(0), LangTag.parse("de-DE"));
+		assertEquals("Claims locale de-AT", claimsLocales.get(1), LangTag.parse("de-AT"));
+		assertEquals("Claims locales size", 2, claimsLocales.size());
+
+		assertEquals(EXAMPLE_JWT_STRING, request.getIDTokenHint().getParsedString());
+
+		assertEquals(loginHint, request.getLoginHint());
+
+		List<ACR> acrValuesOut = request.getACRValues();
+		assertEquals("1", acrValuesOut.get(0).toString());
+		assertEquals("2", acrValuesOut.get(1).toString());
+		assertEquals(2, acrValuesOut.size());
+
+		OIDCClaimsRequest claimsOut = request.getOIDCClaims();
+
+		assertEquals(claims, claimsOut);
+		
+		assertEquals(purpose, request.getPurpose());
+
+		assertEquals(codeChallenge, request.getCodeChallenge());
+		assertEquals(codeChallengeMethod, request.getCodeChallengeMethod());
+		
+		assertEquals(resources, request.getResources());
+
+		assertEquals(Collections.singletonList("100"), request.getCustomParameter("x"));
+		assertEquals(Collections.singletonList("200"), request.getCustomParameter("y"));
+		assertEquals(Collections.singletonList("300"), request.getCustomParameter("z"));
+		assertEquals(3, request.getCustomParameters().size());
+
+		// Check the resulting query string
+		String queryString = request.toQueryString();
+
+		request = AuthenticationRequest.parse(uri, queryString);
+
+		assertEquals(uri, request.getEndpointURI());
+
+		rtsOut = request.getResponseType();
+		assertTrue(rtsOut.contains(ResponseType.Value.CODE));
+		assertEquals(1, rtsOut.size());
+
+		scopeOut = request.getScope();
+		assertTrue(scopeOut.contains(OIDCScopeValue.OPENID));
+		assertTrue(scopeOut.contains(OIDCScopeValue.EMAIL));
+		assertTrue(scopeOut.contains(OIDCScopeValue.PROFILE));
+		assertEquals(3, scopeOut.size());
+		
+		assertEquals(new ClientID("123456789"), request.getClientID());
+		
+		assertEquals(new URI("http://www.deezer.com/en/"), request.getRedirectionURI());
+		
+		assertEquals(new State("abc"), request.getState());
+		assertEquals(new Nonce("xyz"), request.getNonce());
+
+		// Check extended parameters
+
+		assertEquals(rm, request.getResponseMode());
+		assertEquals(ResponseMode.FORM_POST, request.impliedResponseMode());
+
+		assertEquals("Display checK", Display.POPUP, request.getDisplay());
+
+		promptOut = request.getPrompt();
+		assertTrue("Prompt login", promptOut.contains(Prompt.Type.LOGIN));
+		assertTrue("Prompt consent", promptOut.contains(Prompt.Type.CONSENT));
+		assertEquals("Prompt size", 2, promptOut.size());
+
+		assertEquals(3600, request.getMaxAge());
+
+		uiLocales = request.getUILocales();
+		assertEquals("UI locale en-US", uiLocales.get(0), LangTag.parse("en-US"));
+		assertEquals("UI locale en-GB", uiLocales.get(1), LangTag.parse("en-GB"));
+		assertEquals("UI locales size", 2, uiLocales.size());
+
+		claimsLocales = request.getClaimsLocales();
+		assertEquals("Claims locale de-DE", claimsLocales.get(0), LangTag.parse("de-DE"));
+		assertEquals("Claims locale de-AT", claimsLocales.get(1), LangTag.parse("de-AT"));
+		assertEquals("Claims locales size", 2, claimsLocales.size());
+
+		assertEquals(EXAMPLE_JWT_STRING, request.getIDTokenHint().getParsedString());
+
+		assertEquals(loginHint, request.getLoginHint());
+
+		acrValuesOut = request.getACRValues();
+		assertEquals("1", acrValuesOut.get(0).toString());
+		assertEquals("2", acrValuesOut.get(1).toString());
+		assertEquals(2, acrValuesOut.size());
+
+		claimsOut = request.getOIDCClaims();
+		assertEquals(claims.toJSONObject(), claimsOut.toJSONObject());
+		
+		assertEquals(purpose, request.getPurpose());
+
+		assertEquals(codeChallenge, request.getCodeChallenge());
+		assertEquals(codeChallengeMethod, request.getCodeChallengeMethod());
+		
+		assertEquals(resources, request.getResources());
+		
+		assertTrue(request.includeGrantedScopes());
+
+		assertEquals(Collections.singletonList("100"), request.getCustomParameter("x"));
+		assertEquals(Collections.singletonList("200"), request.getCustomParameter("y"));
+		assertEquals(Collections.singletonList("300"), request.getCustomParameter("z"));
+		assertEquals(3, request.getCustomParameters().size());
+	}
+
+
+	public void testDeprecatedExtendedConstructor_withCustomParams()
 		throws Exception {
 
 		URI uri = new URI("https://c2id.com/login/");
@@ -405,8 +628,6 @@ public class AuthenticationRequestTest extends TestCase {
 
 		ClaimsRequest claimsOut = request.getClaims();
 
-//		System.out.println("OIDC login request claims: " + claimsOut.toJSONObject().toString());
-
 		assertEquals(2, claimsOut.getUserInfoClaims().size());
 		
 		assertEquals(purpose, request.getPurpose());
@@ -423,8 +644,6 @@ public class AuthenticationRequestTest extends TestCase {
 
 		// Check the resulting query string
 		String queryString = request.toQueryString();
-
-//		System.out.println("OIDC login query string: " + queryString);
 
 		request = AuthenticationRequest.parse(uri, queryString);
 
@@ -481,8 +700,6 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals(2, acrValuesOut.size());
 
 		claimsOut = request.getClaims();
-
-//		System.out.println("OIDC login request claims: " + claimsOut.toJSONObject().toString());
 
 		assertEquals(2, claimsOut.getUserInfoClaims().size());
 		
@@ -893,6 +1110,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals(ResponseMode.QUERY, request.impliedResponseMode());
 		assertNull(request.getDisplay());
 		assertNull(request.getPrompt());
+		assertNull(request.getDPoPJWKThumbprintConfirmation());
 		assertEquals(-1, request.getMaxAge());
 		assertNull(request.getUILocales());
 		assertNull(request.getClaimsLocales());
@@ -934,6 +1152,7 @@ public class AuthenticationRequestTest extends TestCase {
 			.nonce(new Nonce("def"))
 			.display(Display.POPUP)
 			.prompt(new Prompt(Prompt.Type.NONE))
+			.dPoPJWKThumbprintConfirmation(new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs")))
 			.maxAge(3600)
 			.uiLocales(Arrays.asList(LangTag.parse("en-GB"), LangTag.parse("en-US")))
 			.claimsLocales(Arrays.asList(LangTag.parse("bg-BG"), LangTag.parse("fr-FR")))
@@ -962,6 +1181,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals(new Nonce("def"), request.getNonce());
 		assertEquals(Display.POPUP, request.getDisplay());
 		assertEquals(new Prompt(Prompt.Type.NONE), request.getPrompt());
+		assertEquals(new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs")), request.getDPoPJWKThumbprintConfirmation());
 		assertEquals(3600, request.getMaxAge());
 		assertEquals(Arrays.asList(LangTag.parse("en-GB"), LangTag.parse("en-US")), request.getUILocales());
 		assertEquals(Arrays.asList(LangTag.parse("bg-BG"), LangTag.parse("fr-FR")), request.getClaimsLocales());
@@ -1804,6 +2024,7 @@ public class AuthenticationRequestTest extends TestCase {
 			.nonce(new Nonce())
 			.display(Display.POPUP)
 			.prompt(new Prompt(Prompt.Type.NONE))
+			.dPoPJWKThumbprintConfirmation(new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs")))
 			.maxAge(900)
 			.uiLocales(LangTagUtils.parseLangTagList("en", "de"))
 			.claimsLocales(LangTagUtils.parseLangTagList("fr", "bg"))
@@ -1828,6 +2049,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals(in.getNonce(), out.getNonce());
 		assertEquals(in.getDisplay(), out.getDisplay());
 		assertEquals(in.getPrompt(), out.getPrompt());
+		assertEquals(in.getDPoPJWKThumbprintConfirmation(), out.getDPoPJWKThumbprintConfirmation());
 		assertEquals(in.getMaxAge(), out.getMaxAge());
 		assertEquals(in.getUILocales(), out.getUILocales());
 		assertEquals(in.getClaimsLocales(), out.getClaimsLocales());
@@ -1846,7 +2068,7 @@ public class AuthenticationRequestTest extends TestCase {
 	}
 	
 	
-	public void testCopyConstructorBuilder_requesURI()
+	public void testCopyConstructorBuilder_requestURI()
 		throws Exception {
 		
 		ClaimsRequest claims = new ClaimsRequest();
@@ -1861,6 +2083,7 @@ public class AuthenticationRequestTest extends TestCase {
 			.nonce(new Nonce())
 			.display(Display.POPUP)
 			.prompt(new Prompt(Prompt.Type.NONE))
+			.dPoPJWKThumbprintConfirmation(new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs")))
 			.maxAge(900)
 			.uiLocales(LangTagUtils.parseLangTagList("en", "de"))
 			.claimsLocales(LangTagUtils.parseLangTagList("fr", "bg"))
@@ -1885,6 +2108,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals(in.getNonce(), out.getNonce());
 		assertEquals(in.getDisplay(), out.getDisplay());
 		assertEquals(in.getPrompt(), out.getPrompt());
+		assertEquals(in.getDPoPJWKThumbprintConfirmation(), out.getDPoPJWKThumbprintConfirmation());
 		assertEquals(in.getMaxAge(), out.getMaxAge());
 		assertEquals(in.getUILocales(), out.getUILocales());
 		assertEquals(in.getClaimsLocales(), out.getClaimsLocales());
@@ -2220,6 +2444,32 @@ public class AuthenticationRequestTest extends TestCase {
 		} catch (IllegalArgumentException e) {
 			assertEquals("The client ID must not be null", e.getMessage());
 		}
+	}
+	
+	
+	// dpop
+	public void testDPoP() throws ParseException {
+		
+		JWKThumbprintConfirmation dpopJKT = new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs"));
+		
+		AuthenticationRequest authRequest = new AuthenticationRequest.Builder(
+			new ResponseType(ResponseType.Value.CODE),
+			new Scope("openid"),
+			new ClientID("123"),
+			URI.create("https://example.com/cb"))
+			.endpointURI(URI.create("https://c2id.com/login"))
+			.dPoPJWKThumbprintConfirmation(dpopJKT)
+			.build();
+		
+		assertEquals(dpopJKT, authRequest.getDPoPJWKThumbprintConfirmation());
+		
+		Map<String, List<String>> params = authRequest.toParameters();
+		
+		assertEquals(Collections.singletonList("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs"), params.get("dpop_jkt"));
+		
+		authRequest = AuthenticationRequest.parse(params);
+		
+		assertEquals(dpopJKT, authRequest.getDPoPJWKThumbprintConfirmation());
 	}
 	
 	
