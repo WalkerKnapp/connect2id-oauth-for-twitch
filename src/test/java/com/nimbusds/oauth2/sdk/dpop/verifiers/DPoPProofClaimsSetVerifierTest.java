@@ -78,6 +78,7 @@ public class DPoPProofClaimsSetVerifierTest extends TestCase {
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
 			.claim("htm", "POST")
 			.claim("htu", endpoint.toString())
+			.claim("nonce", nonce.getValue())
 			.issueTime(now)
 			.jwtID(jti.getValue())
 			.build();
