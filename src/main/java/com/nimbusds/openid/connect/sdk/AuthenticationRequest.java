@@ -1345,7 +1345,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	
 	
 	/**
-	 * Gets the nonce. Corresponds to the conditionally optional 
+	 * Returns the nonce. Corresponds to the conditionally optional 
 	 * {@code nonce} parameter.
 	 *
 	 * @return The nonce, {@code null} if not specified.
@@ -1357,7 +1357,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	
 	
 	/**
-	 * Gets the requested display type. Corresponds to the optional
+	 * Returns the requested display type. Corresponds to the optional
 	 * {@code display} parameter.
 	 *
 	 * @return The requested display type, {@code null} if not specified.
@@ -1369,7 +1369,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	
 	
 	/**
-	 * Gets the required maximum authentication age. Corresponds to the
+	 * Returns the required maximum authentication age. Corresponds to the
 	 * optional {@code max_age} parameter.
 	 *
 	 * @return The maximum authentication age, in seconds; -1 if not
@@ -1382,7 +1382,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 
 
 	/**
-	 * Gets the end-user's preferred languages and scripts for the user
+	 * Returns the end-user's preferred languages and scripts for the user
 	 * interface, ordered by preference. Corresponds to the optional
 	 * {@code ui_locales} parameter.
 	 *
@@ -1395,9 +1395,9 @@ public class AuthenticationRequest extends AuthorizationRequest {
 
 
 	/**
-	 * Gets the end-user's preferred languages and scripts for the claims
-	 * being returned, ordered by preference. Corresponds to the optional
-	 * {@code claims_locales} parameter.
+	 * Returns the end-user's preferred languages and scripts for the
+	 * claims being returned, ordered by preference. Corresponds to the
+	 * optional {@code claims_locales} parameter.
 	 *
 	 * @return The preferred claims locales, {@code null} if not specified.
 	 */
@@ -1408,7 +1408,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 
 
 	/**
-	 * Gets the ID Token hint. Corresponds to the conditionally optional 
+	 * Returns the ID Token hint. Corresponds to the conditionally optional 
 	 * {@code id_token_hint} parameter.
 	 *
 	 * @return The ID Token hint, {@code null} if not specified.
@@ -1420,7 +1420,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 
 
 	/**
-	 * Gets the login hint. Corresponds to the optional {@code login_hint} 
+	 * Returns the login hint. Corresponds to the optional {@code login_hint} 
 	 * parameter.
 	 *
 	 * @return The login hint, {@code null} if not specified.
@@ -1432,7 +1432,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 
 
 	/**
-	 * Gets the requested Authentication Context Class Reference values.
+	 * Returns the requested Authentication Context Class Reference values.
 	 * Corresponds to the optional {@code acr_values} parameter.
 	 *
 	 * @return The requested ACR values, {@code null} if not specified.
@@ -1444,7 +1444,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 
 
 	/**
-	 * Gets the individual claims to be returned. Corresponds to the 
+	 * Returns the individual claims to be returned. Corresponds to the 
 	 * optional {@code claims} parameter.
 	 *
 	 * @see #getOIDCClaims()
@@ -1484,8 +1484,8 @@ public class AuthenticationRequest extends AuthorizationRequest {
 
 
 	/**
-	 * Gets the individual OpenID claims to be returned. Corresponds to the
-	 * optional {@code claims} parameter.
+	 * Returns the individual OpenID claims to be returned. Corresponds to
+	 * the optional {@code claims} parameter.
 	 *
 	 * @return The individual claims to be returned, {@code null} if not
 	 *         specified.
@@ -1497,8 +1497,8 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	
 	
 	/**
-	 * Gets the transaction specific purpose. Corresponds to the optional
-	 * {@code purpose} parameter.
+	 * Returns the transaction specific purpose. Corresponds to the
+	 * optional {@code purpose} parameter.
 	 *
 	 * @return The purpose, {@code null} if not specified.
 	 */

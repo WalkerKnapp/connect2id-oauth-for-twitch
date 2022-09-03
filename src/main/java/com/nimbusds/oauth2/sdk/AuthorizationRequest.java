@@ -321,7 +321,6 @@ public class AuthorizationRequest extends AbstractRequest {
 
 			this.rt = rt;
 
-
 			if (clientID == null)
 				throw new IllegalArgumentException("The client ID must not be null");
 
@@ -421,10 +420,8 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return This builder.
 		 */
 		public Builder responseType(final ResponseType rt) {
-			
 			if (rt == null)
 				throw new IllegalArgumentException("The response type must not be null");
-			
 			this.rt = rt;
 			return this;
 		}
@@ -440,7 +437,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return This builder.
 		 */
 		public Builder redirectionURI(final URI redirectURI) {
-
 			this.redirectURI = redirectURI;
 			return this;
 		}
@@ -455,7 +451,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return This builder.
 		 */
 		public Builder scope(final Scope scope) {
-
 			this.scope = scope;
 			return this;
 		}
@@ -470,7 +465,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return This builder.
 		 */
 		public Builder state(final State state) {
-
 			this.state = state;
 			return this;
 		}
@@ -487,7 +481,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return This builder.
 		 */
 		public Builder responseMode(final ResponseMode rm) {
-
 			this.rm = rm;
 			return this;
 		}
@@ -506,7 +499,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		 */
 		@Deprecated
 		public Builder codeChallenge(final CodeChallenge codeChallenge, final CodeChallengeMethod codeChallengeMethod) {
-
 			this.codeChallenge = codeChallenge;
 			this.codeChallengeMethod = codeChallengeMethod;
 			return this;
@@ -530,7 +522,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return This builder.
 		 */
 		public Builder codeChallenge(final CodeVerifier codeVerifier, final CodeChallengeMethod codeChallengeMethod) {
-
 			if (codeVerifier != null) {
 				CodeChallengeMethod method = codeChallengeMethod != null ? codeChallengeMethod : CodeChallengeMethod.getDefault();
 				this.codeChallenge = CodeChallenge.compute(method, codeVerifier);
@@ -588,7 +579,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return This builder.
 		 */
 		public Builder includeGrantedScopes(final boolean includeGrantedScopes) {
-			
 			this.includeGrantedScopes = includeGrantedScopes;
 			return this;
 		}
@@ -605,7 +595,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return This builder.
 		 */
 		public Builder requestObject(final JWT requestObject) {
-			
 			this.requestObject = requestObject;
 			return this;
 		}
@@ -622,7 +611,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return This builder.
 		 */
 		public Builder requestURI(final URI requestURI) {
-			
 			this.requestURI = requestURI;
 			return this;
 		}
@@ -638,7 +626,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return This builder.
 		 */
 		public Builder prompt(final Prompt prompt) {
-			
 			this.prompt = prompt;
 			return this;
 		}
@@ -654,7 +641,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return This builder.
 		 */
 		public Builder dPoPJWKThumbprintConfirmation(final JWKThumbprintConfirmation dpopJKT) {
-			
 			this.dpopJKT = dpopJKT;
 			return this;
 		}
@@ -670,13 +656,11 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return This builder.
 		 */
 		public Builder customParameter(final String name, final String ... values) {
-
 			if (values == null || values.length == 0) {
 				customParams.remove(name);
 			} else {
 				customParams.put(name, Arrays.asList(values));
 			}
-			
 			return this;
 		}
 
@@ -690,7 +674,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return This builder.
 		 */
 		public Builder endpointURI(final URI uri) {
-
 			this.uri = uri;
 			return this;
 		}
@@ -702,7 +685,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @return The authorisation request.
 		 */
 		public AuthorizationRequest build() {
-
 			try {
 				return new AuthorizationRequest(uri, rt, rm, clientID, redirectURI, scope, state,
 					codeChallenge, codeChallengeMethod, resources, includeGrantedScopes,
@@ -999,7 +981,7 @@ public class AuthorizationRequest extends AbstractRequest {
 
 
 	/**
-	 * Gets the response type. Corresponds to the {@code response_type}
+	 * Returns the response type. Corresponds to the {@code response_type}
 	 * parameter.
 	 *
 	 * @return The response type, may be {@code null} for a
@@ -1014,7 +996,7 @@ public class AuthorizationRequest extends AbstractRequest {
 
 
 	/**
-	 * Gets the optional response mode. Corresponds to the optional
+	 * Returns the optional response mode. Corresponds to the optional
 	 * {@code response_mode} parameter.
 	 *
 	 * @return The response mode, {@code null} if not specified.
@@ -1045,7 +1027,7 @@ public class AuthorizationRequest extends AbstractRequest {
 
 
 	/**
-	 * Gets the client identifier. Corresponds to the {@code client_id} 
+	 * Returns the client identifier. Corresponds to the {@code client_id}
 	 * parameter.
 	 *
 	 * @return The client identifier.
@@ -1057,7 +1039,7 @@ public class AuthorizationRequest extends AbstractRequest {
 
 
 	/**
-	 * Gets the redirection URI. Corresponds to the optional 
+	 * Returns the redirection URI. Corresponds to the optional
 	 * {@code redirection_uri} parameter.
 	 *
 	 * @return The redirection URI, {@code null} if not specified.
@@ -1069,7 +1051,8 @@ public class AuthorizationRequest extends AbstractRequest {
 	
 	
 	/**
-	 * Gets the scope. Corresponds to the optional {@code scope} parameter.
+	 * Returns the scope. Corresponds to the optional {@code scope}
+	 * parameter.
 	 *
 	 * @return The scope, {@code null} if not specified.
 	 */
@@ -1080,7 +1063,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	
 	
 	/**
-	 * Gets the state. Corresponds to the recommended {@code state} 
+	 * Returns the state. Corresponds to the recommended {@code state}
 	 * parameter.
 	 *
 	 * @return The state, {@code null} if not specified.
@@ -1137,8 +1120,8 @@ public class AuthorizationRequest extends AbstractRequest {
 	
 	
 	/**
-	 * Gets the request object. Corresponds to the optional {@code request}
-	 * parameter.
+	 * Returns the request object. Corresponds to the optional
+	 * {@code request} parameter.
 	 *
 	 * @return The request object, {@code null} if not specified.
 	 */
@@ -1149,7 +1132,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	
 	
 	/**
-	 * Gets the request object URI. Corresponds to the optional
+	 * Returns the request object URI. Corresponds to the optional
 	 * {@code request_uri} parameter.
 	 *
 	 * @return The request object URI, {@code null} if not specified.
@@ -1175,7 +1158,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	
 	
 	/**
-	 * Gets the requested prompt. Corresponds to the optional
+	 * Returns the requested prompt. Corresponds to the optional
 	 * {@code prompt} parameter.
 	 *
 	 * @return The requested prompt, {@code null} if not specified.
