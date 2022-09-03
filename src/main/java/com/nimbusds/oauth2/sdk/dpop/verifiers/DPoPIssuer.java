@@ -25,7 +25,7 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
 
 
 /**
- * Unique identifier for the DPoP issuer. Typically the DPoP
+ * Unique identifier for a DPoP issuer. Typically the DPoP
  * {@link com.nimbusds.oauth2.sdk.id.ClientID}.
  */
 @Immutable
