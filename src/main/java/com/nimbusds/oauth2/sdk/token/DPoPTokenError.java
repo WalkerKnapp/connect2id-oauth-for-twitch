@@ -46,7 +46,7 @@ import com.nimbusds.oauth2.sdk.util.CollectionUtils;
  *     <li>{@link #INVALID_REQUEST}
  *     <li>{@link #INVALID_TOKEN}
  *     <li>{@link #INSUFFICIENT_SCOPE}
- *     <li>{@link #INVALID_DPOP_PROOF}
+ *     <li>{@link #USE_DPOP_NONCE}
  * </ul>
  *
  * <p>Example HTTP response:
@@ -132,6 +132,15 @@ public class DPoPTokenError extends TokenSchemeError {
 	 */
 	public static final DPoPTokenError INVALID_DPOP_PROOF =
 		new DPoPTokenError("invalid_dpop_proof", "Invalid DPoP proof",
+			HTTPResponse.SC_UNAUTHORIZED);
+	
+	
+	/**
+	 * The request is missing a required DPoP nonce. The HTTP status code
+	 * is set to 401 (Unauthorized).
+	 */
+	public static final DPoPTokenError USE_DPOP_NONCE =
+		new DPoPTokenError("use_dpop_nonce", "Use of DPoP nonce required",
 			HTTPResponse.SC_UNAUTHORIZED);
 	
 	

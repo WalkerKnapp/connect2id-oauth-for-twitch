@@ -56,6 +56,10 @@ public class DPoPTokenErrorTest extends TestCase {
 		assertEquals("invalid_dpop_proof", DPoPTokenError.INVALID_DPOP_PROOF.getCode());
 		assertEquals("Invalid DPoP proof", DPoPTokenError.INVALID_DPOP_PROOF.getDescription());
 		assertEquals(401, DPoPTokenError.INVALID_DPOP_PROOF.getHTTPStatusCode());
+		
+		assertEquals("use_dpop_nonce", DPoPTokenError.USE_DPOP_NONCE.getCode());
+		assertEquals("Use of DPoP nonce required", DPoPTokenError.USE_DPOP_NONCE.getDescription());
+		assertEquals(401, DPoPTokenError.INVALID_DPOP_PROOF.getHTTPStatusCode());
 	}
 	
 	
@@ -462,12 +466,49 @@ public class DPoPTokenErrorTest extends TestCase {
 	}
 	
 	
-	public void testParseRFCExample() throws ParseException {
+	public void testRFCExample() throws ParseException {
+		
+		String wwwHeader = "DPoP error=\"invalid_token\", error_description=\"Invalid DPoP key binding\", algs=\"ES256\"";
+		
+		DPoPTokenError error = DPoPTokenError.parse(wwwHeader);
+		assertNull(error.getRealm());
+		assertEquals(DPoPTokenError.INVALID_TOKEN.getCode(), error.getCode());
+		assertEquals("Invalid DPoP key binding", error.getDescription());
+		assertEquals(Collections.singleton(JWSAlgorithm.ES256), error.getJWSAlgorithms());
+	}
+	
+	
+	public void testRFCExampleAlgs() throws ParseException {
+		
+		String wwwHeader = "DPoP algs=\"ES256 PS256\"";
+		
+		DPoPTokenError error = DPoPTokenError.parse(wwwHeader);
+		assertNull(error.getRealm());
+		assertNull(error.getCode());
+		assertEquals(new HashSet<>(Arrays.asList(JWSAlgorithm.ES256, JWSAlgorithm.PS256)), error.getJWSAlgorithms());
+	}
+	
+	
+	public void testParseRFCExampleAlgsDeprecated() throws ParseException {
 		
 		String wwwHeader = "DPoP realm=\"WallyWorld\", algs=\"ES256 PS256\"";
 		
 		DPoPTokenError error = DPoPTokenError.parse(wwwHeader);
 		assertEquals("WallyWorld", error.getRealm());
+		assertNull(error.getCode());
 		assertEquals(new HashSet<>(Arrays.asList(JWSAlgorithm.ES256, JWSAlgorithm.PS256)), error.getJWSAlgorithms());
+	}
+	
+	
+	public void testParseRFCExampleWithNonce() throws ParseException {
+		
+		String wwwHeader = "DPoP error=\"use_dpop_nonce\", error_description=\"Resource server requires nonce in DPoP proof\"";
+		
+		DPoPTokenError error = DPoPTokenError.parse(wwwHeader);
+		assertNull(error.getRealm());
+		assertEquals(DPoPTokenError.USE_DPOP_NONCE, error);
+		assertEquals(DPoPTokenError.USE_DPOP_NONCE.getCode(), error.getCode());
+		assertEquals("Resource server requires nonce in DPoP proof", error.getDescription());
+		assertNull(error.getJWSAlgorithms());
 	}
 }

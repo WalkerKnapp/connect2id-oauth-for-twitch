@@ -2079,3 +2079,4 @@ version 9.43 (2022-09-03)
       DPoPProtectedResourceRequestVerifier.
     * Adds DPoP-Nonce header support to HTTPResponse.
     * Adds OAuth2Error.USE_DPOP_NONCE constant.
+    * Adds DPoPTokenError.USE_DPOP_NONCE constant.
