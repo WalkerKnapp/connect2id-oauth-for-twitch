@@ -43,9 +43,13 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.JWTID;
+import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
+import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
 import com.nimbusds.oauth2.sdk.token.DPoPAccessToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.oauth2.sdk.util.singleuse.SingleUseChecker;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 
 public class DPoPExamples extends TestCase {
@@ -56,16 +60,16 @@ public class DPoPExamples extends TestCase {
 		// Generate an EC key pair for signing the DPoP proofs with the
 		// ES256 JWS algorithm. The OAuth 2.0 client should store this
 		// key securely for the duration of its use.
-		ECKey ecJWK = new ECKeyGenerator(Curve.P_256)
+		ECKey jwk = new ECKeyGenerator(Curve.P_256)
 			.keyID("1")
 			.generate();
 		
 		// Create a DPoP proof factory for the EC key
-		DPoPProofFactory proofFactory = new DefaultDPoPProofFactory(ecJWK, JWSAlgorithm.ES256);
+		DPoPProofFactory proofFactory = new DefaultDPoPProofFactory(jwk, JWSAlgorithm.ES256);
 		
 		// Token request with DPoP for a public OAuth 2.0 client
 		ClientID clientID = new ClientID("123");
-		AuthorizationCode code = new AuthorizationCode("ohyahhaht0vee0ech7Kieleephieheif");
+		AuthorizationCode code = new AuthorizationCode("Nooz9mohqu7Tha2E");
 		URI redirectURI = new URI("https://example.com/callback");
 		
 		TokenRequest tokenRequest = new TokenRequest(
@@ -118,6 +122,150 @@ public class DPoPExamples extends TestCase {
 	}
 	
 	
+	public void testClientExample_authorizationRequest() throws JOSEException, URISyntaxException {
+		
+		// The DPoP key
+		ECKey jwk = new ECKeyGenerator(Curve.P_256)
+			.keyID("1")
+			.generate();
+		
+		// PKCE is a recommended countermeasure against code injection attacks
+		CodeVerifier pkceVerifier = new CodeVerifier();
+		
+		// Compute the JWK thumbprint for DPoP
+		JWKThumbprintConfirmation dpopJKT = JWKThumbprintConfirmation.of(jwk);
+		
+		// Compose the authorisation request with the dpop_jkt parameter
+		AuthorizationRequest request = new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID("123"))
+			.endpointURI(new URI("https://demo.c2id.com/login"))
+			.scope(new Scope("read", "write"))
+			.state(new State())
+			.codeChallenge(pkceVerifier, CodeChallengeMethod.S256)
+			.dPoPJWKThumbprintConfirmation(dpopJKT)
+			.build();
+		
+		// Serialise the request:
+		// https://demo.c2id.com/login?
+		//  response_type=code
+		//  &client_id=123
+		//  &scope=read+write
+		//  &state=W2GZqkTWxAJphwBM7T2NP5SNJ6_xABoKMDTgmSGUj-w
+		//  &dpop_jkt=O3osYCGjl-aSm_FbzOKFZtOrzkyFtgATItp5fepwcSA
+		//  &code_challenge_method=S256
+		//  &code_challenge=K5mWL42Cly67d3EUJsIGeX_wtqDS2BsKFIFbVlR5Nfw
+		request.toURI();
+	}
+	
+	
+	public void testClientExample_par() throws Exception {
+		
+		// The DPoP key
+		ECKey jwk = new ECKeyGenerator(Curve.P_256)
+			.keyID("1")
+			.generate();
+		
+		// Create a DPoP proof factory
+		DPoPProofFactory proofFactory = new DefaultDPoPProofFactory(jwk, JWSAlgorithm.ES256);
+		
+		// PKCE is a recommended countermeasure against code injection attacks
+		CodeVerifier pkceVerifier = new CodeVerifier();
+		
+		// Compose the authorisation request, there is no dpop_jkt parameter!
+		AuthorizationRequest request = new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID("123"))
+			.endpointURI(new URI("https://demo.c2id.com/login"))
+			.scope(new Scope("read", "write"))
+			.state(new State())
+			.codeChallenge(pkceVerifier, CodeChallengeMethod.S256)
+			.build();
+		
+		// Convert to PAR and add a DPoP proof header
+		HTTPRequest httpRequest = new PushedAuthorizationRequest(
+			new URI("https://demo.c2id.com/par"),
+			request)
+			.toHTTPRequest();
+		httpRequest.setDPoP(proofFactory.createDPoPJWT(httpRequest.getMethod().name(), httpRequest.getURI()));
+		
+		// Send the HTTP request
+		HTTPResponse httpResponse = httpRequest.send();
+		PushedAuthorizationResponse response = PushedAuthorizationResponse.parse(httpResponse);
+		if (! response.indicatesSuccess()) {
+			// Error
+			System.err.println(response.toErrorResponse().getErrorObject());
+			return;
+		}
+		
+		// Success, extract the PAR URI
+		URI parURI = response.toSuccessResponse().getRequestURI();
+	}
+	
+	
+	public void testClientExample_par_dpopHeader() throws JOSEException, URISyntaxException, IOException, ParseException {
+		
+		// The DPoP key
+		ECKey jwk = new ECKeyGenerator(Curve.P_256)
+			.keyID("1")
+			.generate();
+		
+		// PKCE is a recommended countermeasure against code injection attacks
+		CodeVerifier pkceVerifier = new CodeVerifier();
+		
+		// Compute the JWK thumbprint for DPoP
+		JWKThumbprintConfirmation dpopJKT = JWKThumbprintConfirmation.of(jwk);
+		
+		// Compose the authorisation request with the dpop_jkt parameter
+		AuthorizationRequest request = new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID("123"))
+			.endpointURI(new URI("https://demo.c2id.com/login"))
+			.scope(new Scope("read", "write"))
+			.state(new State())
+			.codeChallenge(pkceVerifier, CodeChallengeMethod.S256)
+			.dPoPJWKThumbprintConfirmation(dpopJKT)
+			.build();
+		
+		// Convert to PAR and send
+		HTTPResponse httpResponse = new PushedAuthorizationRequest(
+			new URI("https://demo.c2id.com/par"),
+			request)
+			.toHTTPRequest()
+			.send();
+		
+		PushedAuthorizationResponse response = PushedAuthorizationResponse.parse(httpResponse);
+		if (! response.indicatesSuccess()) {
+			// Error
+			System.err.println(response.toErrorResponse().getErrorObject());
+			return;
+		}
+		
+		// Success, extract the PAR URI
+		URI parURI = response.toSuccessResponse().getRequestURI();
+	}
+	
+	
+	public void _testTokenResponse_useNonceError() throws Exception {
+		
+		HTTPResponse httpResponse = null;
+		
+		// Parse the token response
+		TokenResponse tokenResponse = TokenResponse.parse(httpResponse);
+		
+		if (! tokenResponse.indicatesSuccess()) {
+			// The token endpoint returned an error
+			ErrorObject errorObject = tokenResponse.toErrorResponse().getErrorObject();
+			
+			if (OAuth2Error.USE_DPOP_NONCE.equals(errorObject)) {
+				// The error is use_dpop_nonce
+				Nonce dPoPNonce = httpResponse.getDPoPNonce();
+				
+				if (dPoPNonce != null) {
+					// Use the server supplied nonce...
+				} else {
+					// Generate a new nonce
+					dPoPNonce = new Nonce();
+				}
+			}
+		}
+	}
+	
+	
 	public void _testProtectedResourceExample() throws URISyntaxException {
 		
 		// The accepted DPoP proof JWS algorithms
@@ -165,8 +313,11 @@ public class DPoPExamples extends TestCase {
 		// access token introspection
 		JWKThumbprintConfirmation cnf = null;
 		
+		// The expected nonce, if any
+		Nonce nonce = null;
+		
 		try {
-			verifier.verify(httpMethod, httpURI, dPoPIssuer, dPoPProof, accessToken, cnf);
+			verifier.verify(httpMethod, httpURI, dPoPIssuer, dPoPProof, accessToken, cnf, nonce);
 		} catch (InvalidDPoPProofException e) {
 			System.err.println("Invalid DPoP proof: " + e.getMessage());
 			return;
