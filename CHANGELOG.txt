@@ -2082,3 +2082,6 @@ version 9.43 (2022-09-03)
     * Adds DPoP-Nonce header support to HTTPResponse.
     * Adds OAuth2Error.USE_DPOP_NONCE constant.
     * Adds DPoPTokenError.USE_DPOP_NONCE constant.
+
+version 9.43.1 (2022-09-09)
+    * Updates Nimbus JOSE+JWT to 9.24.4
