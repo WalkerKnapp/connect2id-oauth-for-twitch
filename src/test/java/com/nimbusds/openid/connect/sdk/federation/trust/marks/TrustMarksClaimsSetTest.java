@@ -41,18 +41,75 @@ public class TrustMarksClaimsSetTest extends TestCase {
 			"\"sub\": \"https://example.com/op\"," +
 			"\"iat\": 1579621160," +
 			"\"id\": \"https://openid.net/certification/op\"," +
-			"\"mark\": \"https://openid.net/wordpress-content/uploads/2016/05/oid-l-certification-mark-l-cmyk-150dpi-90mm.jpg\"," +
+			"\"logo_uri\": \"https://openid.net/wordpress-content/uploads/2016/05/oid-l-certification-mark-l-cmyk-150dpi-90mm.jpg\"," +
 			"\"ref\": \"https://openid.net/wordpress-content/uploads/2015/09/RolandHedberg-pyoidc-0.7.7-Basic-26-Sept-2015.zip\"" +
 			"}";
 		
 		TrustMarkClaimsSet claimsSet = new TrustMarkClaimsSet(JWTClaimsSet.parse(json));
 		
-		assertEquals("https://example.com/op", claimsSet.getIssuer().getValue());
-		assertEquals("https://example.com/op", claimsSet.getSubject().getValue());
+		assertEquals(new Issuer("https://example.com/op"), claimsSet.getIssuer());
+		assertEquals(new Subject("https://example.com/op"), claimsSet.getSubject());
 		assertEquals(1579621160L, claimsSet.getIssueTime().getTime() / 1000L);
-		assertEquals("https://openid.net/certification/op", claimsSet.getID().getValue());
-		assertEquals("https://openid.net/wordpress-content/uploads/2016/05/oid-l-certification-mark-l-cmyk-150dpi-90mm.jpg", claimsSet.getMark().toString());
-		assertEquals("https://openid.net/wordpress-content/uploads/2015/09/RolandHedberg-pyoidc-0.7.7-Basic-26-Sept-2015.zip", claimsSet.getReference().toString());
+		assertEquals(new Identifier("https://openid.net/certification/op"), claimsSet.getID());
+		assertEquals(new URI("https://openid.net/wordpress-content/uploads/2016/05/oid-l-certification-mark-l-cmyk-150dpi-90mm.jpg"), claimsSet.getLogoURI());
+		assertEquals(new URI("https://openid.net/wordpress-content/uploads/2015/09/RolandHedberg-pyoidc-0.7.7-Basic-26-Sept-2015.zip"), claimsSet.getReference());
+		assertEquals(6, claimsSet.toJSONObject().size());
+	}
+	
+
+	public void testExample_cieTrustMark()
+		throws Exception {
+		
+		String json = "{" +
+			"\"id\":\"https://federation.id/openid_relying_party/public/\"," +
+			"\"iss\": \"https://trust-anchor.gov.id\"," +
+			"\"sub\": \"https://rp.cie.id\"," +
+			"\"iat\": 1579621160," +
+			"\"organization_name\": \"Organization name\"," +
+			"\"policy_uri\": \"https://rp.cie.id/privacy_policy\"," +
+			"\"tos_uri\": \"https://rp.cie.id/info_policy\"," +
+			"\"service_documentation\": \"https://rp.cie.id/api/v1/get/services\"," +
+			"\"ref\": \"https://rp.cie.id/documentation/manuale_operativo.pdf\"" +
+			"}";
+		
+		TrustMarkClaimsSet claimsSet = new TrustMarkClaimsSet(JWTClaimsSet.parse(json));
+		
+		assertEquals(new Identifier("https://federation.id/openid_relying_party/public/"), claimsSet.getID());
+		assertEquals(new Issuer("https://trust-anchor.gov.id"), claimsSet.getIssuer());
+		assertEquals(new Subject("https://rp.cie.id"), claimsSet.getSubject());
+		assertEquals(1579621160, claimsSet.getIssueTime().getTime() / 1000L);
+		assertEquals("Organization name", claimsSet.getStringClaim("organization_name"));
+		assertEquals(new URI("https://rp.cie.id/privacy_policy"), claimsSet.getURIClaim("policy_uri"));
+		assertEquals(new URI("https://rp.cie.id/info_policy"), claimsSet.getURIClaim("tos_uri"));
+		assertEquals(new URI("https://rp.cie.id/api/v1/get/services"), claimsSet.getURIClaim("service_documentation"));
+		assertEquals(new URI("https://rp.cie.id/documentation/manuale_operativo.pdf"), claimsSet.getReference());
+		assertEquals(9, claimsSet.toJSONObject().size());
+	}
+	
+
+	public void testExample_cieUnderAgeTrustMark()
+		throws Exception {
+		
+		String json = "{" +
+			"\"id\":\"https://federation.id/openid_relying_party/private/under-age\"," +
+			"\"iss\": \"https://trust-anchor.gov.id\"," +
+			"\"sub\": \"https://rp.cie.id\"," +
+			"\"iat\": 1579621160," +
+			"\"organization_name\": \"Organization name\"," +
+			"\"policy_uri\": \"https://rp.cie.id/privacy_policy\"," +
+			"\"tos_uri\": \"https://rp.cie.id/info_policy\"" +
+			"}";
+		
+		TrustMarkClaimsSet claimsSet = new TrustMarkClaimsSet(JWTClaimsSet.parse(json));
+		
+		assertEquals(new Identifier("https://federation.id/openid_relying_party/private/under-age"), claimsSet.getID());
+		assertEquals(new Issuer("https://trust-anchor.gov.id"), claimsSet.getIssuer());
+		assertEquals(new Subject("https://rp.cie.id"), claimsSet.getSubject());
+		assertEquals(1579621160, claimsSet.getIssueTime().getTime() / 1000L);
+		assertEquals("Organization name", claimsSet.getStringClaim("organization_name"));
+		assertEquals(new URI("https://rp.cie.id/privacy_policy"), claimsSet.getURIClaim("policy_uri"));
+		assertEquals(new URI("https://rp.cie.id/info_policy"), claimsSet.getURIClaim("tos_uri"));
+		assertEquals(7, claimsSet.toJSONObject().size());
 	}
 	
 	
@@ -69,11 +126,12 @@ public class TrustMarksClaimsSetTest extends TestCase {
 		
 		TrustMarkClaimsSet claimsSet = new TrustMarkClaimsSet(JWTClaimsSet.parse(json));
 		
-		assertEquals("https://swamid.sunet.se", claimsSet.getIssuer().getValue());
-		assertEquals("https://umu.se/op", claimsSet.getSubject().getValue());
+		assertEquals(new Issuer("https://swamid.sunet.se"), claimsSet.getIssuer());
+		assertEquals(new Subject("https://umu.se/op"), claimsSet.getSubject());
 		assertEquals(1577833200L, claimsSet.getIssueTime().getTime() / 1000);
 		assertEquals(1609369200, claimsSet.getExpirationTime().getTime() / 1000);
-		assertEquals("https://refeds.org/wp-content/uploads/2016/01/Sirtfi-1.0.pdf", claimsSet.getID().getValue());
+		assertEquals(new Identifier("https://refeds.org/wp-content/uploads/2016/01/Sirtfi-1.0.pdf"), claimsSet.getID());
+		assertEquals(5, claimsSet.toJSONObject().size());
 	}
 	
 	
@@ -134,7 +192,7 @@ public class TrustMarksClaimsSetTest extends TestCase {
 		assertEquals(sub, claimsSet.getSubject());
 		assertEquals(id, claimsSet.getID());
 		assertEquals(iat, claimsSet.getIssueTime());
-		assertEquals(mark, claimsSet.getMark());
+		assertEquals(mark, claimsSet.getLogoURI());
 		assertEquals(exp, claimsSet.getExpirationTime());
 		assertEquals(ref, claimsSet.getReference());
 		
@@ -144,7 +202,7 @@ public class TrustMarksClaimsSetTest extends TestCase {
 		assertEquals(sub.getValue(), jwtClaimsSet.getSubject());
 		assertEquals(id.getValue(), jwtClaimsSet.getStringClaim("id"));
 		assertEquals(iat, jwtClaimsSet.getIssueTime());
-		assertEquals(mark, jwtClaimsSet.getURIClaim("mark"));
+		assertEquals(mark, jwtClaimsSet.getURIClaim("logo_uri"));
 		assertEquals(exp, jwtClaimsSet.getExpirationTime());
 		assertEquals(ref, jwtClaimsSet.getURIClaim("ref"));
 		
@@ -156,7 +214,7 @@ public class TrustMarksClaimsSetTest extends TestCase {
 		assertEquals(sub, claimsSet.getSubject());
 		assertEquals(id, claimsSet.getID());
 		assertEquals(iat, claimsSet.getIssueTime());
-		assertEquals(mark, claimsSet.getMark());
+		assertEquals(mark, claimsSet.getLogoURI());
 		assertEquals(exp, claimsSet.getExpirationTime());
 		assertEquals(ref, claimsSet.getReference());
 	}

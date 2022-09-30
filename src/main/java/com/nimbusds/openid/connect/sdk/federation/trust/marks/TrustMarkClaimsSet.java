@@ -48,7 +48,7 @@ import com.nimbusds.openid.connect.sdk.claims.CommonClaimsSet;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 4.3.
+ *     <li>OpenID Connect Federation 1.0, section 5.3.
  * </ul>
  */
 public class TrustMarkClaimsSet extends CommonClaimsSet {
@@ -61,9 +61,9 @@ public class TrustMarkClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * The mark claim name.
+	 * The mark / logo URI name.
 	 */
-	public static final String MARK_CLAIM_NAME = "mark";
+	public static final String LOGO_URI_CLAIM_NAME = "logo_uri";
 	
 	
 	/**
@@ -161,25 +161,25 @@ public class TrustMarkClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Gets the mark URI. Corresponds to the {@code mark} claim.
+	 * Gets the mark / logo URI. Corresponds to the {@code logo_uri} claim.
 	 *
-	 * @return The mark URI, {@code null} if not specified or parsing
-	 *         failed.
+	 * @return The mark / logo URI, {@code null} if not specified or
+	 *         parsing failed.
 	 */
-	public URI getMark() {
+	public URI getLogoURI() {
 		
-		return getURIClaim(MARK_CLAIM_NAME);
+		return getURIClaim(LOGO_URI_CLAIM_NAME);
 	}
 	
 	
 	/**
-	 * Sets the mark URI. Corresponds to the {@code mark} claim.
+	 * Sets the mark / logo URI. Corresponds to the {@code logo_uri} claim.
 	 *
-	 * @param markURI The mark URI, {@code null} if not specified.
+	 * @param markURI The mark / logo URI, {@code null} if not specified.
 	 */
 	public void setMark(final URI markURI) {
 		
-		setURIClaim(MARK_CLAIM_NAME, markURI);
+		setURIClaim(LOGO_URI_CLAIM_NAME, markURI);
 	}
 	
 	
