@@ -24,9 +24,15 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
 
 
 /**
- * OpenID provider endpoint name, used in specifying the applicable client
+ * OpenID provider endpoint name, used in specifying the applicable request
  * authentication methods in automatic registration in OpenID Connect
  * Federation 1.0.
+ *
+ * <p>Related specifications:
+ *
+ * <ul>
+ *     <li>OpenID Connect Federation 1.0 (draft 23).
+ * </ul>
  */
 @Immutable
 public final class EndpointName extends Identifier {
@@ -36,14 +42,21 @@ public final class EndpointName extends Identifier {
 	
 	
 	/**
-	 * Authorisation request (endpoint).
+	 * Authorisation endpoint.
 	 */
+	public static final EndpointName AUTHORIZATION = new EndpointName("authorization_endpoint");
+	
+	
+	/**
+	 * Authorisation endpoint.
+	 */
+	@Deprecated
 	public static final EndpointName AR = new EndpointName("ar");
 	
 	/**
-	 * Pushed authorisation request (endpoint).
+	 * Pushed authorisation request endpoint.
 	 */
-	public static final EndpointName PAR = new EndpointName("par");
+	public static final EndpointName PAR = new EndpointName("pushed_authorization_request_endpoint");
 	
 	
 	/**

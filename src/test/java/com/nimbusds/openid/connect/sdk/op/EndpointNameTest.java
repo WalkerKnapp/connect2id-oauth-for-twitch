@@ -25,19 +25,20 @@ public class EndpointNameTest extends TestCase {
 	
 	
 	public void testConstants() {
+		assertEquals("authorization_endpoint", EndpointName.AUTHORIZATION.getValue());
 		assertEquals("ar", EndpointName.AR.getValue());
-		assertEquals("par", EndpointName.PAR.getValue());
+		assertEquals("pushed_authorization_request_endpoint", EndpointName.PAR.getValue());
 	}
 	
 	
 	public void testConstructor() {
 		
-		String name = "ar";
-		EndpointName endpointName = new EndpointName("ar");
+		String name = "authorization_endpoint";
+		EndpointName endpointName = new EndpointName("authorization_endpoint");
 		assertEquals(name, endpointName.getValue());
 		assertEquals(name, endpointName.toString());
 		
-		assertEquals(endpointName, EndpointName.AR);
-		assertEquals(endpointName.hashCode(), EndpointName.AR.hashCode());
+		assertEquals(endpointName, EndpointName.AUTHORIZATION);
+		assertEquals(endpointName.hashCode(), EndpointName.AUTHORIZATION.hashCode());
 	}
 }
