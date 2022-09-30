@@ -34,6 +34,7 @@ public class FederationMetadataTypeTest extends TestCase {
 		assertEquals("oauth_client", FederationMetadataType.OAUTH_CLIENT.getValue());
 		assertEquals("oauth_resource", FederationMetadataType.OAUTH_RESOURCE.getValue());
 		assertEquals("federation_entity", FederationMetadataType.FEDERATION_ENTITY.getValue());
+		assertEquals("trust_mark_issuer", FederationMetadataType.TRUST_MARK_ISSUER.getValue());
 	}
 	
 	public void testConstructor() {

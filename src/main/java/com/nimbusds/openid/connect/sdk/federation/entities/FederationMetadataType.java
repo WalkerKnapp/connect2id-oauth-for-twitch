@@ -29,7 +29,7 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 3.
+ *     <li>OpenID Connect Federation 1.0, section 4.
  * </ul>
  */
 @Immutable
@@ -73,6 +73,12 @@ public final class FederationMetadataType extends Identifier {
 	 * Federation entity ({@code federation_entity}).
 	 */
 	public static final FederationMetadataType FEDERATION_ENTITY = new FederationMetadataType("federation_entity");
+	
+	
+	/**
+	 * Trust mark issuer ({@code trust_mark_issuer}).
+	 */
+	public static final FederationMetadataType TRUST_MARK_ISSUER = new FederationMetadataType("trust_mark_issuer");
 	
 	
 	/**
