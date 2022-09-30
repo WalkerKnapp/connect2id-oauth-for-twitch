@@ -78,7 +78,7 @@ import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistratio
  *     <li>OAuth 2.0 Pushed Authorization Requests (RFC 9126)
  *     <li>OpenID Connect Client Initiated Backchannel Authentication Flow -
  * 	   Core 1.0
- *     <li>OpenID Connect Federation 1.0 (draft 13)
+ *     <li>OpenID Connect Federation 1.0 (draft 22)
  * </ul>
  */
 public class ClientMetadata {
@@ -139,8 +139,9 @@ public class ClientMetadata {
 		p.add("backchannel_user_code_parameter");
 		
 		// OIDC federation
-		p.add("client_registration_types");
 		p.add("organization_name");
+		p.add("signed_jwks_uri");
+		p.add("client_registration_types");
 
 		REGISTERED_PARAMETER_NAMES = Collections.unmodifiableSet(p);
 	}
@@ -226,6 +227,15 @@ public class ClientMetadata {
 	 * responses.
 	 */
 	private URI jwkSetURI;
+
+
+	/**
+	 * URI for this client's signed JSON Web Key (JWK) set containing
+	 * key(s) that are used in signing requests to the server and key(s)
+	 * for encrypting responses. Intended for use in OpenID Connect
+	 * Federation 1.0.
+	 */
+	private URI signedJWKSetURI;
 
 
 	/**
@@ -427,6 +437,7 @@ public class ClientMetadata {
 		authMethod = metadata.getTokenEndpointAuthMethod();
 		authJWSAlg = metadata.getTokenEndpointAuthJWSAlg();
 		jwkSetURI = metadata.getJWKSetURI();
+		signedJWKSetURI = metadata.getSignedJWKSetURI();
 		jwkSet = metadata.getJWKSet();
 		requestObjectURIs = metadata.getRequestObjectURIs();
 		requestObjectJWSAlg = metadata.getRequestObjectJWSAlg();
@@ -1094,6 +1105,37 @@ public class ClientMetadata {
 	public void setJWKSetURI(final URI jwkSetURI) {
 
 		this.jwkSetURI = jwkSetURI;
+	}
+
+
+	/**
+	 * Gets the URI for this client's signed JSON Web Key (JWK) set
+	 * containing key(s) that are used in signing requests to the server
+	 * and key(s) for encrypting responses. Corresponds to the
+	 * {@code signed_jwks_uri} client metadata field. Intended for use in
+	 * OpenID Connect Federation 1.0.
+	 *
+	 * @return The signed JWK set URI, {@code null} if not specified.
+	 */
+	public URI getSignedJWKSetURI() {
+
+		return signedJWKSetURI;
+	}
+
+
+	/**
+	 * Sets the URI for this client's signed JSON Web Key (JWK) set
+	 * containing key(s) that are used in signing requests to the server
+	 * and key(s) for encrypting responses. Corresponds to the
+	 * {@code signed_jwks_uri} client metadata field. Intended for use in
+	 * OpenID Connect Federation 1.0.
+	 *
+	 * @param signedJWKSetURI The signed JWK set URI, {@code null} if not
+	 *                        specified.
+	 */
+	public void setSignedJWKSetURI(final URI signedJWKSetURI) {
+
+		this.signedJWKSetURI = signedJWKSetURI;
 	}
 
 
@@ -2192,13 +2234,14 @@ public class ClientMetadata {
 		}
 		
 		// Federation
-		
 		if (CollectionUtils.isNotEmpty(clientRegistrationTypes)) {
 			o.put("client_registration_types", Identifier.toStringList(clientRegistrationTypes));
-			o.put("federation_type", Identifier.toStringList(clientRegistrationTypes)); // TODO deprecated
 		}
 		if (organizationName != null) {
 			o.put("organization_name", organizationName);
+		}
+		if (signedJWKSetURI != null) {
+			o.put("signed_jwks_uri", signedJWKSetURI.toString());
 		}
 
 		return o;
@@ -2568,19 +2611,16 @@ public class ClientMetadata {
 				}
 				metadata.setClientRegistrationTypes(types);
 				jsonObject.remove("client_registration_types");
-			} else if (jsonObject.get("federation_type") != null) {
-				// TODO deprecated
-				List<ClientRegistrationType> types = new LinkedList<>();
-				for (String v: JSONObjectUtils.getStringList(jsonObject, "federation_type")) {
-					types.add(new ClientRegistrationType(v));
-				}
-				metadata.setClientRegistrationTypes(types);
-				jsonObject.remove("federation_type");
 			}
 			
 			if (jsonObject.get("organization_name") != null) {
 				metadata.setOrganizationName(JSONObjectUtils.getString(jsonObject, "organization_name"));
 				jsonObject.remove("organization_name");
+			}
+			
+			if (jsonObject.get("signed_jwks_uri") != null) {
+				metadata.setSignedJWKSetURI(JSONObjectUtils.getURI(jsonObject, "signed_jwks_uri"));
+				jsonObject.remove("signed_jwks_uri");
 			}
 
 		} catch (ParseException | IllegalStateException e) {

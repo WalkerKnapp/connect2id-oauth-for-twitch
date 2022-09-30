@@ -103,9 +103,10 @@ public class OIDCClientInformationTest extends TestCase {
 		assertTrue(paramNames.contains("backchannel_logout_uri"));
 		assertTrue(paramNames.contains("backchannel_logout_session_required"));
 		assertTrue(paramNames.contains("digest_algorithm"));
-		assertTrue(paramNames.contains("client_registration_types"));
 		assertTrue(paramNames.contains("organization_name"));
-		assertEquals(62, paramNames.size());
+		assertTrue(paramNames.contains("signed_jwks_uri"));
+		assertTrue(paramNames.contains("client_registration_types"));
+		assertEquals(63, paramNames.size());
 	}
 
 

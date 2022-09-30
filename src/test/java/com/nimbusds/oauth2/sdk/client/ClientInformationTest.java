@@ -83,10 +83,11 @@ public class ClientInformationTest extends TestCase {
 		assertTrue(paramNames.contains("backchannel_client_notification_endpoint"));
 		assertTrue(paramNames.contains("backchannel_authentication_request_signing_alg"));
 		assertTrue(paramNames.contains("backchannel_user_code_parameter"));
-		assertTrue(paramNames.contains("client_registration_types"));
 		assertTrue(paramNames.contains("organization_name"));
+		assertTrue(paramNames.contains("signed_jwks_uri"));
+		assertTrue(paramNames.contains("client_registration_types"));
 
-		assertEquals(43, paramNames.size());
+		assertEquals(44, paramNames.size());
 	}
 	
 	

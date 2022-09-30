@@ -91,9 +91,10 @@ public class ClientMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("backchannel_client_notification_endpoint"));
 		assertTrue(paramNames.contains("backchannel_authentication_request_signing_alg"));
 		assertTrue(paramNames.contains("backchannel_user_code_parameter"));
-		assertTrue(paramNames.contains("client_registration_types"));
 		assertTrue(paramNames.contains("organization_name"));
-		assertEquals(37, ClientMetadata.getRegisteredParameterNames().size());
+		assertTrue(paramNames.contains("signed_jwks_uri"));
+		assertTrue(paramNames.contains("client_registration_types"));
+		assertEquals(38, ClientMetadata.getRegisteredParameterNames().size());
 	}
 	
 	
@@ -1611,7 +1612,7 @@ public class ClientMetadataTest extends TestCase {
 	public void testFederationFields()
 		throws Exception {
 		
-		OIDCClientMetadata clientMetadata = new OIDCClientMetadata();
+		ClientMetadata clientMetadata = new ClientMetadata();
 		
 		URI redirectionURI = URI.create("https://example.com/cb");
 		clientMetadata.setRedirectionURI(redirectionURI);
@@ -1621,6 +1622,10 @@ public class ClientMetadataTest extends TestCase {
 		clientMetadata.setClientRegistrationTypes(federationTypes);
 		assertEquals(federationTypes, clientMetadata.getClientRegistrationTypes());
 		
+		URI signedJWKSetURI = URI.create("https://example.com/jwks.jwt");
+		clientMetadata.setSignedJWKSetURI(signedJWKSetURI);
+		assertEquals(signedJWKSetURI, clientMetadata.getSignedJWKSetURI());
+		
 		assertNull(clientMetadata.getOrganizationName());
 		String orgName = "Example Org";
 		clientMetadata.setOrganizationName(orgName);
@@ -1629,25 +1634,20 @@ public class ClientMetadataTest extends TestCase {
 		JSONObject jsonObject = clientMetadata.toJSONObject();
 		
 		assertEquals(Arrays.asList("explicit", "automatic"), JSONObjectUtils.getStringList(jsonObject, "client_registration_types"));
-		assertEquals(Arrays.asList("explicit", "automatic"), JSONObjectUtils.getStringList(jsonObject, "federation_type"));
+		assertEquals(signedJWKSetURI, JSONObjectUtils.getURI(jsonObject, "signed_jwks_uri"));
 		assertEquals(orgName, JSONObjectUtils.getString(jsonObject, "organization_name"));
 		
-		clientMetadata = OIDCClientMetadata.parse(jsonObject);
+		clientMetadata = ClientMetadata.parse(jsonObject);
 		
 		assertEquals(redirectionURI, clientMetadata.getRedirectionURI());
 		assertEquals(federationTypes, clientMetadata.getClientRegistrationTypes());
-		assertEquals(orgName, clientMetadata.getOrganizationName());
-		
-		// parse deprecated only
-		jsonObject.remove("client_registration_types");
-		clientMetadata = OIDCClientMetadata.parse(jsonObject);
-		
-		assertEquals(redirectionURI, clientMetadata.getRedirectionURI());
-		assertEquals(federationTypes, clientMetadata.getClientRegistrationTypes());
+		assertEquals(signedJWKSetURI, clientMetadata.getSignedJWKSetURI());
 		assertEquals(orgName, clientMetadata.getOrganizationName());
 		
 		ClientMetadata copy = new ClientMetadata(clientMetadata);
+		assertEquals(redirectionURI, copy.getRedirectionURI());
 		assertEquals(federationTypes, copy.getClientRegistrationTypes());
+		assertEquals(signedJWKSetURI, copy.getSignedJWKSetURI());
 		assertEquals(orgName, copy.getOrganizationName());
 	}
 	
