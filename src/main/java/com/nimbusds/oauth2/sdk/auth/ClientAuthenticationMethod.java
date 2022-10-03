@@ -121,7 +121,7 @@ public final class ClientAuthenticationMethod extends Identifier {
 	
 	
 	/**
-	 * Client authentication by means of a request object at the
+	 * Client verification by means of a request object at the
 	 * authorisation or PAR endpoints. Intended for OpenID Connect
 	 * Federation 1.0 clients undertaking automatic registration. See
 	 * OpenID Connect Federation 1.0.

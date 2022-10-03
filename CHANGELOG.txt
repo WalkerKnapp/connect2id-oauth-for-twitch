@@ -2086,7 +2086,8 @@ version 9.43 (2022-09-03)
 version 9.43.1 (2022-09-09)
     * Updates Nimbus JOSE+JWT to 9.24.4
 
-version 9.44 (2022-09-30)
+version 9.44 (2022-10-03)
+    * Updates OIDCProviderMetadata to OpenID Connect Federation 1.0 - draft 22.
     * Adds signed_jwks_uri support to ClientMetadata for OpenID Connect
       Federation 1.0 - draft 22.
     * Updates EndpointName to OpenID Connect Federation 1.0 - draft 22.

@@ -29,6 +29,7 @@ import net.minidev.json.JSONObject;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagException;
 import com.nimbusds.oauth2.sdk.GeneralException;
@@ -65,7 +66,7 @@ import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistratio
  *     <li>OpenID Connect Front-Channel Logout 1.0, section 3 (draft 02).
  *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.1 (draft 07).
  *     <li>OpenID Connect for Identity Assurance 1.0 (draft 12).
- *     <li>OpenID Connect Federation 1.0 (draft 12).
+ *     <li>OpenID Connect Federation 1.0 (draft 22).
  *     <li>OAuth 2.0 Authorization Server Metadata (RFC 8414)
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
  *         Access Tokens (RFC 8705)
@@ -117,9 +118,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 		p.add("claims_in_verified_claims_supported");
 		p.add("attachments_supported");
 		p.add("digest_algorithms_supported");
-		p.add("client_registration_types_supported");
-		p.add("client_registration_authn_methods_supported");
 		p.add("organization_name");
+		p.add("jwks");
+		p.add("signed_jwks_uri");
+		p.add("client_registration_types_supported");
+		p.add("request_authentication_methods_supported");
+		p.add("request_authentication_signing_alg_values_supported");
 		REGISTERED_PARAMETER_NAMES = Collections.unmodifiableSet(p);
 	}
 
@@ -330,26 +334,46 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	
 	
 	/**
-	 * The supported federation client registration types.
-	 */
-	private List<ClientRegistrationType> clientRegistrationTypes;
-	
-	
-	/**
-	 * The supported client authentication methods for automatic federation
-	 * client registration.
-	 */
-	private Map<EndpointName,List<ClientAuthenticationMethod>> clientRegistrationAuthMethods;
-	
-	
-	/**
-	 * The organisation name (in federation).
+	 * The organisation name (OpenID Connect Federation 1.0).
 	 */
 	private String organizationName;
 	
 	
 	/**
-	 * The federation registration endpoint.
+	 * The OP JWK set (OpenID Connect Federation 1.0).
+	 */
+	private JWKSet jwkSet;
+	
+	
+	/**
+	 * The signed OP JWK set (OpenID Connect Federation 1.0).
+	 */
+	private URI signedJWKSetURI;
+	
+	
+	/**
+	 * The supported OpenID Connect Federation 1.0 client registration
+	 * types.
+	 */
+	private List<ClientRegistrationType> clientRegistrationTypes;
+	
+	
+	/**
+	 * The supported request authentication methods for automatic OpenID
+	 * Connect Federation 1.0 client registration.
+	 */
+	private Map<EndpointName,List<ClientAuthenticationMethod>> clientRegistrationAuthMethods;
+	
+	
+	/**
+	 * The supported JWS algorithms for authenticating automatic OpenID
+	 * Connect Federation 1.0 client registration requests.
+	 */
+	private List<JWSAlgorithm> clientRegistrationAuthJWSAlgs;
+	
+	
+	/**
+	 * The OpenID Connect Federation 1.0 registration endpoint.
 	 */
 	private URI federationRegistrationEndpoint;
 
@@ -370,9 +394,7 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	
 		super(issuer);
 		
-		if (subjectTypes.size() < 1)
-			throw new IllegalArgumentException("At least one supported subject type must be specified");
-		
+		ensureAtLeastOneSubjectType(subjectTypes);
 		this.subjectTypes = subjectTypes;
 
 		if (jwkSetURI == null)
@@ -383,11 +405,70 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 		// Default OpenID Connect setting is supported
 		setSupportsRequestURIParam(true);
 	}
+
+
+	/**
+	 * Creates a new OpenID Connect Federation 1.0 provider metadata
+	 * instance. The provider JWK set must be specified either by
+	 * {@code jwks_uri}, {@code signed_jwks_uri} or {@code jwks}.
+	 *
+	 * @param issuer                  The issuer identifier. Must be an URI
+	 *                                using the https scheme with no query
+	 *                                or fragment component. Must not be
+	 *                                {@code null}.
+	 * @param subjectTypes            The supported subject types. At least
+	 *                                one must be specified. Must not be
+	 *                                {@code null}.
+	 * @param clientRegistrationTypes The supported client registration
+	 *                                types. At least one must be
+	 *                                specified. Must not be {@code null}.
+	 * @param jwkSetURI               The JWK set URI, {@code null} if
+	 *                                specified by another field.
+	 * @param signedJWKSetURI         The signed JWK set URI, {@code null}
+	 *                                if specified by another field.
+	 * @param jwkSet                  the JWK set, {@code null} if
+	 *                                specified by another field.
+	 */
+	public OIDCProviderMetadata(final Issuer issuer,
+				    final List<SubjectType> subjectTypes,
+				    final List<ClientRegistrationType> clientRegistrationTypes,
+				    final URI jwkSetURI,
+				    final URI signedJWKSetURI,
+				    final JWKSet jwkSet) {
+	
+		super(issuer);
+		
+		ensureAtLeastOneSubjectType(subjectTypes);
+		this.subjectTypes = subjectTypes;
+		
+		if (clientRegistrationTypes.size() < 1) {
+			throw new IllegalArgumentException("At least one federation client registration type must be specified");
+		}
+		setClientRegistrationTypes(clientRegistrationTypes);
+
+		if (jwkSetURI != null && signedJWKSetURI == null && jwkSet == null) {
+			setJWKSetURI(jwkSetURI);
+		} else if (jwkSetURI == null && signedJWKSetURI != null && jwkSet == null) {
+			setSignedJWKSetURI(signedJWKSetURI);
+		} else if (jwkSetURI == null && signedJWKSetURI == null && jwkSet != null) {
+			setJWKSet(jwkSet);
+		} else {
+			throw new IllegalArgumentException("The public JWK set must be specified singularly");
+		}
+		
+		// Default OpenID Connect setting is supported
+		setSupportsRequestURIParam(true);
+	}
+	
+	
+	private void ensureAtLeastOneSubjectType(final List<SubjectType> subjectTypes) {
+		if (subjectTypes.size() < 1)
+			throw new IllegalArgumentException("At least one supported subject type must be specified");
+	}
 	
 	
 	@Override
 	public void setMtlsEndpointAliases(AuthorizationServerEndpointMetadata mtlsEndpointAliases) {
-	
 		if (mtlsEndpointAliases != null && !(mtlsEndpointAliases instanceof OIDCProviderEndpointMetadata)) {
 			// convert the provided endpoints to OIDC
 			super.setMtlsEndpointAliases(new OIDCProviderEndpointMetadata(mtlsEndpointAliases));
@@ -399,14 +480,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	
 	@Override
 	public OIDCProviderEndpointMetadata getReadOnlyMtlsEndpointAliases() {
-	
 		return getMtlsEndpointAliases();
 	}
 	
 	
 	@Override
 	public OIDCProviderEndpointMetadata getMtlsEndpointAliases() {
-	
 		return (OIDCProviderEndpointMetadata) super.getMtlsEndpointAliases();
 	}
 
@@ -419,14 +498,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *         names, as an unmodifiable set.
 	 */
 	public static Set<String> getRegisteredParameterNames() {
-
 		return REGISTERED_PARAMETER_NAMES;
 	}
 
 
 	@Override
 	public URI getUserInfoEndpointURI() {
-
 		return userInfoEndpoint;
 	}
 
@@ -439,14 +516,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                         not specified.
 	 */
 	public void setUserInfoEndpointURI(final URI userInfoEndpoint) {
-
 		this.userInfoEndpoint = userInfoEndpoint;
 	}
 	
 	
 	@Override
 	public URI getCheckSessionIframeURI() {
-		
 		return checkSessionIframe;
 	}
 
@@ -459,14 +534,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                           if not specified.
 	 */
 	public void setCheckSessionIframeURI(final URI checkSessionIframe) {
-
 		this.checkSessionIframe = checkSessionIframe;
 	}
 	
 	
 	@Override
 	public URI getEndSessionEndpointURI() {
-		
 		return endSessionEndpoint;
 	}
 
@@ -479,13 +552,11 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                           not specified.
 	 */
 	public void setEndSessionEndpointURI(final URI endSessionEndpoint) {
-
 		this.endSessionEndpoint = endSessionEndpoint;
 	}
 
 	@Override
 	public List<ACR> getACRs() {
-
 		return acrValues;
 	}
 
@@ -497,21 +568,18 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 * @param acrValues The supported ACRs, {@code null} if not specified.
 	 */
 	public void setACRs(final List<ACR> acrValues) {
-
 		this.acrValues = acrValues;
 	}
 
 
 	@Override
 	public List<SubjectType> getSubjectTypes() {
-
 		return subjectTypes;
 	}
 
 
 	@Override
 	public List<JWSAlgorithm> getIDTokenJWSAlgs() {
-
 		return idTokenJWSAlgs;
 	}
 
@@ -524,14 +592,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                       not specified.
 	 */
 	public void setIDTokenJWSAlgs(final List<JWSAlgorithm> idTokenJWSAlgs) {
-
 		this.idTokenJWSAlgs = idTokenJWSAlgs;
 	}
 
 
 	@Override
 	public List<JWEAlgorithm> getIDTokenJWEAlgs() {
-
 		return idTokenJWEAlgs;
 	}
 
@@ -544,14 +610,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                       not specified.
 	 */
 	public void setIDTokenJWEAlgs(final List<JWEAlgorithm> idTokenJWEAlgs) {
-
 		this.idTokenJWEAlgs = idTokenJWEAlgs;
 	}
 
 
 	@Override
 	public List<EncryptionMethod> getIDTokenJWEEncs() {
-
 		return idTokenJWEEncs;
 	}
 
@@ -564,14 +628,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                       if not specified.
 	 */
 	public void setIDTokenJWEEncs(final List<EncryptionMethod> idTokenJWEEncs) {
-
 		this.idTokenJWEEncs = idTokenJWEEncs;
 	}
 
 
 	@Override
 	public List<JWSAlgorithm> getUserInfoJWSAlgs() {
-
 		return userInfoJWSAlgs;
 	}
 
@@ -584,14 +646,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                        not specified.
 	 */
 	public void setUserInfoJWSAlgs(final List<JWSAlgorithm> userInfoJWSAlgs) {
-
 		this.userInfoJWSAlgs = userInfoJWSAlgs;
 	}
 
 
 	@Override
 	public List<JWEAlgorithm> getUserInfoJWEAlgs() {
-
 		return userInfoJWEAlgs;
 	}
 
@@ -604,14 +664,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                        not specified.
 	 */
 	public void setUserInfoJWEAlgs(final List<JWEAlgorithm> userInfoJWEAlgs) {
-
 		this.userInfoJWEAlgs = userInfoJWEAlgs;
 	}
 
 
 	@Override
 	public List<EncryptionMethod> getUserInfoJWEEncs() {
-
 		return userInfoJWEEncs;
 	}
 
@@ -625,14 +683,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                        {@code null} if not specified.
 	 */
 	public void setUserInfoJWEEncs(final List<EncryptionMethod> userInfoJWEEncs) {
-
 		this.userInfoJWEEncs = userInfoJWEEncs;
 	}
 
 
 	@Override
 	public List<Display> getDisplays() {
-
 		return displays;
 	}
 
@@ -645,14 +701,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                 specified.
 	 */
 	public void setDisplays(final List<Display> displays) {
-
 		this.displays = displays;
 	}
 	
 	
 	@Override
 	public List<ClaimType> getClaimTypes() {
-		
 		return claimTypes;
 	}
 
@@ -665,14 +719,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                   specified.
 	 */
 	public void setClaimTypes(final List<ClaimType> claimTypes) {
-
 		this.claimTypes = claimTypes;
 	}
 
 
 	@Override
 	public List<String> getClaims() {
-
 		return claims;
 	}
 
@@ -685,14 +737,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *               specified.
 	 */
 	public void setClaims(final List<String> claims) {
-
 		this.claims = claims;
 	}
 	
 	
 	@Override
 	public List<LangTag> getClaimsLocales() {
-		
 		return claimsLocales;
 	}
 
@@ -705,14 +755,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                      not specified.
 	 */
 	public void setClaimLocales(final List<LangTag> claimsLocales) {
-
 		this.claimsLocales = claimsLocales;
 	}
 	
 	
 	@Override
 	public boolean supportsClaimsParam() {
-		
 		return claimsParamSupported;
 	}
 
@@ -727,14 +775,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                             {@code false}.
 	 */
 	public void setSupportsClaimsParams(final boolean claimsParamSupported) {
-
 		this.claimsParamSupported = claimsParamSupported;
 	}
 	
 	
 	@Override
 	public boolean supportsFrontChannelLogout() {
-		
 		return frontChannelLogoutSupported;
 	}
 	
@@ -748,14 +794,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                                    {@code false}.
 	 */
 	public void setSupportsFrontChannelLogout(final boolean frontChannelLogoutSupported) {
-	
 		this.frontChannelLogoutSupported = frontChannelLogoutSupported;
 	}
 	
 	
 	@Override
 	public boolean supportsFrontChannelLogoutSession() {
-		
 		return frontChannelLogoutSessionSupported;
 	}
 	
@@ -771,14 +815,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                                           else {@code false}.
 	 */
 	public void setSupportsFrontChannelLogoutSession(final boolean frontChannelLogoutSessionSupported) {
-	
 		this.frontChannelLogoutSessionSupported = frontChannelLogoutSessionSupported;
 	}
 	
 	
 	@Override
 	public boolean supportsBackChannelLogout() {
-		
 		return backChannelLogoutSupported;
 	}
 	
@@ -792,14 +834,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                                   {@code false}.
 	 */
 	public void setSupportsBackChannelLogout(final boolean backChannelLogoutSupported) {
-	
 		this.backChannelLogoutSupported = backChannelLogoutSupported;
 	}
 	
 	
 	@Override
 	public boolean supportsBackChannelLogoutSession() {
-		
 		return backChannelLogoutSessionSupported;
 	}
 	
@@ -815,14 +855,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                                          else {@code false}.
 	 */
 	public void setSupportsBackChannelLogoutSession(final boolean backChannelLogoutSessionSupported) {
-		
 		this.backChannelLogoutSessionSupported = backChannelLogoutSessionSupported;
 	}
 	
 	
 	@Override
 	public boolean supportsVerifiedClaims() {
-		
 		return verifiedClaimsSupported;
 	}
 	
@@ -835,14 +873,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                                supported, else {@code false}.
 	 */
 	public void setSupportsVerifiedClaims(final boolean verifiedClaimsSupported) {
-		
 		this.verifiedClaimsSupported = verifiedClaimsSupported;
 	}
 	
 	
 	@Override
 	public List<IdentityTrustFramework> getIdentityTrustFrameworks() {
-		
 		return trustFrameworks;
 	}
 	
@@ -855,14 +891,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                        {@code null} if not specified.
 	 */
 	public void setIdentityTrustFrameworks(final List<IdentityTrustFramework> trustFrameworks) {
-		
 		this.trustFrameworks = trustFrameworks;
 	}
 	
 	
 	@Override
 	public List<IdentityEvidenceType> getIdentityEvidenceTypes() {
-		
 		return evidenceTypes;
 	}
 	
@@ -875,14 +909,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                      {@code null} if not specified.
 	 */
 	public void setIdentityEvidenceTypes(final List<IdentityEvidenceType> evidenceTypes) {
-		
 		this.evidenceTypes = evidenceTypes;
 	}
 	
 	
 	@Override
 	public List<DocumentType> getDocumentTypes() {
-		
 		return documentTypes;
 	}
 	
@@ -895,7 +927,6 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                      {@code null} if not specified.
 	 */
 	public void setDocumentTypes(final List<DocumentType> documentTypes) {
-		
 		this.documentTypes = documentTypes;
 	}
 	
@@ -903,7 +934,6 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	@Override
 	@Deprecated
 	public List<IDDocumentType> getIdentityDocumentTypes() {
-		
 		return idDocumentTypes;
 	}
 	
@@ -919,14 +949,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 */
 	@Deprecated
 	public void setIdentityDocumentTypes(final List<IDDocumentType> idDocuments) {
-		
 		this.idDocumentTypes = idDocuments;
 	}
 	
 	
 	@Override
 	public List<IdentityVerificationMethod> getDocumentMethods() {
-		
 		return documentMethods;
 	}
 	
@@ -940,14 +968,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                document evidences, {@code null} if not specified.
 	 */
 	public void setDocumentMethods(final List<IdentityVerificationMethod> methods) {
-	
 		this.documentMethods = methods;
 	}
 	
 	
 	@Override
 	public List<ValidationMethodType> getDocumentValidationMethods() {
-		
 		return documentValidationMethods;
 	}
 	
@@ -961,14 +987,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                {@code null} if not specified.
 	 */
 	public void setDocumentValidationMethods(final List<ValidationMethodType> methods) {
-	
 		this.documentValidationMethods = methods;
 	}
 	
 	
 	@Override
 	public List<VerificationMethodType> getDocumentVerificationMethods() {
-		
 		return documentVerificationMethods;
 	}
 	
@@ -982,14 +1006,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                {@code null} if not specified.
 	 */
 	public void setDocumentVerificationMethods(final List<VerificationMethodType> methods) {
-	
 		this.documentVerificationMethods = methods;
 	}
 	
 	
 	@Override
 	public List<ElectronicRecordType> getElectronicRecordTypes() {
-		
 		return electronicRecordTypes;
 	}
 	
@@ -1002,7 +1024,6 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                              {@code null} if not specified.
 	 */
 	public void setElectronicRecordTypes(final List<ElectronicRecordType> electronicRecordTypes) {
-		
 		this.electronicRecordTypes = electronicRecordTypes;
 	}
 	
@@ -1010,7 +1031,6 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	@Override
 	@Deprecated
 	public List<IdentityVerificationMethod> getIdentityVerificationMethods() {
-		
 		return idVerificationMethods;
 	}
 	
@@ -1024,14 +1044,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 */
 	@Deprecated
 	public void setIdentityVerificationMethods(final List<IdentityVerificationMethod> idVerificationMethods) {
-		
 		this.idVerificationMethods = idVerificationMethods;
 	}
 	
 	
 	@Override
 	public List<String> getVerifiedClaims() {
-		
 		return verifiedClaims;
 	}
 	
@@ -1044,14 +1062,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                       {@code null} if not specified.
 	 */
 	public void setVerifiedClaims(final List<String> verifiedClaims) {
-		
 		this.verifiedClaims = verifiedClaims;
 	}
 	
 	
 	@Override
 	public List<AttachmentType> getAttachmentTypes() {
-		
 		return attachmentTypes;
 	}
 	
@@ -1065,14 +1081,12 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                        {@code null} if not specified.
 	 */
 	public void setAttachmentTypes(final List<AttachmentType> attachmentTypes) {
-		
 		this.attachmentTypes = attachmentTypes;
 	}
 	
 	
 	@Override
 	public List<HashAlgorithm> getAttachmentDigestAlgs() {
-		
 		return attachmentDigestAlgs;
 	}
 	
@@ -1086,46 +1100,7 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                   not specified.
 	 */
 	public void setAttachmentDigestAlgs(final List<HashAlgorithm> digestAlgs) {
-		
 		this.attachmentDigestAlgs = digestAlgs;
-	}
-	
-	
-	@Override
-	public List<ClientRegistrationType> getClientRegistrationTypes() {
-		return clientRegistrationTypes;
-	}
-	
-	
-	/**
-	 * Sets the supported federation client registration types. Corresponds
-	 * to the {@code client_registration_types_supported} metadata field.
-	 *
-	 * @param clientRegistrationTypes The supported client registration
-	 *                                types, {@code null} if not specified.
-	 */
-	public void setClientRegistrationTypes(final List<ClientRegistrationType> clientRegistrationTypes) {
-		this.clientRegistrationTypes = clientRegistrationTypes;
-	}
-	
-	
-	@Override
-	public Map<EndpointName,List<ClientAuthenticationMethod>> getClientRegistrationAuthnMethods() {
-		return clientRegistrationAuthMethods;
-	}
-	
-	
-	/**
-	 * Sets the supported client authentication methods for automatic
-	 * federation client registration. Corresponds to the
-	 * {@code client_registration_authn_methods_supported} field.
-	 *
-	 * @param methods The supported authentication methods for automatic
-	 *                federation client registration, {@code null} if not
-	 *                specified.
-	 */
-	public void setClientRegistrationAuthnMethods(final Map<EndpointName,List<ClientAuthenticationMethod>> methods) {
-		clientRegistrationAuthMethods = methods;
 	}
 	
 	
@@ -1148,8 +1123,100 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	
 	
 	@Override
+	public JWKSet getJWKSet() {
+		return jwkSet;
+	}
+	
+	
+	/**
+	 * Sets the JWK set (OpenID Connect Federation 1.0). Corresponds to the
+	 * {@code jwks} metadata field.
+	 *
+	 * @param jwkSet The JWK set, {@code null} if not specified.
+	 */
+	public void setJWKSet(final JWKSet jwkSet) {
+		this.jwkSet = jwkSet;
+	}
+	
+	
+	@Override
+	public URI getSignedJWKSetURI() {
+		return signedJWKSetURI;
+	}
+	
+	
+	/**
+	 * Sets the signed JWK set URI (OpenID Connect Federation 1.0).
+	 * Corresponds to the {@code signed_jwks_uri} metadata field.
+	 *
+	 * @param signedJWKSetURI The signed JWK set URI, {@code null} if not
+	 *                        specified.
+	 */
+	public void setSignedJWKSetURI(final URI signedJWKSetURI) {
+		this.signedJWKSetURI = signedJWKSetURI;
+	}
+	
+	
+	@Override
+	public List<ClientRegistrationType> getClientRegistrationTypes() {
+		return clientRegistrationTypes;
+	}
+	
+	
+	/**
+	 * Sets the supported federation client registration types. Corresponds
+	 * to the {@code client_registration_types_supported} metadata field.
+	 *
+	 * @param clientRegistrationTypes The supported client registration
+	 *                                types, {@code null} if not specified.
+	 */
+	public void setClientRegistrationTypes(final List<ClientRegistrationType> clientRegistrationTypes) {
+		this.clientRegistrationTypes = clientRegistrationTypes;
+	}
+	
+	
+	@Override
+	public Map<EndpointName, List<ClientAuthenticationMethod>> getClientRegistrationAuthnMethods() {
+		return clientRegistrationAuthMethods;
+	}
+	
+	
+	/**
+	 * Sets the supported request authentication methods for automatic
+	 * OpenID Connect Federation 1.0 client registration. Corresponds to
+	 * the {@code request_authentication_methods_supported} field.
+	 *
+	 * @param methods The supported request authentication methods for
+	 *                automatic federation client registration,
+	 *                {@code null} if not specified.
+	 */
+	public void setClientRegistrationAuthnMethods(final Map<EndpointName,List<ClientAuthenticationMethod>> methods) {
+		clientRegistrationAuthMethods = methods;
+	}
+	
+	
+	@Override
+	public List<JWSAlgorithm> getClientRegistrationAuthnJWSAlgs() {
+		return clientRegistrationAuthJWSAlgs;
+	}
+	
+	
+	/**
+	 * Sets the supported JWS algorithms for authenticating automatic
+	 * OpenID Connect Federation 1.0 client registration requests.
+	 * Corresponds to the
+	 * {@code request_authentication_signing_alg_values_supported}.
+	 *
+	 * @param jwsAlgs The supported JWS algorithms, {@code null} if
+	 *                       not specified.
+	 */
+	public void setClientRegistrationAuthnJWSAlgs(final List<JWSAlgorithm> jwsAlgs) {
+		clientRegistrationAuthJWSAlgs = jwsAlgs;
+	}
+	
+	
+	@Override
 	public URI getFederationRegistrationEndpointURI() {
-		
 		return federationRegistrationEndpoint;
 	}
 	
@@ -1163,7 +1230,6 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *                                       not specified.
 	 */
 	public void setFederationRegistrationEndpointURI(final URI federationRegistrationEndpoint) {
-		
 		this.federationRegistrationEndpoint = federationRegistrationEndpoint;
 	}
 	
@@ -1395,25 +1461,47 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 		
 		// federation
 		
-		if (CollectionUtils.isNotEmpty(clientRegistrationTypes)) {
-			o.put("client_registration_types_supported", Identifier.toStringList(clientRegistrationTypes));
-		}
-		if (MapUtils.isNotEmpty(clientRegistrationAuthMethods)) {
-			JSONObject map = new JSONObject();
-			for (Map.Entry<EndpointName,List<ClientAuthenticationMethod>> en: getClientRegistrationAuthnMethods().entrySet()) {
-				List<String> methodNames = new LinkedList<>();
-				for (ClientAuthenticationMethod method: en.getValue()) {
-					methodNames.add(method.getValue());
-				}
-				map.put(en.getKey().getValue(), methodNames);
-			}
-			o.put("client_registration_authn_methods_supported", map);
-		}
 		if (organizationName != null) {
 			o.put("organization_name", organizationName);
 		}
-		if (federationRegistrationEndpoint != null) {
-			o.put("federation_registration_endpoint", federationRegistrationEndpoint.toString());
+		
+		if (CollectionUtils.isNotEmpty(clientRegistrationTypes)) {
+			
+			o.put("client_registration_types_supported", Identifier.toStringList(clientRegistrationTypes));
+			
+			if (jwkSet != null) {
+				o.put("jwks", JSONObjectUtils.toJSONObject(jwkSet.toPublicJWKSet())); // prevent private keys from leaking
+			} else if (signedJWKSetURI != null) {
+				o.put("signed_jwks_uri", signedJWKSetURI.toString());
+			}
+			
+			if (clientRegistrationTypes.contains(ClientRegistrationType.AUTOMATIC) && MapUtils.isNotEmpty(clientRegistrationAuthMethods)) {
+				JSONObject map = new JSONObject();
+				for (Map.Entry<EndpointName,List<ClientAuthenticationMethod>> en: getClientRegistrationAuthnMethods().entrySet()) {
+					List<String> methodNames = new LinkedList<>();
+					for (ClientAuthenticationMethod method: en.getValue()) {
+						methodNames.add(method.getValue());
+					}
+					map.put(en.getKey().getValue(), methodNames);
+				}
+				o.put("request_authentication_methods_supported", map);
+			}
+			
+			if (clientRegistrationTypes.contains(ClientRegistrationType.AUTOMATIC) && CollectionUtils.isNotEmpty(clientRegistrationAuthJWSAlgs)) {
+				
+				stringList = new ArrayList<>(clientRegistrationAuthJWSAlgs.size());
+				
+				for (JWSAlgorithm alg: clientRegistrationAuthJWSAlgs)
+					stringList.add(alg.getName());
+				
+				o.put("request_authentication_signing_alg_values_supported", stringList);
+			}
+			
+			if (clientRegistrationTypes.contains(ClientRegistrationType.EXPLICIT)) {
+				if (federationRegistrationEndpoint != null) {
+					o.put("federation_registration_endpoint", federationRegistrationEndpoint.toString());
+				}
+			}
 		}
 		
 		return o;
@@ -1441,10 +1529,37 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 			subjectTypes.add(SubjectType.parse(v));
 		}
 		
-		OIDCProviderMetadata op = new OIDCProviderMetadata(
-			as.getIssuer(),
-			Collections.unmodifiableList(subjectTypes),
-			as.getJWKSetURI());
+		OIDCProviderMetadata op;
+		if (jsonObject.get("client_registration_types_supported") != null) {
+			// OIDC Federation 1.0 constructor
+			List<ClientRegistrationType> clientRegistrationTypes = new LinkedList<>();
+			for (String v: JSONObjectUtils.getStringList(jsonObject, "client_registration_types_supported")) {
+				clientRegistrationTypes.add(new ClientRegistrationType(v));
+			}
+			try {
+				JWKSet jwkSet = null;
+				if (jsonObject.get("jwks") != null) {
+					jwkSet = JWKSet.parse(JSONObjectUtils.getJSONObject(jsonObject, "jwks"));
+				}
+				
+				op = new OIDCProviderMetadata(
+					as.getIssuer(),
+					Collections.unmodifiableList(subjectTypes),
+					clientRegistrationTypes,
+					as.getJWKSetURI(),
+					JSONObjectUtils.getURI(jsonObject, "signed_jwks_uri", null),
+					jwkSet);
+			} catch (java.text.ParseException | IllegalArgumentException e) {
+				throw new ParseException(e.getMessage(), e);
+			}
+		} else {
+			// Regular constructor
+			op = new OIDCProviderMetadata(
+				as.getIssuer(),
+				Collections.unmodifiableList(subjectTypes),
+				as.getJWKSetURI());
+		}
+		
 
 		// Endpoints
 		op.setAuthorizationEndpointURI(as.getAuthorizationEndpointURI());
@@ -1767,28 +1882,30 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 			}
 		}
 		
-		// Federation
-		
-		if (jsonObject.get("client_registration_types_supported") != null) {
-			op.clientRegistrationTypes = new LinkedList<>();
-			for (String v: JSONObjectUtils.getStringList(jsonObject, "client_registration_types_supported")) {
-				op.clientRegistrationTypes.add(new ClientRegistrationType(v));
-			}
-		}
-		
-		if (jsonObject.get("client_registration_authn_methods_supported") != null) {
-			Map<EndpointName,List<ClientAuthenticationMethod>> fedClientAuthMethods = new HashMap<>();
-			JSONObject spec = JSONObjectUtils.getJSONObject(jsonObject, "client_registration_authn_methods_supported");
-			// ar or rar
+		// OIDC Federation 1.0 completion
+		if (jsonObject.get("request_authentication_methods_supported") != null) {
+			Map<EndpointName,List<ClientAuthenticationMethod>> requestAuthMethods = new HashMap<>();
+			JSONObject spec = JSONObjectUtils.getJSONObject(jsonObject, "request_authentication_methods_supported");
+			// authorization_endpoint or RAR
 			for (String endpointName: spec.keySet()) {
 				List<String> methodNames = JSONObjectUtils.getStringList(spec, endpointName, Collections.<String>emptyList());
 				List<ClientAuthenticationMethod> authMethods = new LinkedList<>();
 				for (String name: methodNames) {
 					authMethods.add(ClientAuthenticationMethod.parse(name));
 				}
-				fedClientAuthMethods.put(new EndpointName(endpointName), authMethods);
+				requestAuthMethods.put(new EndpointName(endpointName), authMethods);
 			}
-			op.setClientRegistrationAuthnMethods(fedClientAuthMethods);
+			op.setClientRegistrationAuthnMethods(requestAuthMethods);
+		}
+		
+		if (jsonObject.get("request_authentication_signing_alg_values_supported") != null) {
+			op.clientRegistrationAuthJWSAlgs = new ArrayList<>();
+			
+			for (String v: JSONObjectUtils.getStringArray(jsonObject, "request_authentication_signing_alg_values_supported")) {
+				
+				if (v != null)
+					op.clientRegistrationAuthJWSAlgs.add(JWSAlgorithm.parse(v));
+			}
 		}
 		
 		op.organizationName = JSONObjectUtils.getString(jsonObject, "organization_name", null);
