@@ -31,6 +31,7 @@ import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagException;
 import com.nimbusds.oauth2.sdk.*;
@@ -39,12 +40,17 @@ import com.nimbusds.oauth2.sdk.ciba.BackChannelTokenDeliveryMode;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import com.nimbusds.oauth2.sdk.util.MapUtils;
 import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.openid.connect.sdk.Prompt;
+import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistrationType;
+import com.nimbusds.openid.connect.sdk.op.EndpointName;
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 
 /**
@@ -116,6 +122,13 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 		p.add("backchannel_authentication_request_signing_alg_values_supported");
 		p.add("backchannel_user_code_parameter_supported");
 		p.add("prompt_values_supported");
+		p.add("organization_name");
+		p.add("jwks");
+		p.add("signed_jwks_uri");
+		p.add("client_registration_types_supported");
+		p.add("request_authentication_methods_supported");
+		p.add("request_authentication_signing_alg_values_supported");
+		p.add("federation_registration_endpoint");
 		REGISTERED_PARAMETER_NAMES = Collections.unmodifiableSet(p);
 	}
 	
@@ -366,6 +379,51 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	
 	
 	/**
+	 * The organisation name (OpenID Connect Federation 1.0).
+	 */
+	private String organizationName;
+	
+	
+	/**
+	 * The OP JWK set (OpenID Connect Federation 1.0).
+	 */
+	private JWKSet jwkSet;
+	
+	
+	/**
+	 * The signed OP JWK set (OpenID Connect Federation 1.0).
+	 */
+	private URI signedJWKSetURI;
+	
+	
+	/**
+	 * The supported OpenID Connect Federation 1.0 client registration
+	 * types.
+	 */
+	private List<ClientRegistrationType> clientRegistrationTypes;
+	
+	
+	/**
+	 * The supported request authentication methods for automatic OpenID
+	 * Connect Federation 1.0 client registration.
+	 */
+	private Map<EndpointName,List<ClientAuthenticationMethod>> clientRegistrationAuthMethods;
+	
+	
+	/**
+	 * The supported JWS algorithms for authenticating automatic OpenID
+	 * Connect Federation 1.0 client registration requests.
+	 */
+	private List<JWSAlgorithm> clientRegistrationAuthJWSAlgs;
+	
+	
+	/**
+	 * The OpenID Connect Federation 1.0 registration endpoint.
+	 */
+	private URI federationRegistrationEndpoint;
+	
+	
+	/**
 	 * Custom (not-registered) parameters.
 	 */
 	private final JSONObject customParameters = new JSONObject();
@@ -399,14 +457,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	
 	@Override
 	public Issuer getIssuer() {
-		
 		return issuer;
 	}
 	
 	
 	@Override
 	public URI getJWKSetURI() {
-		
 		return jwkSetURI;
 	}
 	
@@ -418,14 +474,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 * @param jwkSetURI The JWK set URI, {@code null} if not specified.
 	 */
 	public void setJWKSetURI(final URI jwkSetURI) {
-		
 		this.jwkSetURI = jwkSetURI;
 	}
 	
 	
 	@Override
 	public Scope getScopes() {
-		
 		return scope;
 	}
 	
@@ -438,14 +492,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *              specified.
 	 */
 	public void setScopes(final Scope scope) {
-		
 		this.scope = scope;
 	}
 	
 	
 	@Override
 	public List<ResponseType> getResponseTypes() {
-		
 		return rts;
 	}
 	
@@ -458,14 +510,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *            specified.
 	 */
 	public void setResponseTypes(final List<ResponseType> rts) {
-		
 		this.rts = rts;
 	}
 	
 	
 	@Override
 	public List<ResponseMode> getResponseModes() {
-		
 		return rms;
 	}
 	
@@ -478,14 +528,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *            specified.
 	 */
 	public void setResponseModes(final List<ResponseMode> rms) {
-		
 		this.rms = rms;
 	}
 	
 	
 	@Override
 	public List<GrantType> getGrantTypes() {
-		
 		return gts;
 	}
 	
@@ -497,14 +545,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 * @param gts The supported grant types, {@code null} if not specified.
 	 */
 	public void setGrantTypes(final List<GrantType> gts) {
-		
 		this.gts = gts;
 	}
 	
 	
 	@Override
 	public List<CodeChallengeMethod> getCodeChallengeMethods() {
-		
 		return codeChallengeMethods;
 	}
 	
@@ -518,14 +564,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                             {@code null} if not specified.
 	 */
 	public void setCodeChallengeMethods(final List<CodeChallengeMethod> codeChallengeMethods) {
-		
 		this.codeChallengeMethods = codeChallengeMethods;
 	}
 	
 	
 	@Override
 	public List<ClientAuthenticationMethod> getTokenEndpointAuthMethods() {
-		
 		return tokenEndpointAuthMethods;
 	}
 	
@@ -539,14 +583,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                    methods, {@code null} if not specified.
 	 */
 	public void setTokenEndpointAuthMethods(final List<ClientAuthenticationMethod> authMethods) {
-		
 		this.tokenEndpointAuthMethods = authMethods;
 	}
 	
 	
 	@Override
 	public List<JWSAlgorithm> getTokenEndpointJWSAlgs() {
-		
 		return tokenEndpointJWSAlgs;
 	}
 	
@@ -563,7 +605,6 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                algorithm.
 	 */
 	public void setTokenEndpointJWSAlgs(final List<JWSAlgorithm> jwsAlgs) {
-		
 		if (jwsAlgs != null && jwsAlgs.contains(Algorithm.NONE))
 			throw new IllegalArgumentException("The \"none\" algorithm is not accepted");
 		
@@ -588,14 +629,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                    specified.
 	 */
 	public void setIntrospectionEndpointAuthMethods(final List<ClientAuthenticationMethod> authMethods) {
-		
 		this.introspectionEndpointAuthMethods = authMethods;
 	}
 	
 	
 	@Override
 	public List<JWSAlgorithm> getIntrospectionEndpointJWSAlgs() {
-		
 		return introspectionEndpointJWSAlgs;
 	}
 	
@@ -622,7 +661,6 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	
 	@Override
 	public List<ClientAuthenticationMethod> getRevocationEndpointAuthMethods() {
-		
 		return revocationEndpointAuthMethods;
 	}
 	
@@ -636,14 +674,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                    methods, {@code null} if not specified.
 	 */
 	public void setRevocationEndpointAuthMethods(final List<ClientAuthenticationMethod> authMethods) {
-		
 		revocationEndpointAuthMethods = authMethods;
 	}
 	
 	
 	@Override
 	public List<JWSAlgorithm> getRevocationEndpointJWSAlgs() {
-		
 		return revocationEndpointJWSAlgs;
 	}
 	
@@ -670,7 +706,6 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	
 	@Override
 	public List<JWSAlgorithm> getRequestObjectJWSAlgs() {
-		
 		return requestObjectJWSAlgs;
 	}
 	
@@ -684,14 +719,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                             {@code null} if not specified.
 	 */
 	public void setRequestObjectJWSAlgs(final List<JWSAlgorithm> requestObjectJWSAlgs) {
-		
 		this.requestObjectJWSAlgs = requestObjectJWSAlgs;
 	}
 	
 	
 	@Override
 	public List<JWEAlgorithm> getRequestObjectJWEAlgs() {
-		
 		return requestObjectJWEAlgs;
 	}
 	
@@ -705,14 +738,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                            {@code null} if not specified.
 	 */
 	public void setRequestObjectJWEAlgs(final List<JWEAlgorithm> requestObjectJWEAlgs) {
-		
 		this.requestObjectJWEAlgs = requestObjectJWEAlgs;
 	}
 	
 	
 	@Override
 	public List<EncryptionMethod> getRequestObjectJWEEncs() {
-		
 		return requestObjectJWEEncs;
 	}
 	
@@ -727,14 +758,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                             {@code null} if not specified.
 	 */
 	public void setRequestObjectJWEEncs(final List<EncryptionMethod> requestObjectJWEEncs) {
-		
 		this.requestObjectJWEEncs = requestObjectJWEEncs;
 	}
 	
 	
 	@Override
 	public boolean supportsRequestParam() {
-		
 		return requestParamSupported;
 	}
 	
@@ -749,14 +778,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                              {@code false}.
 	 */
 	public void setSupportsRequestParam(final boolean requestParamSupported) {
-		
 		this.requestParamSupported = requestParamSupported;
 	}
 	
 	
 	@Override
 	public boolean supportsRequestURIParam() {
-		
 		return requestURIParamSupported;
 	}
 	
@@ -771,14 +798,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                                 supported, else {@code false}.
 	 */
 	public void setSupportsRequestURIParam(final boolean requestURIParamSupported) {
-		
 		this.requestURIParamSupported = requestURIParamSupported;
 	}
 	
 	
 	@Override
 	public boolean requiresRequestURIRegistration() {
-		
 		return requireRequestURIReg;
 	}
 	
@@ -793,14 +818,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                             else {@code false}.
 	 */
 	public void setRequiresRequestURIRegistration(final boolean requireRequestURIReg) {
-		
 		this.requireRequestURIReg = requireRequestURIReg;
 	}
 	
 	
 	@Override
 	public boolean supportsAuthorizationResponseIssuerParam() {
-		
 		return authzResponseIssParameterSupported;
 	}
 	
@@ -818,14 +841,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                                           {@code false}.
 	 */
 	public void setSupportsAuthorizationResponseIssuerParam(final boolean authzResponseIssParameterSupported) {
-		
 		this.authzResponseIssParameterSupported = authzResponseIssParameterSupported;
 	}
 	
 	
 	@Override
 	public List<LangTag> getUILocales() {
-		
 		return uiLocales;
 	}
 	
@@ -838,14 +859,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                  specified.
 	 */
 	public void setUILocales(final List<LangTag> uiLocales) {
-		
 		this.uiLocales = uiLocales;
 	}
 	
 	
 	@Override
 	public URI getServiceDocsURI() {
-		
 		return serviceDocsURI;
 	}
 	
@@ -859,7 +878,6 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                       http.
 	 */
 	public void setServiceDocsURI(final URI serviceDocsURI) {
-		
 		URIUtils.ensureSchemeIsHTTPSorHTTP(serviceDocsURI);
 		this.serviceDocsURI = serviceDocsURI;
 	}
@@ -867,7 +885,6 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	
 	@Override
 	public URI getPolicyURI() {
-		
 		return policyURI;
 	}
 	
@@ -880,7 +897,6 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                  URI scheme must be https or http.
 	 */
 	public void setPolicyURI(final URI policyURI) {
-		
 		URIUtils.ensureSchemeIsHTTPSorHTTP(policyURI);
 		this.policyURI = policyURI;
 	}
@@ -888,7 +904,6 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	
 	@Override
 	public URI getTermsOfServiceURI() {
-		
 		return tosURI;
 	}
 	
@@ -901,7 +916,6 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *               specified. The URI scheme must be https or http.
 	 */
 	public void setTermsOfServiceURI(final URI tosURI) {
-		
 		URIUtils.ensureSchemeIsHTTPSorHTTP(tosURI);
 		this.tosURI = tosURI;
 	}
@@ -909,7 +923,6 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	
 	@Override
 	public ReadOnlyAuthorizationServerEndpointMetadata getReadOnlyMtlsEndpointAliases() {
-
 		return getMtlsEndpointAliases();
 	}
 	
@@ -922,7 +935,6 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *         when no aliases are defined.
 	 */
 	public AuthorizationServerEndpointMetadata getMtlsEndpointAliases() {
-
 		return mtlsEndpointAliases;
 	}
 	
@@ -936,14 +948,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                            defined.
 	 */
 	public void setMtlsEndpointAliases(AuthorizationServerEndpointMetadata mtlsEndpointAliases) {
-
 		this.mtlsEndpointAliases = mtlsEndpointAliases;
 	}
 	
 	
 	@Override
 	public boolean supportsTLSClientCertificateBoundAccessTokens() {
-		
 		return tlsClientCertificateBoundAccessTokens;
 	}
 	
@@ -958,7 +968,6 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                                 supported, else {@code false}.
 	 */
 	public void setSupportsTLSClientCertificateBoundAccessTokens(final boolean tlsClientCertBoundTokens) {
-		
 		tlsClientCertificateBoundAccessTokens = tlsClientCertBoundTokens;
 	}
 	
@@ -966,7 +975,6 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	@Override
 	@Deprecated
 	public boolean supportsMutualTLSSenderConstrainedAccessTokens() {
-		
 		return supportsTLSClientCertificateBoundAccessTokens();
 	}
 	
@@ -984,14 +992,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 */
 	@Deprecated
 	public void setSupportsMutualTLSSenderConstrainedAccessTokens(final boolean mutualTLSSenderConstrainedAccessTokens) {
-		
 		setSupportsTLSClientCertificateBoundAccessTokens(mutualTLSSenderConstrainedAccessTokens);
 	}
 	
 	
 	@Override
 	public List<JWSAlgorithm> getDPoPJWSAlgs() {
-		
 		return dPoPJWSAlgs;
 	}
 	
@@ -1005,14 +1011,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                    {@code null} if none.
 	 */
 	public void setDPoPJWSAlgs(final List<JWSAlgorithm> dPoPJWSAlgs) {
-		
 		this.dPoPJWSAlgs = dPoPJWSAlgs;
 	}
 	
 	
 	@Override
 	public List<JWSAlgorithm> getAuthorizationJWSAlgs() {
-		
 		return authzJWSAlgs;
 	}
 	
@@ -1026,14 +1030,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                     not specified.
 	 */
 	public void setAuthorizationJWSAlgs(final List<JWSAlgorithm> authzJWSAlgs) {
-		
 		this.authzJWSAlgs = authzJWSAlgs;
 	}
 	
 	
 	@Override
 	public List<JWEAlgorithm> getAuthorizationJWEAlgs() {
-		
 		return authzJWEAlgs;
 	}
 	
@@ -1048,14 +1050,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                     not specified.
 	 */
 	public void setAuthorizationJWEAlgs(final List<JWEAlgorithm> authzJWEAlgs) {
-		
 		this.authzJWEAlgs = authzJWEAlgs;
 	}
 	
 	
 	@Override
 	public List<EncryptionMethod> getAuthorizationJWEEncs() {
-		
 		return authzJWEEncs;
 	}
 	
@@ -1070,14 +1070,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                     if not specified.
 	 */
 	public void setAuthorizationJWEEncs(final List<EncryptionMethod> authzJWEEncs) {
-		
 		this.authzJWEEncs = authzJWEEncs;
 	}
 	
 	
 	@Override
 	public boolean requiresPushedAuthorizationRequests() {
-		
 		return requirePAR;
 	}
 	
@@ -1091,14 +1089,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                   {@code false}.
 	 */
 	public void requiresPushedAuthorizationRequests(final boolean requirePAR) {
-		
 		this.requirePAR = requirePAR;
 	}
 	
 	
 	@Override
 	public List<ClientType> getIncrementalAuthorizationTypes() {
-		
 		return incrementalAuthzTypes;
 	}
 	
@@ -1113,14 +1109,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                              if not specified.
 	 */
 	public void setIncrementalAuthorizationTypes(final List<ClientType> incrementalAuthzTypes) {
-	
 		this.incrementalAuthzTypes = incrementalAuthzTypes;
 	}
 	
 	
 	@Override
 	public List<BackChannelTokenDeliveryMode> getBackChannelTokenDeliveryModes() {
-		
 		return backChannelTokenDeliveryModes;
 	}
 	
@@ -1133,13 +1127,11 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                                      {@code null} if not specified.
 	 */
 	public void setBackChannelTokenDeliveryModes(final List<BackChannelTokenDeliveryMode> backChannelTokenDeliveryModes) {
-		
 		this.backChannelTokenDeliveryModes = backChannelTokenDeliveryModes;
 	}
 	
 	@Override
 	public List<JWSAlgorithm> getBackChannelAuthenticationRequestJWSAlgs() {
-		
 		return backChannelAuthRequestJWSAlgs;
 	}
 	
@@ -1152,14 +1144,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                                      {@code null} if not specified.
 	 */
 	public void setBackChannelAuthenticationRequestJWSAlgs(final List<JWSAlgorithm> backChannelAuthRequestJWSAlgs) {
-		
 		this.backChannelAuthRequestJWSAlgs = backChannelAuthRequestJWSAlgs;
 	}
 	
 	
 	@Override
 	public boolean supportsBackChannelUserCodeParam() {
-		
 		return backChannelUserCodeSupported;
 	}
 	
@@ -1174,7 +1164,6 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 *                                     supported, else {@code false}.
 	 */
 	public void setSupportsBackChannelUserCodeParam(final boolean backChannelUserCodeSupported) {
-		
 		this.backChannelUserCodeSupported = backChannelUserCodeSupported;
 	}
 	
@@ -1194,6 +1183,136 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 */
 	public void setPromptTypes(final List<Prompt.Type> promptTypes) {
 		this.promptTypes = promptTypes;
+	}
+	
+	
+	@Override
+	public String getOrganizationName() {
+		return organizationName;
+	}
+	
+	
+	/**
+	 * Sets the organisation name (in federation). Corresponds to the
+	 * {@code organization_name} metadata field.
+	 *
+	 * @param organizationName The organisation name, {@code null} if not
+	 *                         specified.
+	 */
+	public void setOrganizationName(final String organizationName) {
+		this.organizationName = organizationName;
+	}
+	
+	
+	@Override
+	public JWKSet getJWKSet() {
+		return jwkSet;
+	}
+	
+	
+	/**
+	 * Sets the JWK set (OpenID Connect Federation 1.0). Corresponds to the
+	 * {@code jwks} metadata field.
+	 *
+	 * @param jwkSet The JWK set, {@code null} if not specified.
+	 */
+	public void setJWKSet(final JWKSet jwkSet) {
+		this.jwkSet = jwkSet;
+	}
+	
+	
+	@Override
+	public URI getSignedJWKSetURI() {
+		return signedJWKSetURI;
+	}
+	
+	
+	/**
+	 * Sets the signed JWK set URI (OpenID Connect Federation 1.0).
+	 * Corresponds to the {@code signed_jwks_uri} metadata field.
+	 *
+	 * @param signedJWKSetURI The signed JWK set URI, {@code null} if not
+	 *                        specified.
+	 */
+	public void setSignedJWKSetURI(final URI signedJWKSetURI) {
+		this.signedJWKSetURI = signedJWKSetURI;
+	}
+	
+	
+	@Override
+	public List<ClientRegistrationType> getClientRegistrationTypes() {
+		return clientRegistrationTypes;
+	}
+	
+	
+	/**
+	 * Sets the supported federation client registration types. Corresponds
+	 * to the {@code client_registration_types_supported} metadata field.
+	 *
+	 * @param clientRegistrationTypes The supported client registration
+	 *                                types, {@code null} if not specified.
+	 */
+	public void setClientRegistrationTypes(final List<ClientRegistrationType> clientRegistrationTypes) {
+		this.clientRegistrationTypes = clientRegistrationTypes;
+	}
+	
+	
+	@Override
+	public Map<EndpointName, List<ClientAuthenticationMethod>> getClientRegistrationAuthnMethods() {
+		return clientRegistrationAuthMethods;
+	}
+	
+	
+	/**
+	 * Sets the supported request authentication methods for automatic
+	 * OpenID Connect Federation 1.0 client registration. Corresponds to
+	 * the {@code request_authentication_methods_supported} field.
+	 *
+	 * @param methods The supported request authentication methods for
+	 *                automatic federation client registration,
+	 *                {@code null} if not specified.
+	 */
+	public void setClientRegistrationAuthnMethods(final Map<EndpointName,List<ClientAuthenticationMethod>> methods) {
+		clientRegistrationAuthMethods = methods;
+	}
+	
+	
+	@Override
+	public List<JWSAlgorithm> getClientRegistrationAuthnJWSAlgs() {
+		return clientRegistrationAuthJWSAlgs;
+	}
+	
+	
+	/**
+	 * Sets the supported JWS algorithms for authenticating automatic
+	 * OpenID Connect Federation 1.0 client registration requests.
+	 * Corresponds to the
+	 * {@code request_authentication_signing_alg_values_supported}.
+	 *
+	 * @param jwsAlgs The supported JWS algorithms, {@code null} if
+	 *                       not specified.
+	 */
+	public void setClientRegistrationAuthnJWSAlgs(final List<JWSAlgorithm> jwsAlgs) {
+		clientRegistrationAuthJWSAlgs = jwsAlgs;
+	}
+	
+	
+	@Override
+	public URI getFederationRegistrationEndpointURI() {
+		return federationRegistrationEndpoint;
+	}
+	
+	
+	/**
+	 * Sets the federation registration endpoint URI. Corresponds to the
+	 * {@code federation_registration_endpoint} metadata field.
+	 *
+	 * @param federationRegistrationEndpoint The federation registration
+	 *                                       endpoint URI, {@code null} if
+	 *                                       not specified.
+	 */
+	public void setFederationRegistrationEndpointURI(final URI federationRegistrationEndpoint) {
+		this.federationRegistrationEndpoint = federationRegistrationEndpoint;
 	}
 	
 	
@@ -1558,6 +1677,51 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 				stringList.add(type.toString());
 			}
 			o.put("prompt_values_supported", stringList);
+		}
+		
+		// OIDC Federation 1.0
+		
+		if (organizationName != null) {
+			o.put("organization_name", organizationName);
+		}
+		
+		if (CollectionUtils.isNotEmpty(clientRegistrationTypes)) {
+			
+			o.put("client_registration_types_supported", Identifier.toStringList(clientRegistrationTypes));
+			
+			if (jwkSet != null) {
+				o.put("jwks", JSONObjectUtils.toJSONObject(jwkSet.toPublicJWKSet())); // prevent private keys from leaking
+			} else if (signedJWKSetURI != null) {
+				o.put("signed_jwks_uri", signedJWKSetURI.toString());
+			}
+			
+			if (clientRegistrationTypes.contains(ClientRegistrationType.AUTOMATIC) && MapUtils.isNotEmpty(clientRegistrationAuthMethods)) {
+				JSONObject map = new JSONObject();
+				for (Map.Entry<EndpointName,List<ClientAuthenticationMethod>> en: getClientRegistrationAuthnMethods().entrySet()) {
+					List<String> methodNames = new LinkedList<>();
+					for (ClientAuthenticationMethod method: en.getValue()) {
+						methodNames.add(method.getValue());
+					}
+					map.put(en.getKey().getValue(), methodNames);
+				}
+				o.put("request_authentication_methods_supported", map);
+			}
+			
+			if (clientRegistrationTypes.contains(ClientRegistrationType.AUTOMATIC) && CollectionUtils.isNotEmpty(clientRegistrationAuthJWSAlgs)) {
+				
+				stringList = new ArrayList<>(clientRegistrationAuthJWSAlgs.size());
+				
+				for (JWSAlgorithm alg: clientRegistrationAuthJWSAlgs)
+					stringList.add(alg.getName());
+				
+				o.put("request_authentication_signing_alg_values_supported", stringList);
+			}
+			
+			if (clientRegistrationTypes.contains(ClientRegistrationType.EXPLICIT) && federationRegistrationEndpoint != null) {
+				o.put("federation_registration_endpoint", federationRegistrationEndpoint.toString());
+			} else {
+				o.remove("federation_registration_endpoint");
+			}
 		}
 
 		// Append any custom (not registered) parameters
@@ -1949,7 +2113,55 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 					as.promptTypes.add(Prompt.Type.parse(v));
 			}
 		}
-
+		
+		// OIDC Federation 1.0
+		if (jsonObject.get("client_registration_types_supported") != null) {
+			
+			as.clientRegistrationTypes = new LinkedList<>();
+			for (String v : JSONObjectUtils.getStringList(jsonObject, "client_registration_types_supported")) {
+				as.clientRegistrationTypes.add(new ClientRegistrationType(v));
+			}
+			
+			if (jsonObject.get("jwks") != null) {
+				try {
+					as.jwkSet = JWKSet.parse(JSONObjectUtils.getJSONObject(jsonObject, "jwks"));
+				} catch (java.text.ParseException e) {
+					throw new ParseException(e.getMessage(), e);
+				}
+			}
+			
+			as.signedJWKSetURI = JSONObjectUtils.getURI(jsonObject, "signed_jwks_uri", null);
+			
+			if (jsonObject.get("request_authentication_methods_supported") != null) {
+				Map<EndpointName, List<ClientAuthenticationMethod>> requestAuthMethods = new HashMap<>();
+				JSONObject spec = JSONObjectUtils.getJSONObject(jsonObject, "request_authentication_methods_supported");
+				// authorization_endpoint or RAR
+				for (String endpointName : spec.keySet()) {
+					List<String> methodNames = JSONObjectUtils.getStringList(spec, endpointName, Collections.<String>emptyList());
+					List<ClientAuthenticationMethod> authMethods = new LinkedList<>();
+					for (String name : methodNames) {
+						authMethods.add(ClientAuthenticationMethod.parse(name));
+					}
+					requestAuthMethods.put(new EndpointName(endpointName), authMethods);
+				}
+				as.setClientRegistrationAuthnMethods(requestAuthMethods);
+			}
+			
+			if (jsonObject.get("request_authentication_signing_alg_values_supported") != null) {
+				as.clientRegistrationAuthJWSAlgs = new ArrayList<>();
+				
+				for (String v : JSONObjectUtils.getStringArray(jsonObject, "request_authentication_signing_alg_values_supported")) {
+					
+					if (v != null)
+						as.clientRegistrationAuthJWSAlgs.add(JWSAlgorithm.parse(v));
+				}
+			}
+			
+			as.federationRegistrationEndpoint = JSONObjectUtils.getURI(jsonObject, "federation_registration_endpoint", null);
+		}
+		
+		as.organizationName = JSONObjectUtils.getString(jsonObject, "organization_name", null);
+		
 		// Parse custom (not registered) parameters
 		JSONObject customParams = new JSONObject(jsonObject);
 		customParams.keySet().removeAll(REGISTERED_PARAMETER_NAMES);

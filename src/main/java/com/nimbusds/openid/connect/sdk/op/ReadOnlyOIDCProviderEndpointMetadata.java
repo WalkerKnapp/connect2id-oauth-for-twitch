@@ -34,11 +34,11 @@ import com.nimbusds.oauth2.sdk.as.ReadOnlyAuthorizationServerEndpointMetadata;
  *         Access Tokens (RFC 8705)
  *     <li>OAuth 2.0 Device Flow for Browserless and Input Constrained Devices
  *         (draft-ietf-oauth-device-flow-14)
+ *     <li>OpenID Connect Federation 1.0 (RFC 8628).
  *     <li>OpenID Connect Discovery 1.0, section 3.
  *     <li>OpenID Connect Session Management 1.0, section 2.1 (draft 28).
  *     <li>OpenID Connect Front-Channel Logout 1.0, section 3 (draft 02).
  *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.1 (draft 07).
- *     <li>OpenID Connect Federation 1.0 (draft 10).
  * </ul>
  */
 public interface ReadOnlyOIDCProviderEndpointMetadata extends ReadOnlyAuthorizationServerEndpointMetadata {
@@ -69,14 +69,4 @@ public interface ReadOnlyOIDCProviderEndpointMetadata extends ReadOnlyAuthorizat
 	 * @return The logoout endpoint URI, {@code null} if not specified.
 	 */
 	URI getEndSessionEndpointURI();
-	
-	
-	/**
-	 * Gets the federation registration endpoint URI. Corresponds to the
-	 * {@code federation_registration_endpoint} metadata field.
-	 *
-	 * @return The federation registration endpoint URI, {@code null} if
-	 * not specified.
-	 */
-	URI getFederationRegistrationEndpointURI();
 }

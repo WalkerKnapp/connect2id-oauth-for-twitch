@@ -37,6 +37,8 @@ import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.Prompt;
+import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistrationType;
+import com.nimbusds.openid.connect.sdk.op.EndpointName;
 
 
 public class AuthorizationServerMetadataTest extends TestCase {
@@ -92,7 +94,14 @@ public class AuthorizationServerMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("backchannel_authentication_request_signing_alg_values_supported"));
 		assertTrue(paramNames.contains("backchannel_user_code_parameter_supported"));
 		assertTrue(paramNames.contains("prompt_values_supported"));
-		assertEquals(45, paramNames.size());
+		assertTrue(paramNames.contains("organization_name"));
+		assertTrue(paramNames.contains("signed_jwks_uri"));
+		assertTrue(paramNames.contains("jwks"));
+		assertTrue(paramNames.contains("client_registration_types_supported"));
+		assertTrue(paramNames.contains("request_authentication_methods_supported"));
+		assertTrue(paramNames.contains("request_authentication_signing_alg_values_supported"));
+		assertTrue(paramNames.contains("federation_registration_endpoint"));
+		assertEquals(52, paramNames.size());
 	}
 	
 	
@@ -779,5 +788,59 @@ public class AuthorizationServerMetadataTest extends TestCase {
 		} catch (ParseException e) {
 			assertEquals("Unknown prompt type: xxx", e.getMessage());
 		}
+	}
+	
+	
+	public void testFederation() throws ParseException {
+		
+		Issuer issuer = new Issuer("https://c2id.com");
+		
+		AuthorizationServerMetadata metadata = new AuthorizationServerMetadata(issuer);
+		
+		String orgName = "Connect2id";
+		metadata.setOrganizationName(orgName);
+		assertEquals(orgName, metadata.getOrganizationName());
+		
+		URI signedJWKSetURI = URI.create("https://c2id.com/jwks.jwt");
+		metadata.setSignedJWKSetURI(signedJWKSetURI);
+		assertEquals(signedJWKSetURI, metadata.getSignedJWKSetURI());
+		
+		List<ClientRegistrationType> registrationTypes = Arrays.asList(ClientRegistrationType.AUTOMATIC, ClientRegistrationType.EXPLICIT);
+		metadata.setClientRegistrationTypes(registrationTypes);
+		assertEquals(registrationTypes, metadata.getClientRegistrationTypes());
+		
+		Map<EndpointName, List<ClientAuthenticationMethod>> autoRegMethods = new HashMap<>();
+		autoRegMethods.put(EndpointName.AUTHORIZATION, Collections.singletonList(ClientAuthenticationMethod.REQUEST_OBJECT));
+		autoRegMethods.put(EndpointName.PAR, Arrays.asList(ClientAuthenticationMethod.REQUEST_OBJECT, ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH));
+		metadata.setClientRegistrationAuthnMethods(autoRegMethods);
+		assertEquals(autoRegMethods, metadata.getClientRegistrationAuthnMethods());
+		
+		metadata.setClientRegistrationAuthnJWSAlgs(Collections.singletonList(JWSAlgorithm.RS256));
+		assertEquals(Collections.singletonList(JWSAlgorithm.RS256), metadata.getClientRegistrationAuthnJWSAlgs());
+		
+		URI fedRegEndpoint = URI.create("https://c2id.com/clients/federation");
+		metadata.setFederationRegistrationEndpointURI(fedRegEndpoint);
+		assertEquals(fedRegEndpoint, metadata.getFederationRegistrationEndpointURI());
+		
+		JSONObject o = metadata.toJSONObject();
+		
+		assertEquals(issuer.getValue(), JSONObjectUtils.getURI(o, "issuer").toString());
+		assertEquals(orgName, JSONObjectUtils.getString(o, "organization_name"));
+		assertEquals(signedJWKSetURI, JSONObjectUtils.getURI(o, "signed_jwks_uri"));
+		assertEquals(Collections.singletonList(ClientAuthenticationMethod.REQUEST_OBJECT.getValue()), JSONObjectUtils.getJSONObject(o, "request_authentication_methods_supported").get(EndpointName.AUTHORIZATION.getValue()));
+		assertEquals(Arrays.asList(ClientAuthenticationMethod.REQUEST_OBJECT.getValue(), ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH.getValue()), JSONObjectUtils.getJSONObject(o, "request_authentication_methods_supported").get(EndpointName.PAR.getValue()));
+		assertEquals(2, JSONObjectUtils.getJSONObject(o, "request_authentication_methods_supported").size());
+		assertEquals(Collections.singletonList(JWSAlgorithm.RS256.getName()), JSONObjectUtils.getStringList(o, "request_authentication_signing_alg_values_supported"));
+		assertEquals(fedRegEndpoint, JSONObjectUtils.getURI(o, "federation_registration_endpoint"));
+		assertEquals(7, o.size());
+		
+		metadata = AuthorizationServerMetadata.parse(o.toJSONString());
+		
+		assertEquals(orgName, metadata.getOrganizationName());
+		assertEquals(signedJWKSetURI, metadata.getSignedJWKSetURI());
+		assertEquals(registrationTypes, metadata.getClientRegistrationTypes());
+		assertEquals(autoRegMethods, metadata.getClientRegistrationAuthnMethods());
+		assertEquals(Collections.singletonList(JWSAlgorithm.RS256), metadata.getClientRegistrationAuthnJWSAlgs());
+		assertEquals(fedRegEndpoint, metadata.getFederationRegistrationEndpointURI());
 	}
 }

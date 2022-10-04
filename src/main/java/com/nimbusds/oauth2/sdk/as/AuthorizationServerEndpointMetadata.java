@@ -43,6 +43,7 @@ import com.nimbusds.oauth2.sdk.util.OrderedJSONObject;
  *     <li>OAuth 2.0 Device Authorization Grant (RFC 8628)
  *     <li>OpenID Connect Client Initiated Backchannel Authentication Flow -
  * 	   Core 1.0
+ *     <li>OpenID Connect Federation 1.0 (draft 22).
  * </ul>
  */
 public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizationServerEndpointMetadata {
@@ -64,6 +65,7 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 		p.add("pushed_authorization_request_endpoint");
 		p.add("device_authorization_endpoint");
 		p.add("backchannel_authentication_endpoint");
+		p.add("federation_registration_endpoint");
 		REGISTERED_PARAMETER_NAMES = Collections.unmodifiableSet(p);
 	}
 	
@@ -135,6 +137,12 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	
 	
 	/**
+	 * The federation registration endpoint.
+	 */
+	private URI federationRegistrationEndpoint;
+	
+	
+	/**
 	 * Creates a new OAuth 2.0 Authorisation Server (AS) endpoint metadata
 	 * instance.
 	 */
@@ -144,7 +152,6 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	
 	@Override
 	public URI getAuthorizationEndpointURI() {
-		
 		return authzEndpoint;
 	}
 	
@@ -157,14 +164,12 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	 *                      not specified.
 	 */
 	public void setAuthorizationEndpointURI(final URI authzEndpoint) {
-		
 		this.authzEndpoint = authzEndpoint;
 	}
 	
 	
 	@Override
 	public URI getTokenEndpointURI() {
-		
 		return tokenEndpoint;
 	}
 
@@ -177,14 +182,12 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	 *                      specified.
 	 */
 	public void setTokenEndpointURI(final URI tokenEndpoint) {
-		
 		this.tokenEndpoint = tokenEndpoint;
 	}
 	
 	
 	@Override
 	public URI getRegistrationEndpointURI() {
-		
 		return regEndpoint;
 	}
 	
@@ -197,14 +200,12 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	 *                    {@code null} if not specified.
 	 */
 	public void setRegistrationEndpointURI(final URI regEndpoint) {
-		
 		this.regEndpoint = regEndpoint;
 	}
 	
 	
 	@Override
 	public URI getIntrospectionEndpointURI() {
-		
 		return introspectionEndpoint;
 	}
 	
@@ -217,14 +218,12 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	 *                               {@code null} if not specified.
 	 */
 	public void setIntrospectionEndpointURI(final URI introspectionEndpoint) {
-		
 		this.introspectionEndpoint = introspectionEndpoint;
 	}
 	
 	
 	@Override
 	public URI getRevocationEndpointURI() {
-		
 		return revocationEndpoint;
 	}
 	
@@ -237,7 +236,6 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	 *                           {@code null} if not specified.
 	 */
 	public void setRevocationEndpointURI(final URI revocationEndpoint) {
-		
 		this.revocationEndpoint = revocationEndpoint;
 	}
 	
@@ -245,7 +243,6 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	@Override
 	@Deprecated
 	public URI getRequestObjectEndpoint() {
-		
 		return requestObjectEndpoint;
 	}
 	
@@ -259,14 +256,12 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	 */
 	@Deprecated
 	public void setRequestObjectEndpoint(final URI requestObjectEndpoint) {
-		
 		this.requestObjectEndpoint = requestObjectEndpoint;
 	}
 	
 	
 	@Override
 	public URI getPushedAuthorizationRequestEndpointURI() {
-		
 		return parEndpoint;
 	}
 	
@@ -279,14 +274,12 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	 *                    {@code null} if not specified.
 	 */
 	public void setPushedAuthorizationRequestEndpointURI(final URI parEndpoint) {
-		
 		this.parEndpoint = parEndpoint;
 	}
 	
 	
 	@Override
 	public URI getDeviceAuthorizationEndpointURI() {
-		
 		return deviceAuthzEndpoint;
 	}
 	
@@ -299,14 +292,12 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	 *                            {@code null} if not specified.
 	 */
 	public void setDeviceAuthorizationEndpointURI(final URI deviceAuthzEndpoint) {
-		
 		this.deviceAuthzEndpoint = deviceAuthzEndpoint;
 	}
 	
 	
 	@Override
 	public URI getBackChannelAuthenticationEndpointURI() {
-		
 		return backChannelAuthEndpoint;
 	}
 	
@@ -314,7 +305,6 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	@Deprecated
 	@Override
 	public URI getBackChannelAuthenticationEndpoint() {
-		
 		return getBackChannelAuthenticationEndpointURI();
 	}
 	
@@ -328,7 +318,6 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	 *                                specified.
 	 */
 	public void setBackChannelAuthenticationEndpointURI(final URI backChannelAuthEndpoint) {
-		
 		this.backChannelAuthEndpoint = backChannelAuthEndpoint;
 	}
 	
@@ -346,8 +335,26 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 	 */
 	@Deprecated
 	public void setBackChannelAuthenticationEndpoint(final URI backChannelAuthEndpoint) {
-		
 		setBackChannelAuthenticationEndpointURI(backChannelAuthEndpoint);
+	}
+	
+	
+	@Override
+	public URI getFederationRegistrationEndpointURI() {
+		return federationRegistrationEndpoint;
+	}
+	
+	
+	/**
+	 * Sets the federation registration endpoint URI. Corresponds to the
+	 * {@code federation_registration_endpoint} metadata field.
+	 *
+	 * @param federationRegistrationEndpoint The federation registration
+	 *                                       endpoint URI, {@code null} if
+	 *                                       not specified.
+	 */
+	public void setFederationRegistrationEndpointURI(final URI federationRegistrationEndpoint) {
+		this.federationRegistrationEndpoint = federationRegistrationEndpoint;
 	}
 	
 	
@@ -382,6 +389,9 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 		
 		if (getBackChannelAuthenticationEndpointURI() != null)
 			o.put("backchannel_authentication_endpoint", getBackChannelAuthenticationEndpointURI().toString());
+		
+		if (getFederationRegistrationEndpointURI() != null)
+			o.put("federation_registration_endpoint", getFederationRegistrationEndpointURI().toString());
 		
 		return o;
 	}
@@ -418,6 +428,7 @@ public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizatio
 		as.parEndpoint = JSONObjectUtils.getURI(jsonObject, "pushed_authorization_request_endpoint", null);
 		as.deviceAuthzEndpoint = JSONObjectUtils.getURI(jsonObject, "device_authorization_endpoint", null);
 		as.backChannelAuthEndpoint = JSONObjectUtils.getURI(jsonObject, "backchannel_authentication_endpoint", null);
+		as.federationRegistrationEndpoint = JSONObjectUtils.getURI(jsonObject, "federation_registration_endpoint", null);
 		return as;
 	}
 }

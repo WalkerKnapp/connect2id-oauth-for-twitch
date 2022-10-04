@@ -118,12 +118,6 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 		p.add("claims_in_verified_claims_supported");
 		p.add("attachments_supported");
 		p.add("digest_algorithms_supported");
-		p.add("organization_name");
-		p.add("jwks");
-		p.add("signed_jwks_uri");
-		p.add("client_registration_types_supported");
-		p.add("request_authentication_methods_supported");
-		p.add("request_authentication_signing_alg_values_supported");
 		REGISTERED_PARAMETER_NAMES = Collections.unmodifiableSet(p);
 	}
 
@@ -331,51 +325,6 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 * The supported digest algorithms for external attachments.
 	 */
 	private List<HashAlgorithm> attachmentDigestAlgs;
-	
-	
-	/**
-	 * The organisation name (OpenID Connect Federation 1.0).
-	 */
-	private String organizationName;
-	
-	
-	/**
-	 * The OP JWK set (OpenID Connect Federation 1.0).
-	 */
-	private JWKSet jwkSet;
-	
-	
-	/**
-	 * The signed OP JWK set (OpenID Connect Federation 1.0).
-	 */
-	private URI signedJWKSetURI;
-	
-	
-	/**
-	 * The supported OpenID Connect Federation 1.0 client registration
-	 * types.
-	 */
-	private List<ClientRegistrationType> clientRegistrationTypes;
-	
-	
-	/**
-	 * The supported request authentication methods for automatic OpenID
-	 * Connect Federation 1.0 client registration.
-	 */
-	private Map<EndpointName,List<ClientAuthenticationMethod>> clientRegistrationAuthMethods;
-	
-	
-	/**
-	 * The supported JWS algorithms for authenticating automatic OpenID
-	 * Connect Federation 1.0 client registration requests.
-	 */
-	private List<JWSAlgorithm> clientRegistrationAuthJWSAlgs;
-	
-	
-	/**
-	 * The OpenID Connect Federation 1.0 registration endpoint.
-	 */
-	private URI federationRegistrationEndpoint;
 
 
 	/**
@@ -1104,136 +1053,6 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	}
 	
 	
-	@Override
-	public String getOrganizationName() {
-		return organizationName;
-	}
-	
-	
-	/**
-	 * Sets the organisation name (in federation). Corresponds to the
-	 * {@code organization_name} metadata field.
-	 *
-	 * @param organizationName The organisation name, {@code null} if not
-	 *                         specified.
-	 */
-	public void setOrganizationName(final String organizationName) {
-		this.organizationName = organizationName;
-	}
-	
-	
-	@Override
-	public JWKSet getJWKSet() {
-		return jwkSet;
-	}
-	
-	
-	/**
-	 * Sets the JWK set (OpenID Connect Federation 1.0). Corresponds to the
-	 * {@code jwks} metadata field.
-	 *
-	 * @param jwkSet The JWK set, {@code null} if not specified.
-	 */
-	public void setJWKSet(final JWKSet jwkSet) {
-		this.jwkSet = jwkSet;
-	}
-	
-	
-	@Override
-	public URI getSignedJWKSetURI() {
-		return signedJWKSetURI;
-	}
-	
-	
-	/**
-	 * Sets the signed JWK set URI (OpenID Connect Federation 1.0).
-	 * Corresponds to the {@code signed_jwks_uri} metadata field.
-	 *
-	 * @param signedJWKSetURI The signed JWK set URI, {@code null} if not
-	 *                        specified.
-	 */
-	public void setSignedJWKSetURI(final URI signedJWKSetURI) {
-		this.signedJWKSetURI = signedJWKSetURI;
-	}
-	
-	
-	@Override
-	public List<ClientRegistrationType> getClientRegistrationTypes() {
-		return clientRegistrationTypes;
-	}
-	
-	
-	/**
-	 * Sets the supported federation client registration types. Corresponds
-	 * to the {@code client_registration_types_supported} metadata field.
-	 *
-	 * @param clientRegistrationTypes The supported client registration
-	 *                                types, {@code null} if not specified.
-	 */
-	public void setClientRegistrationTypes(final List<ClientRegistrationType> clientRegistrationTypes) {
-		this.clientRegistrationTypes = clientRegistrationTypes;
-	}
-	
-	
-	@Override
-	public Map<EndpointName, List<ClientAuthenticationMethod>> getClientRegistrationAuthnMethods() {
-		return clientRegistrationAuthMethods;
-	}
-	
-	
-	/**
-	 * Sets the supported request authentication methods for automatic
-	 * OpenID Connect Federation 1.0 client registration. Corresponds to
-	 * the {@code request_authentication_methods_supported} field.
-	 *
-	 * @param methods The supported request authentication methods for
-	 *                automatic federation client registration,
-	 *                {@code null} if not specified.
-	 */
-	public void setClientRegistrationAuthnMethods(final Map<EndpointName,List<ClientAuthenticationMethod>> methods) {
-		clientRegistrationAuthMethods = methods;
-	}
-	
-	
-	@Override
-	public List<JWSAlgorithm> getClientRegistrationAuthnJWSAlgs() {
-		return clientRegistrationAuthJWSAlgs;
-	}
-	
-	
-	/**
-	 * Sets the supported JWS algorithms for authenticating automatic
-	 * OpenID Connect Federation 1.0 client registration requests.
-	 * Corresponds to the
-	 * {@code request_authentication_signing_alg_values_supported}.
-	 *
-	 * @param jwsAlgs The supported JWS algorithms, {@code null} if
-	 *                       not specified.
-	 */
-	public void setClientRegistrationAuthnJWSAlgs(final List<JWSAlgorithm> jwsAlgs) {
-		clientRegistrationAuthJWSAlgs = jwsAlgs;
-	}
-	
-	
-	@Override
-	public URI getFederationRegistrationEndpointURI() {
-		return federationRegistrationEndpoint;
-	}
-	
-	
-	/**
-	 * Sets the federation registration endpoint URI. Corresponds to the
-	 * {@code federation_registration_endpoint} metadata field.
-	 *
-	 * @param federationRegistrationEndpoint The federation registration
-	 *                                       endpoint URI, {@code null} if
-	 *                                       not specified.
-	 */
-	public void setFederationRegistrationEndpointURI(final URI federationRegistrationEndpoint) {
-		this.federationRegistrationEndpoint = federationRegistrationEndpoint;
-	}
-	
-	
 	/**
 	 * Applies the OpenID Provider metadata defaults where no values have
 	 * been specified.
@@ -1459,51 +1278,6 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 			}
 		}
 		
-		// federation
-		
-		if (organizationName != null) {
-			o.put("organization_name", organizationName);
-		}
-		
-		if (CollectionUtils.isNotEmpty(clientRegistrationTypes)) {
-			
-			o.put("client_registration_types_supported", Identifier.toStringList(clientRegistrationTypes));
-			
-			if (jwkSet != null) {
-				o.put("jwks", JSONObjectUtils.toJSONObject(jwkSet.toPublicJWKSet())); // prevent private keys from leaking
-			} else if (signedJWKSetURI != null) {
-				o.put("signed_jwks_uri", signedJWKSetURI.toString());
-			}
-			
-			if (clientRegistrationTypes.contains(ClientRegistrationType.AUTOMATIC) && MapUtils.isNotEmpty(clientRegistrationAuthMethods)) {
-				JSONObject map = new JSONObject();
-				for (Map.Entry<EndpointName,List<ClientAuthenticationMethod>> en: getClientRegistrationAuthnMethods().entrySet()) {
-					List<String> methodNames = new LinkedList<>();
-					for (ClientAuthenticationMethod method: en.getValue()) {
-						methodNames.add(method.getValue());
-					}
-					map.put(en.getKey().getValue(), methodNames);
-				}
-				o.put("request_authentication_methods_supported", map);
-			}
-			
-			if (clientRegistrationTypes.contains(ClientRegistrationType.AUTOMATIC) && CollectionUtils.isNotEmpty(clientRegistrationAuthJWSAlgs)) {
-				
-				stringList = new ArrayList<>(clientRegistrationAuthJWSAlgs.size());
-				
-				for (JWSAlgorithm alg: clientRegistrationAuthJWSAlgs)
-					stringList.add(alg.getName());
-				
-				o.put("request_authentication_signing_alg_values_supported", stringList);
-			}
-			
-			if (clientRegistrationTypes.contains(ClientRegistrationType.EXPLICIT)) {
-				if (federationRegistrationEndpoint != null) {
-					o.put("federation_registration_endpoint", federationRegistrationEndpoint.toString());
-				}
-			}
-		}
-		
 		return o;
 	}
 	
@@ -1610,6 +1384,14 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 		op.setBackChannelTokenDeliveryModes(as.getBackChannelTokenDeliveryModes());
 		
 		op.setPromptTypes(as.getPromptTypes());
+		
+		op.setOrganizationName(as.getOrganizationName());
+		op.setJWKSet(as.getJWKSet());
+		op.setSignedJWKSetURI(as.getSignedJWKSetURI());
+		op.setClientRegistrationTypes(as.getClientRegistrationTypes());
+		op.setClientRegistrationAuthnMethods(as.getClientRegistrationAuthnMethods());
+		op.setClientRegistrationAuthnJWSAlgs(as.getClientRegistrationAuthnJWSAlgs());
+		op.setFederationRegistrationEndpointURI(as.getFederationRegistrationEndpointURI());
 
 		if (jsonObject.get("acr_values_supported") != null) {
 
@@ -1881,36 +1663,6 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 				}
 			}
 		}
-		
-		// OIDC Federation 1.0 completion
-		if (jsonObject.get("request_authentication_methods_supported") != null) {
-			Map<EndpointName,List<ClientAuthenticationMethod>> requestAuthMethods = new HashMap<>();
-			JSONObject spec = JSONObjectUtils.getJSONObject(jsonObject, "request_authentication_methods_supported");
-			// authorization_endpoint or RAR
-			for (String endpointName: spec.keySet()) {
-				List<String> methodNames = JSONObjectUtils.getStringList(spec, endpointName, Collections.<String>emptyList());
-				List<ClientAuthenticationMethod> authMethods = new LinkedList<>();
-				for (String name: methodNames) {
-					authMethods.add(ClientAuthenticationMethod.parse(name));
-				}
-				requestAuthMethods.put(new EndpointName(endpointName), authMethods);
-			}
-			op.setClientRegistrationAuthnMethods(requestAuthMethods);
-		}
-		
-		if (jsonObject.get("request_authentication_signing_alg_values_supported") != null) {
-			op.clientRegistrationAuthJWSAlgs = new ArrayList<>();
-			
-			for (String v: JSONObjectUtils.getStringArray(jsonObject, "request_authentication_signing_alg_values_supported")) {
-				
-				if (v != null)
-					op.clientRegistrationAuthJWSAlgs.add(JWSAlgorithm.parse(v));
-			}
-		}
-		
-		op.organizationName = JSONObjectUtils.getString(jsonObject, "organization_name", null);
-		
-		op.federationRegistrationEndpoint = JSONObjectUtils.getURI(jsonObject, "federation_registration_endpoint", null);
 		
 		// Parse custom (not registered) parameters
 		for (Map.Entry<String,?> entry: as.getCustomParameters().entrySet()) {

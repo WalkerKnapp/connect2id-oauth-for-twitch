@@ -44,7 +44,8 @@ public class AuthorizationServerEndpointMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("revocation_endpoint"));
 		assertTrue(paramNames.contains("device_authorization_endpoint"));
 		assertTrue(paramNames.contains("backchannel_authentication_endpoint"));
-		assertEquals(9, paramNames.size());
+		assertTrue(paramNames.contains("federation_registration_endpoint"));
+		assertEquals(10, paramNames.size());
 	}
 
 
@@ -61,6 +62,7 @@ public class AuthorizationServerEndpointMetadataTest extends TestCase {
 		assertNull(endpointMetadata.getRevocationEndpointURI());
 		assertNull(endpointMetadata.getDeviceAuthorizationEndpointURI());
 		assertNull(endpointMetadata.getBackChannelAuthenticationEndpoint());
+		assertNull(endpointMetadata.getFederationRegistrationEndpointURI());
 		
 		JSONObject jsonObject = endpointMetadata.toJSONObject();
 		
@@ -76,6 +78,7 @@ public class AuthorizationServerEndpointMetadataTest extends TestCase {
 		assertNull(parsedEndpointMetadata.getDeviceAuthorizationEndpointURI());
 		assertNull(parsedEndpointMetadata.getBackChannelAuthenticationEndpointURI());
 		assertNull(parsedEndpointMetadata.getBackChannelAuthenticationEndpoint());
+		assertNull(endpointMetadata.getFederationRegistrationEndpointURI());
 	}
 	
 	
@@ -110,6 +113,9 @@ public class AuthorizationServerEndpointMetadataTest extends TestCase {
 		endpointMetadata.setBackChannelAuthenticationEndpointURI(new URI("https://c2id.com/ciba"));
 		assertEquals(new URI("https://c2id.com/ciba"), endpointMetadata.getBackChannelAuthenticationEndpointURI());
 		
+		endpointMetadata.setFederationRegistrationEndpointURI(new URI("https://c2id.com/reg/federation"));
+		assertEquals(new URI("https://c2id.com/reg/federation"), endpointMetadata.getFederationRegistrationEndpointURI());
+		
 		JSONObject jsonObject = endpointMetadata.toJSONObject();
 		
 		for (String paramName: AuthorizationServerEndpointMetadata.getRegisteredParameterNames()) {
@@ -128,5 +134,6 @@ public class AuthorizationServerEndpointMetadataTest extends TestCase {
 		assertEquals(new URI("https://c2id.com/device"), endpointMetadata.getDeviceAuthorizationEndpointURI());
 		assertEquals(new URI("https://c2id.com/ciba"), endpointMetadata.getBackChannelAuthenticationEndpointURI());
 		assertEquals(new URI("https://c2id.com/ciba"), endpointMetadata.getBackChannelAuthenticationEndpoint());
+		assertEquals(new URI("https://c2id.com/reg/federation"), endpointMetadata.getFederationRegistrationEndpointURI());
 	}
 }

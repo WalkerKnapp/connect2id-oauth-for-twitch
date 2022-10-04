@@ -20,12 +20,14 @@ package com.nimbusds.oauth2.sdk.as;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import net.minidev.json.JSONObject;
 
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.langtag.LangTag;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ResponseMode;
@@ -37,6 +39,8 @@ import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.openid.connect.sdk.Prompt;
+import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistrationType;
+import com.nimbusds.openid.connect.sdk.op.EndpointName;
 
 
 /**
@@ -61,6 +65,7 @@ import com.nimbusds.openid.connect.sdk.Prompt;
  *     <li>OAuth 2.0 Incremental Authorization
  *         (draft-ietf-oauth-incremental-authz-04)
  *     <li>Initiating User Registration via OpenID Connect (draft 04)
+ *     <li>OpenID Connect Federation 1.0 (draft 22)
  * </ul>
  */
 public interface ReadOnlyAuthorizationServerMetadata extends ReadOnlyAuthorizationServerEndpointMetadata {
@@ -452,6 +457,69 @@ public interface ReadOnlyAuthorizationServerMetadata extends ReadOnlyAuthorizati
 	 * @return The supported prompt types, {@code null} if not specified.
 	 */
 	List<Prompt.Type> getPromptTypes();
+	
+	
+	
+	
+	
+	/**
+	 * Gets the organisation name (OpenID Connect Federation 1.0).
+	 * Corresponds to the {@code organization_name} metadata field.
+	 *
+	 * @return The organisation name, {@code null} if not specified.
+	 */
+	String getOrganizationName();
+	
+	
+	/**
+	 * Gets the JWK set (OpenID Connect Federation 1.0). Corresponds to the
+	 * {@code jwks} metadata field.
+	 *
+	 * @return The JWK set, {@code null} if not specified.
+	 */
+	JWKSet getJWKSet();
+	
+	
+	/**
+	 * Gets the signed JWK set URI (OpenID Connect Federation 1.0).
+	 * Corresponds to the {@code signed_jwks_uri} metadata field.
+	 *
+	 * @return The signed JWK set URI, {@code null} if not specified.
+	 */
+	URI getSignedJWKSetURI();
+	
+	
+	/**
+	 * Gets the supported OpenID Connect Federation 1.0 client registration
+	 * types. Corresponds to the
+	 * {@code client_registration_types_supported} metadata field.
+	 *
+	 * @return The supported client registration types, {@code null} if not
+	 * specified.
+	 */
+	List<ClientRegistrationType> getClientRegistrationTypes();
+	
+	
+	/**
+	 * Gets the supported request authentication methods for automatic
+	 * OpenID Connect Federation 1.0 client registration. Corresponds to
+	 * the {@code request_authentication_methods_supported} field.
+	 *
+	 * @return The supported request authentication methods for automatic
+	 * federation client registration, {@code null} if not specified.
+	 */
+	Map<EndpointName, List<ClientAuthenticationMethod>> getClientRegistrationAuthnMethods();
+	
+	
+	/**
+	 * Gets the supported JWS algorithms for authenticating automatic
+	 * OpenID Connect Federation 1.0 client registration requests.
+	 * Corresponds to the
+	 * {@code request_authentication_signing_alg_values_supported}.
+	 *
+	 * @return The supported JWS algorithms, {@code null} if not specified.
+	 */
+	List<JWSAlgorithm> getClientRegistrationAuthnJWSAlgs();
 	
 	
 	/**

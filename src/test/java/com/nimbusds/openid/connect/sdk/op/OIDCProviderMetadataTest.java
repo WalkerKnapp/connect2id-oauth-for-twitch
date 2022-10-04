@@ -132,6 +132,7 @@ public class OIDCProviderMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("attachments_supported"));
 		assertTrue(paramNames.contains("digest_algorithms_supported"));
 		assertTrue(paramNames.contains("organization_name"));
+		assertTrue(paramNames.contains("signed_jwks_uri"));
 		assertTrue(paramNames.contains("jwks"));
 		assertTrue(paramNames.contains("client_registration_types_supported"));
 		assertTrue(paramNames.contains("request_authentication_methods_supported"));

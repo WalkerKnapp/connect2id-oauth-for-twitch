@@ -36,6 +36,7 @@ import net.minidev.json.JSONObject;
  *     <li>OAuth 2.0 Device Authorization Grant (RFC 8628)
  *     <li>OpenID Connect Client Initiated Backchannel Authentication Flow -
  * 	   Core 1.0
+ *     <li>OpenID Connect Federation 1.0 (draft 22).
  * </ul>
  */
 public interface ReadOnlyAuthorizationServerEndpointMetadata {
@@ -142,6 +143,16 @@ public interface ReadOnlyAuthorizationServerEndpointMetadata {
 	 */
 	@Deprecated
 	URI getBackChannelAuthenticationEndpoint();
+	
+	
+	/**
+	 * Gets the federation registration endpoint URI. Corresponds to the
+	 * {@code federation_registration_endpoint} metadata field.
+	 *
+	 * @return The federation registration endpoint URI, {@code null} if
+	 * not specified.
+	 */
+	URI getFederationRegistrationEndpointURI();
 	
 	
 	/**
