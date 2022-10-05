@@ -50,7 +50,6 @@ import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.openid.connect.sdk.Prompt;
 import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistrationType;
 import com.nimbusds.openid.connect.sdk.op.EndpointName;
-import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 
 /**
