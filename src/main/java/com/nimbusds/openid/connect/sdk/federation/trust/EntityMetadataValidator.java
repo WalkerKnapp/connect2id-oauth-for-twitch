@@ -21,7 +21,7 @@ package com.nimbusds.openid.connect.sdk.federation.trust;
 import net.minidev.json.JSONObject;
 
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
-import com.nimbusds.openid.connect.sdk.federation.entities.FederationMetadataType;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 
 
 /**
@@ -31,11 +31,11 @@ public interface EntityMetadataValidator {
 	
 	
 	/**
-	 * Returns the type of federation metadata that is validated.
+	 * Returns the entity type of the metadata that is validated.
 	 *
-	 * @return The federation metadata type.
+	 * @return The federation entity type.
 	 */
-	FederationMetadataType getType();
+	EntityType getType();
 	
 	
 	/**

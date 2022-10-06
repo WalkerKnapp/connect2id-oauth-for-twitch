@@ -30,7 +30,7 @@ import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
-import com.nimbusds.openid.connect.sdk.federation.entities.FederationMetadataType;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 
 
 public class TrustNegotiationRequestTest extends TestCase {
@@ -41,7 +41,7 @@ public class TrustNegotiationRequestTest extends TestCase {
 		URI endpoint = URI.create("https://openid.sunet.se/federation_api_endpoint");
 		EntityID respondent = new EntityID("https://openid.sunet.se/federation_api_endpoint");
 		EntityID peer = new EntityID("https://idp.umu.se/openid");
-		FederationMetadataType metadataType = FederationMetadataType.OPENID_PROVIDER;
+		EntityType metadataType = EntityType.OPENID_PROVIDER;
 		EntityID anchor = new EntityID("https://swamid.se");
 		
 		TrustNegotiationRequest request = new TrustNegotiationRequest(

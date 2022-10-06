@@ -36,7 +36,7 @@ import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
-import com.nimbusds.openid.connect.sdk.federation.entities.FederationMetadataType;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 import com.nimbusds.openid.connect.sdk.federation.policy.MetadataPolicy;
 import com.nimbusds.openid.connect.sdk.federation.policy.MetadataPolicyEntry;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyViolationException;
@@ -176,7 +176,7 @@ public final class TrustChain {
 	 * {@link DefaultPolicyOperationCombinationValidator default policy
 	 * combination validator}.
 	 *
-	 * @param type The metadata type, such as {@code openid_relying_party}.
+	 * @param type The entity type, such as {@code openid_relying_party}.
 	 *             Must not be {@code null}.
 	 *
 	 * @return The combined metadata policy, with no policy operations if
@@ -184,7 +184,7 @@ public final class TrustChain {
 	 *
 	 * @throws PolicyViolationException On a policy violation exception.
 	 */
-	public MetadataPolicy resolveCombinedMetadataPolicy(final FederationMetadataType type)
+	public MetadataPolicy resolveCombinedMetadataPolicy(final EntityType type)
 		throws PolicyViolationException {
 		
 		return resolveCombinedMetadataPolicy(type, MetadataPolicyEntry.DEFAULT_POLICY_COMBINATION_VALIDATOR);
@@ -194,7 +194,7 @@ public final class TrustChain {
 	/**
 	 * Resolves the combined metadata policy for this trust chain.
 	 *
-	 * @param type                 The metadata type, such as
+	 * @param type                 The entity type, such as
 	 *                             {@code openid_relying_party}. Must not
 	 *                             be {@code null}.
 	 * @param combinationValidator The policy operation combination
@@ -205,7 +205,7 @@ public final class TrustChain {
 	 *
 	 * @throws PolicyViolationException On a policy violation exception.
 	 */
-	public MetadataPolicy resolveCombinedMetadataPolicy(final FederationMetadataType type,
+	public MetadataPolicy resolveCombinedMetadataPolicy(final EntityType type,
 							    final PolicyOperationCombinationValidator combinationValidator)
 		throws PolicyViolationException {
 		

@@ -27,7 +27,7 @@ import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
 import com.nimbusds.openid.connect.sdk.federation.entities.FederationEntityMetadata;
-import com.nimbusds.openid.connect.sdk.federation.entities.FederationMetadataType;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 import com.nimbusds.openid.connect.sdk.federation.trust.constraints.TrustChainConstraints;
 
 
@@ -117,7 +117,7 @@ class DefaultTrustChainRetriever implements TrustChainRetriever {
 		
 		if (targetMetadataValidator != null) {
 			
-			FederationMetadataType type = targetMetadataValidator.getType();
+			EntityType type = targetMetadataValidator.getType();
 			if (type == null) {
 				throw new IllegalArgumentException("The target metadata validation doesn't specify a federation entity type");
 			}

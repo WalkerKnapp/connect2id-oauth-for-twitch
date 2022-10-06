@@ -207,7 +207,7 @@ public class EntityStatementTest extends TestCase {
 			registeredMetadata,
 			null);
 		MetadataPolicy rpMetadataPolicy = new DefaultRPMetadataPolicyFactory().create(origMetadata, clientInfo);
-		claimsSet.setMetadataPolicy(FederationMetadataType.OPENID_RELYING_PARTY, rpMetadataPolicy);
+		claimsSet.setMetadataPolicy(EntityType.OPENID_RELYING_PARTY, rpMetadataPolicy);
 		
 		EntityStatement registrationStatement = EntityStatement.sign(claimsSet, RSA_JWK);
 		assertEquals(RSA_JWK_THUMBPRINT, registrationStatement.verifySignature(SIMPLE_JWK_SET));

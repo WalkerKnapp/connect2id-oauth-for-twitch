@@ -2087,6 +2087,7 @@ version 9.43.1 (2022-09-09)
     * Updates Nimbus JOSE+JWT to 9.24.4
 
 version 9.44 (2022-10-06)
+    * Renames FederationMetadataType to EntityType.
     * Updates EndpointName to OpenID Connect Federation 1.0 - draft 23.
     * Updates OIDCProviderMetadata to OpenID Connect Federation 1.0 - draft 23.
     * Adds OpenID Connect Federation 1.0 - draft 23 to

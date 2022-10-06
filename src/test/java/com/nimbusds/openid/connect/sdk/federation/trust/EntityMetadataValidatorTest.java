@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
 
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
-import com.nimbusds.openid.connect.sdk.federation.entities.FederationMetadataType;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistrationType;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
 
@@ -37,8 +37,8 @@ public class EntityMetadataValidatorTest extends TestCase {
 		
 		
 		@Override
-		public FederationMetadataType getType() {
-			return FederationMetadataType.OPENID_RELYING_PARTY;
+		public EntityType getType() {
+			return EntityType.OPENID_RELYING_PARTY;
 		}
 		
 		
@@ -55,7 +55,7 @@ public class EntityMetadataValidatorTest extends TestCase {
 	public void testRPMetadataMustBePresentValidator() throws InvalidEntityMetadataException {
 		
 		RPMetadataMustBePresentValidator validator = new RPMetadataMustBePresentValidator();
-		assertEquals(FederationMetadataType.OPENID_RELYING_PARTY, validator.getType());
+		assertEquals(EntityType.OPENID_RELYING_PARTY, validator.getType());
 		
 		EntityID entityID = new EntityID("https://rp.example.com");
 		

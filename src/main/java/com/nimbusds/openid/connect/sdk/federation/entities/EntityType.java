@@ -24,7 +24,7 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
 
 
 /**
- * Federation metadata type.
+ * Federation entity type.
  *
  * <p>Related specifications:
  *
@@ -33,7 +33,7 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * </ul>
  */
 @Immutable
-public final class FederationMetadataType extends Identifier {
+public final class EntityType extends Identifier {
 	
 	
 	private static final long serialVersionUID = 345842707286531482L;
@@ -42,43 +42,43 @@ public final class FederationMetadataType extends Identifier {
 	/**
 	 * OpenID relying party ({@code openid_relying_party}).
 	 */
-	public static final FederationMetadataType OPENID_RELYING_PARTY = new FederationMetadataType("openid_relying_party");
+	public static final EntityType OPENID_RELYING_PARTY = new EntityType("openid_relying_party");
 	
 	
 	/**
 	 * OpenID provider ({@code openid_provider}).
 	 */
-	public static final FederationMetadataType OPENID_PROVIDER = new FederationMetadataType("openid_provider");
+	public static final EntityType OPENID_PROVIDER = new EntityType("openid_provider");
 	
 	
 	/**
 	 * OAuth authorisation server ({@code oauth_authorization_server}).
 	 */
-	public static final FederationMetadataType OAUTH_AUTHORIZATION_SERVER = new FederationMetadataType("oauth_authorization_server");
+	public static final EntityType OAUTH_AUTHORIZATION_SERVER = new EntityType("oauth_authorization_server");
 	
 	
 	/**
 	 * OAuth client ({@code oauth_client}).
 	 */
-	public static final FederationMetadataType OAUTH_CLIENT = new FederationMetadataType("oauth_client");
+	public static final EntityType OAUTH_CLIENT = new EntityType("oauth_client");
 	
 	
 	/**
 	 * OAuth protected resource ({@code oauth_resource}).
 	 */
-	public static final FederationMetadataType OAUTH_RESOURCE = new FederationMetadataType("oauth_resource");
+	public static final EntityType OAUTH_RESOURCE = new EntityType("oauth_resource");
 	
 	
 	/**
 	 * Federation entity ({@code federation_entity}).
 	 */
-	public static final FederationMetadataType FEDERATION_ENTITY = new FederationMetadataType("federation_entity");
+	public static final EntityType FEDERATION_ENTITY = new EntityType("federation_entity");
 	
 	
 	/**
 	 * Trust mark issuer ({@code trust_mark_issuer}).
 	 */
-	public static final FederationMetadataType TRUST_MARK_ISSUER = new FederationMetadataType("trust_mark_issuer");
+	public static final EntityType TRUST_MARK_ISSUER = new EntityType("trust_mark_issuer");
 	
 	
 	/**
@@ -86,7 +86,7 @@ public final class FederationMetadataType extends Identifier {
 	 *
 	 * @param value The metadata type value. Must not be {@code null}.
 	 */
-	public FederationMetadataType(final String value) {
+	public EntityType(final String value) {
 		super(value);
 	}
 	
@@ -94,7 +94,7 @@ public final class FederationMetadataType extends Identifier {
 	@Override
 	public boolean equals(final Object object) {
 		
-		return object instanceof FederationMetadataType &&
+		return object instanceof EntityType &&
 			this.toString().equals(object.toString());
 	}
 }

@@ -56,50 +56,53 @@ import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
  *   "crit": ["jti"],
  *   "jti": "7l2lncFdY6SlhNia",
  *   "policy_language_crit": ["regexp"],
+ *   "metadata": {
+ *      "openid_provider": {
+ *         "issuer": "https://ntnu.no",
+ *         "organization_name": "NTNU",
+ *      },
+ *      "oauth_client": {
+ *         "organization_name": "NTNU"
+ *      }
+ *   },
  *   "metadata_policy": {
- *     "openid_provider": {
- *       "issuer": {"value": "https://ntnu.no"},
- *       "organization_name": {"value": "NTNU"},
- *       "id_token_signing_alg_values_supported":
- *         {"subset_of": ["RS256", "RS384", "RS512"]},
- *       "op_policy_uri": {
- *         "regexp": "^https:\/\/[\w-]+\.example\.com\/[\w-]+\.html"}
- *     },
- *     "openid_relying_party": {
- *       "organization_name": {"value": "NTNU"},
- *       "grant_types_supported": {
- *         "subset_of": ["authorization_code", "implicit"]},
- *       "scopes": {
+ *      "openid_provider": {
+ *         "id_token_signing_alg_values_supported": {
+ *             "subset_of": ["RS256", "RS384", "RS512"]
+ *         },
+ *         "op_policy_uri": {
+ *             "regexp": "^https:\/\/[\\w-]+\\.example\\.com\/[\\w-]+\\.html"}
+ *         },
+ *      "oauth_client": {
+ *         "grant_types": {
+ *         "subset_of": ["authorization_code", "client_credentials"]},
+ *         "scope": {
  *         "subset_of": ["openid", "profile", "email", "phone"]}
- *     }
+ *      }
  *   },
  *   "constraints": {
- *     "max_path_length": 2
- *   }
- *   "jwks": {
- *     "keys": [
- *       {
- *         "alg": "RS256",
- *         "e": "AQAB",
- *         "ext": true,
- *         "key_ops": ["verify"],
- *         "kid": "key1",
- *         "kty": "RSA",
- *         "n": "pnXBOusEANuug6ewezb9J_...",
- *         "use": "sig"
- *       }
- *     ]
+ *      "max_path_length": 2
  *   },
- *   "authority_hints": [
- *     "https://edugain.org/federation"
- *   ]
+ *   "jwks": {
+ *      "keys": [
+ *         {
+ *            "alg": "RS256",
+ *            "e": "AQAB",
+ *            "key_ops": ["verify"],
+ *            "kid": "key1",
+ *            "kty": "RSA",
+ *            "n": "pnXBOusEANuug6ewezb9J_...",
+ *            "use": "sig"
+ *         }
+ *      ]
+ *   }
  * }
  * </pre>
  *
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 2.1.
+ *     <li>OpenID Connect Federation 1.0, section 3.1.
  * </ul>
  */
 public class EntityStatementClaimsSet extends CommonClaimsSet {
@@ -390,10 +393,10 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	/**
 	 * Returns {@code true} if a metadata field is present.
 	 *
-	 * @return {@code true} if for a metadata field for an OpenID relying
-	 *         party, OpenID provider, OAuth authorisation server, OAuth
-	 *         client, OAuth protected resource or a federation entity is
-	 *         present.
+	 * @return {@code true} if a metadata field for an OpenID relying
+	 *         party, an OpenID provider, an OAuth authorisation server, an
+	 *         OAuth client, an OAuth protected resource, a federation
+	 *         entity, or a trust mark issuer is present.
 	 */
 	public boolean hasMetadata() {
 	
@@ -403,26 +406,27 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 			return false;
 		}
 		
-		if (metadataObject.get(FederationMetadataType.OPENID_RELYING_PARTY.getValue()) != null) return true;
-		if (metadataObject.get(FederationMetadataType.OPENID_PROVIDER.getValue()) != null) return true;
-		if (metadataObject.get(FederationMetadataType.OAUTH_AUTHORIZATION_SERVER.getValue()) != null) return true;
-		if (metadataObject.get(FederationMetadataType.OAUTH_CLIENT.getValue()) != null) return true;
-		if (metadataObject.get(FederationMetadataType.OAUTH_RESOURCE.getValue()) != null) return true;
-		if (metadataObject.get(FederationMetadataType.FEDERATION_ENTITY.getValue()) != null) return true;
+		if (metadataObject.get(EntityType.OPENID_RELYING_PARTY.getValue()) != null) return true;
+		if (metadataObject.get(EntityType.OPENID_PROVIDER.getValue()) != null) return true;
+		if (metadataObject.get(EntityType.OAUTH_AUTHORIZATION_SERVER.getValue()) != null) return true;
+		if (metadataObject.get(EntityType.OAUTH_CLIENT.getValue()) != null) return true;
+		if (metadataObject.get(EntityType.OAUTH_RESOURCE.getValue()) != null) return true;
+		if (metadataObject.get(EntityType.FEDERATION_ENTITY.getValue()) != null) return true;
+		if (metadataObject.get(EntityType.TRUST_MARK_ISSUER.getValue()) != null) return true;
 		
 		return false;
 	}
 	
 	
 	/**
-	 * Gets the metadata for the specified type. Use a typed getter, such
-	 * as {@link #getRPMetadata}, when available.
+	 * Gets the metadata for the specified entity type. Use a typed getter,
+	 * such as {@link #getRPMetadata}, when available.
 	 *
-	 * @param type The type. Must not be {@code null}.
+	 * @param type The entity type. Must not be {@code null}.
 	 *
 	 * @return The metadata, {@code null} if not specified.
 	 */
-	public JSONObject getMetadata(final FederationMetadataType type) {
+	public JSONObject getMetadata(final EntityType type) {
 		
 		JSONObject o = getJSONObjectClaim(METADATA_CLAIM_NAME);
 		
@@ -439,13 +443,13 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Sets the metadata for the specified type. Use a typed setter, such
-	 * as {@link #setRPMetadata}, when available.
+	 * Sets the metadata for the specified entity type. Use a typed setter,
+	 * such as {@link #setRPMetadata}, when available.
 	 *
 	 * @param type     The type. Must not be {@code null}.
 	 * @param metadata The metadata, {@code null} if not specified.
 	 */
-	public void setMetadata(final FederationMetadataType type, final JSONObject metadata) {
+	public void setMetadata(final EntityType type, final JSONObject metadata) {
 		
 		JSONObject o = getJSONObjectClaim(METADATA_CLAIM_NAME);
 		
@@ -470,7 +474,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	 */
 	public OIDCClientMetadata getRPMetadata() {
 		
-		JSONObject o = getMetadata(FederationMetadataType.OPENID_RELYING_PARTY);
+		JSONObject o = getMetadata(EntityType.OPENID_RELYING_PARTY);
 		
 		if (o == null) {
 			return null;
@@ -492,7 +496,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	public void setRPMetadata(final OIDCClientMetadata rpMetadata) {
 		
 		JSONObject o = rpMetadata != null ? rpMetadata.toJSONObject() : null;
-		setMetadata(FederationMetadataType.OPENID_RELYING_PARTY, o);
+		setMetadata(EntityType.OPENID_RELYING_PARTY, o);
 	}
 	
 	
@@ -504,7 +508,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	 */
 	public OIDCProviderMetadata getOPMetadata() {
 		
-		JSONObject o = getMetadata(FederationMetadataType.OPENID_PROVIDER);
+		JSONObject o = getMetadata(EntityType.OPENID_PROVIDER);
 		
 		if (o == null) {
 			return null;
@@ -526,7 +530,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	public void setOPMetadata(final OIDCProviderMetadata opMetadata) {
 		
 		JSONObject o = opMetadata != null ? opMetadata.toJSONObject() : null;
-		setMetadata(FederationMetadataType.OPENID_PROVIDER, o);
+		setMetadata(EntityType.OPENID_PROVIDER, o);
 	}
 	
 	
@@ -538,7 +542,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	 */
 	public ClientMetadata getOAuthClientMetadata() {
 		
-		JSONObject o = getMetadata(FederationMetadataType.OAUTH_CLIENT);
+		JSONObject o = getMetadata(EntityType.OAUTH_CLIENT);
 		
 		if (o == null) {
 			return null;
@@ -561,7 +565,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	public void setOAuthClientMetadata(final ClientMetadata clientMetadata) {
 		
 		JSONObject o = clientMetadata != null ? clientMetadata.toJSONObject() : null;
-		setMetadata(FederationMetadataType.OAUTH_CLIENT, o);
+		setMetadata(EntityType.OAUTH_CLIENT, o);
 	}
 	
 	
@@ -574,7 +578,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	 */
 	public AuthorizationServerMetadata getASMetadata() {
 		
-		JSONObject o = getMetadata(FederationMetadataType.OAUTH_AUTHORIZATION_SERVER);
+		JSONObject o = getMetadata(EntityType.OAUTH_AUTHORIZATION_SERVER);
 		
 		if (o == null) {
 			return null;
@@ -597,7 +601,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	public void setASMetadata(final AuthorizationServerMetadata asMetadata) {
 		
 		JSONObject o = asMetadata != null ? asMetadata.toJSONObject() : null;
-		setMetadata(FederationMetadataType.OAUTH_AUTHORIZATION_SERVER, o);
+		setMetadata(EntityType.OAUTH_AUTHORIZATION_SERVER, o);
 	}
 	
 	
@@ -609,7 +613,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	 */
 	public FederationEntityMetadata getFederationEntityMetadata() {
 		
-		JSONObject o = getMetadata(FederationMetadataType.FEDERATION_ENTITY);
+		JSONObject o = getMetadata(EntityType.TRUST_MARK_ISSUER);
 		
 		if (o == null) {
 			return null;
@@ -632,7 +636,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	public void setFederationEntityMetadata(final FederationEntityMetadata entityMetadata) {
 		
 		JSONObject o = entityMetadata != null ? entityMetadata.toJSONObject() : null;
-		setMetadata(FederationMetadataType.FEDERATION_ENTITY, o);
+		setMetadata(EntityType.TRUST_MARK_ISSUER, o);
 	}
 	
 	
@@ -663,13 +667,13 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	/**
 	 * Gets the metadata policy for the specified type.
 	 *
-	 * @param type The type. Must not be {@code null}.
+	 * @param type The entity type. Must not be {@code null}.
 	 *
 	 * @return The metadata policy, {@code null} or if JSON parsing failed.
 	 *
 	 * @throws PolicyViolationException On a policy violation.
 	 */
-	public MetadataPolicy getMetadataPolicy(final FederationMetadataType type)
+	public MetadataPolicy getMetadataPolicy(final EntityType type)
 		throws PolicyViolationException {
 		
 		JSONObject o = getMetadataPolicyJSONObject();
@@ -693,11 +697,11 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	/**
 	 * Sets the metadata policy for the specified type.
 	 *
-	 * @param type           The type. Must not be {@code null}.
+	 * @param type           The entity type. Must not be {@code null}.
 	 * @param metadataPolicy The metadata policy, {@code null} if not
 	 *                       specified.
 	 */
-	public void setMetadataPolicy(final FederationMetadataType type, final MetadataPolicy metadataPolicy) {
+	public void setMetadataPolicy(final EntityType type, final MetadataPolicy metadataPolicy) {
 		
 		JSONObject o = getMetadataPolicyJSONObject();
 		
@@ -725,7 +729,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	 * Gets the used trust anchor in a explicit client registration in
 	 * OpenID Connect Federation 1.0. Intended for entity statements issued
 	 * by an OpenID provider for a Relying party performing explicit client
-	 * registration only.Corresponds to the {@code trust_anchor_id} client
+	 * registration only. Corresponds to the {@code trust_anchor_id} client
 	 * metadata field.
 	 *
 	 * @return The trust anchor ID, {@code null} if not specified.

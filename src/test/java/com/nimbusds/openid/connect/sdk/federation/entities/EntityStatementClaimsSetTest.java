@@ -685,8 +685,8 @@ public class EntityStatementClaimsSetTest extends TestCase {
 			JWK_SET);
 		
 		// get null
-		assertNull(stmt.getMetadataPolicy(FederationMetadataType.OPENID_PROVIDER));
-		assertNull(stmt.getMetadataPolicy(FederationMetadataType.OPENID_RELYING_PARTY));
+		assertNull(stmt.getMetadataPolicy(EntityType.OPENID_PROVIDER));
+		assertNull(stmt.getMetadataPolicy(EntityType.OPENID_RELYING_PARTY));
 		
 		String opPolicyJSON = "{" +
 			"    \"contacts\": {" +
@@ -706,27 +706,27 @@ public class EntityStatementClaimsSetTest extends TestCase {
 		MetadataPolicy rpPolicy = MetadataPolicy.parse(rpJSONObject);
 		
 		// set
-		stmt.setMetadataPolicy(FederationMetadataType.OPENID_PROVIDER, opPolicy);
-		stmt.setMetadataPolicy(FederationMetadataType.OPENID_RELYING_PARTY, rpPolicy);
+		stmt.setMetadataPolicy(EntityType.OPENID_PROVIDER, opPolicy);
+		stmt.setMetadataPolicy(EntityType.OPENID_RELYING_PARTY, rpPolicy);
 		
 		JSONObject policyJSONObject = stmt.getMetadataPolicyJSONObject();
 		
 		JSONObject expectedPolicyJSONObject = new JSONObject();
-		expectedPolicyJSONObject.put(FederationMetadataType.OPENID_PROVIDER.getValue(), opJSONObject);
-		expectedPolicyJSONObject.put(FederationMetadataType.OPENID_RELYING_PARTY.getValue(), rpJSONObject);
+		expectedPolicyJSONObject.put(EntityType.OPENID_PROVIDER.getValue(), opJSONObject);
+		expectedPolicyJSONObject.put(EntityType.OPENID_RELYING_PARTY.getValue(), rpJSONObject);
 		assertEquals(expectedPolicyJSONObject, policyJSONObject);
 		
 		// get
-		assertEquals(opJSONObject, stmt.getMetadataPolicy(FederationMetadataType.OPENID_PROVIDER).toJSONObject());
-		assertEquals(rpJSONObject, stmt.getMetadataPolicy(FederationMetadataType.OPENID_RELYING_PARTY).toJSONObject());
+		assertEquals(opJSONObject, stmt.getMetadataPolicy(EntityType.OPENID_PROVIDER).toJSONObject());
+		assertEquals(rpJSONObject, stmt.getMetadataPolicy(EntityType.OPENID_RELYING_PARTY).toJSONObject());
 		
 		// delete
-		stmt.setMetadataPolicy(FederationMetadataType.OPENID_PROVIDER, null);
-		stmt.setMetadataPolicy(FederationMetadataType.OPENID_RELYING_PARTY, null);
+		stmt.setMetadataPolicy(EntityType.OPENID_PROVIDER, null);
+		stmt.setMetadataPolicy(EntityType.OPENID_RELYING_PARTY, null);
 		
 		// get null
-		assertNull(stmt.getMetadataPolicy(FederationMetadataType.OPENID_PROVIDER));
-		assertNull(stmt.getMetadataPolicy(FederationMetadataType.OPENID_RELYING_PARTY));
+		assertNull(stmt.getMetadataPolicy(EntityType.OPENID_PROVIDER));
+		assertNull(stmt.getMetadataPolicy(EntityType.OPENID_RELYING_PARTY));
 		
 		assertNull(stmt.getMetadataPolicyJSONObject());
 	}
@@ -852,7 +852,7 @@ public class EntityStatementClaimsSetTest extends TestCase {
 		
 		assertEquals(jsonObject, claimsSet.toJSONObject());
 		
-		MetadataPolicy metadataRPPolicy = claimsSet.getMetadataPolicy(FederationMetadataType.OPENID_RELYING_PARTY);
+		MetadataPolicy metadataRPPolicy = claimsSet.getMetadataPolicy(EntityType.OPENID_RELYING_PARTY);
 		
 		JSONObject expectedMetadataRPPolicyJSONObject = JSONObjectUtils.parse(
 			"{" +

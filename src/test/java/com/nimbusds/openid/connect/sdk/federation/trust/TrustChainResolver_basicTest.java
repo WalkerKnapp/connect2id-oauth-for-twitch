@@ -250,8 +250,8 @@ public class TrustChainResolver_basicTest extends TestCase {
 		
 		EntityMetadataValidator opMetadataValidator = new EntityMetadataValidator() {
 			@Override
-			public FederationMetadataType getType() {
-				return FederationMetadataType.OPENID_PROVIDER;
+			public EntityType getType() {
+				return EntityType.OPENID_PROVIDER;
 			}
 			
 			
@@ -368,8 +368,8 @@ public class TrustChainResolver_basicTest extends TestCase {
 		
 		EntityMetadataValidator opMetadataValidator = new EntityMetadataValidator() {
 			@Override
-			public FederationMetadataType getType() {
-				return FederationMetadataType.OPENID_PROVIDER;
+			public EntityType getType() {
+				return EntityType.OPENID_PROVIDER;
 			}
 			
 			

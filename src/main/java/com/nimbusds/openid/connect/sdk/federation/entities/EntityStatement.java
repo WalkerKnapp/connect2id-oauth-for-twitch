@@ -42,7 +42,7 @@ import com.nimbusds.oauth2.sdk.util.CollectionUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 2.1.
+ *     <li>OpenID Connect Federation 1.0, section 3.1.
  * </ul>
  */
 @Immutable

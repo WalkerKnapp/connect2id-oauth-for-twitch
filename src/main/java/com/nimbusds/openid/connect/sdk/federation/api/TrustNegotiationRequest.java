@@ -31,7 +31,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
-import com.nimbusds.openid.connect.sdk.federation.entities.FederationMetadataType;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 
 
 /**
@@ -60,9 +60,9 @@ public class TrustNegotiationRequest extends FederationAPIRequest {
 	
 	
 	/**
-	 * The metadata type.
+	 * The entity type.
 	 */
-	private final FederationMetadataType metadataType;
+	private final EntityType metadataType;
 	
 	
 	/**
@@ -74,18 +74,18 @@ public class TrustNegotiationRequest extends FederationAPIRequest {
 	/**
 	 * Creates a new trust negotiation request.
 	 *
-	 * @param endpoint     The federation API endpoint. Must not be
-	 *                     {@code null}.
-	 * @param respondent   The respondent. Must not be {@code null}.
-	 * @param peer         The peer. Must not be {@code null}.
-	 * @param metadataType The metadata type to resolve. Must not be
-	 *                     {@code null}.
-	 * @param anchor       The trust anchor. Must not be {@code null}.
+	 * @param endpoint   The federation API endpoint. Must not be
+	 *                   {@code null}.
+	 * @param respondent he respondent. Must not be {@code null}.
+	 * @param peer       The peer. Must not be {@code null}.
+	 * @param entityType The entity type to resolve. Must not be
+	 *                   {@code null}.
+	 * @param anchor     The trust anchor. Must not be {@code null}.
 	 */
 	public TrustNegotiationRequest(final URI endpoint,
 				       final EntityID respondent,
 				       final EntityID peer,
-				       final FederationMetadataType metadataType,
+				       final EntityType entityType,
 				       final EntityID anchor) {
 		
 		super(endpoint, OperationType.RESOLVE_METADATA);
@@ -100,10 +100,10 @@ public class TrustNegotiationRequest extends FederationAPIRequest {
 		}
 		this.peer = peer;
 		
-		if (metadataType == null) {
+		if (entityType == null) {
 			throw new IllegalArgumentException("The metadata type must not be null");
 		}
-		this.metadataType = metadataType;
+		this.metadataType = entityType;
 		
 		if (anchor == null) {
 			throw new IllegalArgumentException("The anchor must not be null");
@@ -137,7 +137,7 @@ public class TrustNegotiationRequest extends FederationAPIRequest {
 	 *
 	 * @return The metadata type to resolve.
 	 */
-	public FederationMetadataType getMetadataType() {
+	public EntityType getMetadataType() {
 		return metadataType;
 	}
 	
@@ -201,7 +201,7 @@ public class TrustNegotiationRequest extends FederationAPIRequest {
 		if (StringUtils.isBlank(value)) {
 			throw new ParseException("Missing metadata type");
 		}
-		FederationMetadataType metadataType = new FederationMetadataType(value);
+		EntityType metadataType = new EntityType(value);
 		
 		value = MultivaluedMapUtils.getFirstValue(params, "anchor");
 		if (StringUtils.isBlank(value)) {

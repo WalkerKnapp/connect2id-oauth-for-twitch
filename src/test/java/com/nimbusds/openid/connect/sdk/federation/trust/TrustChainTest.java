@@ -44,7 +44,7 @@ import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatementClaimsSet;
-import com.nimbusds.openid.connect.sdk.federation.entities.FederationMetadataType;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 import com.nimbusds.openid.connect.sdk.federation.policy.MetadataPolicy;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyOperation;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyViolationException;
@@ -197,8 +197,8 @@ public class TrustChainTest extends TestCase {
 		
 		assertEquals(1, trustChain.length());
 		
-		assertTrue(trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OPENID_PROVIDER).entrySet().isEmpty());
-		assertTrue(trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OPENID_RELYING_PARTY).entrySet().isEmpty());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_PROVIDER).entrySet().isEmpty());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_RELYING_PARTY).entrySet().isEmpty());
 	}
 	
 	
@@ -243,8 +243,8 @@ public class TrustChainTest extends TestCase {
 		
 		assertEquals(2, trustChain.length());
 		
-		assertTrue(trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OPENID_PROVIDER).entrySet().isEmpty());
-		assertTrue(trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OPENID_RELYING_PARTY).entrySet().isEmpty());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_PROVIDER).entrySet().isEmpty());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_RELYING_PARTY).entrySet().isEmpty());
 	}
 	
 	
@@ -492,12 +492,12 @@ public class TrustChainTest extends TestCase {
 		
 		trustChain.verifySignatures(ANCHOR_JWK_SET);
 		
-		assertEquals(opMetadataPolicy.toJSONObject(), trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OPENID_PROVIDER).toJSONObject());
-		assertEquals(rpMetadataPolicy.toJSONObject(), trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OPENID_RELYING_PARTY).toJSONObject());
-		assertTrue(trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.FEDERATION_ENTITY).toJSONObject().isEmpty());
-		assertTrue(trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OAUTH_AUTHORIZATION_SERVER).toJSONObject().isEmpty());
-		assertTrue(trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OAUTH_CLIENT).toJSONObject().isEmpty());
-		assertTrue(trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OAUTH_RESOURCE).toJSONObject().isEmpty());
+		assertEquals(opMetadataPolicy.toJSONObject(), trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_PROVIDER).toJSONObject());
+		assertEquals(rpMetadataPolicy.toJSONObject(), trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_RELYING_PARTY).toJSONObject());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.FEDERATION_ENTITY).toJSONObject().isEmpty());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OAUTH_AUTHORIZATION_SERVER).toJSONObject().isEmpty());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OAUTH_CLIENT).toJSONObject().isEmpty());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OAUTH_RESOURCE).toJSONObject().isEmpty());
 	}
 	
 	
@@ -614,11 +614,11 @@ public class TrustChainTest extends TestCase {
 			"  }" +
 			"}";
 		
-		assertEquals(JSONObjectUtils.parse(expectedCombinedOPMetadataPolicyJSON), trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OPENID_PROVIDER).toJSONObject());
-		assertEquals(rpMetadataPolicy.toJSONObject(), trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OPENID_RELYING_PARTY).toJSONObject());
-		assertTrue(trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.FEDERATION_ENTITY).toJSONObject().isEmpty());
-		assertTrue(trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OAUTH_AUTHORIZATION_SERVER).toJSONObject().isEmpty());
-		assertTrue(trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OAUTH_CLIENT).toJSONObject().isEmpty());
-		assertTrue(trustChain.resolveCombinedMetadataPolicy(FederationMetadataType.OAUTH_RESOURCE).toJSONObject().isEmpty());
+		assertEquals(JSONObjectUtils.parse(expectedCombinedOPMetadataPolicyJSON), trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_PROVIDER).toJSONObject());
+		assertEquals(rpMetadataPolicy.toJSONObject(), trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_RELYING_PARTY).toJSONObject());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.FEDERATION_ENTITY).toJSONObject().isEmpty());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OAUTH_AUTHORIZATION_SERVER).toJSONObject().isEmpty());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OAUTH_CLIENT).toJSONObject().isEmpty());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OAUTH_RESOURCE).toJSONObject().isEmpty());
 	}
 }

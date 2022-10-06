@@ -24,6 +24,7 @@ import net.minidev.json.JSONObject;
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 
 
 /**
@@ -49,8 +50,7 @@ public class TrustNegotiationSuccessResponse extends TrustNegotiationResponse {
 	 * Creates a new trust negotiation success response.
 	 *
 	 * @param metadata The metadata JSON object for the requested {@link
-	 *                 com.nimbusds.openid.connect.sdk.federation.entities.FederationMetadataType
-	 *                 metadata type}. Must not be {@code null}.
+	 *                 EntityType entity type}. Must not be {@code null}.
 	 */
 	public TrustNegotiationSuccessResponse(final JSONObject metadata) {
 		if (metadata == null) {
@@ -62,7 +62,7 @@ public class TrustNegotiationSuccessResponse extends TrustNegotiationResponse {
 	
 	/**
 	 * Returns metadata JSON object for the requested {@link
-	 * com.nimbusds.openid.connect.sdk.federation.entities.FederationMetadataType
+	 * EntityType
 	 * metadata type}.
 	 *
 	 * @return The metadata JSON object.
