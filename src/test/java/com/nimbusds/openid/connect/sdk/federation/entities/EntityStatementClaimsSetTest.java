@@ -340,7 +340,7 @@ public class EntityStatementClaimsSetTest extends TestCase {
 		assertEquals(metadataPolicy, stmt.getMetadataPolicyJSONObject());
 		
 		// constraints
-		TrustChainConstraints constraints = new TrustChainConstraints(10, null, null);
+		TrustChainConstraints constraints = new TrustChainConstraints(10, null, null, null);
 		stmt.setConstraints(constraints);
 		assertEquals(constraints, stmt.getConstraints());
 		
@@ -458,7 +458,7 @@ public class EntityStatementClaimsSetTest extends TestCase {
 		assertEquals(trustAnchorID, stmt.getTrustAnchorID());
 		
 		// constraints
-		TrustChainConstraints constraints = new TrustChainConstraints(10, null, null);
+		TrustChainConstraints constraints = new TrustChainConstraints(10, null, null, null);
 		stmt.setConstraints(constraints);
 		assertEquals(constraints, stmt.getConstraints());
 		

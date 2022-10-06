@@ -44,14 +44,15 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
  *   "naming_constraints" : {
  *   	"permitted" : [ "https://example.com" ],
  *   	"excluded"  : [ "https://east.example.com" ]
- *   }
+ *   },
+ *   "allowed_leaf_entity_types" : [ "openid_provider", "openid_relying_party" ]
  * }
  * </pre>
  *
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 7.2.
+ *     <li>OpenID Connect Federation 1.0, section 5.2.
  *     <li>RFC 5280, section 4.2.1.10.
  * </ul>
  */
@@ -72,22 +73,28 @@ public final class TrustChainConstraints implements JSONAware {
 	
 	
 	/**
-	 * The permitted entities.
+	 * The permitted entity IDs.
 	 */
-	private final List<EntityIDConstraint> permittedEntities;
+	private final List<EntityIDConstraint> permittedEntityIDs;
 	
 	
 	/**
-	 * The excluded entities.
+	 * The excluded entity IDs.
 	 */
-	private final List<EntityIDConstraint> excludedEntities;
+	private final List<EntityIDConstraint> excludedEntityIDs;
+	
+	
+	/**
+	 * The leaf entity type constraint.
+	 */
+	private final LeafEntityTypeConstraint leafEntityTypeConstraint;
 	
 	
 	/**
 	 * Creates a new no constraints instance.
 	 */
 	public TrustChainConstraints() {
-		this(-1, null, null);
+		this(-1, null, null, LeafEntityTypeConstraint.ANY);
 	}
 	
 	
@@ -98,25 +105,29 @@ public final class TrustChainConstraints implements JSONAware {
 	 *                      the last one in the chain, -1 if not specified.
 	 */
 	public TrustChainConstraints(final int maxPathLength) {
-		this(maxPathLength, null, null);
+		this(maxPathLength, null, null, null);
 	}
 	
 	
 	/**
 	 * Creates a new trust chain constraints instance.
 	 *
-	 * @param maxPathLength     The maximum number of entities between this
-	 *                          and the last one in the chain, -1 if not
-	 *                          specified.
-	 * @param permittedEntities The permitted entities, {@code null} if not
-	 *                          specified.
-	 * @param excludedEntities  The excluded entities, {@code null} if not
-	 *                          specified.
+	 * @param maxPathLength      The maximum number of entities between
+	 *                           this and the last one in the chain, -1 if
+	 *                           not specified.
+	 * @param permittedEntityIDs The permitted entity IDs, {@code null} if
+	 *                           not specified.
+	 * @param excludedEntityIDs  The excluded entities, {@code null} if not
+	 *                           specified.
 	 */
-	public TrustChainConstraints(final int maxPathLength, final List<EntityIDConstraint> permittedEntities, final List<EntityIDConstraint> excludedEntities) {
+	public TrustChainConstraints(final int maxPathLength,
+				     final List<EntityIDConstraint> permittedEntityIDs,
+				     final List<EntityIDConstraint> excludedEntityIDs,
+				     final LeafEntityTypeConstraint leafEntityTypeConstraint) {
 		this.maxPathLength = maxPathLength;
-		this.permittedEntities = permittedEntities != null ? permittedEntities : Collections.<EntityIDConstraint>emptyList();
-		this.excludedEntities = excludedEntities != null ? excludedEntities : Collections.<EntityIDConstraint>emptyList();
+		this.permittedEntityIDs = permittedEntityIDs != null ? permittedEntityIDs : Collections.<EntityIDConstraint>emptyList();
+		this.excludedEntityIDs = excludedEntityIDs != null ? excludedEntityIDs : Collections.<EntityIDConstraint>emptyList();
+		this.leafEntityTypeConstraint = leafEntityTypeConstraint != null ? leafEntityTypeConstraint : LeafEntityTypeConstraint.ANY;
 	}
 	
 	
@@ -141,7 +152,7 @@ public final class TrustChainConstraints implements JSONAware {
 	
 	
 	/**
-	 * Checks if the entity ID is permitted.
+	 * Checks if the specified entity ID is permitted.
 	 *
 	 * @param entityID The entity ID. Must not be {@code null}.
 	 *
@@ -149,22 +160,22 @@ public final class TrustChainConstraints implements JSONAware {
 	 */
 	public boolean isPermitted(final EntityID entityID) {
 		
-		if (getExcludedEntities().isEmpty() && getPermittedEntities().isEmpty()) {
+		if (getExcludedEntityIDs().isEmpty() && getPermittedEntityIDs().isEmpty()) {
 			return true;
 		}
 		
-		if (! getExcludedEntities().isEmpty()) {
+		if (! getExcludedEntityIDs().isEmpty()) {
 			
-			for (EntityIDConstraint constraint: getExcludedEntities()) {
+			for (EntityIDConstraint constraint: getExcludedEntityIDs()) {
 				if (constraint.matches(entityID)) {
 					return false;
 				}
 			}
 		}
 		
-		if (! getPermittedEntities().isEmpty()) {
+		if (! getPermittedEntityIDs().isEmpty()) {
 			
-			for (EntityIDConstraint constraint: getPermittedEntities()) {
+			for (EntityIDConstraint constraint: getPermittedEntityIDs()) {
 				if (constraint.matches(entityID)) {
 					return true;
 				}
@@ -180,7 +191,7 @@ public final class TrustChainConstraints implements JSONAware {
 	
 	/**
 	 * Checks if the entity ID with the given number of intermediates is
-	 * permitted.
+	 * allowed.
 	 *
 	 * @param numIntermediatesInPath The number of intermediate entities
 	 *                               between the entity specifying the
@@ -189,7 +200,8 @@ public final class TrustChainConstraints implements JSONAware {
 	 *
 	 * @param entityID               The entity ID. Must not be
 	 *                               {@code null}.
-	 * @return {@code true} if permitted, else {@code false}.
+	 *
+	 * @return {@code true} if allowed, else {@code false}.
 	 */
 	public boolean isPermitted(final int numIntermediatesInPath, final EntityID entityID) {
 		
@@ -210,22 +222,32 @@ public final class TrustChainConstraints implements JSONAware {
 	
 	
 	/**
-	 * Returns the permitted entities.
+	 * Returns the allowed entity IDs.
 	 *
-	 * @return The permitted entities, empty list if not specified.
+	 * @return The allowed entity IDs, empty list if not specified.
 	 */
-	public List<EntityIDConstraint> getPermittedEntities() {
-		return permittedEntities;
+	public List<EntityIDConstraint> getPermittedEntityIDs() {
+		return permittedEntityIDs;
 	}
 	
 	
 	/**
-	 * Returns the excluded entities.
+	 * Returns the excluded entity IDs.
 	 *
-	 * @return The excluded entities, empty list if not specified.
+	 * @return The excluded entity IDs, empty list if not specified.
 	 */
-	public List<EntityIDConstraint> getExcludedEntities() {
-		return excludedEntities;
+	public List<EntityIDConstraint> getExcludedEntityIDs() {
+		return excludedEntityIDs;
+	}
+	
+	
+	/**
+	 * Returns the leaf entity type constraint.
+	 *
+	 * @return The leaf entity type constraint.
+	 */
+	public LeafEntityTypeConstraint getLeafEntityTypeConstraint() {
+		return leafEntityTypeConstraint;
 	}
 	
 	
@@ -245,17 +267,17 @@ public final class TrustChainConstraints implements JSONAware {
 		
 		JSONObject namingConstraints = new JSONObject();
 		
-		if (CollectionUtils.isNotEmpty(permittedEntities)) {
+		if (CollectionUtils.isNotEmpty(permittedEntityIDs)) {
 			List<String> vals = new LinkedList<>();
-			for (EntityIDConstraint v: permittedEntities) {
+			for (EntityIDConstraint v: permittedEntityIDs) {
 				vals.add(v.toString());
 			}
 			namingConstraints.put("permitted", vals);
 		}
 		
-		if (CollectionUtils.isNotEmpty(excludedEntities)) {
+		if (CollectionUtils.isNotEmpty(excludedEntityIDs)) {
 			List<String> vals = new LinkedList<>();
-			for (EntityIDConstraint v: excludedEntities) {
+			for (EntityIDConstraint v: excludedEntityIDs) {
 				vals.add(v.toString());
 			}
 			namingConstraints.put("excluded", vals);
@@ -263,6 +285,10 @@ public final class TrustChainConstraints implements JSONAware {
 		
 		if (! namingConstraints.isEmpty()) {
 			o.put("naming_constraints", namingConstraints);
+		}
+		
+		if (! leafEntityTypeConstraint.allowsAny()) {
+			o.put("allowed_leaf_entity_types", leafEntityTypeConstraint.getAllowedAsStringList());
 		}
 		
 		return o;
@@ -281,14 +307,15 @@ public final class TrustChainConstraints implements JSONAware {
 		if (!(o instanceof TrustChainConstraints)) return false;
 		TrustChainConstraints that = (TrustChainConstraints) o;
 		return getMaxPathLength() == that.getMaxPathLength() &&
-			Objects.equals(getPermittedEntities(), that.getPermittedEntities()) &&
-			Objects.equals(getExcludedEntities(), that.getExcludedEntities());
+			Objects.equals(getPermittedEntityIDs(), that.getPermittedEntityIDs()) &&
+			Objects.equals(getExcludedEntityIDs(), that.getExcludedEntityIDs()) &&
+			getLeafEntityTypeConstraint().equals(that.getLeafEntityTypeConstraint());
 	}
 	
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(getMaxPathLength(), getPermittedEntities(), getExcludedEntities());
+		return Objects.hash(getMaxPathLength(), getPermittedEntityIDs(), getExcludedEntityIDs(), getLeafEntityTypeConstraint());
 	}
 	
 	
@@ -331,6 +358,10 @@ public final class TrustChainConstraints implements JSONAware {
 			}
 		}
 		
-		return new TrustChainConstraints(maxPathLength, permitted, excluded);
+		LeafEntityTypeConstraint leafEntityTypes = LeafEntityTypeConstraint.parse(
+			JSONObjectUtils.getStringList(jsonObject, "allowed_leaf_entity_types", null)
+		);
+		
+		return new TrustChainConstraints(maxPathLength, permitted, excluded, leafEntityTypes);
 	}
 }

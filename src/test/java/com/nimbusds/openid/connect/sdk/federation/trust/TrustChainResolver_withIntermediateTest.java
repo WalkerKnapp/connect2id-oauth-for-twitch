@@ -395,11 +395,11 @@ public class TrustChainResolver_withIntermediateTest extends TestCase {
 		
 		// Test the chain retriever
 		List<EntityIDConstraint> excluded = Collections.singletonList((EntityIDConstraint) new ExactMatchEntityIDConstraint(new EntityID(INTERMEDIATE_ISSUER.getValue())));
-		TrustChainConstraints constraints = new TrustChainConstraints(-1, null, excluded);
+		TrustChainConstraints constraints = new TrustChainConstraints(-1, null, excluded, null);
 		
 		assertEquals(-1, constraints.getMaxPathLength());
-		assertTrue(constraints.getPermittedEntities().isEmpty());
-		assertEquals(excluded, constraints.getExcludedEntities());
+		assertTrue(constraints.getPermittedEntityIDs().isEmpty());
+		assertEquals(excluded, constraints.getExcludedEntityIDs());
 		
 		DefaultTrustChainRetriever chainRetriever = new DefaultTrustChainRetriever(statementRetriever, constraints);
 		assertEquals(constraints, chainRetriever.getConstraints());

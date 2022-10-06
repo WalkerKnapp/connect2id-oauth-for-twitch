@@ -2099,3 +2099,6 @@ version 9.44 (2022-10-06)
     * Updates FederationMetadataType to OpenID Connect Federation 1.0 - draft
       23.
     * Updates TrustMarkClaimsSet to OpenID Connect Federation 1.0 - draft 23.
+    * Adds LeafEntityTypeConstraint.
+    * Updates TrustChainConstraints to OpenID Connect Federation 1.0 - draft
+      23.

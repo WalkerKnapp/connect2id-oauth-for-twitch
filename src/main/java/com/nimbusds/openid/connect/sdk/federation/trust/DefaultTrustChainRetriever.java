@@ -210,6 +210,8 @@ class DefaultTrustChainRetriever implements TrustChainRetriever {
 				continue;
 			}
 			
+			// TODO allowed_leaf_entity_types
+			
 			EntityStatement superiorSelfStmt;
 			try {
 				superiorSelfStmt = retriever.fetchSelfIssuedEntityStatement(authority);

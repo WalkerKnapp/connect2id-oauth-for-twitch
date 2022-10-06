@@ -76,6 +76,6 @@ public class TrustChainSetTest extends TestCase {
 		assertEquals(set, set.filter(new TrustChainConstraints(1)));
 		assertEquals(Collections.singleton(minimalChain), set.filter(new TrustChainConstraints(0)));
 		
-		assertTrue(set.filter(new TrustChainConstraints(-1, null, Collections.singletonList((EntityIDConstraint) new ExactMatchEntityIDConstraint(ANCHOR_ENTITY_ID)))).isEmpty());
+		assertTrue(set.filter(new TrustChainConstraints(-1, null, Collections.singletonList((EntityIDConstraint) new ExactMatchEntityIDConstraint(ANCHOR_ENTITY_ID)), null)).isEmpty());
 	}
 }

@@ -18,10 +18,7 @@
 package com.nimbusds.openid.connect.sdk.federation.trust.constraints;
 
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
@@ -29,6 +26,7 @@ import net.minidev.json.JSONObject;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 
 
 public class TrustChainConstraintsTest extends TestCase {
@@ -37,8 +35,9 @@ public class TrustChainConstraintsTest extends TestCase {
 	public void testNoConstraintsConstant() {
 		
 		assertEquals(-1, TrustChainConstraints.NO_CONSTRAINTS.getMaxPathLength());
-		assertTrue(TrustChainConstraints.NO_CONSTRAINTS.getPermittedEntities().isEmpty());
-		assertTrue(TrustChainConstraints.NO_CONSTRAINTS.getExcludedEntities().isEmpty());
+		assertTrue(TrustChainConstraints.NO_CONSTRAINTS.getPermittedEntityIDs().isEmpty());
+		assertTrue(TrustChainConstraints.NO_CONSTRAINTS.getExcludedEntityIDs().isEmpty());
+		assertTrue(TrustChainConstraints.NO_CONSTRAINTS.getLeafEntityTypeConstraint().allowsAny());
 	}
 	
 	
@@ -46,11 +45,12 @@ public class TrustChainConstraintsTest extends TestCase {
 		
 		for (TrustChainConstraints c: Arrays.asList(
 			new TrustChainConstraints(),
-			new TrustChainConstraints(-1, null,  null))) {
+			new TrustChainConstraints(-1, null,  null, null))) {
 			
 			assertEquals(-1, c.getMaxPathLength());
-			assertTrue(c.getPermittedEntities().isEmpty());
-			assertTrue(c.getExcludedEntities().isEmpty());
+			assertTrue(c.getPermittedEntityIDs().isEmpty());
+			assertTrue(c.getExcludedEntityIDs().isEmpty());
+			assertTrue(c.getLeafEntityTypeConstraint().allowsAny());
 			
 			JSONObject jsonObject = c.toJSONObject();
 			assertTrue(jsonObject.isEmpty());
@@ -59,8 +59,9 @@ public class TrustChainConstraintsTest extends TestCase {
 			
 			c = TrustChainConstraints.parse(jsonObject);
 			assertEquals(-1, c.getMaxPathLength());
-			assertTrue(c.getPermittedEntities().isEmpty());
-			assertTrue(c.getExcludedEntities().isEmpty());
+			assertTrue(c.getPermittedEntityIDs().isEmpty());
+			assertTrue(c.getExcludedEntityIDs().isEmpty());
+			assertTrue(c.getLeafEntityTypeConstraint().allowsAny());
 		}
 	}
 	
@@ -76,10 +77,14 @@ public class TrustChainConstraintsTest extends TestCase {
 		excluded.add(new SubtreeEntityIDConstraint("https://.abc.example.org"));
 		excluded.add(new SubtreeEntityIDConstraint("https://.xyz.example.org"));
 		
-		TrustChainConstraints c = new TrustChainConstraints(3, permitted, excluded);
+		Set<EntityType> leafTypes = new HashSet<>(Arrays.asList(EntityType.OPENID_PROVIDER, EntityType.OPENID_RELYING_PARTY));
+		LeafEntityTypeConstraint leafEntityTypeConstraint = new LeafEntityTypeConstraint(leafTypes);
+		
+		TrustChainConstraints c = new TrustChainConstraints(3, permitted, excluded, leafEntityTypeConstraint);
 		assertEquals(maxPathLength, c.getMaxPathLength());
-		assertEquals(permitted, c.getPermittedEntities());
-		assertEquals(excluded, c.getExcludedEntities());
+		assertEquals(permitted, c.getPermittedEntityIDs());
+		assertEquals(excluded, c.getExcludedEntityIDs());
+		assertEquals(leafEntityTypeConstraint, c.getLeafEntityTypeConstraint());
 		
 		JSONObject jsonObject = c.toJSONObject();
 		assertEquals(3, JSONObjectUtils.getInt(jsonObject, "max_path_length"));
@@ -89,13 +94,16 @@ public class TrustChainConstraintsTest extends TestCase {
 		assertEquals(Arrays.asList(excluded.get(0).toString(), excluded.get(1).toString()), JSONObjectUtils.getStringList(namingConstraints, "excluded"));
 		assertEquals(2, namingConstraints.size());
 		
-		assertEquals(2, jsonObject.size());
+		assertEquals(leafEntityTypeConstraint.getAllowedAsStringList(), JSONObjectUtils.getStringList(jsonObject, "allowed_leaf_entity_types"));
+		
+		assertEquals(3, jsonObject.size());
 		
 		c = TrustChainConstraints.parse(jsonObject);
 		
 		assertEquals(maxPathLength, c.getMaxPathLength());
-		assertEquals(permitted, c.getPermittedEntities());
-		assertEquals(excluded, c.getExcludedEntities());
+		assertEquals(permitted, c.getPermittedEntityIDs());
+		assertEquals(excluded, c.getExcludedEntityIDs());
+		assertEquals(leafEntityTypeConstraint, c.getLeafEntityTypeConstraint());
 	}
 	
 	
@@ -107,8 +115,9 @@ public class TrustChainConstraintsTest extends TestCase {
 		
 		TrustChainConstraints c = TrustChainConstraints.parse(jsonObject);
 		assertEquals(10, c.getMaxPathLength());
-		assertTrue(c.getPermittedEntities().isEmpty());
-		assertTrue(c.getExcludedEntities().isEmpty());
+		assertTrue(c.getPermittedEntityIDs().isEmpty());
+		assertTrue(c.getExcludedEntityIDs().isEmpty());
+		assertEquals(LeafEntityTypeConstraint.ANY, c.getLeafEntityTypeConstraint());
 	}
 	
 	
@@ -120,8 +129,9 @@ public class TrustChainConstraintsTest extends TestCase {
 		
 		TrustChainConstraints c = TrustChainConstraints.parse(jsonObject);
 		assertEquals(10, c.getMaxPathLength());
-		assertTrue(c.getPermittedEntities().isEmpty());
-		assertTrue(c.getExcludedEntities().isEmpty());
+		assertTrue(c.getPermittedEntityIDs().isEmpty());
+		assertTrue(c.getExcludedEntityIDs().isEmpty());
+		assertEquals(LeafEntityTypeConstraint.ANY, c.getLeafEntityTypeConstraint());
 	}
 	
 	
@@ -137,24 +147,48 @@ public class TrustChainConstraintsTest extends TestCase {
 		
 		TrustChainConstraints c = TrustChainConstraints.parse(jsonObject);
 		assertEquals(10, c.getMaxPathLength());
-		assertTrue(c.getPermittedEntities().isEmpty());
-		assertTrue(c.getExcludedEntities().isEmpty());
+		assertTrue(c.getPermittedEntityIDs().isEmpty());
+		assertTrue(c.getExcludedEntityIDs().isEmpty());
+		assertEquals(LeafEntityTypeConstraint.ANY, c.getLeafEntityTypeConstraint());
 	}
 	
 	
 	public void testEquality() {
 		
-		assertEquals(new TrustChainConstraints(10, null, null), new TrustChainConstraints(10, null, null));
+		assertEquals(
+			new TrustChainConstraints(10, null, null, null),
+			new TrustChainConstraints(10, null, null, null)
+		);
 		
 		assertEquals(
 			new TrustChainConstraints(
 			10,
 				Collections.singletonList((EntityIDConstraint) new ExactMatchEntityIDConstraint(new EntityID("https://example.com"))),
-				Collections.singletonList((EntityIDConstraint) new SubtreeEntityIDConstraint("https://.abc.example.com"))),
+				Collections.singletonList((EntityIDConstraint) new SubtreeEntityIDConstraint("https://.abc.example.com")),
+				null
+			),
 			new TrustChainConstraints(
 				10,
 				Collections.singletonList((EntityIDConstraint) new ExactMatchEntityIDConstraint(new EntityID("https://example.com"))),
-				Collections.singletonList((EntityIDConstraint) new SubtreeEntityIDConstraint("https://.abc.example.com"))));
+				Collections.singletonList((EntityIDConstraint) new SubtreeEntityIDConstraint("https://.abc.example.com")),
+			null
+			)
+		);
+		
+		assertEquals(
+			new TrustChainConstraints(
+			10,
+				Collections.singletonList((EntityIDConstraint) new ExactMatchEntityIDConstraint(new EntityID("https://example.com"))),
+				Collections.singletonList((EntityIDConstraint) new SubtreeEntityIDConstraint("https://.abc.example.com")),
+				new LeafEntityTypeConstraint(Collections.singleton(EntityType.OPENID_RELYING_PARTY))
+			),
+			new TrustChainConstraints(
+				10,
+				Collections.singletonList((EntityIDConstraint) new ExactMatchEntityIDConstraint(new EntityID("https://example.com"))),
+				Collections.singletonList((EntityIDConstraint) new SubtreeEntityIDConstraint("https://.abc.example.com")),
+				new LeafEntityTypeConstraint(Collections.singleton(EntityType.OPENID_RELYING_PARTY))
+			)
+		);
 	}
 	
 	
@@ -203,19 +237,19 @@ public class TrustChainConstraintsTest extends TestCase {
 	
 	public void testIsPermitted_pathLength() {
 		
-		TrustChainConstraints c = new TrustChainConstraints(0, null, null);
+		TrustChainConstraints c = new TrustChainConstraints(0, null, null, null);
 		
 		assertTrue(c.isPermitted(0, new EntityID("https://rp.example.com")));
 		assertFalse(c.isPermitted(1, new EntityID("https://rp.example.com")));
 		assertFalse(c.isPermitted(2, new EntityID("https://rp.example.com")));
 		
-		c = new TrustChainConstraints(1, null, null);
+		c = new TrustChainConstraints(1, null, null, null);
 		
 		assertTrue(c.isPermitted(0, new EntityID("https://rp.example.com")));
 		assertTrue(c.isPermitted(1, new EntityID("https://rp.example.com")));
 		assertFalse(c.isPermitted(2, new EntityID("https://rp.example.com")));
 		
-		c = new TrustChainConstraints(2, null, null);
+		c = new TrustChainConstraints(2, null, null, null);
 		
 		assertTrue(c.isPermitted(0, new EntityID("https://rp.example.com")));
 		assertTrue(c.isPermitted(1, new EntityID("https://rp.example.com")));
@@ -230,7 +264,7 @@ public class TrustChainConstraintsTest extends TestCase {
 			EntityIDConstraint.parse("https://rp.example.org")
 		);
 		
-		TrustChainConstraints c = new TrustChainConstraints(5, permitted, null);
+		TrustChainConstraints c = new TrustChainConstraints(5, permitted, null, null);
 		
 		assertTrue(c.isPermitted(1, new EntityID("https://rp.example.com")));
 		assertTrue(c.isPermitted(1, new EntityID("https://a.example.com")));
@@ -248,7 +282,7 @@ public class TrustChainConstraintsTest extends TestCase {
 			EntityIDConstraint.parse("https://rp.example.org")
 		);
 		
-		TrustChainConstraints c = new TrustChainConstraints(5, null, excluded);
+		TrustChainConstraints c = new TrustChainConstraints(5, null, excluded, null);
 		
 		assertFalse(c.isPermitted(1, new EntityID("https://rp.example.com")));
 		assertFalse(c.isPermitted(1, new EntityID("https://a.example.com")));
@@ -269,7 +303,7 @@ public class TrustChainConstraintsTest extends TestCase {
 		
 		List<EntityIDConstraint> excluded = Collections.singletonList(EntityIDConstraint.parse("https://op.example.net")); // override
 		
-		TrustChainConstraints c = new TrustChainConstraints(5, permitted, excluded);
+		TrustChainConstraints c = new TrustChainConstraints(5, permitted, excluded, null);
 		
 		assertTrue(c.isPermitted(1, new EntityID("https://rp.example.com")));
 		assertTrue(c.isPermitted(1, new EntityID("https://a.example.com")));
