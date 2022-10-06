@@ -229,20 +229,20 @@ class DefaultTrustChainRetriever implements TrustChainRetriever {
 				continue;
 			}
 			
-			URI federationAPIURI = metadata.getFederationAPIEndpointURI();
-			if (federationAPIURI == null) {
-				accumulatedExceptions.add(new ResolveException("No federation API URI in metadata for " + authority));
+			URI fetchEndpointURI = metadata.getFederationFetchEndpointURI();
+			if (fetchEndpointURI == null) {
+				accumulatedExceptions.add(new ResolveException("No federation fetch URI in metadata for " + authority));
 				continue;
 			}
 			
 			EntityStatement entityStatement;
 			try {
 				entityStatement = retriever.fetchEntityStatement(
-					federationAPIURI,
+					fetchEndpointURI,
 					authority,
 					subject);
 			} catch (ResolveException e) {
-				accumulatedExceptions.add(new ResolveException("Couldn't fetch entity statement from " + federationAPIURI + ": " + e.getMessage(), e));
+				accumulatedExceptions.add(new ResolveException("Couldn't fetch entity statement from " + fetchEndpointURI + ": " + e.getMessage(), e));
 				continue;
 			}
 			

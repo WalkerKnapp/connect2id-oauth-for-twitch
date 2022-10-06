@@ -2087,12 +2087,14 @@ version 9.43.1 (2022-09-09)
     * Updates Nimbus JOSE+JWT to 9.24.4
 
 version 9.44 (2022-10-06)
+    * Updates EndpointName to OpenID Connect Federation 1.0 - draft 23.
     * Updates OIDCProviderMetadata to OpenID Connect Federation 1.0 - draft 23.
     * Adds OpenID Connect Federation 1.0 - draft 23 to
       AuthorizationServerMetadata.
     * Adds signed_jwks_uri support to ClientMetadata for OpenID Connect
       Federation 1.0 - draft 23.
-    * Updates EndpointName to OpenID Connect Federation 1.0 - draft 23.
-    * Updates TrustMarkClaimsSet to OpenID Connect Federation 1.0 - draft 23.
+    * Updates FederationEntityMetadata to OpenID Connect Federation 1.0 - draft
+      23.
     * Updates FederationMetadataType to OpenID Connect Federation 1.0 - draft
       23.
+    * Updates TrustMarkClaimsSet to OpenID Connect Federation 1.0 - draft 23.

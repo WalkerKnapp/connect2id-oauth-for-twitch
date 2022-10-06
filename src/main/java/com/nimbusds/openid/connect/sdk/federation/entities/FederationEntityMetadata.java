@@ -19,17 +19,13 @@ package com.nimbusds.openid.connect.sdk.federation.entities;
 
 
 import java.net.URI;
-import java.util.LinkedList;
 import java.util.List;
 
-import net.minidev.json.JSONArray;
 import net.minidev.json.JSONAware;
 import net.minidev.json.JSONObject;
 
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.util.CollectionUtils;
-import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 
 
@@ -39,45 +35,50 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 3.6.
+ *     <li>OpenID Connect Federation 1.0, section 4.7.
  * </ul>
  */
 public class FederationEntityMetadata implements JSONAware {
 	
 	
 	/**
-	 * The federation API endpoint, required for trust anchors and
-	 * intermediate entities.
+	 * The federation fetch endpoint.
 	 */
-	private final URI federationAPIEndpoint;
+	private final URI federationFetchEndpoint;
 	
 	
 	/**
-	 * The optional trust anchor.
+	 * The federation list endpoint.
 	 */
-	private EntityID trustAnchorID;
+	private URI federationListEndpoint;
 	
 	
 	/**
-	 * The optional entity name.
+	 * The federation resolve endpoint.
 	 */
-	private String name;
+	private URI federationResolveEndpoint;
 	
 	
 	/**
-	 * The optional contacts.
+	 * The organisation name.
+	 */
+	private String organizationName;
+	
+	
+	/**
+	 * The contacts.
 	 */
 	private List<String> contacts;
 	
 	
 	/**
-	 * The optional policy URI.
+	 * The policy URI.
 	 */
 	private URI policyURI;
 	
 	
 	/**
-	 * The optional homepage URI.
+	 * The homepage URI.
 	 */
 	private URI homepageURI;
 	
@@ -91,68 +92,101 @@ public class FederationEntityMetadata implements JSONAware {
 	/**
 	 * Creates a new federation entity metadata.
 	 *
-	 * @param federationEndpoint The federation API endpoint, required for
-	 *                           trust anchors and intermediate entities,
-	 *                           optional for leaf entities.
+	 * @param federationFetchEndpoint The federation fetch endpoint,
+	 *                                required for trust anchors and
+	 *                                intermediate entities, optional for
+	 *                                leaf entities.
 	 */
-	public FederationEntityMetadata(final URI federationEndpoint) {
-		this.federationAPIEndpoint = federationEndpoint;
+	public FederationEntityMetadata(final URI federationFetchEndpoint) {
+		this.federationFetchEndpoint = federationFetchEndpoint;
 	}
 	
 	
 	/**
-	 * Gets the federation API endpoint.
+	 * Gets the federation fetch endpoint. Corresponds to the
+	 * {@code federation_fetch_endpoint} metadata field.
 	 *
-	 * @return The federation API endpoint, {@code null} if not specified.
+	 * @return The federation fetch endpoint, {@code null} if not
+	 *         specified.
 	 */
-	public URI getFederationAPIEndpointURI() {
-		return federationAPIEndpoint;
+	public URI getFederationFetchEndpointURI() {
+		return federationFetchEndpoint;
 	}
 	
 	
 	/**
-	 * Gets the trust anchor.
+	 * Gets the federation list endpoint. Corresponds to the
+	 * {@code federation_list_endpoint} metadata field.
 	 *
-	 * @return The trust anchor, {@code null} if not specified.
+	 * @return The federation list endpoint, {@code null} if not specified.
 	 */
-	public EntityID getTrustAnchorID() {
-		return trustAnchorID;
+	public URI getFederationListEndpointURI() {
+		return federationListEndpoint;
 	}
 	
 	
 	/**
-	 * Sets the trust anchor.
+	 * Sets the federation list endpoint. Corresponds to the
+	 * {@code federation_list_endpoint} metadata field.
 	 *
-	 * @param trustAnchorID The trust anchor, {@code null} if not
-	 *                      specified.
+	 * @param federationListEndpoint The federation list endpoint,
+	 *                               {@code null} if not specified.
 	 */
-	public void setTrustAnchorID(final EntityID trustAnchorID) {
-		this.trustAnchorID = trustAnchorID;
+	public void setFederationListEndpointURI(final URI federationListEndpoint) {
+		this.federationListEndpoint = federationListEndpoint;
 	}
 	
 	
 	/**
-	 * Gets the entity name.
+	 * Gets the federation resolve endpoint. Corresponds to the
+	 * {@code federation_resolve_endpoint} metadata field.
 	 *
-	 * @return The entity name, {@code null} if not specified.
+	 * @return The federation resolve endpoint, {@code null} if not
+	 *         specified.
 	 */
-	public String getName() {
-		return name;
+	public URI getFederationResolveEndpointURI() {
+		return federationResolveEndpoint;
 	}
 	
 	
 	/**
-	 * Sets the entity name.
+	 * Sets the federation resolve endpoint. Corresponds to the
+	 * {@code federation_resolve_endpoint} metadata field.
 	 *
-	 * @param name The entity name, {@code null} if not specified.
+	 * @param federationResolveEndpoint The federation resolve endpoint,
+	 *                                  {@code null} if not specified.
 	 */
-	public void setName(final String name) {
-		this.name = name;
+	public void setFederationResolveEndpointURI(final URI federationResolveEndpoint) {
+		this.federationResolveEndpoint = federationResolveEndpoint;
 	}
 	
 	
 	/**
-	 * Gets the entity contacts.
+	 * Gets the organisation name. Corresponds to the
+	 * {@code organization_name} metadata field.
+	 *
+	 * @return The organisation name, {@code null} if not specified.
+	 */
+	public String getOrganizationName() {
+		return organizationName;
+	}
+	
+	
+	/**
+	 * Sets the organisation name. Corresponds to the
+	 * {@code organization_name} metadata field.
+	 *
+	 * @param organizationName The organisation name, {@code null} if not
+	 *                         specified.
+	 */
+	public void setOrganizationName(final String organizationName) {
+		this.organizationName = organizationName;
+	}
+	
+	
+	/**
+	 * Gets the entity contacts. Corresponds to the {@code contacts}
+	 * metadata field.
 	 *
 	 * @return The contacts, such as names, e-mail addresses and phone
 	 *         numbers, {@code null} if not specified.
@@ -163,7 +197,8 @@ public class FederationEntityMetadata implements JSONAware {
 	
 	
 	/**
-	 * Sets the entity contacts.
+	 * Sets the entity contacts. Corresponds to the {@code contacts}
+	 * metadata field.
 	 *
 	 * @param contacts The contacts, such as names, e-mail addresses and
 	 *                 phone numbers, {@code null} if not specified.
@@ -174,7 +209,8 @@ public class FederationEntityMetadata implements JSONAware {
 	
 	
 	/**
-	 * Gets the conditions and policies documentation URI.
+	 * Gets the conditions and policies documentation URI. Corresponds to
+	 * the {@code policy_uri} metadata field.
 	 *
 	 * @return The policy URI, {@code null} if not specified.
 	 */
@@ -184,7 +220,8 @@ public class FederationEntityMetadata implements JSONAware {
 	
 	
 	/**
-	 * Sets the conditions and policies documentation URI.
+	 * Sets the conditions and policies documentation URI. Corresponds to
+	 * the {@code policy_uri} metadata field.
 	 *
 	 * @param policyURI The policy URI, {@code null} if not specified.
 	 */
@@ -194,9 +231,10 @@ public class FederationEntityMetadata implements JSONAware {
 	
 	
 	/**
-	 * Gets the entity homepage URI.
+	 * Gets the homepage URI. Corresponds to the {@code homepage_uri}
+	 * metadata field.
 	 *
-	 * @return The entity homepage URI, {@code null} if not specified.
+	 * @return The homepage URI, {@code null} if not specified.
 	 */
 	public URI getHomepageURI() {
 		return homepageURI;
@@ -204,33 +242,13 @@ public class FederationEntityMetadata implements JSONAware {
 	
 	
 	/**
-	 * Sets the entity homepage URI.
+	 * Sets the homepage URI. Corresponds to the {@code homepage_uri}
+	 * metadata field.
 	 *
-	 * @param homepageURI The entity homepage URI, {@code null} if not
-	 *                    specified.
+	 * @param homepageURI The homepage URI, {@code null} if not specified.
 	 */
 	public void setHomepageURI(final URI homepageURI) {
 		this.homepageURI = homepageURI;
-	}
-	
-	
-	/**
-	 * Gets the trust marks.
-	 *
-	 * @return The trust marks, {@code null} if not specified.
-	 */
-	public List<SignedJWT> getTrustMarks() {
-		return trustMarks;
-	}
-	
-	
-	/**
-	 * Sets the trust marks.
-	 *
-	 * @param trustMarks The trust marks, {@code null} if not specified.
-	 */
-	public void setTrustMarks(final List<SignedJWT> trustMarks) {
-		this.trustMarks = trustMarks;
 	}
 	
 	
@@ -242,9 +260,10 @@ public class FederationEntityMetadata implements JSONAware {
 	 *
 	 * <pre>
 	 * {
-	 *   "federation_api_endpoint" : "https://example.com/federation_api_endpoint",
-	 *   "name"                    : "The example cooperation",
-	 *   "homepage_uri"            : "https://www.example.com"
+	 *   "federation_fetch_endpoint" : "https://example.com/federation_fetch",
+	 *   "federation_list_endpoint" : "https://example.com/federation_list",
+	 *   "name"                     : "The example cooperation",
+	 *   "homepage_uri"             : "https://www.example.com"
 	 * }
 	 * </pre>
 	 *
@@ -253,14 +272,17 @@ public class FederationEntityMetadata implements JSONAware {
 	public JSONObject toJSONObject() {
 		
 		JSONObject o = new JSONObject();
-		if (getFederationAPIEndpointURI() != null) {
-			o.put("federation_api_endpoint", getFederationAPIEndpointURI().toString());
+		if (getFederationFetchEndpointURI() != null) {
+			o.put("federation_fetch_endpoint", getFederationFetchEndpointURI().toString());
 		}
-		if (getTrustAnchorID() != null) {
-			o.put("trust_anchor_id", getTrustAnchorID().getValue());
+		if (getFederationListEndpointURI() != null) {
+			o.put("federation_list_endpoint", getFederationListEndpointURI().toString());
 		}
-		if (getName() != null) {
-			o.put("name", getName());
+		if (getFederationResolveEndpointURI() != null) {
+			o.put("federation_resolve_endpoint", getFederationResolveEndpointURI().toString());
+		}
+		if (getOrganizationName() != null) {
+			o.put("organization_name", getOrganizationName());
 		}
 		if (getContacts() != null) {
 			o.put("contacts", getContacts());
@@ -270,13 +292,6 @@ public class FederationEntityMetadata implements JSONAware {
 		}
 		if (getHomepageURI() != null) {
 			o.put("homepage_uri", getHomepageURI().toString());
-		}
-		if (CollectionUtils.isNotEmpty(trustMarks)) {
-			JSONArray jsonArray = new JSONArray();
-			for (SignedJWT jwt: trustMarks) {
-				jsonArray.add(jwt.serialize());
-			}
-			o.put("trust_marks", jsonArray);
 		}
 		return o;
 	}
@@ -289,58 +304,36 @@ public class FederationEntityMetadata implements JSONAware {
 	
 	
 	/**
-	 * Parses a federation entity metadata from the specified a JSON object
-	 * string.
+	 * Parses a federation entity metadata from the specified a JSON
+	 * object.
 	 *
 	 * <p>Example:
 	 *
 	 * <pre>
 	 * {
-	 *   "federation_api_endpoint" : "https://example.com/federation_api_endpoint",
-	 *   "name"                    : "The example cooperation",
-	 *   "homepage_uri"            : "https://www.example.com"
+	 *   "federation_fetch_endpoint" : "https://example.com/federation_fetch",
+	 *   "federation_list_endpoint" : "https://example.com/federation_list",
+	 *   "name"                     : "The example cooperation",
+	 *   "homepage_uri"             : "https://www.example.com"
 	 * }
 	 * </pre>
 	 *
 	 * @param jsonObject The JSON object. Must not be {@code null}.
 	 *
-	 * @return The entity metadata.
+	 * @return The federation entity metadata.
 	 *
 	 * @throws ParseException If parsing failed.
 	 */
 	public static FederationEntityMetadata parse(final JSONObject jsonObject)
 		throws ParseException {
 		
-		URI federationAPIEndpoint = JSONObjectUtils.getURI(jsonObject, "federation_api_endpoint", null);
-		
-		FederationEntityMetadata metadata = new FederationEntityMetadata(federationAPIEndpoint);
-		
-		if (jsonObject.get("trust_anchor_id") != null) {
-			metadata.setTrustAnchorID(new EntityID(JSONObjectUtils.getString(jsonObject, "trust_anchor_id")));
-		}
-		
-		metadata.setName(JSONObjectUtils.getString(jsonObject, "name", null));
-		
+		FederationEntityMetadata metadata = new FederationEntityMetadata(JSONObjectUtils.getURI(jsonObject, "federation_fetch_endpoint", null));
+		metadata.setFederationListEndpointURI(JSONObjectUtils.getURI(jsonObject, "federation_list_endpoint", null));
+		metadata.setFederationResolveEndpointURI(JSONObjectUtils.getURI(jsonObject, "federation_resolve_endpoint", null));
+		metadata.setOrganizationName(JSONObjectUtils.getString(jsonObject, "organization_name", null));
 		metadata.setContacts(JSONObjectUtils.getStringList(jsonObject, "contacts", null));
-		
 		metadata.setPolicyURI(JSONObjectUtils.getURI(jsonObject, "policy_uri", null));
-		
 		metadata.setHomepageURI(JSONObjectUtils.getURI(jsonObject, "homepage_uri", null));
-		
-		JSONArray trustMarksArray = JSONObjectUtils.getJSONArray(jsonObject, "trust_marks", null);
-		List<SignedJWT> trustMarks = null;
-		if (CollectionUtils.isNotEmpty(trustMarksArray)) {
-			trustMarks = new LinkedList<>();
-			for (String jwtString: JSONArrayUtils.toStringList(trustMarksArray)) {
-				try {
-					trustMarks.add(SignedJWT.parse(jwtString));
-				} catch (java.text.ParseException e) {
-					throw new ParseException("Invalid trust mark JWT: " + e.getMessage());
-				}
-			}
-		}
-		metadata.setTrustMarks(trustMarks);
-		
 		return metadata;
 	}
 	
@@ -353,15 +346,16 @@ public class FederationEntityMetadata implements JSONAware {
 	 *
 	 * <pre>
 	 * {
-	 *   "federation_api_endpoint" : "https://example.com/federation_api_endpoint",
-	 *   "name"                    : "The example cooperation",
-	 *   "homepage_uri"            : "https://www.example.com"
+	 *   "federation_fetch_endpoint" : "https://example.com/federation_fetch",
+	 *   "federation_list_endpoint" : "https://example.com/federation_list",
+	 *   "name"                     : "The example cooperation",
+	 *   "homepage_uri"             : "https://www.example.com"
 	 * }
 	 * </pre>
 	 *
 	 * @param json The JSON object string. Must not be {@code null}.
 	 *
-	 * @return The entity metadata.
+	 * @return The federation entity metadata.
 	 *
 	 * @throws ParseException If parsing failed.
 	 */

@@ -20,69 +20,38 @@ package com.nimbusds.openid.connect.sdk.federation.entities;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
 
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
-import com.nimbusds.openid.connect.sdk.federation.trust.marks.TrustMarkClaimsSet;
 
 
 public class FederationEntityMetadataTest extends TestCase {
 	
 	
-	static final SignedJWT TRUST_MARK_1;
-	
-	static {
-		try {
-			RSAKey rsaJWK = new RSAKeyGenerator(2048)
-				.keyIDFromThumbprint(true)
-				.generate();
-			
-			String trustMarkClaims = "{" +
-				"\"iss\": \"https://swamid.sunet.se\"," +
-				"\"sub\": \"https://umu.se/op\"," +
-				"\"iat\": 1577833200," +
-				"\"exp\": 1609369200," +
-				"\"id\": \"https://refeds.org/wp-content/uploads/2016/01/Sirtfi-1.0.pdf\"" +
-				"}";
-			
-			TRUST_MARK_1 = new SignedJWT(
-				new JWSHeader(JWSAlgorithm.RS256),
-				new TrustMarkClaimsSet(JWTClaimsSet.parse(trustMarkClaims)).toJWTClaimsSet());
-			TRUST_MARK_1.sign(new RSASSASigner(rsaJWK));
-			
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	
 	public void testConstructorWithEndpoint() throws ParseException {
 		
-		URI fedEndpoint = URI.create("https://c2id.com/fed");
-		FederationEntityMetadata metadata = new FederationEntityMetadata(fedEndpoint);
-		assertEquals(fedEndpoint, metadata.getFederationAPIEndpointURI());
+		URI fetchEndpoint = URI.create("https://c2id.com/fed");
+		FederationEntityMetadata metadata = new FederationEntityMetadata(fetchEndpoint);
+		assertEquals(fetchEndpoint, metadata.getFederationFetchEndpointURI());
 		
-		assertNull(metadata.getTrustAnchorID());
-		EntityID anchorID = new EntityID("https://federation.example.com");
-		metadata.setTrustAnchorID(anchorID);
-		assertEquals(anchorID, metadata.getTrustAnchorID());
+		assertNull(metadata.getFederationListEndpointURI());
+		URI listEndpoint = URI.create("https://c2id.com/fed/list");
+		metadata.setFederationListEndpointURI(listEndpoint);
+		assertEquals(listEndpoint, metadata.getFederationListEndpointURI());
 		
-		assertNull(metadata.getName());
+		assertNull(metadata.getFederationResolveEndpointURI());
+		URI resolveEndpoint = URI.create("https://c2id.com/fed/resolve");
+		metadata.setFederationResolveEndpointURI(resolveEndpoint);
+		assertEquals(resolveEndpoint, metadata.getFederationResolveEndpointURI());
+		
+		assertNull(metadata.getOrganizationName());
 		String name = "Org name";
-		metadata.setName(name);
-		assertEquals(name, metadata.getName());
+		metadata.setOrganizationName(name);
+		assertEquals(name, metadata.getOrganizationName());
 		
 		assertNull(metadata.getContacts());
 		List<String> contacts = Arrays.asList("federation@c2id.com", "+359102030");
@@ -99,34 +68,30 @@ public class FederationEntityMetadataTest extends TestCase {
 		metadata.setHomepageURI(homepageURI);
 		assertEquals(homepageURI, metadata.getHomepageURI());
 		
-		assertNull(metadata.getTrustMarks());
-		metadata.setTrustMarks(Collections.singletonList(TRUST_MARK_1));
-		assertEquals(Collections.singletonList(TRUST_MARK_1), metadata.getTrustMarks());
-		
 		JSONObject jsonObject = metadata.toJSONObject();
-		assertEquals(fedEndpoint.toString(), jsonObject.get("federation_api_endpoint"));
-		assertEquals(anchorID.getValue(), jsonObject.get("trust_anchor_id"));
-		assertEquals(name, jsonObject.get("name"));
+		assertEquals(fetchEndpoint.toString(), jsonObject.get("federation_fetch_endpoint"));
+		assertEquals(listEndpoint.toString(), jsonObject.get("federation_list_endpoint"));
+		assertEquals(resolveEndpoint.toString(), jsonObject.get("federation_resolve_endpoint"));
+		assertEquals(name, jsonObject.get("organization_name"));
 		assertEquals(contacts, JSONObjectUtils.getStringList(jsonObject, "contacts"));
 		assertEquals(policyURI.toString(), jsonObject.get("policy_uri"));
 		assertEquals(homepageURI.toString(), jsonObject.get("homepage_uri"));
-		assertEquals(Collections.singletonList(TRUST_MARK_1.serialize()), JSONObjectUtils.getJSONArray(jsonObject, "trust_marks"));
 		
 		metadata = FederationEntityMetadata.parse(metadata.toJSONString());
 		
-		assertEquals(fedEndpoint, metadata.getFederationAPIEndpointURI());
-		assertEquals(anchorID, metadata.getTrustAnchorID());
+		assertEquals(fetchEndpoint, metadata.getFederationFetchEndpointURI());
+		assertEquals(listEndpoint, metadata.getFederationListEndpointURI());
+		assertEquals(resolveEndpoint, metadata.getFederationResolveEndpointURI());
 		assertEquals(contacts, metadata.getContacts());
 		assertEquals(policyURI, metadata.getPolicyURI());
 		assertEquals(homepageURI, metadata.getHomepageURI());
-		assertEquals(TRUST_MARK_1.serialize(), metadata.getTrustMarks().get(0).getParsedString());
 	}
 	
 	
-	public void testConstructorWithNoEndpoint() throws ParseException {
+	public void testConstructorWithNoFetchEndpoint() throws ParseException {
 		
 		FederationEntityMetadata metadata = new FederationEntityMetadata(null);
-		assertNull(metadata.getFederationAPIEndpointURI());
+		assertNull(metadata.getFederationFetchEndpointURI());
 		
 		JSONObject jsonObject = metadata.toJSONObject();
 		assertTrue(jsonObject.isEmpty());
@@ -136,9 +101,10 @@ public class FederationEntityMetadataTest extends TestCase {
 		
 		metadata = FederationEntityMetadata.parse(json);
 		
-		assertNull(metadata.getFederationAPIEndpointURI());
-		assertNull(metadata.getTrustAnchorID());
-		assertNull(metadata.getName());
+		assertNull(metadata.getFederationFetchEndpointURI());
+		assertNull(metadata.getFederationListEndpointURI());
+		assertNull(metadata.getFederationResolveEndpointURI());
+		assertNull(metadata.getOrganizationName());
 		assertNull(metadata.getContacts());
 		assertNull(metadata.getPolicyURI());
 		assertNull(metadata.getHomepageURI());
@@ -148,17 +114,19 @@ public class FederationEntityMetadataTest extends TestCase {
 	public void testParseExample()
 		throws ParseException {
 		
-		String json = "{" +
-			"    \"federation_api_endpoint\":" +
-			"        \"https://example.com/federation_api_endpoint\"," +
-			"    \"name\": \"The example cooperation\"," +
-			"    \"homepage_uri\": \"https://www.example.com\"" +
+		String json =
+			"{" +
+			"  \"federation_fetch_endpoint\":\"https://example.com/federation_fetch\"," +
+			"  \"federation_list_endpoint\":\"https://example.com/federation_list\"," +
+			"  \"organization_name\": \"The example cooperation\"," +
+			"  \"homepage_uri\": \"https://www.example.com\"" +
 			"}";
 		
 		FederationEntityMetadata metadata = FederationEntityMetadata.parse(json);
 		
-		assertEquals(URI.create("https://example.com/federation_api_endpoint"), metadata.getFederationAPIEndpointURI());
-		assertEquals("The example cooperation", metadata.getName());
+		assertEquals(URI.create("https://example.com/federation_fetch"), metadata.getFederationFetchEndpointURI());
+		assertEquals(URI.create("https://example.com/federation_list"), metadata.getFederationListEndpointURI());
+		assertEquals("The example cooperation", metadata.getOrganizationName());
 		assertEquals(URI.create("https://www.example.com"), metadata.getHomepageURI());
 	}
 }

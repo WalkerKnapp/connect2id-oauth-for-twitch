@@ -118,7 +118,7 @@ public class DefaultEntityStatementRetrieverTest {
 		stmt.setAuthorityHints(authorityHints);
 		
 		FederationEntityMetadata federationEntityMetadata = new FederationEntityMetadata(URI.create(opIssuer + "/federation"));
-		federationEntityMetadata.setName("Federated OpenID Provider");
+		federationEntityMetadata.setOrganizationName("Federated OpenID Provider");
 		stmt.setFederationEntityMetadata(federationEntityMetadata);
 		
 		stmt.setOPMetadata(createOPMetadata(opIssuer));
