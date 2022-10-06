@@ -2017,6 +2017,36 @@ public class OIDCProviderMetadataTest extends TestCase {
 	}
 	
 	
+	public void testFederationConstructor_multipleJWKSets() throws JOSEException {
+		
+		Issuer issuer = new Issuer("https://c2id.com");
+		
+		URI jwkSetURI = URI.create("https://c2id.com/jwks.json");
+		
+		URI signedJWKSetURI = URI.create("https://c2id.com/jwks.jwt");
+		
+		JWKSet jwkSet = new JWKSet(
+			new RSAKeyGenerator(2048)
+				.keyID("1")
+				.generate());
+		
+		OIDCProviderMetadata metadata = new OIDCProviderMetadata(
+			issuer,
+			Collections.singletonList(SubjectType.PAIRWISE),
+			Collections.singletonList(ClientRegistrationType.AUTOMATIC),
+			jwkSetURI,
+			signedJWKSetURI,
+			jwkSet);
+		
+		assertEquals(issuer, metadata.getIssuer());
+		assertEquals(Collections.singletonList(SubjectType.PAIRWISE), metadata.getSubjectTypes());
+		assertEquals(Collections.singletonList(ClientRegistrationType.AUTOMATIC), metadata.getClientRegistrationTypes());
+		assertEquals(jwkSetURI, metadata.getJWKSetURI());
+		assertEquals(signedJWKSetURI, metadata.getSignedJWKSetURI());
+		assertEquals(jwkSet, metadata.getJWKSet());
+	}
+	
+	
 	public void testFederationConstructor_nullClientRegTypes() {
 		
 		Issuer issuer = new Issuer("https://c2id.com");
@@ -2074,59 +2104,7 @@ public class OIDCProviderMetadataTest extends TestCase {
 			);
 			fail();
 		} catch (IllegalArgumentException e) {
-			assertEquals("The public JWK set must be specified singularly", e.getMessage());
-		}
-	}
-	
-	
-	public void testFederationConstructor_tooManyJWKSets() {
-		
-		Issuer issuer = new Issuer("https://c2id.com");
-		
-		try {
-			new OIDCProviderMetadata(
-				issuer,
-				Collections.singletonList(SubjectType.PAIRWISE),
-				Collections.singletonList(ClientRegistrationType.AUTOMATIC),
-				URI.create("https://c2id.com/jwks.json"),
-				URI.create("https://c2id.com/jwks.jwt"),
-				null
-			);
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The public JWK set must be specified singularly", e.getMessage());
-		}
-	}
-	
-	
-	public void testFederationParse_tooManyJWKSets() throws JOSEException {
-		
-		Issuer issuer = new Issuer("https://c2id.com");
-		
-		JWKSet jwkSet = new JWKSet(
-			new RSAKeyGenerator(2048)
-				.keyID("1")
-				.generate()
-		);
-		
-		OIDCProviderMetadata meta = new OIDCProviderMetadata(
-			issuer,
-			Collections.singletonList(SubjectType.PAIRWISE),
-			Collections.singletonList(ClientRegistrationType.AUTOMATIC),
-			null,
-			null,
-			jwkSet
-		);
-		
-		JSONObject jsonObject = meta.toJSONObject();
-		
-		jsonObject.put("jwks_uri", "https://c2id.com/jwks.json"); // break
-		
-		try {
-			OIDCProviderMetadata.parse(jsonObject);
-			fail();
-		} catch (ParseException e) {
-			assertEquals("The public JWK set must be specified singularly", e.getMessage());
+			assertEquals("At least one public JWK must be specified", e.getMessage());
 		}
 	}
 	

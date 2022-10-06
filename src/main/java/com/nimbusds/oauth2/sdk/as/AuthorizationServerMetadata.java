@@ -74,6 +74,7 @@ import com.nimbusds.openid.connect.sdk.op.EndpointName;
  *     <li>OAuth 2.0 Incremental Authorization
  *         (draft-ietf-oauth-incremental-authz-04)
  *     <li>Initiating User Registration via OpenID Connect (draft 04)
+ *     <li>OpenID Connect Federation 1.0 (draft 23).
  * </ul>
  */
 public class AuthorizationServerMetadata extends AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizationServerMetadata {
@@ -431,7 +432,7 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	/**
 	 * Creates a new OAuth 2.0 Authorisation Server (AS) metadata instance.
 	 *
-	 * @param issuer The issuer identifier. Must be an URI using the https
+	 * @param issuer The issuer identifier. Must be a URI using the https
 	 *               scheme with no query or fragment component. Must not
 	 *               be {@code null}.
 	 */

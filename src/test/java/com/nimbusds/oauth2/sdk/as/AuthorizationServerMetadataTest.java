@@ -27,8 +27,11 @@ import net.minidev.json.JSONObject;
 import org.checkerframework.checker.units.qual.A;
 
 import com.nimbusds.jose.EncryptionMethod;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagException;
 import com.nimbusds.oauth2.sdk.*;
@@ -842,5 +845,22 @@ public class AuthorizationServerMetadataTest extends TestCase {
 		assertEquals(autoRegMethods, metadata.getClientRegistrationAuthnMethods());
 		assertEquals(Collections.singletonList(JWSAlgorithm.RS256), metadata.getClientRegistrationAuthnJWSAlgs());
 		assertEquals(fedRegEndpoint, metadata.getFederationRegistrationEndpointURI());
+	}
+	
+	
+	public void testFederation_multipleJWKSets() throws JOSEException {
+		
+		Issuer issuer = new Issuer("https://c2id.com");
+		
+		URI jwkSetURI = URI.create("https://c2id.com/jwks.json");
+		
+		URI signedJWKSetURI = URI.create("https://c2id.com/jwks.jwt");
+		
+		JWKSet jwkSet = new JWKSet(
+			new RSAKeyGenerator(2048)
+				.keyID("1")
+				.generate());
+		
+		AuthorizationServerMetadata metadata = new AuthorizationServerMetadata(issuer);
 	}
 }

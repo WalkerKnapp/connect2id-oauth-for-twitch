@@ -36,14 +36,12 @@ import com.nimbusds.oauth2.sdk.GeneralException;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.as.AuthorizationServerEndpointMetadata;
 import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
-import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
-import com.nimbusds.oauth2.sdk.util.MapUtils;
 import com.nimbusds.openid.connect.sdk.Display;
 import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.assurance.IdentityTrustFramework;
@@ -66,7 +64,7 @@ import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistratio
  *     <li>OpenID Connect Front-Channel Logout 1.0, section 3 (draft 02).
  *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.1 (draft 07).
  *     <li>OpenID Connect for Identity Assurance 1.0 (draft 12).
- *     <li>OpenID Connect Federation 1.0 (draft 22).
+ *     <li>OpenID Connect Federation 1.0 (draft 23).
  *     <li>OAuth 2.0 Authorization Server Metadata (RFC 8414)
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
  *         Access Tokens (RFC 8705)
@@ -330,7 +328,7 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	/**
 	 * Creates a new OpenID Connect provider metadata instance.
 	 * 
-	 * @param issuer       The issuer identifier. Must be an URI using the
+	 * @param issuer       The issuer identifier. Must be a URI using the
 	 *                     https scheme with no query or fragment 
 	 *                     component. Must not be {@code null}.
 	 * @param subjectTypes The supported subject types. At least one must
@@ -358,10 +356,10 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 
 	/**
 	 * Creates a new OpenID Connect Federation 1.0 provider metadata
-	 * instance. The provider JWK set must be specified either by
+	 * instance. The provider JWK set should be specified by
 	 * {@code jwks_uri}, {@code signed_jwks_uri} or {@code jwks}.
 	 *
-	 * @param issuer                  The issuer identifier. Must be an URI
+	 * @param issuer                  The issuer identifier. Must be a URI
 	 *                                using the https scheme with no query
 	 *                                or fragment component. Must not be
 	 *                                {@code null}.
@@ -394,16 +392,14 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 			throw new IllegalArgumentException("At least one federation client registration type must be specified");
 		}
 		setClientRegistrationTypes(clientRegistrationTypes);
-
-		if (jwkSetURI != null && signedJWKSetURI == null && jwkSet == null) {
-			setJWKSetURI(jwkSetURI);
-		} else if (jwkSetURI == null && signedJWKSetURI != null && jwkSet == null) {
-			setSignedJWKSetURI(signedJWKSetURI);
-		} else if (jwkSetURI == null && signedJWKSetURI == null && jwkSet != null) {
-			setJWKSet(jwkSet);
-		} else {
-			throw new IllegalArgumentException("The public JWK set must be specified singularly");
+		
+		if (jwkSetURI == null && signedJWKSetURI == null && jwkSet == null) {
+			throw new IllegalArgumentException("At least one public JWK must be specified");
 		}
+
+		setJWKSetURI(jwkSetURI);
+		setSignedJWKSetURI(signedJWKSetURI);
+		setJWKSet(jwkSet);
 		
 		// Default OpenID Connect setting is supported
 		setSupportsRequestURIParam(true);
