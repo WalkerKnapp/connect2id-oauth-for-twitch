@@ -28,7 +28,7 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 7.3.
+ *     <li>OpenID Connect Federation 1.0, section 5.2.2.
  *     <li>RFC 5280, section 4.2.1.10.
  * </ul>
  */
