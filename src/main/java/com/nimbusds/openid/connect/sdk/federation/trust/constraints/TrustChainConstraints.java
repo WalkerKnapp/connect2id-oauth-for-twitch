@@ -102,7 +102,8 @@ public final class TrustChainConstraints implements JSONAware {
 	 * Creates a new trust chain constraints instance.
 	 *
 	 * @param maxPathLength The maximum number of entities between this and
-	 *                      the last one in the chain, -1 if not specified.
+	 *                      the leaf entity in the chain, -1 if not
+	 *                      specified.
 	 */
 	public TrustChainConstraints(final int maxPathLength) {
 		this(maxPathLength, null, null, null);
@@ -113,8 +114,8 @@ public final class TrustChainConstraints implements JSONAware {
 	 * Creates a new trust chain constraints instance.
 	 *
 	 * @param maxPathLength      The maximum number of entities between
-	 *                           this and the last one in the chain, -1 if
-	 *                           not specified.
+	 *                           this and the leaf entity in the chain, -1
+	 *                           if not specified.
 	 * @param permittedEntityIDs The permitted entity IDs, {@code null} if
 	 *                           not specified.
 	 * @param excludedEntityIDs  The excluded entities, {@code null} if not
@@ -191,7 +192,7 @@ public final class TrustChainConstraints implements JSONAware {
 	
 	/**
 	 * Checks if the entity ID with the given number of intermediates is
-	 * allowed.
+	 * permitted.
 	 *
 	 * @param numIntermediatesInPath The number of intermediate entities
 	 *                               between the entity specifying the
@@ -222,9 +223,9 @@ public final class TrustChainConstraints implements JSONAware {
 	
 	
 	/**
-	 * Returns the allowed entity IDs.
+	 * Returns the permitted entity IDs.
 	 *
-	 * @return The allowed entity IDs, empty list if not specified.
+	 * @return The permitted entity IDs, empty list if not specified.
 	 */
 	public List<EntityIDConstraint> getPermittedEntityIDs() {
 		return permittedEntityIDs;

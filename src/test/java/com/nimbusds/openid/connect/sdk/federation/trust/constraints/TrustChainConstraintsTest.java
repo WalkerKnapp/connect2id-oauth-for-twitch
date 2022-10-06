@@ -210,7 +210,19 @@ public class TrustChainConstraintsTest extends TestCase {
 	}
 	
 	
-	public void testIsPermitted_numIntermediatesInPath() {
+	public void testIsPermitted_numIntermediatesInPath_0() {
+		
+		TrustChainConstraints c = new TrustChainConstraints(0);
+		assertEquals(0, c.getMaxPathLength());
+		
+		assertTrue(c.isPermitted(0));
+		assertFalse(c.isPermitted(1));
+		assertFalse(c.isPermitted(2));
+		assertFalse(c.isPermitted(3));
+	}
+	
+	
+	public void testIsPermitted_numIntermediatesInPath_5() {
 		
 		TrustChainConstraints c = new TrustChainConstraints(5);
 		assertEquals(5, c.getMaxPathLength());
@@ -316,5 +328,32 @@ public class TrustChainConstraintsTest extends TestCase {
 		assertTrue(c.isPermitted(1, new EntityID("https://b.example.net")));
 		assertTrue(c.isPermitted(1, new EntityID("https://c.example.net")));
 		assertFalse(c.isPermitted(1, new EntityID("https://some.host.com")));
+	}
+	
+	
+	public void testParseExample() throws ParseException {
+	
+		String json = "" +
+			"{" +
+			"  \"naming_constraints\": {" +
+			"    \"permitted\": [" +
+			"      \"https://.example.com\"" +
+			"    ]," +
+			"    \"excluded\": [" +
+			"      \"https://east.example.com\"" +
+			"    ]" +
+			"  }," +
+			"  \"max_path_length\": 2," +
+			"  \"allowed_leaf_entity_types\": [\"openid_provider\", \"openid_relying_party\"]" +
+			"}";
+		
+		TrustChainConstraints c = TrustChainConstraints.parse(JSONObjectUtils.parse(json));
+		
+		assertEquals(2, c.getMaxPathLength());
+		
+		assertEquals(Collections.singletonList(new SubtreeEntityIDConstraint("https://.example.com")), c.getPermittedEntityIDs());
+		assertEquals(Collections.singletonList(new ExactMatchEntityIDConstraint(new EntityID("https://east.example.com"))), c.getExcludedEntityIDs());
+		
+		assertEquals(new HashSet<>(Arrays.asList(EntityType.OPENID_PROVIDER, EntityType.OPENID_RELYING_PARTY)), c.getLeafEntityTypeConstraint().getAllowed());
 	}
 }
