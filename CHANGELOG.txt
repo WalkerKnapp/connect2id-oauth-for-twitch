@@ -2105,3 +2105,5 @@ version 9.44 (2022-10-08)
     * Adds LeafEntityTypeConstraint.
     * Updates TrustChainConstraints to OpenID Connect Federation 1.0 - draft
       23.
+    * Adds static ClaimsSet.getJSONArrayClaim method.
+

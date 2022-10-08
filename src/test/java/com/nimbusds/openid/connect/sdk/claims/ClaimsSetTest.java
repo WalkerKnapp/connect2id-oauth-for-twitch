@@ -21,8 +21,10 @@ package com.nimbusds.openid.connect.sdk.claims;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -72,6 +74,46 @@ public class ClaimsSetTest extends TestCase {
 		
 		ClaimsSet newClaimsSet = new ClaimsSet(jsonObject);
 		assertEquals(expWithSecondPrecision, newClaimsSet.getDateClaim("exp"));
+	}
+	
+	
+	public void testGetJSONArrayClaim() {
+		
+		JSONArray jsonArray = new JSONArray();
+		jsonArray.add("a");
+		jsonArray.add("b");
+		jsonArray.add("c");
+		
+		ClaimsSet claimsSet = new ClaimsSet();
+		claimsSet.setClaim("array", jsonArray);
+		
+		assertEquals(jsonArray, claimsSet.getJSONArrayClaim("array"));
+		
+		Map<String, Object> o = claimsSet.toJSONObject();
+		assertEquals(jsonArray, o.get("array"));
+		
+		claimsSet = new ClaimsSet(new JSONObject(o));
+		assertEquals(jsonArray, claimsSet.getJSONArrayClaim("array"));
+	}
+	
+	
+	public void testGetJSONArrayClaim_viaJWTClaimsSet() throws ParseException {
+		
+		JSONArray jsonArray = new JSONArray();
+		jsonArray.add("a");
+		jsonArray.add("b");
+		jsonArray.add("c");
+		
+		ClaimsSet claimsSet = new ClaimsSet();
+		claimsSet.setClaim("array", jsonArray);
+		
+		assertEquals(jsonArray, claimsSet.getJSONArrayClaim("array"));
+		
+		JWTClaimsSet jwtClaimsSet = claimsSet.toJWTClaimsSet();
+		assertEquals(jsonArray, jwtClaimsSet.getClaim("array"));
+		
+		claimsSet = new ClaimsSet(new JSONObject(jwtClaimsSet.toJSONObject()));
+		assertEquals(jsonArray, claimsSet.getJSONArrayClaim("array"));
 	}
 	
 	
