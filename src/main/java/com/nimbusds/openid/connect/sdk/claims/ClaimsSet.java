@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.*;
 
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONAware;
 import net.minidev.json.JSONObject;
 
@@ -450,6 +451,24 @@ public class ClaimsSet implements JSONAware {
 		
 		try {
 			return JSONObjectUtils.getJSONObject(claims, name);
+		} catch (ParseException e) {
+			return null;
+		}
+	}
+	
+	
+	/**
+	 * Gets a JSON array based claim.
+	 *
+	 * @param name The claim name. Must not be {@code null}.
+	 *
+	 * @return The claim value, {@code null} if not specified or parsing
+	 *         failed.
+	 */
+	public JSONArray getJSONArrayClaim(final String name) {
+		
+		try {
+			return JSONObjectUtils.getJSONArray(claims, name);
 		} catch (ParseException e) {
 			return null;
 		}

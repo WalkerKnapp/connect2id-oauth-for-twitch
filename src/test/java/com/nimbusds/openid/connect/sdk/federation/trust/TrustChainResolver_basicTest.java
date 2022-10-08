@@ -564,7 +564,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		assertTrue(trustChains.isEmpty());
 		
 		ResolveException e1 = (ResolveException) chainRetriever.getAccumulatedExceptions().get(0);
-		assertEquals("No federation API URI in metadata for https://federation.com", e1.getMessage());
+		assertEquals("No federation fetch URI in metadata for https://federation.com", e1.getMessage());
 		
 		assertEquals(1, chainRetriever.getAccumulatedExceptions().size());
 		
@@ -575,7 +575,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 			resolver.resolveTrustChains(new EntityID(OP_ISSUER));
 			fail();
 		} catch (ResolveException e) {
-			assertEquals("Couldn't resolve trust chain: No federation API URI in metadata for https://federation.com", e.getMessage());
+			assertEquals("Couldn't resolve trust chain: No federation fetch URI in metadata for https://federation.com", e.getMessage());
 			assertEquals(1, e.getCauses().size());
 		}
 	}

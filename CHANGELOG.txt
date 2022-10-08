@@ -2086,7 +2086,9 @@ version 9.43 (2022-09-03)
 version 9.43.1 (2022-09-09)
     * Updates Nimbus JOSE+JWT to 9.24.4
 
-version 9.44 (2022-10-06)
+version 9.44 (2022-10-08)
+    * Updates EntityStatementClaimsSet to OpenID Connect Federation 1.0 - draft
+      23.
     * Renames FederationMetadataType to EntityType.
     * Updates EndpointName to OpenID Connect Federation 1.0 - draft 23.
     * Updates OIDCProviderMetadata to OpenID Connect Federation 1.0 - draft 23.
@@ -2099,6 +2101,7 @@ version 9.44 (2022-10-06)
     * Updates FederationMetadataType to OpenID Connect Federation 1.0 - draft
       23.
     * Updates TrustMarkClaimsSet to OpenID Connect Federation 1.0 - draft 23.
+    * Adds TrustMarkEntry.
     * Adds LeafEntityTypeConstraint.
     * Updates TrustChainConstraints to OpenID Connect Federation 1.0 - draft
       23.

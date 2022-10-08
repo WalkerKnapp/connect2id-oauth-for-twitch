@@ -18,10 +18,9 @@
 package com.nimbusds.openid.connect.sdk.federation.entities;
 
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import com.nimbusds.jose.jwk.JWKSet;
@@ -32,12 +31,15 @@ import com.nimbusds.oauth2.sdk.client.ClientMetadata;
 import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
+import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.oauth2.sdk.util.MapUtils;
+import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.CommonClaimsSet;
 import com.nimbusds.openid.connect.sdk.federation.policy.MetadataPolicy;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyViolationException;
 import com.nimbusds.openid.connect.sdk.federation.trust.constraints.TrustChainConstraints;
+import com.nimbusds.openid.connect.sdk.federation.trust.marks.TrustMarkEntry;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
 
@@ -153,6 +155,18 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
+	 * The trust marks claim name.
+	 */
+	public static final String TRUST_MARKS_CLAIM_NAME = "trust_marks";
+	
+	
+	/**
+	 * The trust marks issuers claim name.
+	 */
+	public static final String TRUST_MARKS_ISSUERS_CLAIM_NAME = "trust_marks_issuers";
+	
+	
+	/**
 	 * The critical claim name.
 	 */
 	public static final String CRITICAL_CLAIM_NAME = "crit";
@@ -162,6 +176,43 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	 * The policy critical claim name.
 	 */
 	public static final String POLICY_LANGUAGE_CRITICAL_CLAIM_NAME = "policy_language_crit";
+	
+	
+	/**
+	 * The names of the standard top-level claims.
+	 */
+	private static final Set<String> STD_CLAIM_NAMES;
+	
+	static {
+		Set<String> claimNames = new HashSet<>(ClaimsSet.getStandardClaimNames());
+		claimNames.add(ISS_CLAIM_NAME);
+		claimNames.add(SUB_CLAIM_NAME);
+		claimNames.add(IAT_CLAIM_NAME);
+		claimNames.add(EXP_CLAIM_NAME);
+		claimNames.add(JWKS_CLAIM_NAME);
+		claimNames.add(AUD_CLAIM_NAME);
+		claimNames.add(AUTHORITY_HINTS_CLAIM_NAME);
+		claimNames.add(METADATA_CLAIM_NAME);
+		claimNames.add(METADATA_POLICY_CLAIM_NAME);
+		claimNames.add(CONSTRAINTS_CLAIM_NAME);
+		claimNames.add(CRITICAL_CLAIM_NAME);
+		claimNames.add(POLICY_LANGUAGE_CRITICAL_CLAIM_NAME);
+		claimNames.add(TRUST_MARKS_CLAIM_NAME);
+		claimNames.add(TRUST_MARKS_ISSUERS_CLAIM_NAME);
+		claimNames.add(TRUST_ANCHOR_ID_CLAIM_NAME);
+		STD_CLAIM_NAMES = Collections.unmodifiableSet(claimNames);
+	}
+	
+	
+	/**
+	 * Gets the names of the standard top-level claims.
+	 *
+	 * @return The names of the standard top-level claims (read-only set).
+	 */
+	public static Set<String> getStandardClaimNames() {
+		
+		return STD_CLAIM_NAMES;
+	}
 	
 	
 	/**
@@ -613,7 +664,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	 */
 	public FederationEntityMetadata getFederationEntityMetadata() {
 		
-		JSONObject o = getMetadata(EntityType.TRUST_MARK_ISSUER);
+		JSONObject o = getMetadata(EntityType.FEDERATION_ENTITY);
 		
 		if (o == null) {
 			return null;
@@ -636,7 +687,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	public void setFederationEntityMetadata(final FederationEntityMetadata entityMetadata) {
 		
 		JSONObject o = entityMetadata != null ? entityMetadata.toJSONObject() : null;
-		setMetadata(EntityType.TRUST_MARK_ISSUER, o);
+		setMetadata(EntityType.FEDERATION_ENTITY, o);
 	}
 	
 	
@@ -800,6 +851,112 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 			setClaim(CONSTRAINTS_CLAIM_NAME, constraints.toJSONObject());
 		} else {
 			setClaim(CONSTRAINTS_CLAIM_NAME, null);
+		}
+	}
+	
+	
+	/**
+	 * Gets the trust marks.
+	 *
+	 * @return The trust marks, {@code null} if not specified or parsing
+	 *         failed.
+	 */
+	public List<TrustMarkEntry> getTrustMarks() {
+		
+		JSONArray array = getJSONArrayClaim(TRUST_MARKS_CLAIM_NAME);
+		
+		if (array == null) {
+			return null;
+		}
+		
+		List<JSONObject> jsonObjects;
+		try {
+			jsonObjects = JSONArrayUtils.toJSONObjectList(array);
+		} catch (ParseException e) {
+			return null;
+		}
+		
+		List<TrustMarkEntry> marks = new LinkedList<>();
+		
+		for (JSONObject o: jsonObjects) {
+			try {
+				marks.add(TrustMarkEntry.parse(o));
+			} catch (ParseException e) {
+				return null;
+			}
+		}
+		
+		return marks;
+	}
+	
+	
+	/**
+	 * Sets the trust marks.
+	 *
+	 * @param marks The trust marks, {@code null} if not specified.
+	 */
+	public void setTrustMarks(final List<TrustMarkEntry> marks) {
+		
+		if (marks != null) {
+			JSONArray array = new JSONArray();
+			for (TrustMarkEntry en: marks) {
+				array.add(en.toJSONObject());
+			}
+			setClaim(TRUST_MARKS_CLAIM_NAME, array);
+		} else {
+			setClaim(TRUST_MARKS_CLAIM_NAME, null);
+		}
+	}
+	
+	
+	/**
+	 * Gets the trust marks issuers.
+	 *
+	 * @return The trust marks issuers, {@code null} if not specified or
+	 *         parsing failed.
+	 */
+	public Map<Identifier, List<Issuer>> getTrustMarksIssuers() {
+		
+		JSONObject o = getJSONObjectClaim(TRUST_MARKS_ISSUERS_CLAIM_NAME);
+		
+		if (o == null) {
+			return null;
+		}
+		
+		Map<Identifier, List<Issuer>> issuers = new HashMap<>();
+		
+		for (String id: o.keySet()) {
+			try {
+				List<Issuer> issuerList = new LinkedList<>();
+				for (String issuerString: JSONObjectUtils.getStringList(o, id)) {
+					issuerList.add(new Issuer(issuerString));
+				}
+				issuers.put(new Identifier(id), issuerList);
+			} catch (ParseException e) {
+				return null;
+			}
+		}
+		
+		return issuers;
+	}
+	
+	
+	/**
+	 * Sets the trust marks issuers.
+	 *
+	 * @param issuers The trust marks issuers, {@code null} if not
+	 *                specified.
+	 */
+	public void setTrustMarksIssuers(final Map<Identifier, List<Issuer>> issuers) {
+		
+		if (issuers != null) {
+			JSONObject issuersObject = new JSONObject();
+			for (Map.Entry<Identifier, List<Issuer>> en: issuers.entrySet()) {
+				issuersObject.put(en.getKey().getValue(), Issuer.toStringList(en.getValue()));
+				setClaim(TRUST_MARKS_ISSUERS_CLAIM_NAME, issuersObject);
+			}
+		} else {
+			setClaim(TRUST_MARKS_ISSUERS_CLAIM_NAME, null);
 		}
 	}
 	

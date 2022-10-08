@@ -22,19 +22,25 @@ import java.net.URI;
 import java.util.*;
 
 import junit.framework.TestCase;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
 import com.nimbusds.oauth2.sdk.client.ClientMetadata;
 import com.nimbusds.oauth2.sdk.id.Audience;
+import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
@@ -42,6 +48,8 @@ import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.federation.policy.MetadataPolicy;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyViolationException;
 import com.nimbusds.openid.connect.sdk.federation.trust.constraints.TrustChainConstraints;
+import com.nimbusds.openid.connect.sdk.federation.trust.marks.TrustMarkClaimsSet;
+import com.nimbusds.openid.connect.sdk.federation.trust.marks.TrustMarkEntry;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
 
@@ -61,6 +69,52 @@ public class EntityStatementClaimsSetTest extends TestCase {
 			JWK_SET = new JWKSet(rsaJWK.toPublicJWK());
 		} catch (JOSEException e) {
 			throw new RuntimeException(e);
+		}
+	}
+	
+	
+	public void testClaimNames() {
+		
+		assertEquals("iss", EntityStatementClaimsSet.ISS_CLAIM_NAME);
+		assertEquals("sub", EntityStatementClaimsSet.SUB_CLAIM_NAME);
+		assertEquals("iat", EntityStatementClaimsSet.IAT_CLAIM_NAME);
+		assertEquals("exp", EntityStatementClaimsSet.EXP_CLAIM_NAME);
+		assertEquals("jwks", EntityStatementClaimsSet.JWKS_CLAIM_NAME);
+		assertEquals("aud", EntityStatementClaimsSet.AUD_CLAIM_NAME);
+		assertEquals("authority_hints", EntityStatementClaimsSet.AUTHORITY_HINTS_CLAIM_NAME);
+		assertEquals("metadata", EntityStatementClaimsSet.METADATA_CLAIM_NAME);
+		assertEquals("metadata_policy", EntityStatementClaimsSet.METADATA_POLICY_CLAIM_NAME);
+		assertEquals("constraints", EntityStatementClaimsSet.CONSTRAINTS_CLAIM_NAME);
+		assertEquals("crit", EntityStatementClaimsSet.CRITICAL_CLAIM_NAME);
+		assertEquals("policy_language_crit", EntityStatementClaimsSet.POLICY_LANGUAGE_CRITICAL_CLAIM_NAME);
+		assertEquals("trust_marks", EntityStatementClaimsSet.TRUST_MARKS_CLAIM_NAME);
+		assertEquals("trust_marks_issuers", EntityStatementClaimsSet.TRUST_MARKS_ISSUERS_CLAIM_NAME);
+		assertEquals("trust_anchor_id", EntityStatementClaimsSet.TRUST_ANCHOR_ID_CLAIM_NAME);
+		
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.IAT_CLAIM_NAME));
+		
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.ISS_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.SUB_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.IAT_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.EXP_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.JWKS_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.AUD_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.AUTHORITY_HINTS_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.METADATA_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.METADATA_POLICY_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.CONSTRAINTS_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.CRITICAL_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.POLICY_LANGUAGE_CRITICAL_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.TRUST_MARKS_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.TRUST_MARKS_ISSUERS_CLAIM_NAME));
+		assertTrue(EntityStatementClaimsSet.getStandardClaimNames().contains(EntityStatementClaimsSet.TRUST_ANCHOR_ID_CLAIM_NAME));
+		assertEquals(15, EntityStatementClaimsSet.getStandardClaimNames().size());
+		
+		try {
+			EntityStatementClaimsSet.getStandardClaimNames().add("test");
+			fail();
+		} catch (UnsupportedOperationException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	
@@ -111,6 +165,8 @@ public class EntityStatementClaimsSetTest extends TestCase {
 			assertNull(stmt.getMetadataPolicyJSONObject());
 			assertNull(stmt.getTrustAnchorID());
 			assertNull(stmt.getConstraints());
+			assertNull(stmt.getTrustMarks());
+			assertNull(stmt.getTrustMarksIssuers());
 			assertNull(stmt.getCriticalExtensionClaims());
 			assertNull(stmt.getCriticalPolicyExtensions());
 			
@@ -147,6 +203,8 @@ public class EntityStatementClaimsSetTest extends TestCase {
 			assertNull(stmt.getMetadataPolicyJSONObject());
 			assertNull(stmt.getTrustAnchorID());
 			assertNull(stmt.getConstraints());
+			assertNull(stmt.getTrustMarks());
+			assertNull(stmt.getTrustMarksIssuers());
 			assertNull(stmt.getCriticalExtensionClaims());
 			assertNull(stmt.getCriticalPolicyExtensions());
 		}
@@ -199,6 +257,8 @@ public class EntityStatementClaimsSetTest extends TestCase {
 			assertNull(stmt.getMetadataPolicyJSONObject());
 			assertNull(stmt.getTrustAnchorID());
 			assertNull(stmt.getConstraints());
+			assertNull(stmt.getTrustMarks());
+			assertNull(stmt.getTrustMarksIssuers());
 			assertNull(stmt.getCriticalExtensionClaims());
 			assertNull(stmt.getCriticalPolicyExtensions());
 			
@@ -234,6 +294,8 @@ public class EntityStatementClaimsSetTest extends TestCase {
 			assertNull(stmt.getMetadataPolicyJSONObject());
 			assertNull(stmt.getTrustAnchorID());
 			assertNull(stmt.getConstraints());
+			assertNull(stmt.getTrustMarks());
+			assertNull(stmt.getTrustMarksIssuers());
 			assertNull(stmt.getCriticalExtensionClaims());
 			assertNull(stmt.getCriticalPolicyExtensions());
 		}
@@ -729,6 +791,99 @@ public class EntityStatementClaimsSetTest extends TestCase {
 		assertNull(stmt.getMetadataPolicy(EntityType.OPENID_RELYING_PARTY));
 		
 		assertNull(stmt.getMetadataPolicyJSONObject());
+	}
+	
+	
+	public void testWithTrustMarks()
+		throws Exception {
+		
+		Issuer iss = new Issuer("https://abc-federation.c2id.com");
+		Subject sub = new Subject("https://op.c2id.com");
+		
+		Date iat = DateUtils.fromSecondsSinceEpoch(1000);
+		Date exp = DateUtils.fromSecondsSinceEpoch(2000);
+		
+		TrustMarkClaimsSet trustMarkClaimsSet_1 = new TrustMarkClaimsSet(
+			new Issuer("https://tm1.example.com"),
+			sub,
+			new Identifier("tm-1"),
+			iat);
+		TrustMarkClaimsSet trustMarkClaimsSet_2 = new TrustMarkClaimsSet(
+			new Issuer("https://tm2.example.com"),
+			sub,
+			new Identifier("tm-2"),
+			iat);
+		
+		SignedJWT tm_1 = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), trustMarkClaimsSet_1.toJWTClaimsSet());
+		tm_1.sign(new RSASSASigner(new RSAKeyGenerator(2048).generate()));
+		
+		SignedJWT tm_2 = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), trustMarkClaimsSet_2.toJWTClaimsSet());
+		tm_2.sign(new RSASSASigner(new RSAKeyGenerator(2048).generate()));
+		
+		List<TrustMarkEntry> marks = new LinkedList<>();
+		marks.add(new TrustMarkEntry(trustMarkClaimsSet_1.getID(), tm_1));
+		marks.add(new TrustMarkEntry(trustMarkClaimsSet_2.getID(), tm_2));
+		
+		Map<Identifier, List<Issuer>> issuers = new HashMap<>();
+		issuers.put(trustMarkClaimsSet_1.getID(), Collections.singletonList(trustMarkClaimsSet_1.getIssuer()));
+		issuers.put(trustMarkClaimsSet_2.getID(), Collections.singletonList(trustMarkClaimsSet_2.getIssuer()));
+		
+		// Test ID and EntityID constructors
+		for (EntityStatementClaimsSet stmt: Arrays.asList(
+			new EntityStatementClaimsSet(
+				iss,
+				sub,
+				iat,
+				exp,
+				JWK_SET),
+			new EntityStatementClaimsSet(
+				new EntityID(iss.getValue()),
+				new EntityID(sub.getValue()),
+				iat,
+				exp,
+				JWK_SET))) {
+			
+			stmt.setTrustMarks(marks);
+			
+			assertEquals(marks.get(0).getID(), stmt.getTrustMarks().get(0).getID());
+			assertEquals(marks.get(0).getTrustMark().serialize(), stmt.getTrustMarks().get(0).getTrustMark().serialize());
+			assertEquals(marks.get(1).getID(), stmt.getTrustMarks().get(1).getID());
+			assertEquals(marks.get(1).getTrustMark().serialize(), stmt.getTrustMarks().get(1).getTrustMark().serialize());
+			assertEquals(2, stmt.getTrustMarks().size());
+			
+			stmt.setTrustMarksIssuers(issuers);
+			
+			assertEquals(issuers, stmt.getTrustMarksIssuers());
+			
+			JWTClaimsSet jwtClaimsSet = stmt.toJWTClaimsSet();
+			
+			List<?> jsonArray = (List<?>)jwtClaimsSet.getClaim(EntityStatementClaimsSet.TRUST_MARKS_CLAIM_NAME);
+			assertEquals(marks.get(0).getID(), TrustMarkEntry.parse(new JSONObject((Map<String, Object>) jsonArray.get(0))).getID());
+			assertEquals(marks.get(0).getTrustMark().serialize(), TrustMarkEntry.parse(new JSONObject((Map<String, Object>) jsonArray.get(0))).getTrustMark().serialize());
+			assertEquals(marks.get(1).getID(), TrustMarkEntry.parse(new JSONObject((Map<String, Object>) jsonArray.get(1))).getID());
+			assertEquals(marks.get(1).getTrustMark().serialize(), TrustMarkEntry.parse(new JSONObject((Map<String, Object>) jsonArray.get(1))).getTrustMark().serialize());
+			assertEquals(2, jsonArray.size());
+			
+			assertEquals(issuers.toString(), jwtClaimsSet.getJSONObjectClaim(EntityStatementClaimsSet.TRUST_MARKS_ISSUERS_CLAIM_NAME).toString());
+			assertEquals(2, jwtClaimsSet.getJSONObjectClaim(EntityStatementClaimsSet.TRUST_MARKS_ISSUERS_CLAIM_NAME).size());
+			
+			stmt = new EntityStatementClaimsSet(jwtClaimsSet);
+			
+			assertEquals(marks.get(0).getID(), stmt.getTrustMarks().get(0).getID());
+			assertEquals(marks.get(0).getTrustMark().serialize(), stmt.getTrustMarks().get(0).getTrustMark().serialize());
+			assertEquals(marks.get(1).getID(), stmt.getTrustMarks().get(1).getID());
+			assertEquals(marks.get(1).getTrustMark().serialize(), stmt.getTrustMarks().get(1).getTrustMark().serialize());
+			assertEquals(2, stmt.getTrustMarks().size());
+			
+			assertEquals(issuers, stmt.getTrustMarksIssuers());
+			
+			// Test set null
+			stmt.setTrustMarks(null);
+			assertNull(stmt.getTrustMarks());
+			
+			stmt.setTrustMarksIssuers(null);
+			assertNull(stmt.getTrustMarksIssuers());
+		}
 	}
 	
 	
