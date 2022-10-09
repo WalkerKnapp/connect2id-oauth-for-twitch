@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.*;
 
 import junit.framework.TestCase;
-import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import com.nimbusds.jose.JOSEException;
@@ -50,6 +49,7 @@ import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyViolatio
 import com.nimbusds.openid.connect.sdk.federation.trust.constraints.TrustChainConstraints;
 import com.nimbusds.openid.connect.sdk.federation.trust.marks.TrustMarkClaimsSet;
 import com.nimbusds.openid.connect.sdk.federation.trust.marks.TrustMarkEntry;
+import com.nimbusds.openid.connect.sdk.federation.trust.marks.TrustMarkIssuerMetadata;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
 
@@ -343,6 +343,12 @@ public class EntityStatementClaimsSetTest extends TestCase {
 	private static FederationEntityMetadata createFederationEntityMetadata() {
 		
 		return new FederationEntityMetadata(URI.create("https://federation.c2id.com/api"));
+	}
+	
+	
+	private static TrustMarkIssuerMetadata createTrustMarkIssuerMetadata() {
+		
+		return new TrustMarkIssuerMetadata(URI.create("https://trust-mark-issuer.c2id.com/status"));
 	}
 	
 	
@@ -727,6 +733,41 @@ public class EntityStatementClaimsSetTest extends TestCase {
 		
 		stmt.setFederationEntityMetadata(null);
 		assertNull(stmt.getFederationEntityMetadata());
+	}
+	
+	
+	public void testWithTrustMarkIssuer_selfStated()
+		throws Exception {
+		
+		Issuer iss = new Issuer("https://fed.c2id.com");
+		Subject sub = new Subject("https://fed.c2id.com");
+		
+		Date iat = DateUtils.fromSecondsSinceEpoch(1000);
+		Date exp = DateUtils.fromSecondsSinceEpoch(2000);
+		
+		EntityStatementClaimsSet stmt = new EntityStatementClaimsSet(
+			iss,
+			sub,
+			iat,
+			exp,
+			JWK_SET);
+		
+		TrustMarkIssuerMetadata trustMarkIssuerMetadata = createTrustMarkIssuerMetadata();
+		
+		stmt.setTrustMarkIssuerMetadata(trustMarkIssuerMetadata);
+		assertEquals(trustMarkIssuerMetadata.toJSONObject(), stmt.getTrustMarkIssuerMetadata().toJSONObject());
+		
+		JWTClaimsSet jwtClaimsSet = stmt.toJWTClaimsSet();
+		Map<String, Object> metadata = jwtClaimsSet.getJSONObjectClaim("metadata");
+		assertEquals(trustMarkIssuerMetadata.toJSONObject(), com.nimbusds.jose.util.JSONObjectUtils.getJSONObject(metadata, "trust_mark_issuer"));
+		
+		stmt = new EntityStatementClaimsSet(jwtClaimsSet);
+		assertEquals(trustMarkIssuerMetadata.toJSONObject(), stmt.getTrustMarkIssuerMetadata().toJSONObject());
+		
+		stmt.validateRequiredClaimsPresence();
+		
+		stmt.setTrustMarkIssuerMetadata(null);
+		assertNull(stmt.getTrustMarkIssuerMetadata());
 	}
 	
 	

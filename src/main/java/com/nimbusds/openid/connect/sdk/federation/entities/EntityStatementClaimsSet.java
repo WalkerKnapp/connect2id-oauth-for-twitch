@@ -40,6 +40,7 @@ import com.nimbusds.openid.connect.sdk.federation.policy.MetadataPolicy;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyViolationException;
 import com.nimbusds.openid.connect.sdk.federation.trust.constraints.TrustChainConstraints;
 import com.nimbusds.openid.connect.sdk.federation.trust.marks.TrustMarkEntry;
+import com.nimbusds.openid.connect.sdk.federation.trust.marks.TrustMarkIssuerMetadata;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
 
@@ -349,7 +350,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Returns the issuer as entity ID.
+	 * Returns the issuer as entity ID. Corresponds to the {@code iss}
+	 * claim.
 	 *
 	 * @return The issuer as entity ID.
 	 */
@@ -360,7 +362,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Returns the subject as entity ID.
+	 * Returns the subject as entity ID. Corresponds to the {@code iss}
+	 * claim.
 	 *
 	 * @return The subject as entity ID.
 	 */
@@ -384,7 +387,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Gets the entity JWK set.
+	 * Gets the entity JWK set. Corresponds to the {@code jwks} claim.
 	 *
 	 * @return The entity JWK set, {@code null} if not specified or parsing
 	 *         failed.
@@ -405,6 +408,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Gets the entity IDs of the intermediate entities or trust anchors.
+	 * Corresponds to the {@code authority_hints} claim.
 	 *
 	 * @return The entity IDs, {@code null} or empty list for a trust
 	 *         anchor, or if parsing failed.
@@ -427,6 +431,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Sets the entity IDs of the intermediate entities or trust anchors.
+	 * Corresponds to the {@code authority_hints} claim.
 	 *
 	 * @param trustChain The entity IDs, {@code null} or empty list for a
 	 *                   trust anchor.
@@ -442,7 +447,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Returns {@code true} if a metadata field is present.
+	 * Returns {@code true} if a metadata field is present. Corresponds to
+	 * the {@code metadata} claim.
 	 *
 	 * @return {@code true} if a metadata field for an OpenID relying
 	 *         party, an OpenID provider, an OAuth authorisation server, an
@@ -471,11 +477,13 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Gets the metadata for the specified entity type. Use a typed getter,
-	 * such as {@link #getRPMetadata}, when available.
+	 * such as {@link #getRPMetadata}, when available. Corresponds to the
+	 * {@code metadata} claim.
 	 *
 	 * @param type The entity type. Must not be {@code null}.
 	 *
-	 * @return The metadata, {@code null} if not specified.
+	 * @return The metadata, {@code null} if not specified or if parsing
+	 *         failed.
 	 */
 	public JSONObject getMetadata(final EntityType type) {
 		
@@ -487,7 +495,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 		
 		try {
 			return JSONObjectUtils.getJSONObject(o, type.getValue(), null);
-		} catch (com.nimbusds.oauth2.sdk.ParseException e) {
+		} catch (ParseException e) {
 			return null;
 		}
 	}
@@ -495,7 +503,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Sets the metadata for the specified entity type. Use a typed setter,
-	 * such as {@link #setRPMetadata}, when available.
+	 * such as {@link #setRPMetadata}, when available. Corresponds to the
+	 * {@code metadata} claim.
 	 *
 	 * @param type     The type. Must not be {@code null}.
 	 * @param metadata The metadata, {@code null} if not specified.
@@ -519,6 +528,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Gets the OpenID relying party metadata if present for this entity.
+	 * Corresponds to the {@code metadata.openid_relying_party} claim.
 	 *
 	 * @return The RP metadata, {@code null} if not specified or if parsing
 	 *         failed.
@@ -533,7 +543,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 		
 		try {
 			return OIDCClientMetadata.parse(o);
-		} catch (com.nimbusds.oauth2.sdk.ParseException e) {
+		} catch (ParseException e) {
 			return null;
 		}
 	}
@@ -541,6 +551,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Sets the OpenID relying party metadata if present for this entity.
+	 * Corresponds to the {@code metadata.openid_relying_party} claim.
 	 *
 	 * @param rpMetadata The RP metadata, {@code null} if not specified.
 	 */
@@ -553,6 +564,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Gets the OpenID provider metadata if present for this entity.
+	 * Corresponds to the {@code metadata.openid_provider} claim.
 	 *
 	 * @return The OP metadata, {@code null} if not specified or if parsing
 	 * 	   failed.
@@ -567,7 +579,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 		
 		try {
 			return OIDCProviderMetadata.parse(o);
-		} catch (com.nimbusds.oauth2.sdk.ParseException e) {
+		} catch (ParseException e) {
 			return null;
 		}
 	}
@@ -575,6 +587,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Gets the OpenID provider metadata if present for this entity.
+	 * Corresponds to the {@code metadata.openid_provider} claim.
 	 *
 	 * @param opMetadata The OP metadata, {@code null} if not specified.
 	 */
@@ -587,6 +600,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Gets the OAuth 2.0 client metadata if present for this entity.
+	 * Corresponds to the {@code metadata.oauth_client} claim.
 	 *
 	 * @return The client metadata, {@code null} if not specified or if
 	 *         parsing failed.
@@ -601,7 +615,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 		
 		try {
 			return ClientMetadata.parse(o);
-		} catch (com.nimbusds.oauth2.sdk.ParseException e) {
+		} catch (ParseException e) {
 			return null;
 		}
 	}
@@ -609,6 +623,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Sets the OAuth 2.0 client metadata if present for this entity.
+	 * Corresponds to the {@code metadata.oauth_client} claim.
 	 *
 	 * @param clientMetadata The client metadata, {@code null} if not
 	 *                       specified.
@@ -622,7 +637,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Gets the OAuth 2.0 authorisation server metadata if present for this
-	 * entity.
+	 * entity. Corresponds to the
+	 * {@code metadata.oauth_authorization_server} claim.
 	 *
 	 * @return The AS metadata, {@code null} if not specified or if parsing
 	 * 	   failed.
@@ -637,7 +653,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 		
 		try {
 			return AuthorizationServerMetadata.parse(o);
-		} catch (com.nimbusds.oauth2.sdk.ParseException e) {
+		} catch (ParseException e) {
 			return null;
 		}
 	}
@@ -645,7 +661,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Sets the OAuth 2.0 authorisation server metadata if present for this
-	 * entity.
+	 * entity. Corresponds to the
+	 * {@code metadata.oauth_authorization_server} claim.
 	 *
 	 * @param asMetadata The AS metadata, {@code null} if not specified.
 	 */
@@ -658,6 +675,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Gets the federation entity metadata if present for this entity.
+	 * Corresponds to the {@code metadata.federation_entity} claim.
 	 *
 	 * @return The federation entity metadata, {@code null} if not
 	 *         specified or if parsing failed.
@@ -672,7 +690,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 		
 		try {
 			return FederationEntityMetadata.parse(o);
-		} catch (com.nimbusds.oauth2.sdk.ParseException e) {
+		} catch (ParseException e) {
 			return null;
 		}
 	}
@@ -680,6 +698,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Sets the federation entity metadata if present for this entity.
+	 * Corresponds to the {@code metadata.federation_entity} claim.
 	 *
 	 * @param entityMetadata The federation entity metadata, {@code null}
 	 *                       if not specified.
@@ -692,7 +711,45 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Gets the complete metadata policy JSON object.
+	 * Gets the trust mark issuer metadata if present for this entity.
+	 * Corresponds to the {@code metadata.trust_mark_issuer} claim.
+	 *
+	 * @return The trust mark issuer metadata, {@code null} if not
+	 *         specified or if parsing failed.
+	 */
+	public TrustMarkIssuerMetadata getTrustMarkIssuerMetadata() {
+		
+		JSONObject o = getMetadata(EntityType.TRUST_MARK_ISSUER);
+		
+		if (o == null) {
+			return null;
+		}
+		
+		try {
+			return TrustMarkIssuerMetadata.parse(o);
+		} catch (ParseException e) {
+			return null;
+		}
+	}
+	
+	
+	/**
+	 * Sets the trust mark issuer metadata for this entity.
+	 * Corresponds to the {@code metadata.trust_mark_issuer} claim.
+	 *
+	 * @param trustMarkIssuerMetadata The trust mark issuer metadata,
+	 *                                {@code null} if not specified.
+	 */
+	public void setTrustMarkIssuerMetadata(final TrustMarkIssuerMetadata trustMarkIssuerMetadata) {
+		
+		JSONObject o = trustMarkIssuerMetadata != null ? trustMarkIssuerMetadata.toJSONObject() : null;
+		setMetadata(EntityType.TRUST_MARK_ISSUER, o);
+	}
+	
+	
+	/**
+	 * Gets the complete metadata policy JSON object. Corresponds to the
+	 * {@code metadata_policy} claim.
 	 *
 	 * @return The metadata policy JSON object, {@code null} if not
 	 *         specified or if parsing failed.
@@ -704,7 +761,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Sets the complete metadata policy JSON object.
+	 * Sets the complete metadata policy JSON object. Corresponds to the
+	 * {@code metadata_policy} claim.
 	 *
 	 * @param metadataPolicy The metadata policy JSON object, {@code null}
 	 *                       if not specified.
@@ -716,7 +774,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Gets the metadata policy for the specified type.
+	 * Gets the metadata policy for the specified type. Corresponds to the
+	 * {@code metadata_policy} claim.
 	 *
 	 * @param type The entity type. Must not be {@code null}.
 	 *
@@ -746,7 +805,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Sets the metadata policy for the specified type.
+	 * Sets the metadata policy for the specified type. Corresponds to the
+	 * {@code metadata_policy} claim.
 	 *
 	 * @param type           The entity type. Must not be {@code null}.
 	 * @param metadataPolicy The metadata policy, {@code null} if not
@@ -780,8 +840,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	 * Gets the used trust anchor in a explicit client registration in
 	 * OpenID Connect Federation 1.0. Intended for entity statements issued
 	 * by an OpenID provider for a Relying party performing explicit client
-	 * registration only. Corresponds to the {@code trust_anchor_id} client
-	 * metadata field.
+	 * registration only. Corresponds to the {@code trust_anchor_id} claim.
 	 *
 	 * @return The trust anchor ID, {@code null} if not specified.
 	 */
@@ -801,8 +860,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	 * Sets the used trust anchor in a explicit client registration in
 	 * OpenID Connect Federation 1.0. Intended for entity statements issued
 	 * by an OpenID provider for a Relying party performing explicit client
-	 * registration only.Corresponds to the {@code trust_anchor_id} client
-	 * metadata field.
+	 * registration only. Corresponds to the {@code trust_anchor_id} claim.
 	 *
 	 * @param trustAnchorID The trust anchor ID, {@code null} if not
 	 *                      specified.
@@ -819,6 +877,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Gets the trust chain constraints for subordinate entities.
+	 * Corresponds to the {@code constraints} claim.
 	 *
 	 * @return The trust chain constraints, {@code null} if not specified
 	 *          or if parsing failed.
@@ -833,7 +892,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 		
 		try {
 			return TrustChainConstraints.parse(o);
-		} catch (com.nimbusds.oauth2.sdk.ParseException e) {
+		} catch (ParseException e) {
 			return null;
 		}
 	}
@@ -841,6 +900,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	/**
 	 * Sets the trust chain constraint for subordinate entities.
+	 * Corresponds to the {@code constraints} claim.
 	 *
 	 * @param constraints The trust chain constraints, {@code null} if not
 	 *                    specified.
@@ -856,7 +916,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Gets the trust marks.
+	 * Gets the trust marks. Corresponds to the {@code trust_marks} claim.
 	 *
 	 * @return The trust marks, {@code null} if not specified or parsing
 	 *         failed.
@@ -891,7 +951,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Sets the trust marks.
+	 * Sets the trust marks. Corresponds to the {@code trust_marks} claim.
 	 *
 	 * @param marks The trust marks, {@code null} if not specified.
 	 */
@@ -910,7 +970,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Gets the trust marks issuers.
+	 * Gets the trust marks issuers. Corresponds to the
+	 * {@code trust_marks_issuers} claim.
 	 *
 	 * @return The trust marks issuers, {@code null} if not specified or
 	 *         parsing failed.
@@ -942,7 +1003,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Sets the trust marks issuers.
+	 * Sets the trust marks issuers. Corresponds to the
+	 * {@code trust_marks_issuers} claim.
 	 *
 	 * @param issuers The trust marks issuers, {@code null} if not
 	 *                specified.
@@ -962,7 +1024,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Gets the names of the critical extension claims.
+	 * Gets the names of the critical extension claims. Corresponds to the
+	 * {@code crit} claim.
 	 *
 	 * @return The names of the critical extension claims, {@code null} if
 	 *         not specified or if parsing failed.
@@ -974,7 +1037,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Sets the names of the critical extension claims.
+	 * Sets the names of the critical extension claims. Corresponds to the
+	 * {@code crit} claim.
 	 *
 	 * @param claimNames The names of the critical extension claims,
 	 *                   {@code null} if not specified. Must not be an
@@ -991,7 +1055,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Gets the names of the critical policy extensions.
+	 * Gets the names of the critical policy extensions. Corresponds to the
+	 * {@code policy_language_crit} claim.
 	 *
 	 * @return The names of the critical policy extensions or if parsing
 	 *         failed.
@@ -1003,7 +1068,8 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Sets the names of the critical policy extensions.
+	 * Sets the names of the critical policy extensions. Corresponds to the
+	 * {@code policy_language_crit} claim.
 	 *
 	 * @param extNames The names of the critical policy extensions,
 	 *                 {@code null} if not specified. Must not be an empty
