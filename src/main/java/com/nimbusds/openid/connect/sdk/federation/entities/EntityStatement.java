@@ -50,6 +50,13 @@ public final class EntityStatement {
 	
 	
 	/**
+	 * The federation entity statement JOSE object type
+	 * ({@code entity-statement+jwt}).
+	 */
+	public static final JOSEObjectType TYPE = new JOSEObjectType("entity-statement+jwt");
+	
+	
+	/**
 	 * The signed statement as signed JWT.
 	 */
 	private final SignedJWT statementJWT;
@@ -152,8 +159,8 @@ public final class EntityStatement {
 	
 	
 	/**
-	 * Verifies the signature and checks the statement issue and expiration
-	 * times.
+	 * Verifies the signature and checks the statement type, issue and
+	 * expiration times.
 	 *
 	 * @param jwkSet The JWK set to use for the signature verification.
 	 *               Must not be {@code null}.
@@ -164,10 +171,14 @@ public final class EntityStatement {
 	 * @throws BadJOSEException If the signature is invalid or the
 	 *                          statement is expired or before the issue
 	 *                          time.
-	 * @throws JOSEException    On a internal JOSE exception.
+	 * @throws JOSEException    On an internal JOSE exception.
 	 */
 	public Base64URL verifySignature(final JWKSet jwkSet)
 		throws BadJOSEException, JOSEException {
+		
+		if (! TYPE.equals(statementJWT.getHeader().getType())) {
+			throw new BadJOSEException("Entity statement rejected: Invalid or missing JWT typ (type) header");
+		}
 		
 		List<JWK> jwkMatches = new JWKSelector(JWKMatcher.forJWSHeader(statementJWT.getHeader())).select(jwkSet);
 		
@@ -251,6 +262,7 @@ public final class EntityStatement {
 		JWSSigner jwsSigner = new DefaultJWSSignerFactory().createJWSSigner(signingJWK, jwsAlg);
 		
 		JWSHeader jwsHeader = new JWSHeader.Builder(jwsAlg)
+			.type(TYPE)
 			.keyID(signingJWK.getKeyID())
 			.build();
 		

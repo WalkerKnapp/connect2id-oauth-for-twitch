@@ -26,6 +26,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
@@ -132,6 +133,12 @@ public class EntityStatementTest extends TestCase {
 		return stmt;
 	}
 	
+	
+	public void testTypeConstant() {
+		
+		assertEquals(new JOSEObjectType("entity-statement+jwt"), EntityStatement.TYPE);
+	}
+	
 
 	public void testLifecycle_defaultJWSAlg() throws Exception {
 		
@@ -145,8 +152,9 @@ public class EntityStatementTest extends TestCase {
 		
 		JWSHeader jwsHeader = entityStatement.getSignedStatement().getHeader();
 		assertEquals(JWSAlgorithm.RS256, jwsHeader.getAlgorithm());
+		assertEquals(EntityStatement.TYPE, jwsHeader.getType());
 		assertEquals(RSA_JWK.getKeyID(), jwsHeader.getKeyID());
-		assertEquals(2,  jwsHeader.toJSONObject().size());
+		assertEquals(3,  jwsHeader.toJSONObject().size());
 		
 		SignedJWT signedJWT = entityStatement.getSignedStatement();
 		assertEquals(claimsSet.toJWTClaimsSet().getClaims(), signedJWT.getJWTClaimsSet().getClaims());
@@ -173,8 +181,9 @@ public class EntityStatementTest extends TestCase {
 		
 		JWSHeader jwsHeader = entityStatement.getSignedStatement().getHeader();
 		assertEquals(JWSAlgorithm.RS512, jwsHeader.getAlgorithm());
+		assertEquals(EntityStatement.TYPE, jwsHeader.getType());
 		assertEquals(RSA_JWK.getKeyID(), jwsHeader.getKeyID());
-		assertEquals(2,  jwsHeader.toJSONObject().size());
+		assertEquals(3,  jwsHeader.toJSONObject().size());
 		
 		SignedJWT signedJWT = entityStatement.getSignedStatement();
 		assertEquals(claimsSet.toJWTClaimsSet().getClaims(), signedJWT.getJWTClaimsSet().getClaims());
@@ -240,6 +249,44 @@ public class EntityStatementTest extends TestCase {
 	}
 	
 	
+	public void testInvalidSignature_missingTypeHeader() throws Exception {
+		
+		EntityStatementClaimsSet claimsSet = createSelfIssuedEntityStatementClaimsSet();
+		
+		SignedJWT signedJWT = new SignedJWT(
+			new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(RSA_JWK.getKeyID()).build(),
+			claimsSet.toJWTClaimsSet()
+		);
+		signedJWT.sign(new RSASSASigner(RSA_JWK));
+		
+		try {
+			EntityStatement.parse(signedJWT.serialize()).verifySignatureOfSelfStatement();
+			fail();
+		} catch (BadJOSEException e) {
+			assertEquals("Entity statement rejected: Invalid or missing JWT typ (type) header", e.getMessage());
+		}
+	}
+	
+	
+	public void testInvalidSignature_invalidTypeHeader() throws Exception {
+		
+		EntityStatementClaimsSet claimsSet = createSelfIssuedEntityStatementClaimsSet();
+		
+		SignedJWT signedJWT = new SignedJWT(
+			new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID(RSA_JWK.getKeyID()).build(),
+			claimsSet.toJWTClaimsSet()
+		);
+		signedJWT.sign(new RSASSASigner(RSA_JWK));
+		
+		try {
+			EntityStatement.parse(signedJWT.serialize()).verifySignatureOfSelfStatement();
+			fail();
+		} catch (BadJOSEException e) {
+			assertEquals("Entity statement rejected: Invalid or missing JWT typ (type) header", e.getMessage());
+		}
+	}
+	
+	
 	public void testInvalidSignature_noMatchingKey() throws Exception {
 		
 		EntityStatementClaimsSet claimsSet = createSelfIssuedEntityStatementClaimsSet();
@@ -249,7 +296,7 @@ public class EntityStatementTest extends TestCase {
 			.generate();
 		
 		SignedJWT signedJWT = new SignedJWT(
-			new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaJWK.getKeyID()).build(),
+			new JWSHeader.Builder(JWSAlgorithm.RS256).type(EntityStatement.TYPE).keyID(rsaJWK.getKeyID()).build(),
 			claimsSet.toJWTClaimsSet()
 		);
 		signedJWT.sign(new RSASSASigner(rsaJWK));
@@ -272,10 +319,10 @@ public class EntityStatementTest extends TestCase {
 			.generate();
 		
 		SignedJWT signedJWT = new SignedJWT(
-			new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaJWK.getKeyID()).build(),
+			new JWSHeader.Builder(JWSAlgorithm.RS256).type(EntityStatement.TYPE).keyID(rsaJWK.getKeyID()).build(),
 			claimsSet.toJWTClaimsSet()
 		);
-		signedJWT.sign(new RSASSASigner(rsaJWK));
+		signedJWT.sign(new RSASSASigner(rsaJWK)); // sign with non-registered key
 		
 		try {
 			EntityStatement.parse(signedJWT.serialize()).verifySignatureOfSelfStatement();
