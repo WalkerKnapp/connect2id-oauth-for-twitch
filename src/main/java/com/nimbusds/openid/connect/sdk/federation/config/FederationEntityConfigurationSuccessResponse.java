@@ -31,34 +31,10 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
 /**
  * Federation entity configuration success response.
  *
- * <p>Example HTTP response (with line breaks for clarity):
- *
- * <pre>
- * HTTP/1.1 200 OK
- * Content-Type: application/jose; charset=UTF-8
- *
- * eyJraWQiOiI4OHR3SGhGSFNiSk4xQnJ4cEdBT1A1Tk5RY3JEMFNBcEhiU3pVWjJpMjgwIiwiYWxn
- * IjoiUlMyNTYifQ.eyJzdWIiOiJodHRwczpcL1wvb3AuYzJpZC5jb20iLCJqd2tzIjp7ImtleXMiO
- * lt7Imt0eSI6IlJTQSIsImUiOiJBUUFCIiwidXNlIjoic2lnIiwia2lkIjoiODh0d0hoRkhTYkpOM
- * UJyeHBHQU9QNU5OUWNyRDBTQXBIYlN6VVoyaTI4MCIsIm4iOiJqYl8zeFBJWGhDM2JJRnFuVG8xb
- * nFDRHlwSzd6djBxNUJvUTZmNC1adXlfRWs2UFc2ZFdwQ1hGQ1R3c016YVRZV0M2VGViQnE2aGQ5T
- * 1A5ZXVSckl3ZjBxNnBOQ3o2NG9uMGNBbXcxbmJVXzNKc21wNzRxRl9HMV9ySTVrdVZ3Z0l1VHJQT
- * k40MUV3RlFYMGtMa2UyYTNVaHAyRTBOcHdBa2ZJa1B6ZFozTlNZVVd0TTRWTXA4SzBjN1dwRlpHS
- * EtYcWpXcnRWX1JQajRsV0dvYWRnRFJxVEg2R0kyTF9ESVRNRHJldlk2YzU4VlhBT1VvOHBjbGk4W
- * VVnV0J2UURqcEtGRFY5aU1IejFOZ2o0bzdRbGg5NjhFSnZNdUNXUjBKRWZhbEtvb3lQbXZGeUYwd
- * 1NUd2FseVh6M0xsOEFxY3d4Qm1Qb3JlQzA0RnhMVGV6R2Q5U1EifV19LCJpc3MiOiJodHRwczpcL
- * 1wvYWJjLWZlZGVyYXRpb24uYzJpZC5jb20iLCJleHAiOjIwMDAsImlhdCI6MTAwMH0.JTLM1NREw
- * OBqwHJin4LPBnzmGbHyx61wSx-CqUNwsd9u8u_PelVwo44X_GjV-7W2iPUHTrtnBZm7TURdzyrd6
- * M0s5V5g0GhSrQLe4HtX_X2gZbSxAUosQKwVltnwIw0lUDOAw7jk3aQ4URXmu0enBSrNb499sAshB
- * YWFqkrunUAcjoAGepRwhLJwmRjC21pfd5WB1fJHRkHPngeGJIp8nXbSAqJ_d-ks1Y7y0ddy3NOUX
- * qoBrIIrXRkXzOv6xyaifginDRVu6gZl8_v4k0rjqhnosWq8yDZCHLSu2YjMkCQ2neGivDGTlnfFE
- * oKfanrdIKy9uDnkdbgxLkjz8XEavA
- * </pre>
- *
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 5.2.
+ *     <li>OpenID Connect Federation 1.0, section 6.2.
  * </ul>
  */
 public class FederationEntityConfigurationSuccessResponse extends FederationEntityConfigurationResponse {

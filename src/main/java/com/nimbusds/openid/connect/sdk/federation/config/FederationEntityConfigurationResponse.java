@@ -29,7 +29,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 5.2.
+ *     <li>OpenID Connect Federation 1.0, section 6.2.
  * </ul>
  */
 public abstract class FederationEntityConfigurationResponse implements Response {
