@@ -77,7 +77,7 @@ public class FederationEntityMetadataTest extends TestCase {
 		assertEquals(policyURI.toString(), jsonObject.get("policy_uri"));
 		assertEquals(homepageURI.toString(), jsonObject.get("homepage_uri"));
 		
-		metadata = FederationEntityMetadata.parse(metadata.toJSONString());
+		metadata = FederationEntityMetadata.parse(metadata.toJSONObject().toJSONString());
 		
 		assertEquals(fetchEndpoint, metadata.getFederationFetchEndpointURI());
 		assertEquals(listEndpoint, metadata.getFederationListEndpointURI());
@@ -96,7 +96,7 @@ public class FederationEntityMetadataTest extends TestCase {
 		JSONObject jsonObject = metadata.toJSONObject();
 		assertTrue(jsonObject.isEmpty());
 		
-		String json = metadata.toJSONString();
+		String json = metadata.toJSONObject().toJSONString();
 		assertEquals("{}", json);
 		
 		metadata = FederationEntityMetadata.parse(json);

@@ -21,10 +21,8 @@ package com.nimbusds.openid.connect.sdk.federation.entities;
 import java.net.URI;
 import java.util.List;
 
-import net.minidev.json.JSONAware;
 import net.minidev.json.JSONObject;
 
-import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 
@@ -38,7 +36,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  *     <li>OpenID Connect Federation 1.0, section 4.7.
  * </ul>
  */
-public class FederationEntityMetadata implements JSONAware {
+public class FederationEntityMetadata {
 	
 	
 	/**
@@ -81,12 +79,6 @@ public class FederationEntityMetadata implements JSONAware {
 	 * The homepage URI.
 	 */
 	private URI homepageURI;
-	
-	
-	/**
-	 * The optional trust marks.
-	 */
-	private List<SignedJWT> trustMarks;
 	
 	
 	/**
@@ -294,12 +286,6 @@ public class FederationEntityMetadata implements JSONAware {
 			o.put("homepage_uri", getHomepageURI().toString());
 		}
 		return o;
-	}
-	
-	
-	@Override
-	public String toJSONString() {
-		return toJSONObject().toJSONString();
 	}
 	
 	
