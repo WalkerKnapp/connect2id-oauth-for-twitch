@@ -128,9 +128,9 @@ public class ResolveRequest extends FederationAPIRequest {
 	
 	
 	/**
-	 * Returns the metadata type to resolve.
+	 * Returns the entity type to resolve.
 	 *
-	 * @return The metadata type to resolve.
+	 * @return The entity type to resolve.
 	 */
 	public EntityType getEntityType() {
 		return entityType;
@@ -185,11 +185,12 @@ public class ResolveRequest extends FederationAPIRequest {
 	
 	
 	/**
-	 * Parses a trust negotiation request from the specified HTTP request.
+	 * Parses a resolve entity statement request from the specified HTTP
+	 * request.
 	 *
 	 * @param httpRequest The HTTP request. Must not be {@code null}.
 	 *
-	 * @return The trust negotiation request.
+	 * @return The resolve entity statement request.
 	 *
 	 * @throws ParseException If parsing failed.
 	 */
