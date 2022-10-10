@@ -68,4 +68,15 @@ public class ResolveErrorResponseTest extends TestCase {
 		assertNull(error.getDescription());
 		assertNull(error.getCode());
 	}
+	
+	
+	public void testRejectNullErrorObject() {
+		
+		try {
+			new ResolveErrorResponse(null);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("The error object must not be null", e.getMessage());
+		}
+	}
 }

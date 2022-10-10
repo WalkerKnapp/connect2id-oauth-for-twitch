@@ -24,17 +24,17 @@ import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
 
-public class EntityListingErrorResponseTest extends TestCase {
+public class TrustMarkStatusErrorResponseTest extends TestCase {
 	
 	
 	public void testLifecycle() throws Exception {
 		
 		FederationAPIError error = new FederationAPIError(
 			"invalid_request",
-			"Missing required iss (issuer) request parameter")
+			"Missing required sub (subject) request parameter")
 			.withStatusCode(400);
 		
-		EntityListingErrorResponse response = new EntityListingErrorResponse(error);
+		TrustMarkStatusErrorResponse response = new TrustMarkStatusErrorResponse(error);
 		assertEquals(error, response.getErrorObject());
 		assertFalse(response.indicatesSuccess());
 		
@@ -43,7 +43,7 @@ public class EntityListingErrorResponseTest extends TestCase {
 		assertEquals("application/json; charset=UTF-8", httpResponse.getEntityContentType().toString());
 		assertEquals(error.toJSONObject(), httpResponse.getContentAsJSONObject());
 		
-		response = EntityListingErrorResponse.parse(httpResponse);
+		response = TrustMarkStatusErrorResponse.parse(httpResponse);
 		assertEquals(error, response.getErrorObject());
 		assertFalse(response.indicatesSuccess());
 	}
@@ -52,7 +52,7 @@ public class EntityListingErrorResponseTest extends TestCase {
 	public void testRejectHTTPSuccess() {
 		
 		try {
-			EntityListingErrorResponse.parse(new HTTPResponse(200));
+			TrustMarkStatusErrorResponse.parse(new HTTPResponse(200));
 			fail();
 		} catch (ParseException e) {
 			assertEquals("Unexpected HTTP status code, must not be 200 (OK)", e.getMessage());
@@ -62,7 +62,7 @@ public class EntityListingErrorResponseTest extends TestCase {
 	
 	public void testNoErrorObject() throws ParseException {
 		
-		EntityListingErrorResponse response = EntityListingErrorResponse.parse(new HTTPResponse(400));
+		TrustMarkStatusErrorResponse response = TrustMarkStatusErrorResponse.parse(new HTTPResponse(400));
 		FederationAPIError error = response.getErrorObject();
 		assertEquals(400, error.getHTTPStatusCode());
 		assertNull(error.getDescription());
@@ -73,7 +73,7 @@ public class EntityListingErrorResponseTest extends TestCase {
 	public void testRejectNullErrorObject() {
 		
 		try {
-			new EntityListingErrorResponse(null);
+			new TrustMarkStatusErrorResponse(null);
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertEquals("The error object must not be null", e.getMessage());
