@@ -30,7 +30,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, sections 6.3.2 and 6.4.
+ *     <li>OpenID Connect Federation 1.0, sections 7.3.2 and 7.5.
  * </ul>
  */
 @Immutable

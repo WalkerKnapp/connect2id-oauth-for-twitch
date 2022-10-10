@@ -25,6 +25,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -136,7 +137,8 @@ public class EntityStatementTest extends TestCase {
 	
 	public void testTypeConstant() {
 		
-		assertEquals(new JOSEObjectType("entity-statement+jwt"), EntityStatement.TYPE);
+		assertEquals(new JOSEObjectType("entity-statement+jwt"), EntityStatement.JOSE_OBJECT_TYPE);
+		assertEquals(new ContentType("application", "entity-statement+jwt"), EntityStatement.CONTENT_TYPE);
 	}
 	
 
@@ -152,7 +154,7 @@ public class EntityStatementTest extends TestCase {
 		
 		JWSHeader jwsHeader = entityStatement.getSignedStatement().getHeader();
 		assertEquals(JWSAlgorithm.RS256, jwsHeader.getAlgorithm());
-		assertEquals(EntityStatement.TYPE, jwsHeader.getType());
+		assertEquals(EntityStatement.JOSE_OBJECT_TYPE, jwsHeader.getType());
 		assertEquals(RSA_JWK.getKeyID(), jwsHeader.getKeyID());
 		assertEquals(3,  jwsHeader.toJSONObject().size());
 		
@@ -181,7 +183,7 @@ public class EntityStatementTest extends TestCase {
 		
 		JWSHeader jwsHeader = entityStatement.getSignedStatement().getHeader();
 		assertEquals(JWSAlgorithm.RS512, jwsHeader.getAlgorithm());
-		assertEquals(EntityStatement.TYPE, jwsHeader.getType());
+		assertEquals(EntityStatement.JOSE_OBJECT_TYPE, jwsHeader.getType());
 		assertEquals(RSA_JWK.getKeyID(), jwsHeader.getKeyID());
 		assertEquals(3,  jwsHeader.toJSONObject().size());
 		
@@ -296,7 +298,7 @@ public class EntityStatementTest extends TestCase {
 			.generate();
 		
 		SignedJWT signedJWT = new SignedJWT(
-			new JWSHeader.Builder(JWSAlgorithm.RS256).type(EntityStatement.TYPE).keyID(rsaJWK.getKeyID()).build(),
+			new JWSHeader.Builder(JWSAlgorithm.RS256).type(EntityStatement.JOSE_OBJECT_TYPE).keyID(rsaJWK.getKeyID()).build(),
 			claimsSet.toJWTClaimsSet()
 		);
 		signedJWT.sign(new RSASSASigner(rsaJWK));
@@ -319,7 +321,7 @@ public class EntityStatementTest extends TestCase {
 			.generate();
 		
 		SignedJWT signedJWT = new SignedJWT(
-			new JWSHeader.Builder(JWSAlgorithm.RS256).type(EntityStatement.TYPE).keyID(rsaJWK.getKeyID()).build(),
+			new JWSHeader.Builder(JWSAlgorithm.RS256).type(EntityStatement.JOSE_OBJECT_TYPE).keyID(rsaJWK.getKeyID()).build(),
 			claimsSet.toJWTClaimsSet()
 		);
 		signedJWT.sign(new RSASSASigner(rsaJWK)); // sign with non-registered key

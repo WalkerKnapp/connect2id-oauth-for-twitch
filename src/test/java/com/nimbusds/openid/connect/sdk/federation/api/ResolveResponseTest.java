@@ -26,17 +26,17 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 
-public class TrustNegotiationResponseTest extends TestCase {
+public class ResolveResponseTest extends TestCase {
 	
 	
 	public void testParseSuccess() throws ParseException {
 		
-		OIDCProviderMetadata opMetadata = TrustNegotiationSuccessResponseTest.createSampleOPMetadata();
+		OIDCProviderMetadata opMetadata = ResolveSuccessResponseTest.createSampleOPMetadata();
 		JSONObject jsonObject = opMetadata.toJSONObject();
-		TrustNegotiationSuccessResponse response = new TrustNegotiationSuccessResponse(jsonObject);
+		ResolveSuccessResponse response = new ResolveSuccessResponse(jsonObject);
 		HTTPResponse httpResponse = response.toHTTPResponse();
 		
-		response = TrustNegotiationResponse.parse(httpResponse).toSuccessResponse();
+		response = ResolveResponse.parse(httpResponse).toSuccessResponse();
 		assertEquals(jsonObject, response.getMetadataJSONObject());
 		assertTrue(response.indicatesSuccess());
 	}
@@ -44,15 +44,15 @@ public class TrustNegotiationResponseTest extends TestCase {
 
 	public void testParseError() throws ParseException {
 		
-		FederationAPIError error = new FederationAPIError(OperationType.FETCH,
+		FederationAPIError error = new FederationAPIError(
 			"invalid_request",
 			"Missing required iss (issuer) request parameter")
 			.withStatusCode(400);
 		
-		TrustNegotiationErrorResponse response = new TrustNegotiationErrorResponse(error);
+		ResolveErrorResponse response = new ResolveErrorResponse(error);
 		HTTPResponse httpResponse = response.toHTTPResponse();
 		
-		response = TrustNegotiationErrorResponse.parse(httpResponse).toErrorResponse();
+		response = ResolveErrorResponse.parse(httpResponse).toErrorResponse();
 		assertEquals(error.toJSONObject(), response.getErrorObject().toJSONObject());
 		assertFalse(response.indicatesSuccess());
 	}

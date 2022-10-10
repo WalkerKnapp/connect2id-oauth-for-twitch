@@ -42,7 +42,6 @@ import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.federation.api.FederationAPIError;
-import com.nimbusds.openid.connect.sdk.federation.api.OperationType;
 import com.nimbusds.openid.connect.sdk.federation.config.FederationEntityConfigurationRequest;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
@@ -423,7 +422,7 @@ public class DefaultEntityStatementRetrieverTest {
 			.respond()
 			.withStatus(400)
 			.withContentType("application/json")
-			.withBody(new FederationAPIError(OperationType.FETCH, "invalid_subject", "Invalid subject").toJSONObject().toJSONString());
+			.withBody(new FederationAPIError("invalid_subject", "Invalid subject").toJSONObject().toJSONString());
 		
 		DefaultEntityStatementRetriever retriever = new DefaultEntityStatementRetriever();
 		

@@ -37,7 +37,7 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 6.3.2.
+ *     <li>OpenID Connect Federation 1.0, section 7.3.2.
  * </ul>
  */
 @Immutable

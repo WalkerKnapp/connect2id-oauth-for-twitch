@@ -24,52 +24,53 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
 
 /**
- * Trust negotiation response.
+ * Resolve entity statement response.
  *
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, sections 6.2.2 and 6.4.
+ *     <li>OpenID Connect Federation 1.0, sections 7.5.
  * </ul>
  */
-public abstract class TrustNegotiationResponse implements Response {
+public abstract class ResolveResponse implements Response {
 	
 	
 	/**
-	 * Casts this response to a trust negotiation success response.
+	 * Casts this response to a resolve entity statement success response.
 	 *
-	 * @return The trust negotiation success response.
+	 * @return The resolve entity statement success response.
 	 */
-	public TrustNegotiationSuccessResponse toSuccessResponse() {
-		return (TrustNegotiationSuccessResponse)this;
+	public ResolveSuccessResponse toSuccessResponse() {
+		return (ResolveSuccessResponse)this;
 	}
 	
 	
 	/**
-	 * Casts this response to a trust negotiation error response.
+	 * Casts this response to a resolve entity statement error response.
 	 *
-	 * @return The trust negotiation error response.
+	 * @return The resolve entity statement error response.
 	 */
-	public TrustNegotiationErrorResponse toErrorResponse() {
-		return (TrustNegotiationErrorResponse)this;
+	public ResolveErrorResponse toErrorResponse() {
+		return (ResolveErrorResponse)this;
 	}
 	
 	
 	/**
-	 * Parses a trust negotiation response from the specified HTTP response.
+	 * Parses a resolve entity statement response from the specified HTTP
+	 * response.
 	 *
 	 * @param httpResponse The HTTP response. Must not be {@code null}.
 	 *
-	 * @return The trust negotiation response.
+	 * @return The resolve entity statement response.
 	 *
 	 * @throws ParseException If parsing failed.
 	 */
-	public static TrustNegotiationResponse parse(final HTTPResponse httpResponse)
+	public static ResolveResponse parse(final HTTPResponse httpResponse)
 		throws ParseException {
 		if (httpResponse.indicatesSuccess()) {
-			return TrustNegotiationSuccessResponse.parse(httpResponse);
+			return ResolveSuccessResponse.parse(httpResponse);
 		} else {
-			return TrustNegotiationErrorResponse.parse(httpResponse);
+			return ResolveErrorResponse.parse(httpResponse);
 		}
 	}
 }

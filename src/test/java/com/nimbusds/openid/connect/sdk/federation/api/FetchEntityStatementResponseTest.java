@@ -20,7 +20,6 @@ package com.nimbusds.openid.connect.sdk.federation.api;
 
 import junit.framework.TestCase;
 
-import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
 
@@ -41,7 +40,7 @@ public class FetchEntityStatementResponseTest extends TestCase {
 	
 	public void testParseError() throws Exception {
 		
-		FederationAPIError error = new FederationAPIError(OperationType.FETCH,
+		FederationAPIError error = new FederationAPIError(
 			"invalid_request",
 			"Missing required iss (issuer) request parameter")
 			.withStatusCode(400);

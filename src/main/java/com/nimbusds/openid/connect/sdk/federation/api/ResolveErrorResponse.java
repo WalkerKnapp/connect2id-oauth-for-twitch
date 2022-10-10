@@ -34,7 +34,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
  * </ul>
  */
 @Immutable
-public class TrustNegotiationErrorResponse extends TrustNegotiationResponse {
+public class ResolveErrorResponse extends ResolveResponse {
 	
 	
 	/**
@@ -44,11 +44,11 @@ public class TrustNegotiationErrorResponse extends TrustNegotiationResponse {
 	
 	
 	/**
-	 * Creates a new trust negotiation error response.
+	 * Creates a new resolve entity statement error response.
 	 *
 	 * @param error The federation API error. Must not be {@code null}.
 	 */
-	public TrustNegotiationErrorResponse(final FederationAPIError error) {
+	public ResolveErrorResponse(final FederationAPIError error) {
 		if (error == null) {
 			throw new IllegalArgumentException("The error object must not be null");
 		}
@@ -79,18 +79,18 @@ public class TrustNegotiationErrorResponse extends TrustNegotiationResponse {
 	
 	
 	/**
-	 * Parses a trust negotiation error response from the specified HTTP
-	 * response.
+	 * Parses a resolve entity statement error response from the specified
+	 * HTTP response.
 	 *
 	 * @param httpResponse The HTTP response. Must not be {@code null}.
 	 *
-	 * @return The trust negotiation error response.
+	 * @return The resolve entity statement error response.
 	 *
 	 * @throws ParseException If parsing failed.
 	 */
-	public static TrustNegotiationErrorResponse parse(final HTTPResponse httpResponse)
+	public static ResolveErrorResponse parse(final HTTPResponse httpResponse)
 		throws ParseException {
 		httpResponse.ensureStatusCodeNotOK();
-		return new TrustNegotiationErrorResponse(FederationAPIError.parse(httpResponse));
+		return new ResolveErrorResponse(FederationAPIError.parse(httpResponse));
 	}
 }

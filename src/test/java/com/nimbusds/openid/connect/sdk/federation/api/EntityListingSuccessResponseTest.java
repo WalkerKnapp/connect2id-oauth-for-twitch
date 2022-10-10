@@ -61,6 +61,23 @@ public class EntityListingSuccessResponseTest extends TestCase {
 	}
 	
 	
+	public void testLifecycle_emptyList() throws ParseException {
+		
+		EntityListingSuccessResponse response = new EntityListingSuccessResponse(Collections.<EntityID>emptyList());
+		assertTrue(response.getEntityListing().isEmpty());
+		assertTrue(response.indicatesSuccess());
+		
+		HTTPResponse httpResponse = response.toHTTPResponse();
+		assertEquals(200, httpResponse.getStatusCode());
+		assertEquals("application/json; charset=UTF-8", httpResponse.getEntityContentType().toString());
+		assertTrue(httpResponse.getContentAsJSONArray().isEmpty());
+		
+		response = EntityListingSuccessResponse.parse(httpResponse);
+		assertTrue(response.getEntityListing().isEmpty());
+		assertTrue(response.indicatesSuccess());
+	}
+	
+	
 	public void testRejectNotOK() {
 		
 		try {

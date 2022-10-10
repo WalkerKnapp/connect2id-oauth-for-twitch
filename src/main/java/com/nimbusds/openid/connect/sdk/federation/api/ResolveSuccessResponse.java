@@ -28,16 +28,16 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 
 
 /**
- * Trust negotiation success response.
+ * Resolve entity statement success response.
  *
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 6.2.2.
+ *     <li>OpenID Connect Federation 1.0, section 7.2.2.
  * </ul>
  */
 @Immutable
-public class TrustNegotiationSuccessResponse extends TrustNegotiationResponse {
+public class ResolveSuccessResponse extends ResolveResponse {
 	
 	
 	/**
@@ -52,7 +52,7 @@ public class TrustNegotiationSuccessResponse extends TrustNegotiationResponse {
 	 * @param metadata The metadata JSON object for the requested {@link
 	 *                 EntityType entity type}. Must not be {@code null}.
 	 */
-	public TrustNegotiationSuccessResponse(final JSONObject metadata) {
+	public ResolveSuccessResponse(final JSONObject metadata) {
 		if (metadata == null) {
 			throw new IllegalArgumentException("The metadata JSON object must not be null");
 		}
@@ -97,11 +97,11 @@ public class TrustNegotiationSuccessResponse extends TrustNegotiationResponse {
 	 *
 	 * @throws ParseException If parsing failed.
 	 */
-	public static TrustNegotiationSuccessResponse parse(final HTTPResponse httpResponse)
+	public static ResolveSuccessResponse parse(final HTTPResponse httpResponse)
 		throws ParseException {
 		
 		httpResponse.ensureStatusCode(HTTPResponse.SC_OK);
 		JSONObject jsonObject = httpResponse.getContentAsJSONObject();
-		return new TrustNegotiationSuccessResponse(jsonObject);
+		return new ResolveSuccessResponse(jsonObject);
 	}
 }

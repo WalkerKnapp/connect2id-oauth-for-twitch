@@ -29,7 +29,7 @@ public class FetchEntityStatementErrorResponseTest extends TestCase {
 	
 	public void testLifecycle() throws Exception {
 		
-		FederationAPIError error = new FederationAPIError(OperationType.FETCH,
+		FederationAPIError error = new FederationAPIError(
 			"invalid_request",
 			"Missing required iss (issuer) request parameter")
 			.withStatusCode(400);
@@ -65,7 +65,6 @@ public class FetchEntityStatementErrorResponseTest extends TestCase {
 		FetchEntityStatementErrorResponse response = FetchEntityStatementErrorResponse.parse(new HTTPResponse(400));
 		FederationAPIError error = response.getErrorObject();
 		assertEquals(400, error.getHTTPStatusCode());
-		assertNull(error.getOperationType());
 		assertNull(error.getDescription());
 		assertNull(error.getCode());
 	}

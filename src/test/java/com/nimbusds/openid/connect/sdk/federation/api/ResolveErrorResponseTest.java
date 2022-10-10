@@ -24,17 +24,17 @@ import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
 
-public class TrustNegotiationErrorResponseTest extends TestCase {
+public class ResolveErrorResponseTest extends TestCase {
 	
 	
 	public void testLifecycle() throws Exception {
 		
-		FederationAPIError error = new FederationAPIError(OperationType.FETCH,
+		FederationAPIError error = new FederationAPIError(
 			"invalid_request",
 			"Missing required iss (issuer) request parameter")
 			.withStatusCode(400);
 		
-		TrustNegotiationErrorResponse response = new TrustNegotiationErrorResponse(error);
+		ResolveErrorResponse response = new ResolveErrorResponse(error);
 		assertEquals(error, response.getErrorObject());
 		assertFalse(response.indicatesSuccess());
 		
@@ -43,7 +43,7 @@ public class TrustNegotiationErrorResponseTest extends TestCase {
 		assertEquals("application/json; charset=UTF-8", httpResponse.getEntityContentType().toString());
 		assertEquals(error.toJSONObject(), httpResponse.getContentAsJSONObject());
 		
-		response = TrustNegotiationErrorResponse.parse(httpResponse);
+		response = ResolveErrorResponse.parse(httpResponse);
 		assertEquals(error, response.getErrorObject());
 		assertFalse(response.indicatesSuccess());
 	}
@@ -52,7 +52,7 @@ public class TrustNegotiationErrorResponseTest extends TestCase {
 	public void testRejectHTTPSuccess() {
 		
 		try {
-			TrustNegotiationErrorResponse.parse(new HTTPResponse(200));
+			ResolveErrorResponse.parse(new HTTPResponse(200));
 			fail();
 		} catch (ParseException e) {
 			assertEquals("Unexpected HTTP status code, must not be 200 (OK)", e.getMessage());
@@ -62,10 +62,9 @@ public class TrustNegotiationErrorResponseTest extends TestCase {
 	
 	public void testNoErrorObject() throws ParseException {
 		
-		TrustNegotiationErrorResponse response = TrustNegotiationErrorResponse.parse(new HTTPResponse(400));
+		ResolveErrorResponse response = ResolveErrorResponse.parse(new HTTPResponse(400));
 		FederationAPIError error = response.getErrorObject();
 		assertEquals(400, error.getHTTPStatusCode());
-		assertNull(error.getOperationType());
 		assertNull(error.getDescription());
 		assertNull(error.getCode());
 	}

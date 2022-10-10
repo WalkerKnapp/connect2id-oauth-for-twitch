@@ -24,14 +24,13 @@ import net.minidev.json.JSONObject;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 
 
 /**
  * Federation API error.
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 6.4.
+ *     <li>OpenID Connect Federation 1.0, section 7.5.
  * </ul>
  */
 @Immutable
@@ -42,51 +41,29 @@ public class FederationAPIError extends ErrorObject {
 	
 	
 	/**
-	 * The operation type.
-	 */
-	private final OperationType operationType;
-	
-	
-	/**
 	 * Creates a new federation API error.
 	 *
-	 * @param operationType The operation type, {@code null} if not
-	 *                      specified.
-	 * @param code          The error code, {@code null} if not specified.
-	 * @param description   The error description, {@code null} if not
-	 *                      specified.
+	 * @param code        The error code, {@code null} if not specified.
+	 * @param description The error description, {@code null} if not
+	 *                    specified.
 	 */
-	public FederationAPIError(final OperationType operationType, final String code, final String description) {
-		this(operationType, code, description, 0);
+	public FederationAPIError(final String code, final String description) {
+		this(code, description, 0);
 	}
 	
 	
 	/**
 	 * Creates a new federation API error.
 	 *
-	 * @param operationType  The operation type, {@code null} if not
-	 *                       specified.
 	 * @param code           The error code, {@code null} if not specified.
 	 * @param description    The error description, {@code null} if not
 	 *                       specified.
 	 * @param httpStatusCode The HTTP status code, zero if not specified.
 	 */
-	public FederationAPIError(final OperationType operationType,
-				  final String code,
+	public FederationAPIError(final String code,
 				  final String description,
 				  final int httpStatusCode) {
 		super(code, description, httpStatusCode);
-		this.operationType = operationType;
-	}
-	
-	
-	/**
-	 * Returns the operation type.
-	 *
-	 * @return The operation type, {@code null} if not specified.
-	 */
-	public OperationType getOperationType() {
-		return operationType;
 	}
 	
 	
@@ -99,17 +76,7 @@ public class FederationAPIError extends ErrorObject {
 	 * @return The new federation API error.
 	 */
 	public FederationAPIError withStatusCode(final int httpStatusCode) {
-		return new FederationAPIError(getOperationType(), getCode(), getDescription(), httpStatusCode);
-	}
-	
-	
-	@Override
-	public JSONObject toJSONObject() {
-		JSONObject jsonObject = super.toJSONObject();
-		if (getOperationType() != null) {
-			jsonObject.put("operation", getOperationType().getValue());
-		}
-		return jsonObject;
+		return new FederationAPIError(getCode(), getDescription(), httpStatusCode);
 	}
 	
 	
@@ -123,13 +90,7 @@ public class FederationAPIError extends ErrorObject {
 	 */
 	public static FederationAPIError parse(final JSONObject jsonObject) {
 		ErrorObject errorObject = ErrorObject.parse(jsonObject);
-		OperationType operationType = null;
-		try {
-			operationType = new OperationType(JSONObjectUtils.getString(jsonObject, "operation"));
-		} catch (ParseException e) {
-			// ignore
-		}
-		return new FederationAPIError(operationType, errorObject.getCode(), errorObject.getDescription());
+		return new FederationAPIError(errorObject.getCode(), errorObject.getDescription());
 	}
 	
 	

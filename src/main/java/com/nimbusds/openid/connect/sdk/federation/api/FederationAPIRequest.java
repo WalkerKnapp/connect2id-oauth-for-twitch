@@ -33,42 +33,20 @@ import com.nimbusds.oauth2.sdk.util.URLUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 6.
+ *     <li>OpenID Connect Federation 1.0, section 7.
  * </ul>
  */
 public abstract class FederationAPIRequest extends AbstractRequest {
 	
 	
 	/**
-	 * The requested operation.
-	 */
-	private final OperationType operationType;
-	
-	
-	/**
 	 * Creates a new federation API request.
 	 *
-	 * @param endpoint      The federation API endpoint. Must not be
-	 *                      {@code null}.
-	 * @param operationType The requested operation type. Must not be
-	 *                      {@code null}.
+	 * @param endpoint The federation API endpoint. Must not be
+	 *                 {@code null}.
 	 */
-	public FederationAPIRequest(final URI endpoint, final OperationType operationType) {
+	public FederationAPIRequest(final URI endpoint) {
 		super(endpoint);
-		if (operationType == null) {
-			throw new IllegalArgumentException("The operation type must not be null");
-		}
-		this.operationType = operationType;
-	}
-	
-	
-	/**
-	 * Returns the requested operation type.
-	 *
-	 * @return The operation type.
-	 */
-	public OperationType getOperationType() {
-		return operationType;
 	}
 	
 	
@@ -82,7 +60,6 @@ public abstract class FederationAPIRequest extends AbstractRequest {
 	
 	@Override
 	public HTTPRequest toHTTPRequest() {
-		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, getEndpointURI());
 		httpRequest.setQuery(URLUtils.serializeParameters(toParameters()));
 		return httpRequest;

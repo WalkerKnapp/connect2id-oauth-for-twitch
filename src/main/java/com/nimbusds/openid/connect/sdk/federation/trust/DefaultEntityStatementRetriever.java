@@ -186,7 +186,7 @@ public class DefaultEntityStatementRetriever implements EntityStatementRetriever
 	public EntityStatement fetchEntityStatement(final URI federationAPIEndpoint, final EntityID issuer, final EntityID subject)
 		throws ResolveException {
 		
-		FetchEntityStatementRequest request = new FetchEntityStatementRequest(federationAPIEndpoint, issuer, subject, null);
+		FetchEntityStatementRequest request = new FetchEntityStatementRequest(federationAPIEndpoint, issuer, subject);
 		HTTPRequest httpRequest = request.toHTTPRequest();
 		applyTimeouts(httpRequest);
 		

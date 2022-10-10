@@ -23,6 +23,7 @@ import java.util.List;
 
 import net.jcip.annotations.Immutable;
 
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.factories.DefaultJWSSignerFactory;
 import com.nimbusds.jose.crypto.factories.DefaultJWSVerifierFactory;
@@ -53,7 +54,14 @@ public final class EntityStatement {
 	 * The federation entity statement JOSE object type
 	 * ({@code entity-statement+jwt}).
 	 */
-	public static final JOSEObjectType TYPE = new JOSEObjectType("entity-statement+jwt");
+	public static final JOSEObjectType JOSE_OBJECT_TYPE = new JOSEObjectType("entity-statement+jwt");
+	
+	
+	/**
+	 * The federation entity statement content type
+	 * ({@code application/entity-statement+jwt}).
+	 */
+	public static final ContentType CONTENT_TYPE = new ContentType("application", JOSE_OBJECT_TYPE.getType());
 	
 	
 	/**
@@ -176,7 +184,7 @@ public final class EntityStatement {
 	public Base64URL verifySignature(final JWKSet jwkSet)
 		throws BadJOSEException, JOSEException {
 		
-		if (! TYPE.equals(statementJWT.getHeader().getType())) {
+		if (! JOSE_OBJECT_TYPE.equals(statementJWT.getHeader().getType())) {
 			throw new BadJOSEException("Entity statement rejected: Invalid or missing JWT typ (type) header");
 		}
 		
@@ -262,7 +270,7 @@ public final class EntityStatement {
 		JWSSigner jwsSigner = new DefaultJWSSignerFactory().createJWSSigner(signingJWK, jwsAlg);
 		
 		JWSHeader jwsHeader = new JWSHeader.Builder(jwsAlg)
-			.type(TYPE)
+			.type(JOSE_OBJECT_TYPE)
 			.keyID(signingJWK.getKeyID())
 			.build();
 		

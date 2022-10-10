@@ -42,7 +42,7 @@ public class EntityListingResponseTest extends TestCase {
 	
 	public void testParseError() throws ParseException {
 		
-		FederationAPIError error = new FederationAPIError(OperationType.FETCH,
+		FederationAPIError error = new FederationAPIError(
 			"invalid_request",
 			"Missing required iss (issuer) request parameter")
 			.withStatusCode(400);

@@ -20,7 +20,6 @@ package com.nimbusds.openid.connect.sdk.federation.api;
 
 import net.jcip.annotations.Immutable;
 
-import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
@@ -32,7 +31,7 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 6.1.2.
+ *     <li>OpenID Connect Federation 1.0, section 7.1.2.
  * </ul>
  */
 @Immutable
@@ -80,7 +79,7 @@ public class FetchEntityStatementSuccessResponse extends FetchEntityStatementRes
 	@Override
 	public HTTPResponse toHTTPResponse() {
 		HTTPResponse httpResponse = new HTTPResponse(HTTPResponse.SC_OK);
-		httpResponse.setEntityContentType(ContentType.APPLICATION_JOSE);
+		httpResponse.setEntityContentType(EntityStatement.CONTENT_TYPE);
 		httpResponse.setContent(getEntityStatement().getSignedStatement().serialize());
 		return httpResponse;
 	}
@@ -100,7 +99,7 @@ public class FetchEntityStatementSuccessResponse extends FetchEntityStatementRes
 		throws ParseException {
 		
 		httpResponse.ensureStatusCode(HTTPResponse.SC_OK);
-		httpResponse.ensureEntityContentType(ContentType.APPLICATION_JOSE);
+		httpResponse.ensureEntityContentType(EntityStatement.CONTENT_TYPE);
 		return new FetchEntityStatementSuccessResponse(EntityStatement.parse(httpResponse.getContent()));
 	}
 }

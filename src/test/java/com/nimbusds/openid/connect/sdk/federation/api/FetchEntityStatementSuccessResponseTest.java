@@ -114,7 +114,7 @@ public class FetchEntityStatementSuccessResponseTest extends TestCase {
 		
 		HTTPResponse httpResponse = response.toHTTPResponse();
 		assertEquals(200, httpResponse.getStatusCode());
-		assertEquals("application/jose; charset=UTF-8", httpResponse.getEntityContentType().toString());
+		assertEquals(EntityStatement.CONTENT_TYPE.toString(), httpResponse.getEntityContentType().toString());
 		assertEquals(signedStmt.getSignedStatement().serialize(), httpResponse.getContent());
 		
 		response = FetchEntityStatementSuccessResponse.parse(httpResponse);
@@ -146,7 +146,7 @@ public class FetchEntityStatementSuccessResponseTest extends TestCase {
 			FetchEntityStatementSuccessResponse.parse(httpResponse);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("The HTTP Content-Type header must be application/jose, received application/x-www-form-urlencoded", e.getMessage());
+			assertEquals("The HTTP Content-Type header must be application/entity-statement+jwt, received application/x-www-form-urlencoded", e.getMessage());
 		}
 	}
 	
@@ -154,7 +154,7 @@ public class FetchEntityStatementSuccessResponseTest extends TestCase {
 	public void testParseHTTPResponse_contentNotSignedJWT() {
 		
 		HTTPResponse httpResponse = new HTTPResponse(200);
-		httpResponse.setEntityContentType(ContentType.APPLICATION_JOSE);
+		httpResponse.setEntityContentType(EntityStatement.CONTENT_TYPE);
 		httpResponse.setContent("invalid-signed-jwt");
 		
 		try {

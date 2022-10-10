@@ -31,7 +31,7 @@ import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 
-public class TrustNegotiationSuccessResponseTest extends TestCase {
+public class ResolveSuccessResponseTest extends TestCase {
 	
 	
 	static OIDCProviderMetadata createSampleOPMetadata() {
@@ -54,7 +54,7 @@ public class TrustNegotiationSuccessResponseTest extends TestCase {
 		
 		JSONObject jsonObject = opMetadata.toJSONObject();
 		
-		TrustNegotiationSuccessResponse response = new TrustNegotiationSuccessResponse(jsonObject);
+		ResolveSuccessResponse response = new ResolveSuccessResponse(jsonObject);
 		assertEquals(jsonObject, response.getMetadataJSONObject());
 		assertTrue(response.indicatesSuccess());
 		
@@ -63,7 +63,7 @@ public class TrustNegotiationSuccessResponseTest extends TestCase {
 		assertEquals("application/json; charset=UTF-8", httpResponse.getEntityContentType().toString());
 		assertEquals(jsonObject, httpResponse.getContentAsJSONObject());
 		
-		response = TrustNegotiationSuccessResponse.parse(httpResponse);
+		response = ResolveSuccessResponse.parse(httpResponse);
 		assertEquals(jsonObject, response.getMetadataJSONObject());
 		assertTrue(response.indicatesSuccess());
 	}
@@ -72,7 +72,7 @@ public class TrustNegotiationSuccessResponseTest extends TestCase {
 	public void testRejectNotOK() {
 		
 		try {
-			TrustNegotiationSuccessResponse.parse(new HTTPResponse(400));
+			ResolveSuccessResponse.parse(new HTTPResponse(400));
 			fail();
 		} catch (ParseException e) {
 			assertEquals("Unexpected HTTP status code 400, must be [200]", e.getMessage());

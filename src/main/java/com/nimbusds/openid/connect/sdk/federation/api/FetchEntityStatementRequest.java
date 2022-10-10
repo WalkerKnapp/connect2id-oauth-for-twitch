@@ -28,7 +28,6 @@ import net.jcip.annotations.Immutable;
 
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
-import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
@@ -41,7 +40,7 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 6.1.1.
+ *     <li>OpenID Connect Federation 1.0, section 7.1.1.
  * </ul>
  */
 @Immutable
@@ -49,7 +48,7 @@ public class FetchEntityStatementRequest extends FederationAPIRequest {
 	
 	
 	/**
-	 * The issuer.
+	 * The optional issuer.
 	 */
 	private final Issuer issuer;
 	
@@ -61,58 +60,45 @@ public class FetchEntityStatementRequest extends FederationAPIRequest {
 	
 	
 	/**
-	 * The optional audience.
-	 */
-	private final Audience audience;
-	
-	
-	/**
-	 * Creates a new entity fetch request.
+	 * Creates a new fetch entity request.
 	 *
-	 * @param endpoint The federation API endpoint. Must not be
+	 * @param endpoint The federation fetch endpoint. Must not be
 	 *                 {@code null}.
-	 * @param issuer   The issuer entity identifier. Must not be
-	 *                 {@code null}.
+	 * @param issuer   The issuer entity identifier, {@code null} if not
+	 *                 specified.
 	 * @param subject  The subject entity identifier, {@code null} if not
 	 *                 specified.
-	 * @param audience The audience (requester) entity identifier,
-	 *                 {@code null} if not specified.
 	 */
-	public FetchEntityStatementRequest(final URI endpoint, final Issuer issuer, final Subject subject, final Audience audience) {
-		super(endpoint, OperationType.FETCH);
-		if (issuer == null) {
-			throw new IllegalArgumentException("The issuer must not be null");
-		}
+	public FetchEntityStatementRequest(final URI endpoint, final Issuer issuer, final Subject subject) {
+		super(endpoint);
 		this.issuer = issuer;
 		this.subject = subject;
-		this.audience = audience;
 	}
 	
 	
 	/**
 	 * Creates a new entity fetch request.
 	 *
-	 * @param endpoint The federation API endpoint. Must not be
+	 * @param endpoint The federation fetch endpoint. Must not be
 	 *                 {@code null}.
-	 * @param issuer   The issuer entity identifier. Must not be
-	 *                 {@code null}.
+	 * @param issuer   The issuer entity identifier, {@code null} if not
+	 *                 specified.
 	 * @param subject  The subject entity identifier, {@code null} if not
 	 *                 specified.
-	 * @param audience The audience (requester) entity identifier,
-	 *                 {@code null} if not specified.
 	 */
-	public FetchEntityStatementRequest(final URI endpoint, final EntityID issuer, final EntityID subject, final EntityID audience) {
-		this(endpoint,
-			new Issuer(issuer.getValue()),
-			subject != null ? new Subject(subject.getValue()) : null,
-			audience != null ? new Audience(audience.getValue()) : null);
+	public FetchEntityStatementRequest(final URI endpoint, final EntityID issuer, final EntityID subject) {
+		this(
+			endpoint,
+			issuer != null ? new Issuer(issuer.getValue()) : null,
+			subject != null ? new Subject(subject.getValue()) : null
+		);
 	}
 	
 	
 	/**
 	 * Returns the issuer.
 	 *
-	 * @return The issuer.
+	 * @return The issuer, {@code null} if not specified.
 	 */
 	public Issuer getIssuer() {
 		return issuer;
@@ -122,10 +108,10 @@ public class FetchEntityStatementRequest extends FederationAPIRequest {
 	/**
 	 * Returns the issuer entity ID.
 	 *
-	 * @return The issuer entity ID.
+	 * @return The issuer entity ID, {@code null} if not specified.
 	 */
 	public EntityID getIssuerEntityID() {
-		return new EntityID(getIssuer().getValue());
+		return getIssuer() != null ? new EntityID(getIssuer().getValue()) : null;
 	}
 	
 	
@@ -149,36 +135,15 @@ public class FetchEntityStatementRequest extends FederationAPIRequest {
 	}
 	
 	
-	/**
-	 * Returns the optional audience (requester).
-	 *
-	 * @return The audience, {@code null} if not specified.
-	 */
-	public Audience getAudience() {
-		return audience;
-	}
-	
-	
-	/**
-	 * Returns the optional audience (requester) entity ID .
-	 *
-	 * @return The audience entity ID, {@code null} if not specified.
-	 */
-	public EntityID getAudienceEntityID() {
-		return getAudience() != null ? new EntityID(getAudience().getValue()) : null;
-	}
-	
-	
 	@Override
 	public Map<String, List<String>> toParameters() {
 		
 		Map<String, List<String>> params = new HashMap<>();
-		params.put("iss", Collections.singletonList(getIssuer().getValue()));
+		if (getIssuer() != null) {
+			params.put("iss", Collections.singletonList(getIssuer().getValue()));
+		}
 		if (getSubject() != null) {
 			params.put("sub", Collections.singletonList(getSubject().getValue()));
-		}
-		if (getAudience() != null) {
-			params.put("aud", Collections.singletonList(getAudience().getValue()));
 		}
 		return params;
 	}
@@ -197,17 +162,11 @@ public class FetchEntityStatementRequest extends FederationAPIRequest {
 	public static FetchEntityStatementRequest parse(final Map<String, List<String>> params)
 		throws ParseException {
 		
-		String value = MultivaluedMapUtils.getFirstValue(params, "operation");
-		
-		if (value != null && ! value.equalsIgnoreCase(OperationType.FETCH.getValue())) {
-			throw new ParseException("The operation type must be fetch or unspecified");
+		String value = MultivaluedMapUtils.getFirstValue(params, "iss");
+		Issuer issuer = null;
+		if (value != null) {
+			issuer = new Issuer(value);
 		}
-		
-		value = MultivaluedMapUtils.getFirstValue(params, "iss");
-		if (value == null) {
-			throw new ParseException("Missing iss (issuer) parameter");
-		}
-		Issuer issuer = new Issuer(value);
 		
 		value = MultivaluedMapUtils.getFirstValue(params, "sub");
 		Subject subject = null;
@@ -215,13 +174,7 @@ public class FetchEntityStatementRequest extends FederationAPIRequest {
 			subject = new Subject(value);
 		}
 		
-		value = MultivaluedMapUtils.getFirstValue(params, "aud");
-		Audience audience = null;
-		if (value != null) {
-			audience = new Audience(value);
-		}
-		
-		return new FetchEntityStatementRequest(null, issuer, subject, audience);
+		return new FetchEntityStatementRequest(null, issuer, subject);
 	}
 	
 	
@@ -243,7 +196,6 @@ public class FetchEntityStatementRequest extends FederationAPIRequest {
 		return new FetchEntityStatementRequest(
 			httpRequest.getURI(),
 			request.getIssuer(),
-			request.getSubject(),
-			request.getAudience());
+			request.getSubject());
 	}
 }

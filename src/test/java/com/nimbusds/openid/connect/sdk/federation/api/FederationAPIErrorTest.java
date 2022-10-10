@@ -32,21 +32,18 @@ public class FederationAPIErrorTest extends TestCase {
 		
 		String code = "invalid_request";
 		String description = "Missing required iss (issuer) parameter";
-		FederationAPIError error = new FederationAPIError(OperationType.FETCH, code, description);
-		assertEquals(OperationType.FETCH, error.getOperationType());
+		FederationAPIError error = new FederationAPIError(code, description);
 		assertEquals(code, error.getCode());
 		assertEquals(description, error.getDescription());
 		assertNull(error.getURI());
 		assertEquals(0, error.getHTTPStatusCode());
 		
 		JSONObject jsonObject = error.toJSONObject();
-		assertEquals(OperationType.FETCH.getValue(), jsonObject.get("operation"));
 		assertEquals(code, jsonObject.get("error"));
 		assertEquals(description, jsonObject.get("error_description"));
-		assertEquals(3, jsonObject.size());
+		assertEquals(2, jsonObject.size());
 		
 		error = FederationAPIError.parse(jsonObject);
-		assertEquals(OperationType.FETCH, error.getOperationType());
 		assertEquals(code, error.getCode());
 		assertEquals(description, error.getDescription());
 		assertNull(error.getURI());
@@ -57,7 +54,6 @@ public class FederationAPIErrorTest extends TestCase {
 		assertEquals(ContentType.APPLICATION_JSON, httpResponse.getEntityContentType());
 		
 		error = FederationAPIError.parse(httpResponse);
-		assertEquals(OperationType.FETCH, error.getOperationType());
 		assertEquals(code, error.getCode());
 		assertEquals(description, error.getDescription());
 		assertNull(error.getURI());
@@ -69,21 +65,18 @@ public class FederationAPIErrorTest extends TestCase {
 		
 		String code = "invalid_request";
 		String description = "Missing required iss (issuer) parameter";
-		FederationAPIError error = new FederationAPIError(OperationType.FETCH, code, description, 400);
-		assertEquals(OperationType.FETCH, error.getOperationType());
+		FederationAPIError error = new FederationAPIError(code, description, 400);
 		assertEquals(code, error.getCode());
 		assertEquals(description, error.getDescription());
 		assertNull(error.getURI());
 		assertEquals(400, error.getHTTPStatusCode());
 		
 		JSONObject jsonObject = error.toJSONObject();
-		assertEquals(OperationType.FETCH.getValue(), jsonObject.get("operation"));
 		assertEquals(code, jsonObject.get("error"));
 		assertEquals(description, jsonObject.get("error_description"));
-		assertEquals(3, jsonObject.size());
+		assertEquals(2, jsonObject.size());
 		
 		error = FederationAPIError.parse(jsonObject);
-		assertEquals(OperationType.FETCH, error.getOperationType());
 		assertEquals(code, error.getCode());
 		assertEquals(description, error.getDescription());
 		assertNull(error.getURI());
@@ -94,7 +87,6 @@ public class FederationAPIErrorTest extends TestCase {
 		assertEquals(ContentType.APPLICATION_JSON, httpResponse.getEntityContentType());
 		
 		error = FederationAPIError.parse(httpResponse);
-		assertEquals(OperationType.FETCH, error.getOperationType());
 		assertEquals(code, error.getCode());
 		assertEquals(description, error.getDescription());
 		assertNull(error.getURI());
@@ -104,8 +96,7 @@ public class FederationAPIErrorTest extends TestCase {
 	
 	public void testWithNullParams() {
 		
-		FederationAPIError error = new FederationAPIError(null, null, null);
-		assertNull(error.getOperationType());
+		FederationAPIError error = new FederationAPIError(null, null);
 		assertNull(error.getCode());
 		assertNull(error.getDescription());
 		assertEquals(0, error.getHTTPStatusCode());
@@ -114,7 +105,6 @@ public class FederationAPIErrorTest extends TestCase {
 		assertTrue(jsonObject.isEmpty());
 		
 		error = FederationAPIError.parse(jsonObject);
-		assertNull(error.getOperationType());
 		assertNull(error.getCode());
 		assertNull(error.getDescription());
 		assertEquals(0, error.getHTTPStatusCode());
@@ -125,7 +115,6 @@ public class FederationAPIErrorTest extends TestCase {
 		assertNull(httpResponse.getContent());
 		
 		error = FederationAPIError.parse(httpResponse);
-		assertNull(error.getOperationType());
 		assertNull(error.getCode());
 		assertNull(error.getDescription());
 		assertEquals(400, error.getHTTPStatusCode());
@@ -134,14 +123,12 @@ public class FederationAPIErrorTest extends TestCase {
 	
 	public void testWithHTTPStatusCode() {
 		
-		FederationAPIError error = new FederationAPIError(OperationType.FETCH, "invalid_request", "Missing iss");
-		assertEquals(OperationType.FETCH, error.getOperationType());
+		FederationAPIError error = new FederationAPIError("invalid_request", "Missing iss");
 		assertEquals("invalid_request", error.getCode());
 		assertEquals("Missing iss", error.getDescription());
 		assertEquals(0, error.getHTTPStatusCode());
 		
 		error = error.withStatusCode(400);
-		assertEquals(OperationType.FETCH, error.getOperationType());
 		assertEquals("invalid_request", error.getCode());
 		assertEquals("Missing iss", error.getDescription());
 		assertEquals(400, error.getHTTPStatusCode());
@@ -151,7 +138,6 @@ public class FederationAPIErrorTest extends TestCase {
 		assertEquals(ContentType.APPLICATION_JSON, httpResponse.getEntityContentType());
 		
 		error = FederationAPIError.parse(httpResponse);
-		assertEquals(OperationType.FETCH, error.getOperationType());
 		assertEquals("invalid_request", error.getCode());
 		assertEquals("Missing iss", error.getDescription());
 		assertNull(error.getURI());
@@ -163,7 +149,6 @@ public class FederationAPIErrorTest extends TestCase {
 		
 		HTTPResponse httpResponse = new HTTPResponse(400);
 		FederationAPIError error = FederationAPIError.parse(httpResponse);
-		assertNull(error.getOperationType());
 		assertNull(error.getCode());
 		assertNull(error.getDescription());
 		assertEquals(400, error.getHTTPStatusCode());
