@@ -112,7 +112,7 @@ public class FederationEntityConfigurationSuccessResponseTest extends TestCase {
 		
 		HTTPResponse httpResponse = response.toHTTPResponse();
 		assertEquals(200, httpResponse.getStatusCode());
-		assertEquals("application/jose; charset=UTF-8", httpResponse.getEntityContentType().toString());
+		assertEquals(EntityStatement.CONTENT_TYPE.toString(), httpResponse.getEntityContentType().toString());
 		assertEquals(signedJWT.serialize(), httpResponse.getContent());
 		
 		response = FederationEntityConfigurationResponse.parse(httpResponse).toSuccessResponse();
@@ -148,7 +148,12 @@ public class FederationEntityConfigurationSuccessResponseTest extends TestCase {
 		
 		RSAKey signingJWK = new RSAKeyGenerator(2048).generate();
 		
-		SignedJWT signedStatement = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), stmt.toJWTClaimsSet());
+		SignedJWT signedStatement = new SignedJWT(
+			new JWSHeader.Builder(JWSAlgorithm.RS256)
+				.type(EntityStatement.JOSE_OBJECT_TYPE)
+				.keyID(signingJWK.getKeyID())
+				.build(),
+			stmt.toJWTClaimsSet());
 		signedStatement.sign(new RSASSASigner(signingJWK));
 		
 		FederationEntityConfigurationSuccessResponse response = new FederationEntityConfigurationSuccessResponse(EntityStatement.parse(signedStatement));
@@ -278,7 +283,7 @@ public class FederationEntityConfigurationSuccessResponseTest extends TestCase {
 	public void testParseEmptyEntityBody() {
 		
 		HTTPResponse httpResponse = new HTTPResponse(200);
-		httpResponse.setEntityContentType(ContentType.APPLICATION_JOSE);
+		httpResponse.setEntityContentType(EntityStatement.CONTENT_TYPE);
 		
 		try {
 			FederationEntityConfigurationSuccessResponse.parse(httpResponse);

@@ -161,7 +161,7 @@ public class DefaultEntityStatementRetrieverTest {
 			.havingPathEqualTo(FederationEntityConfigurationRequest.OPENID_FEDERATION_ENTITY_WELL_KNOWN_PATH)
 			.respond()
 			.withStatus(200)
-			.withContentType("application/jose")
+			.withContentType(EntityStatement.CONTENT_TYPE.toString())
 			.withBody(entityStatement.getSignedStatement().serialize());
 		
 		DefaultEntityStatementRetriever retriever = new DefaultEntityStatementRetriever();
@@ -190,7 +190,7 @@ public class DefaultEntityStatementRetrieverTest {
 			.havingPathEqualTo("/op" + FederationEntityConfigurationRequest.OPENID_FEDERATION_ENTITY_WELL_KNOWN_PATH)
 			.respond()
 			.withStatus(200)
-			.withContentType("application/jose")
+			.withContentType(EntityStatement.CONTENT_TYPE.toString())
 			.withBody(entityStatement.getSignedStatement().serialize());
 		
 		DefaultEntityStatementRetriever retriever = new DefaultEntityStatementRetriever();
@@ -219,7 +219,7 @@ public class DefaultEntityStatementRetrieverTest {
 			.havingPathEqualTo(FederationEntityConfigurationRequest.OPENID_FEDERATION_ENTITY_WELL_KNOWN_PATH + "/op")
 			.respond()
 			.withStatus(200)
-			.withContentType("application/jose")
+			.withContentType(EntityStatement.CONTENT_TYPE.toString())
 			.withBody(entityStatement.getSignedStatement().serialize());
 		
 		DefaultEntityStatementRetriever retriever = new DefaultEntityStatementRetriever();
@@ -374,7 +374,7 @@ public class DefaultEntityStatementRetrieverTest {
 			})
 			.respond()
 			.withStatus(200)
-			.withContentType("application/jose")
+			.withContentType(EntityStatement.CONTENT_TYPE.toString())
 			.withBody(intermediateStatementAboutOP.getSignedStatement().serialize());
 		
 		DefaultEntityStatementRetriever retriever = new DefaultEntityStatementRetriever();

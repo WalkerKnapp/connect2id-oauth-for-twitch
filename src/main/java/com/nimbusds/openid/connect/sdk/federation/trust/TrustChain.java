@@ -50,7 +50,7 @@ import com.nimbusds.openid.connect.sdk.federation.policy.operations.PolicyOperat
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, sections 2.2 and 7.
+ *     <li>OpenID Connect Federation 1.0, sections 3.2 and 7.1.
  * </ul>
  */
 @Immutable
@@ -58,7 +58,7 @@ public final class TrustChain {
 	
 	
 	/**
-	 * The leaf entity self-statement.
+	 * The leaf entity configuration.
 	 */
 	private final EntityStatement leaf;
 	
@@ -79,7 +79,7 @@ public final class TrustChain {
 	 * Creates a new federation entity trust chain. Validates the subject -
 	 * issuer chain, the signatures are not verified.
 	 *
-	 * @param leaf      The leaf entity self-statement. Must not be
+	 * @param leaf      The leaf entity configuration. Must not be
 	 *                  {@code null}.
 	 * @param superiors The superior entity statements, starting with a
 	 *                  statement of the first superior about the leaf,
@@ -91,9 +91,9 @@ public final class TrustChain {
 	 * @throws IllegalArgumentException If the subject - issuer chain is
 	 *                                  broken.
 	 */
-	public TrustChain(final EntityStatement leaf, List<EntityStatement> superiors) {
+	public TrustChain(final EntityStatement leaf, final List<EntityStatement> superiors) {
 		if (leaf == null) {
-			throw new IllegalArgumentException("The leaf statement must not be null");
+			throw new IllegalArgumentException("The leaf entity configuration must not be null");
 		}
 		this.leaf = leaf;
 		
@@ -122,11 +122,11 @@ public final class TrustChain {
 	
 	
 	/**
-	 * Returns the leaf entity self-statement.
+	 * Returns the leaf entity configuration.
 	 *
-	 * @return The leaf entity self-statement.
+	 * @return The leaf entity configuration.
 	 */
-	public EntityStatement getLeafSelfStatement() {
+	public EntityStatement getLeafConfiguration() {
 		return leaf;
 	}
 	
@@ -163,7 +163,7 @@ public final class TrustChain {
 	 * Returns the length of this trust chain. A minimal trust chain with a
 	 * leaf and anchor has a length of one.
 	 *
-	 * @return The trust chain length.
+	 * @return The trust chain length, with a minimal length of one.
 	 */
 	public int length() {
 		
@@ -234,7 +234,7 @@ public final class TrustChain {
 	public Iterator<EntityStatement> iteratorFromLeaf() {
 		
 		// Init
-		final AtomicReference<EntityStatement> next = new AtomicReference<>(getLeafSelfStatement());
+		final AtomicReference<EntityStatement> next = new AtomicReference<>(getLeafConfiguration());
 		final Iterator<EntityStatement> superiorsIterator = getSuperiorStatements().iterator();
 		
 		return new Iterator<EntityStatement>() {
@@ -252,7 +252,7 @@ public final class TrustChain {
 				}
 				
 				// Set statement to return on next iteration
-				if (toReturn.equals(getLeafSelfStatement())) {
+				if (toReturn.equals(getLeafConfiguration())) {
 					// Return first superior
 					next.set(superiorsIterator.next());
 				} else {
@@ -277,8 +277,8 @@ public final class TrustChain {
 	
 	
 	/**
-	 * Resolves the expiration time for this trust chain. Equals the
-	 * nearest expiration when all entity statements in the trust chain are
+	 * Resolves the expiration time for this trust chain. Equals the next
+	 * expiration in time when all entity statements in the trust chain are
 	 * considered.
 	 *
 	 * @return The expiration time for this trust chain.
@@ -317,7 +317,7 @@ public final class TrustChain {
 	 *
 	 * @throws BadJOSEException If a signature is invalid or a statement is
 	 *                          expired or before the issue time.
-	 * @throws JOSEException    On a internal JOSE exception.
+	 * @throws JOSEException    On an internal JOSE exception.
 	 */
 	public void verifySignatures(final JWKSet trustAnchorJWKSet)
 		throws BadJOSEException, JOSEException {

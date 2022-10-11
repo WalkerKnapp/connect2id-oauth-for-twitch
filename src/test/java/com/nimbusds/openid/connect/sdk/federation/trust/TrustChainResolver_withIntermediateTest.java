@@ -218,7 +218,7 @@ public class TrustChainResolver_withIntermediateTest extends TestCase {
 		
 		TrustChain chain = trustChains.iterator().next();
 		
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(INTERMEDIATE_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(ANCHOR_STMT_ABOUT_INTERMEDIATE, chain.getSuperiorStatements().get(1));
 		assertEquals(2, chain.getSuperiorStatements().size());
@@ -232,7 +232,7 @@ public class TrustChainResolver_withIntermediateTest extends TestCase {
 		
 		chain = resolvedChains.iterator().next();
 		
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(INTERMEDIATE_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(ANCHOR_STMT_ABOUT_INTERMEDIATE, chain.getSuperiorStatements().get(1));
 		assertEquals(2, chain.getSuperiorStatements().size());
@@ -286,7 +286,7 @@ public class TrustChainResolver_withIntermediateTest extends TestCase {
 		
 		TrustChain chain = trustChains.iterator().next();
 		
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(INTERMEDIATE_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(ANCHOR_STMT_ABOUT_INTERMEDIATE, chain.getSuperiorStatements().get(1));
 		assertEquals(2, chain.getSuperiorStatements().size());
@@ -300,7 +300,7 @@ public class TrustChainResolver_withIntermediateTest extends TestCase {
 		
 		chain = resolvedChains.iterator().next();
 		
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(INTERMEDIATE_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(ANCHOR_STMT_ABOUT_INTERMEDIATE, chain.getSuperiorStatements().get(1));
 		assertEquals(2, chain.getSuperiorStatements().size());

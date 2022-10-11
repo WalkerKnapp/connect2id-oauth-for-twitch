@@ -191,7 +191,7 @@ public class TrustChainResolver_knownAndUnknownAnchorsTest extends TestCase {
 		
 		TrustChain chain = trustChains.getShortest();
 		
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(ANCHOR_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(1, chain.getSuperiorStatements().size());
 		
@@ -209,7 +209,7 @@ public class TrustChainResolver_knownAndUnknownAnchorsTest extends TestCase {
 		
 		chain = resolvedChains.getShortest();
 		
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(ANCHOR_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(1, chain.getSuperiorStatements().size());
 	}

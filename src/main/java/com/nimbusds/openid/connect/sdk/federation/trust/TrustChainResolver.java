@@ -35,7 +35,7 @@ import com.nimbusds.openid.connect.sdk.federation.trust.constraints.TrustChainCo
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 7.
+ *     <li>OpenID Connect Federation 1.0, section 9.
  * </ul>
  */
 public class TrustChainResolver {

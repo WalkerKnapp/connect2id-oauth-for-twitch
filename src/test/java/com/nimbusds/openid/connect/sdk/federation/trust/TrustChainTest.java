@@ -176,7 +176,7 @@ public class TrustChainTest extends TestCase {
 		List<EntityStatement> superiorStatements = Collections.singletonList(anchorStmtAboutLeaf);
 		TrustChain trustChain = new TrustChain(leafStmt, superiorStatements);
 		
-		assertEquals(leafStmt, trustChain.getLeafSelfStatement());
+		assertEquals(leafStmt, trustChain.getLeafConfiguration());
 		assertEquals(superiorStatements, trustChain.getSuperiorStatements());
 		
 		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
@@ -217,7 +217,7 @@ public class TrustChainTest extends TestCase {
 		List<EntityStatement> superiorStatements = Arrays.asList(intermediateStmtAboutLeaf, anchorStmtAboutIntermediate);
 		TrustChain trustChain = new TrustChain(leafStmt, superiorStatements);
 		
-		assertEquals(leafStmt, trustChain.getLeafSelfStatement());
+		assertEquals(leafStmt, trustChain.getLeafConfiguration());
 		assertEquals(superiorStatements, trustChain.getSuperiorStatements());
 		
 		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
@@ -333,7 +333,10 @@ public class TrustChainTest extends TestCase {
 		RSAKey invalidKey = new RSAKeyGenerator(2048).keyID(OP_RSA_JWK.getKeyID()).generate();
 		
 		SignedJWT leafJWT = new SignedJWT(
-			new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(invalidKey.getKeyID()).build(),
+			new JWSHeader.Builder(JWSAlgorithm.RS256)
+				.type(EntityStatement.JOSE_OBJECT_TYPE)
+				.keyID(invalidKey.getKeyID())
+				.build(),
 			leafClaims.toJWTClaimsSet());
 		leafJWT.sign(new RSASSASigner(invalidKey));
 		
@@ -365,7 +368,10 @@ public class TrustChainTest extends TestCase {
 		RSAKey invalidKey = new RSAKeyGenerator(2048).keyID(ANCHOR_RSA_JWK.getKeyID()).generate();
 		
 		SignedJWT anchorJWT = new SignedJWT(
-			new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(invalidKey.getKeyID()).build(),
+			new JWSHeader.Builder(JWSAlgorithm.RS256)
+				.type(EntityStatement.JOSE_OBJECT_TYPE)
+				.keyID(invalidKey.getKeyID())
+				.build(),
 			anchorClaimsAboutLeaf.toJWTClaimsSet());
 		anchorJWT.sign(new RSASSASigner(invalidKey));
 		
@@ -404,7 +410,7 @@ public class TrustChainTest extends TestCase {
 		List<EntityStatement> superiorStatements = Collections.singletonList(anchorStmtAboutLeaf);
 		TrustChain trustChain = new TrustChain(leafStmt, superiorStatements);
 		
-		assertEquals(leafStmt, trustChain.getLeafSelfStatement());
+		assertEquals(leafStmt, trustChain.getLeafConfiguration());
 		assertEquals(superiorStatements, trustChain.getSuperiorStatements());
 		
 		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
@@ -485,7 +491,7 @@ public class TrustChainTest extends TestCase {
 		List<EntityStatement> superiorStatements = Collections.singletonList(anchorStmtAboutLeaf);
 		TrustChain trustChain = new TrustChain(leafStmt, superiorStatements);
 		
-		assertEquals(leafStmt, trustChain.getLeafSelfStatement());
+		assertEquals(leafStmt, trustChain.getLeafConfiguration());
 		assertEquals(superiorStatements, trustChain.getSuperiorStatements());
 		
 		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
@@ -591,7 +597,7 @@ public class TrustChainTest extends TestCase {
 		List<EntityStatement> superiorStatements = Arrays.asList(intermediateStmtAboutLeaf, anchorStmtAboutIntermediate);
 		TrustChain trustChain = new TrustChain(leafStmt, superiorStatements);
 		
-		assertEquals(leafStmt, trustChain.getLeafSelfStatement());
+		assertEquals(leafStmt, trustChain.getLeafConfiguration());
 		assertEquals(superiorStatements, trustChain.getSuperiorStatements());
 		
 		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());

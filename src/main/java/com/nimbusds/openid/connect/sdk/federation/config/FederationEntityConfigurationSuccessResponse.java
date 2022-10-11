@@ -43,7 +43,7 @@ public class FederationEntityConfigurationSuccessResponse extends FederationEnti
 	/**
 	 * The content type.
 	 */
-	private static final ContentType CONTENT_TYPE = new ContentType("application", "jose", StandardCharsets.UTF_8);
+	private static final ContentType CONTENT_TYPE = EntityStatement.CONTENT_TYPE;
 	
 	
 	/**

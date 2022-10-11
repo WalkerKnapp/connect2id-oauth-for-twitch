@@ -175,7 +175,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		
 		TrustChain chain = trustChains.getShortest();
 		
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(ANCHOR_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(1, chain.getSuperiorStatements().size());
 		
@@ -193,7 +193,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		TrustChainSet resolvedChains = resolver.resolveTrustChains(new EntityID(OP_ISSUER));
 		
 		chain = resolvedChains.getShortest();
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(ANCHOR_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(1, chain.getSuperiorStatements().size());
 		
@@ -207,7 +207,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		resolvedChains = resolver.resolveTrustChains(new EntityID(OP_ISSUER));
 		
 		chain = resolvedChains.getShortest();
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(ANCHOR_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(1, chain.getSuperiorStatements().size());
 		
@@ -275,7 +275,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		
 		TrustChain chain = trustChains.getShortest();
 		
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(ANCHOR_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(1, chain.getSuperiorStatements().size());
 		
@@ -295,7 +295,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		opMetadataValidatorCalled.set(false);
 		
 		chain = resolvedChains.getShortest();
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(ANCHOR_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(1, chain.getSuperiorStatements().size());
 		
@@ -312,7 +312,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		opMetadataValidatorCalled.set(false);
 		
 		chain = resolvedChains.getShortest();
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(ANCHOR_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(1, chain.getSuperiorStatements().size());
 		
@@ -449,7 +449,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		
 		TrustChain chain = trustChains.getShortest();
 		
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(ANCHOR_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(1, chain.getSuperiorStatements().size());
 		
@@ -467,7 +467,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		TrustChainSet resolvedChains = resolver.resolveTrustChains(OP_SELF_STMT);
 		
 		chain = resolvedChains.getShortest();
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(ANCHOR_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(1, chain.getSuperiorStatements().size());
 		
@@ -481,7 +481,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		resolvedChains = resolver.resolveTrustChains(OP_SELF_STMT);
 		
 		chain = resolvedChains.getShortest();
-		assertEquals(OP_SELF_STMT, chain.getLeafSelfStatement());
+		assertEquals(OP_SELF_STMT, chain.getLeafConfiguration());
 		assertEquals(ANCHOR_STMT_ABOUT_OP, chain.getSuperiorStatements().get(0));
 		assertEquals(1, chain.getSuperiorStatements().size());
 		
