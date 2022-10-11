@@ -38,7 +38,7 @@ import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 
 
 /**
- * Federation entity statement.
+ * Federation entity statement / entity configuration.
  *
  * <p>Related specifications:
  *
