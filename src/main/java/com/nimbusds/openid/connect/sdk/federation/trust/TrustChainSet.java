@@ -25,9 +25,9 @@ import com.nimbusds.openid.connect.sdk.federation.trust.constraints.TrustChainCo
 
 
 /**
- * Trust chain set with methods for {@link #getShortest getting the shortest
- * chain} and {@link #filter filtering according to path length and entity ID
- * constraints}.
+ * {@link TrustChain Trust chain} set with methods to {@link #getShortest get
+ * the shortest chain} and {@link #filter filter the chains according to path
+ * length and entity ID constraints}.
  */
 public class TrustChainSet extends HashSet<TrustChain> {
 	
