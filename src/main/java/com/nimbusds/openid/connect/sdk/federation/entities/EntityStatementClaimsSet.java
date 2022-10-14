@@ -31,11 +31,8 @@ import com.nimbusds.oauth2.sdk.client.ClientMetadata;
 import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
-import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.oauth2.sdk.util.MapUtils;
-import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
-import com.nimbusds.openid.connect.sdk.claims.CommonClaimsSet;
 import com.nimbusds.openid.connect.sdk.federation.policy.MetadataPolicy;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyViolationException;
 import com.nimbusds.openid.connect.sdk.federation.trust.constraints.TrustChainConstraints;
@@ -108,13 +105,7 @@ import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
  *     <li>OpenID Connect Federation 1.0, section 3.1.
  * </ul>
  */
-public class EntityStatementClaimsSet extends CommonClaimsSet {
-	
-	
-	/**
-	 * The expiration time claim name.
-	 */
-	public static final String EXP_CLAIM_NAME = "exp";
+public class EntityStatementClaimsSet extends CommonFederationClaimsSet {
 	
 	
 	/**
@@ -127,12 +118,6 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	 * The authority hints claim name.
 	 */
 	public static final String AUTHORITY_HINTS_CLAIM_NAME = "authority_hints";
-	
-	
-	/**
-	 * The metadata claim name.
-	 */
-	public static final String METADATA_CLAIM_NAME = "metadata";
 	
 	
 	/**
@@ -153,12 +138,6 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	 * The constraints claim name.
 	 */
 	public static final String CONSTRAINTS_CLAIM_NAME = "constraints";
-	
-	
-	/**
-	 * The trust marks claim name.
-	 */
-	public static final String TRUST_MARKS_CLAIM_NAME = "trust_marks";
 	
 	
 	/**
@@ -185,7 +164,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	private static final Set<String> STD_CLAIM_NAMES;
 	
 	static {
-		Set<String> claimNames = new HashSet<>(ClaimsSet.getStandardClaimNames());
+		Set<String> claimNames = new HashSet<>();
 		claimNames.add(ISS_CLAIM_NAME);
 		claimNames.add(SUB_CLAIM_NAME);
 		claimNames.add(IAT_CLAIM_NAME);
@@ -254,8 +233,17 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 		
 		setClaim(ISS_CLAIM_NAME, iss.getValue());
 		setClaim(SUB_CLAIM_NAME, sub.getValue());
+		
+		if (iat == null) {
+			throw new IllegalArgumentException("The iat (issued-at) claim must not be null");
+		}
 		setDateClaim(IAT_CLAIM_NAME, iat);
+		
+		if (exp == null) {
+			throw new IllegalArgumentException("The exp (expiration) claim must not be null");
+		}
 		setDateClaim(EXP_CLAIM_NAME, exp);
+		
 		if (jwks != null) {
 			setClaim(JWKS_CLAIM_NAME, new JSONObject(jwks.toJSONObject(true))); // public JWKs only
 		}
@@ -293,25 +281,7 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	public void validateRequiredClaimsPresence()
 		throws ParseException {
 		
-		if (getIssuer() == null) {
-			throw new ParseException("Missing iss (issuer) claim");
-		}
-		
-		EntityID.parse(getIssuer()); // ensure URI
-		
-		if (getSubject() == null) {
-			throw new ParseException("Missing sub (subject) claim");
-		}
-		
-		EntityID.parse(getSubject()); // ensure URI
-		
-		if (getIssueTime() == null) {
-			throw new ParseException("Missing iat (issued-at) claim");
-		}
-		
-		if (getExpirationTime() == null) {
-			throw new ParseException("Missing exp (expiration) claim");
-		}
+		super.validateRequiredClaimsPresence();
 		
 		// jwks always required for self-statements
 		if (isSelfStatement() && getJWKSet() == null) {
@@ -346,43 +316,6 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 		Subject subject = getSubject();
 		
 		return issuer != null && subject != null && issuer.getValue().equals(subject.getValue());
-	}
-	
-	
-	/**
-	 * Returns the issuer as entity ID. Corresponds to the {@code iss}
-	 * claim.
-	 *
-	 * @return The issuer as entity ID.
-	 */
-	public EntityID getIssuerEntityID() {
-		
-		return new EntityID(getIssuer().getValue());
-	}
-	
-	
-	/**
-	 * Returns the subject as entity ID. Corresponds to the {@code iss}
-	 * claim.
-	 *
-	 * @return The subject as entity ID.
-	 */
-	public EntityID getSubjectEntityID() {
-		
-		return new EntityID(getSubject().getValue());
-	}
-	
-	
-	/**
-	 * Gets the entity statement expiration time. Corresponds to the
-	 * {@code exp} claim.
-	 *
-	 * @return The expiration time, {@code null} if not specified or
-	 *         parsing failed.
-	 */
-	public Date getExpirationTime() {
-		
-		return getDateClaim(EXP_CLAIM_NAME);
 	}
 	
 	
@@ -527,29 +460,6 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Gets the OpenID relying party metadata if present for this entity.
-	 * Corresponds to the {@code metadata.openid_relying_party} claim.
-	 *
-	 * @return The RP metadata, {@code null} if not specified or if parsing
-	 *         failed.
-	 */
-	public OIDCClientMetadata getRPMetadata() {
-		
-		JSONObject o = getMetadata(EntityType.OPENID_RELYING_PARTY);
-		
-		if (o == null) {
-			return null;
-		}
-		
-		try {
-			return OIDCClientMetadata.parse(o);
-		} catch (ParseException e) {
-			return null;
-		}
-	}
-	
-	
-	/**
 	 * Sets the OpenID relying party metadata if present for this entity.
 	 * Corresponds to the {@code metadata.openid_relying_party} claim.
 	 *
@@ -566,58 +476,12 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	 * Gets the OpenID provider metadata if present for this entity.
 	 * Corresponds to the {@code metadata.openid_provider} claim.
 	 *
-	 * @return The OP metadata, {@code null} if not specified or if parsing
-	 * 	   failed.
-	 */
-	public OIDCProviderMetadata getOPMetadata() {
-		
-		JSONObject o = getMetadata(EntityType.OPENID_PROVIDER);
-		
-		if (o == null) {
-			return null;
-		}
-		
-		try {
-			return OIDCProviderMetadata.parse(o);
-		} catch (ParseException e) {
-			return null;
-		}
-	}
-	
-	
-	/**
-	 * Gets the OpenID provider metadata if present for this entity.
-	 * Corresponds to the {@code metadata.openid_provider} claim.
-	 *
 	 * @param opMetadata The OP metadata, {@code null} if not specified.
 	 */
 	public void setOPMetadata(final OIDCProviderMetadata opMetadata) {
 		
 		JSONObject o = opMetadata != null ? opMetadata.toJSONObject() : null;
 		setMetadata(EntityType.OPENID_PROVIDER, o);
-	}
-	
-	
-	/**
-	 * Gets the OAuth 2.0 client metadata if present for this entity.
-	 * Corresponds to the {@code metadata.oauth_client} claim.
-	 *
-	 * @return The client metadata, {@code null} if not specified or if
-	 *         parsing failed.
-	 */
-	public ClientMetadata getOAuthClientMetadata() {
-		
-		JSONObject o = getMetadata(EntityType.OAUTH_CLIENT);
-		
-		if (o == null) {
-			return null;
-		}
-		
-		try {
-			return ClientMetadata.parse(o);
-		} catch (ParseException e) {
-			return null;
-		}
 	}
 	
 	
@@ -636,30 +500,6 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Gets the OAuth 2.0 authorisation server metadata if present for this
-	 * entity. Corresponds to the
-	 * {@code metadata.oauth_authorization_server} claim.
-	 *
-	 * @return The AS metadata, {@code null} if not specified or if parsing
-	 * 	   failed.
-	 */
-	public AuthorizationServerMetadata getASMetadata() {
-		
-		JSONObject o = getMetadata(EntityType.OAUTH_AUTHORIZATION_SERVER);
-		
-		if (o == null) {
-			return null;
-		}
-		
-		try {
-			return AuthorizationServerMetadata.parse(o);
-		} catch (ParseException e) {
-			return null;
-		}
-	}
-	
-	
-	/**
 	 * Sets the OAuth 2.0 authorisation server metadata if present for this
 	 * entity. Corresponds to the
 	 * {@code metadata.oauth_authorization_server} claim.
@@ -674,29 +514,6 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 	
 	
 	/**
-	 * Gets the federation entity metadata if present for this entity.
-	 * Corresponds to the {@code metadata.federation_entity} claim.
-	 *
-	 * @return The federation entity metadata, {@code null} if not
-	 *         specified or if parsing failed.
-	 */
-	public FederationEntityMetadata getFederationEntityMetadata() {
-		
-		JSONObject o = getMetadata(EntityType.FEDERATION_ENTITY);
-		
-		if (o == null) {
-			return null;
-		}
-		
-		try {
-			return FederationEntityMetadata.parse(o);
-		} catch (ParseException e) {
-			return null;
-		}
-	}
-	
-	
-	/**
 	 * Sets the federation entity metadata if present for this entity.
 	 * Corresponds to the {@code metadata.federation_entity} claim.
 	 *
@@ -707,29 +524,6 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 		
 		JSONObject o = entityMetadata != null ? entityMetadata.toJSONObject() : null;
 		setMetadata(EntityType.FEDERATION_ENTITY, o);
-	}
-	
-	
-	/**
-	 * Gets the trust mark issuer metadata if present for this entity.
-	 * Corresponds to the {@code metadata.trust_mark_issuer} claim.
-	 *
-	 * @return The trust mark issuer metadata, {@code null} if not
-	 *         specified or if parsing failed.
-	 */
-	public TrustMarkIssuerMetadata getTrustMarkIssuerMetadata() {
-		
-		JSONObject o = getMetadata(EntityType.TRUST_MARK_ISSUER);
-		
-		if (o == null) {
-			return null;
-		}
-		
-		try {
-			return TrustMarkIssuerMetadata.parse(o);
-		} catch (ParseException e) {
-			return null;
-		}
 	}
 	
 	
@@ -912,41 +706,6 @@ public class EntityStatementClaimsSet extends CommonClaimsSet {
 		} else {
 			setClaim(CONSTRAINTS_CLAIM_NAME, null);
 		}
-	}
-	
-	
-	/**
-	 * Gets the trust marks. Corresponds to the {@code trust_marks} claim.
-	 *
-	 * @return The trust marks, {@code null} if not specified or parsing
-	 *         failed.
-	 */
-	public List<TrustMarkEntry> getTrustMarks() {
-		
-		JSONArray array = getJSONArrayClaim(TRUST_MARKS_CLAIM_NAME);
-		
-		if (array == null) {
-			return null;
-		}
-		
-		List<JSONObject> jsonObjects;
-		try {
-			jsonObjects = JSONArrayUtils.toJSONObjectList(array);
-		} catch (ParseException e) {
-			return null;
-		}
-		
-		List<TrustMarkEntry> marks = new LinkedList<>();
-		
-		for (JSONObject o: jsonObjects) {
-			try {
-				marks.add(TrustMarkEntry.parse(o));
-			} catch (ParseException e) {
-				return null;
-			}
-		}
-		
-		return marks;
 	}
 	
 	

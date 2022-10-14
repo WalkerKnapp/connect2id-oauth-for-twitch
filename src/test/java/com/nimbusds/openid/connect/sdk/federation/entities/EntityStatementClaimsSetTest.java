@@ -1088,4 +1088,106 @@ public class EntityStatementClaimsSetTest extends TestCase {
 		
 		assertEquals(expectedMetadataRPPolicyJSONObject, metadataRPPolicy.toJSONObject());
 	}
+	
+	
+	public void testConstructor_rejectNullIssuer_asEntityID() {
+		
+		try {
+			new EntityStatementClaimsSet(
+				null,
+				new EntityID("https://op.example.com"),
+				new Date(),
+				new Date(),
+				null
+			);
+			fail();
+		} catch (NullPointerException e) {
+			// ok
+		}
+	}
+	
+	
+	public void testConstructor_rejectNullSubject_asEntityID() {
+		
+		try {
+			new EntityStatementClaimsSet(
+				new EntityID("https://fed.example.com"),
+				null,
+				new Date(),
+				new Date(),
+				null
+			);
+			fail();
+		} catch (NullPointerException e) {
+			// ok
+		}
+	}
+	
+	
+	public void testConstructor_rejectNullIssueTime() {
+		
+		try {
+			new EntityStatementClaimsSet(
+				new EntityID("https://fed.example.com"),
+				new EntityID("https://op.example.com"),
+				null,
+				new Date(),
+				null
+			);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("The iat (issued-at) claim must not be null", e.getMessage());
+		}
+	}
+	
+	
+	public void testConstructor_rejectNullExpirationTime() {
+		
+		try {
+			new EntityStatementClaimsSet(
+				new EntityID("https://fed.example.com"),
+				new EntityID("https://op.example.com"),
+				new Date(),
+				null,
+				null
+			);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("The exp (expiration) claim must not be null", e.getMessage());
+		}
+	}
+	
+	
+	public void testConstructor_rejectNullIssuer() {
+		
+		try {
+			new EntityStatementClaimsSet(
+				null,
+				new Subject("https://op.example.com"),
+				new Date(),
+				new Date(),
+				null
+			);
+			fail();
+		} catch (NullPointerException e) {
+			// ok
+		}
+	}
+	
+	
+	public void testConstructor_rejectNullSubject() {
+		
+		try {
+			new EntityStatementClaimsSet(
+				new Issuer("https://fed.example.com"),
+				null,
+				new Date(),
+				new Date(),
+				null
+			);
+			fail();
+		} catch (NullPointerException e) {
+			// ok
+		}
+	}
 }

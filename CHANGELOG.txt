@@ -2103,6 +2103,7 @@ version 9.44 (2022-10-14)
     * Adds TrustMarkEntry.
     * Adds TrustMarkIssuerMetadata.
     * Adds LeafEntityTypeConstraint.
+    * Adds ResolveClaimsSet for use by the ResolveResponse.
     * Updates TrustChainConstraints with new leaf type constraints.
     * Updates the Federation API classes (breaking changes).
     * Updates TrustChain and TrustChain resolver (breaking changes).

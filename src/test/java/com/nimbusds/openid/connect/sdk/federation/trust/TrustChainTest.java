@@ -58,23 +58,23 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 public class TrustChainTest extends TestCase {
 	
 	
-	static final EntityID ANCHOR_ENTITY_ID = new EntityID("https://federation.example.com");
+	public static final EntityID ANCHOR_ENTITY_ID = new EntityID("https://federation.example.com");
 	
-	static final RSAKey ANCHOR_RSA_JWK;
+	public static final RSAKey ANCHOR_RSA_JWK;
 	
-	static final JWKSet ANCHOR_JWK_SET;
+	public static final JWKSet ANCHOR_JWK_SET;
 	
-	static final EntityID INTERMEDIATE_ENTITY_ID = new EntityID("https://some-org.example.com");
+	public static final EntityID INTERMEDIATE_ENTITY_ID = new EntityID("https://some-org.example.com");
 	
-	static final RSAKey INTERMEDIATE_RSA_JWK;
+	public static final RSAKey INTERMEDIATE_RSA_JWK;
 	
-	static final JWKSet INTERMEDIATE_JWK_SET;
+	public static final JWKSet INTERMEDIATE_JWK_SET;
 	
-	static final RSAKey OP_RSA_JWK;
+	public static final RSAKey OP_RSA_JWK;
 	
-	static final JWKSet OP_JWK_SET;
+	public static final JWKSet OP_JWK_SET;
 	
-	static final OIDCProviderMetadata OP_METADATA;
+	public static final OIDCProviderMetadata OP_METADATA;
 	
 	static {
 		try {
@@ -113,8 +113,8 @@ public class TrustChainTest extends TestCase {
 	}
 	
 	
-	static EntityStatementClaimsSet createOPStatementClaimsSet(final Issuer iss,
-								   final EntityID authority) {
+	public static EntityStatementClaimsSet createOPStatementClaimsSet(final Issuer iss,
+									  final EntityID authority) {
 		
 		Date now = new Date();
 		long nowTS = DateUtils.toSecondsSinceEpoch(now);
@@ -136,13 +136,13 @@ public class TrustChainTest extends TestCase {
 	}
 	
 	
-	static EntityStatementClaimsSet createOPSelfStatementClaimsSet(final EntityID authority) {
+	public static EntityStatementClaimsSet createOPSelfStatementClaimsSet(final EntityID authority) {
 		
 		return createOPStatementClaimsSet(OP_METADATA.getIssuer(), authority);
 	}
 	
 	
-	static EntityStatementClaimsSet createIntermediateStatementClaimsSet(final EntityID authority) {
+	public static EntityStatementClaimsSet createIntermediateStatementClaimsSet(final EntityID authority) {
 		
 		Date now = new Date();
 		long nowTS = DateUtils.toSecondsSinceEpoch(now);
