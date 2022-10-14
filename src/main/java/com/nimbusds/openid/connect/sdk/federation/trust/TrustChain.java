@@ -32,8 +32,11 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.util.Base64URL;
+import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
+import com.nimbusds.oauth2.sdk.util.ListUtils;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
@@ -76,8 +79,8 @@ public final class TrustChain {
 	
 	
 	/**
-	 * Creates a new federation entity trust chain. Validates the subject -
-	 * issuer chain, the signatures are not verified.
+	 * Creates a new trust chain. Validates the subject - issuer chain, the
+	 * signatures are not verified.
 	 *
 	 * @param leaf      The leaf entity configuration. Must not be
 	 *                  {@code null}.
@@ -373,5 +376,106 @@ public final class TrustChain {
 		}
 		
 		return false;
+	}
+	
+	
+	/**
+	 * Returns a JWT list representation of this trust chain.
+	 *
+	 * @return The JWT list.
+	 */
+	public List<SignedJWT> toJWTs() {
+	
+		List<SignedJWT> out = new LinkedList<>();
+		out.add(getLeafConfiguration().getSignedStatement());
+		for (EntityStatement s: getSuperiorStatements()) {
+			out.add(s.getSignedStatement());
+		}
+		return out;
+	}
+	
+	
+	/**
+	 * Returns a serialised JWT list representation of this trust chain.
+	 *
+	 * @return The serialised JWT list.
+	 */
+	public List<String> toSerializedJWTs() {
+		
+		List<String> out = new LinkedList<>();
+		for (SignedJWT jwt: toJWTs()) {
+			out.add(jwt.serialize());
+		}
+		return out;
+	}
+	
+	
+	/**
+	 * Parses a trust chain from the specified JWT list.
+	 *
+	 * @param statementJWTs The JWT list. Must not be {@code null}.
+	 *
+	 * @return The trust chain.
+	 *
+	 * @throws ParseException If parsing failed.
+	 */
+	public static TrustChain parse(final List<SignedJWT> statementJWTs)
+		throws ParseException {
+		
+		if (statementJWTs.size() < 2) {
+			throw new ParseException("There must be at least 2 statement JWTs");
+		}
+		
+		EntityStatement leaf = null;
+		List<EntityStatement> superiors = new LinkedList<>();
+		
+		for (SignedJWT jwt: ListUtils.removeNullItems(statementJWTs)) {
+			
+			if (leaf == null) {
+				try {
+					leaf = EntityStatement.parse(jwt);
+				} catch (ParseException e) {
+					throw new ParseException("Invalid leaf entity configuration: " + e.getMessage(), e);
+				}
+			} else {
+				try {
+					superiors.add(EntityStatement.parse(jwt));
+				} catch (ParseException e) {
+					throw new ParseException("Invalid superior entity statement: " + e.getMessage(), e);
+				}
+			}
+		}
+		try {
+			return new TrustChain(leaf, superiors);
+		} catch (Exception e) {
+			throw new ParseException("Illegal trust chain: " + e.getMessage(), e);
+		}
+	}
+	
+	
+	/**
+	 * Parses a trust chain from the specified serialised JWT list.
+	 *
+	 * @param statementJWTs The serialised JWT list. Must not be
+	 *                      {@code null}.
+	 *
+	 * @return The trust chain.
+	 *
+	 * @throws ParseException If parsing failed.
+	 */
+	public static TrustChain parseSerialized(final List<String> statementJWTs)
+		throws ParseException {
+		
+		List<SignedJWT> jwtList = new LinkedList<>();
+		
+		for (String s: ListUtils.removeNullItems(statementJWTs)) {
+			try {
+				jwtList.add(SignedJWT.parse(s));
+			} catch (java.text.ParseException e) {
+				throw new ParseException("Invalid JWT in trust chain: " + e.getMessage(), e);
+			}
+		}
+		
+		return parse(jwtList);
 	}
 }

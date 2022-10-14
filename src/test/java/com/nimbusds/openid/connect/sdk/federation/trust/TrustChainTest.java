@@ -199,6 +199,15 @@ public class TrustChainTest extends TestCase {
 		
 		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_PROVIDER).entrySet().isEmpty());
 		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_RELYING_PARTY).entrySet().isEmpty());
+		
+		// Serialise and parse
+		List<String> serializedJWTs = trustChain.toSerializedJWTs();
+		assertEquals(2, serializedJWTs.size());
+		trustChain = TrustChain.parseSerialized(serializedJWTs);
+		assertEquals(leafStmt.getClaimsSet(), trustChain.getLeafConfiguration().getClaimsSet());
+		assertEquals(anchorClaimsAboutLeaf, trustChain.getSuperiorStatements().get(0).getClaimsSet());
+		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
+		trustChain.verifySignatures(ANCHOR_JWK_SET);
 	}
 	
 	
@@ -245,6 +254,16 @@ public class TrustChainTest extends TestCase {
 		
 		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_PROVIDER).entrySet().isEmpty());
 		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_RELYING_PARTY).entrySet().isEmpty());
+		
+		// Serialise and parse
+		List<String> serializedJWTs = trustChain.toSerializedJWTs();
+		assertEquals(3, serializedJWTs.size());
+		trustChain = TrustChain.parseSerialized(serializedJWTs);
+		assertEquals(leafStmt.getClaimsSet(), trustChain.getLeafConfiguration().getClaimsSet());
+		assertEquals(intermediateClaimsAboutLeaf, trustChain.getSuperiorStatements().get(0).getClaimsSet());
+		assertEquals(anchorClaimsAboutIntermediate, trustChain.getSuperiorStatements().get(1).getClaimsSet());
+		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
+		trustChain.verifySignatures(ANCHOR_JWK_SET);
 	}
 	
 	
@@ -626,5 +645,110 @@ public class TrustChainTest extends TestCase {
 		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OAUTH_AUTHORIZATION_SERVER).toJSONObject().isEmpty());
 		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OAUTH_CLIENT).toJSONObject().isEmpty());
 		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OAUTH_RESOURCE).toJSONObject().isEmpty());
+	}
+	
+	
+	public void testParseJWTs_null() throws ParseException {
+		
+		try {
+			TrustChain.parse(null);
+			fail();
+		} catch (NullPointerException e) {
+			// ok
+		}
+	}
+	
+	
+	public void testParseSerializedJWTs_null() throws ParseException {
+		
+		try {
+			TrustChain.parseSerialized(null);
+			fail();
+		} catch (NullPointerException e) {
+			// ok
+		}
+	}
+	
+	
+	public void testParseJWTs_empty() {
+		try {
+			TrustChain.parse(Collections.<SignedJWT>emptyList());
+			fail();
+		} catch (ParseException e) {
+			assertEquals("There must be at least 2 statement JWTs", e.getMessage());
+		}
+	}
+	
+	
+	public void testParseJWTs_entityConfigOnly() throws JOSEException {
+		
+		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
+		
+		try {
+			TrustChain.parse(Collections.singletonList(leafStmt.getSignedStatement()));
+			fail();
+		} catch (ParseException e) {
+			assertEquals("There must be at least 2 statement JWTs", e.getMessage());
+		}
+	}
+	
+	
+	public void testParseSerializedJWTs_illegalJWTs() {
+		
+		try {
+			TrustChain.parseSerialized(Arrays.asList("abc.def.ghi", "111.222.333"));
+			fail();
+		} catch (ParseException e) {
+			assertTrue(e.getMessage().startsWith("Invalid JWT in trust chain: Invalid JWS header: Invalid JSON:"));
+		}
+	}
+	
+	
+	public void testParseJWTs_illegalOrderOfStatements() throws JOSEException {
+		
+		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
+		
+		EntityStatementClaimsSet intermediateClaimsAboutLeaf = createOPStatementClaimsSet(new Issuer(INTERMEDIATE_ENTITY_ID), INTERMEDIATE_ENTITY_ID);
+		EntityStatement intermediateStmtAboutLeaf = EntityStatement.sign(intermediateClaimsAboutLeaf, INTERMEDIATE_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaimsAboutIntermediate = createIntermediateStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement anchorStmtAboutIntermediate = EntityStatement.sign(anchorClaimsAboutIntermediate, ANCHOR_RSA_JWK);
+		
+		try {
+			TrustChain.parseSerialized(Arrays.asList(
+				anchorStmtAboutIntermediate.getSignedStatement().serialize(),
+				intermediateStmtAboutLeaf.getSignedStatement().serialize(),
+				leafStmt.getSignedStatement().serialize()));
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Illegal trust chain: Broken subject - issuer chain", e.getMessage());
+		}
+	}
+	
+	
+	public void testParseJWTs_ignoreNullsInList() throws JOSEException, ParseException, BadJOSEException {
+		
+		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
+		
+		EntityStatementClaimsSet intermediateClaimsAboutLeaf = createOPStatementClaimsSet(new Issuer(INTERMEDIATE_ENTITY_ID), INTERMEDIATE_ENTITY_ID);
+		EntityStatement intermediateStmtAboutLeaf = EntityStatement.sign(intermediateClaimsAboutLeaf, INTERMEDIATE_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaimsAboutIntermediate = createIntermediateStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement anchorStmtAboutIntermediate = EntityStatement.sign(anchorClaimsAboutIntermediate, ANCHOR_RSA_JWK);
+		
+		TrustChain trustChain = TrustChain.parseSerialized(Arrays.asList(
+			leafStmt.getSignedStatement().serialize(),
+			null,
+			intermediateStmtAboutLeaf.getSignedStatement().serialize(),
+			null,
+			anchorStmtAboutIntermediate.getSignedStatement().serialize()
+		));
+		
+		assertEquals(2, trustChain.length());
+		
+		trustChain.verifySignatures(ANCHOR_JWK_SET);
 	}
 }
