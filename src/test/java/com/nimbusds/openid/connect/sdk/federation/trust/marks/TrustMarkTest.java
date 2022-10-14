@@ -18,6 +18,7 @@
 package com.nimbusds.openid.connect.sdk.federation.trust.marks;
 
 
+import java.net.URI;
 import java.text.ParseException;
 
 import junit.framework.TestCase;
@@ -25,6 +26,10 @@ import junit.framework.TestCase;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.util.DateUtils;
+import com.nimbusds.oauth2.sdk.id.Identifier;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.Subject;
 
 
 public class TrustMarkTest extends TestCase {
@@ -34,27 +39,37 @@ public class TrustMarkTest extends TestCase {
 	public void testParseExample() throws ParseException, com.nimbusds.oauth2.sdk.ParseException {
 		
 		String jwt =
-			"\"eyJhbGciOiJSUzI1NiIsImtpZCI6Ing0VnduN0RzRE1ib0dBOHRNV2pleVVjT0\"" +
-			"\"RTTVBua1luSVdJN3R6eVVnRmsifQ.eyJpc3MiOiJodHRwczovL3d3dy5hZ2lkL\"" +
-			"\"mdvdi5pdCIsInN1YiI6Imh0dHBzOi8vcnAuZXhhbXBsZS5pdC9zcGlkIiwiaWF\"" +
-			"\"0IjoxNTc5NjIxMTYwLCJpZCI6Imh0dHBzOi8vd3d3LnNwaWQuZ292Lml0L2Nlc\"" +
-			"\"nRpZmljYXRpb24vcnAiLCJsb2dvX3VyaSI6Imh0dHBzOi8vd3d3LmFnaWQuZ29\"" +
-			"\"2Lml0L3RoZW1lcy9jdXN0b20vYWdpZC9sb2dvLnN2ZyIsInJlZiI6Imh0dHBzO\"" +
-			"\"i8vZG9jcy5pdGFsaWEuaXQvaXRhbGlhL3NwaWQvc3BpZC1yZWdvbGUtdGVjbml\"" +
-			"\"jaGUtb2lkYy9pdC9zdGFiaWxlL2luZGV4Lmh0bWwifQ.vkYH4CZou-BhFRlZC3\"" +
-			"\"eORbPbXUf9kIcqss5N5cI6GK7JsUzvxwYk5TNm8clSpV0YZtZN4RQwEf85Q_fi\"" +
-			"\"FLPCPYimR-FtElWO-4Uxg44WQA1N7RbSmMNRzLfObBunMpuXcA8Trwf2d7FZ7n\"" +
-			"\"Zi6mXKR8B1_YDQbLiW9q1paT-RmlrwqYyHzG9yewpIj_EQEX6WOjpWj4-Jk6sT\"" +
-			"\"ZdCiu8r4d0Y7bpKt4GiGQTkVGdLyrLyMeX7FFcTI_yztKXbi8mV1-b1l7iOaJb\"" +
-			"\"FyGfpHeuFCyI3y1B00LTI5GCzuQU_hyVntTnB7Qw7csLnA6B-wwaxsQa2l9-Q8\"" +
-			"\"eAGXhfAlzqSqRQ\"";
+			"eyJraWQiOiJmdWtDdUtTS3hwWWJjN09lZUk3Ynlya3N5a0E1bDhPb2RFSXVyOHJ" +
+			"oNFlBIiwidHlwIjoidHJ1c3QtbWFyaytqd3QiLCJhbGciOiJSUzI1NiJ9" +
+			".eyJpc3MiOiJodHRwczovL3d3dy5hZ2lkLmdvdi5pdCIsInN1YiI6Imh0dHBzOi8" +
+			"vcnAuZXhhbXBsZS5pdC9zcGlkIiwiaWF0IjoxNTc5NjIxMTYwLCJpZCI6Imh0d" +
+			"HBzOi8vd3d3LnNwaWQuZ292Lml0L2NlcnRpZmljYXRpb24vcnAiLCJsb2dvX3V" +
+			"yaSI6Imh0dHBzOi8vd3d3LmFnaWQuZ292Lml0L3RoZW1lcy9jdXN0b20vYWdpZ" +
+			"C9sb2dvLnN2ZyIsInJlZiI6Imh0dHBzOi8vZG9jcy5pdGFsaWEuaXQvZG9jcy9" +
+			"zcGlkLWNpZS1vaWRjLWRvY3MvaXQvdmVyc2lvbmUtY29ycmVudGUvIn0.AGf5Y" +
+			"4MoJt22rznH4i7Wqpb2EF2LzE6BFEkTzY1dCBMCK-" +
+			"8P_vj4Boz7335pUF45XXr2jx5_waDRgDoS5vOO-wfc0NWb4Zb_T1RCwcryrzV0" +
+			"z3jJICePMPM_1hZnBZjTNQd4EsFNvKmUo_teR2yzAZjguR2Rid30O5PO8kJtGa" +
+			"XDmz-" +
+			"rWaHbmfLhlNGJnqcp9Lo1bhkU_4Cjpn2bdX7RN0JyfHVY5IJXwdxUMENxZd-" +
+			"VtA5QYiw7kPExT53XcJO89ebe_ik4D0dl-" +
+			"vINwYhrIz2RPnqgA1OdbK7jg0vm8Tb3aemRLG7oLntHwqLO-" +
+			"gGYr6evM2_SgqwA0lQ9mB9yhw";
 		
 		SignedJWT trustMark = SignedJWT.parse(jwt);
+		
 		assertEquals(JWSAlgorithm.RS256, trustMark.getHeader().getAlgorithm());
 		assertEquals(new JOSEObjectType("trust-mark+jwt"), trustMark.getHeader().getType());
-		assertEquals("x4Vwn7DsDMboGA8tMWjeyUcODSMPnkYnIWI7tzyUgFk", trustMark.getHeader().getKeyID());
+		assertEquals("fukCuKSKxpYbc7OeeI7byrksykA5l8OodEIur8rh4YA", trustMark.getHeader().getKeyID());
 		assertEquals(3, trustMark.getHeader().toJSONObject().size());
 		
 		TrustMarkClaimsSet trustMarkClaimsSet = new TrustMarkClaimsSet(trustMark.getJWTClaimsSet());
+		assertEquals(new Issuer("https://www.agid.gov.it"), trustMarkClaimsSet.getIssuer());
+		assertEquals(new Subject("https://rp.example.it/spid"), trustMarkClaimsSet.getSubject());
+		assertEquals(new Identifier("https://www.spid.gov.it/certification/rp"), trustMarkClaimsSet.getID());
+		assertEquals(DateUtils.fromSecondsSinceEpoch(1579621160), trustMarkClaimsSet.getIssueTime());
+		assertEquals(URI.create("https://docs.italia.it/docs/spid-cie-oidc-docs/it/versione-corrente/"), trustMarkClaimsSet.getReference());
+		assertEquals(URI.create("https://www.agid.gov.it/themes/custom/agid/logo.svg"), trustMarkClaimsSet.getLogoURI());
+		assertEquals(6, trustMarkClaimsSet.toJSONObject().size());
 	}
 }
