@@ -2087,28 +2087,23 @@ version 9.43.1 (2022-09-09)
     * Updates Nimbus JOSE+JWT to 9.24.4
 
 version 9.44 (2022-10-14)
-    * Updates EntityStatement to OpenID Connect Federation 1.0 - draft 23.
-    * Updates EntityStatementClaimsSet to OpenID Connect Federation 1.0 - draft
+    * Breaking change, upgrades OpenID Connect Federation 1.0 support to draft
       23.
+    * Updates EntityStatement (breaking change).
+    * Updates EntityStatementClaimsSet (breaking change).
     * Renames FederationMetadataType to EntityType.
-    * Updates EndpointName to OpenID Connect Federation 1.0 - draft 23.
-    * Updates OIDCProviderMetadata to OpenID Connect Federation 1.0 - draft 23.
-    * Adds OpenID Connect Federation 1.0 - draft 23 to
-      AuthorizationServerMetadata.
+    * Updates EndpointName (breaking change).
+    * Updates OIDCProviderMetadata with new federation parameters.
+    * Updates AuthorizationServerMetadata with new federation parameters.
     * Adds signed_jwks_uri support to ClientMetadata for OpenID Connect
-      Federation 1.0 - draft 23.
-    * Updates FederationEntityMetadata to OpenID Connect Federation 1.0 - draft
-      23.
-    * Updates FederationMetadataType to OpenID Connect Federation 1.0 - draft
-      23.
-    * Updates TrustMarkClaimsSet to OpenID Connect Federation 1.0 - draft 23.
+      Federation 1.0.
+    * Updates FederationEntityMetadata.
+    * Updates FederationMetadataType.
+    * Updates TrustMarkClaimsSet (breaking change).
     * Adds TrustMarkEntry.
     * Adds TrustMarkIssuerMetadata.
     * Adds LeafEntityTypeConstraint.
-    * Updates TrustChainConstraints to OpenID Connect Federation 1.0 - draft
-      23.
-    * Updates the Federation API classes to OpenID Connect Federation 1.0 -
-      draft 23.
-    * Updates TrustChain and TrustChain resolver to OpenID Connect Federation
-      1.0 - draft 23.
+    * Updates TrustChainConstraints with new leaf type constraints.
+    * Updates the Federation API classes (breaking changes).
+    * Updates TrustChain and TrustChain resolver (breaking changes).
     * Adds static ClaimsSet.getJSONArrayClaim method.
