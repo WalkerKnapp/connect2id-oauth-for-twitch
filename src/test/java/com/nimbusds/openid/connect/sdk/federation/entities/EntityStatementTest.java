@@ -142,7 +142,7 @@ public class EntityStatementTest extends TestCase {
 	}
 	
 
-	public void testLifecycle_defaultJWSAlg() throws Exception {
+	public void testLifeCycle_defaultJWSAlg() throws Exception {
 		
 		EntityStatementClaimsSet claimsSet = createSelfIssuedEntityStatementClaimsSet();
 		
@@ -172,7 +172,7 @@ public class EntityStatementTest extends TestCase {
 	}
 	
 
-	public void testLifecycle_explicitJWSAlg() throws Exception {
+	public void testLifeCycle_explicitJWSAlg() throws Exception {
 		
 		EntityStatementClaimsSet claimsSet = createSelfIssuedEntityStatementClaimsSet();
 		
@@ -201,7 +201,7 @@ public class EntityStatementTest extends TestCase {
 	}
 	
 	
-	public void testLifecycle_OPAboutRP() throws Exception {
+	public void testLifeCycle_OPAboutRP() throws Exception {
 		
 		EntityStatementClaimsSet claimsSet = createOPAboutRPEntityStatementClaimsSet();
 		
@@ -265,7 +265,7 @@ public class EntityStatementTest extends TestCase {
 			EntityStatement.parse(signedJWT.serialize()).verifySignatureOfSelfStatement();
 			fail();
 		} catch (BadJOSEException e) {
-			assertEquals("Entity statement rejected: Invalid or missing JWT typ (type) header", e.getMessage());
+			assertEquals("JWT rejected: Invalid or missing JWT typ (type) header", e.getMessage());
 		}
 	}
 	
@@ -284,7 +284,7 @@ public class EntityStatementTest extends TestCase {
 			EntityStatement.parse(signedJWT.serialize()).verifySignatureOfSelfStatement();
 			fail();
 		} catch (BadJOSEException e) {
-			assertEquals("Entity statement rejected: Invalid or missing JWT typ (type) header", e.getMessage());
+			assertEquals("JWT rejected: Invalid or missing JWT typ (type) header", e.getMessage());
 		}
 	}
 	
@@ -307,7 +307,7 @@ public class EntityStatementTest extends TestCase {
 			EntityStatement.parse(signedJWT.serialize()).verifySignatureOfSelfStatement();
 			fail();
 		} catch (BadJOSEException e) {
-			assertEquals("Entity statement rejected: Another JOSE algorithm expected, or no matching key(s) found", e.getMessage());
+			assertEquals("JWT rejected: Another JOSE algorithm expected, or no matching key(s) found", e.getMessage());
 		}
 	}
 	
@@ -330,7 +330,7 @@ public class EntityStatementTest extends TestCase {
 			EntityStatement.parse(signedJWT.serialize()).verifySignatureOfSelfStatement();
 			fail();
 		} catch (BadJOSEException e) {
-			assertEquals("Entity statement rejected: Invalid signature", e.getMessage());
+			assertEquals("JWT rejected: Invalid signature", e.getMessage());
 		}
 	}
 	

@@ -2086,7 +2086,7 @@ version 9.43 (2022-09-03)
 version 9.43.1 (2022-09-09)
     * Updates Nimbus JOSE+JWT to 9.24.4
 
-version 9.44 (2022-10-14)
+version 9.44 (2022-10-16)
     * Breaking change, upgrades OpenID Connect Federation 1.0 support to draft
       23.
     * Updates EntityStatement (breaking change).
@@ -2103,8 +2103,10 @@ version 9.44 (2022-10-14)
     * Adds TrustMarkEntry.
     * Adds TrustMarkIssuerMetadata.
     * Adds LeafEntityTypeConstraint.
-    * Adds ResolveClaimsSet for use by the ResolveResponse.
+    * Adds ResolveStatement for use by the ResolveResponse.
+    * Adds ResolveClaimsSet.
     * Updates TrustChainConstraints with new leaf type constraints.
     * Updates the Federation API classes (breaking changes).
     * Updates TrustChain and TrustChain resolver (breaking changes).
+    * Factors out common federation JWT methods in to JWTUtils.
     * Adds static ClaimsSet.getJSONArrayClaim method.

@@ -371,7 +371,7 @@ public class TrustChainTest extends TestCase {
 			trustChain.verifySignatures(ANCHOR_JWK_SET);
 			fail();
 		} catch (BadJOSEException e) {
-			assertEquals("Invalid leaf statement: Entity statement rejected: Invalid signature", e.getMessage());
+			assertEquals("Invalid leaf statement: JWT rejected: Invalid signature", e.getMessage());
 		}
 	}
 	
@@ -403,7 +403,7 @@ public class TrustChainTest extends TestCase {
 			trustChain.verifySignatures(ANCHOR_JWK_SET);
 			fail();
 		} catch (BadJOSEException e) {
-			assertEquals("Invalid statement from https://federation.example.com: Entity statement rejected: Invalid signature", e.getMessage());
+			assertEquals("Invalid statement from https://federation.example.com: JWT rejected: Invalid signature", e.getMessage());
 		}
 	}
 	

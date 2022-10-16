@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.nimbusds.openid.connect.sdk.federation.entities;
+package com.nimbusds.openid.connect.sdk.federation.api;
 
 
 import net.jcip.annotations.Immutable;
@@ -31,33 +31,32 @@ import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.nimbusds.openid.connect.sdk.federation.utils.JWTUtils;
 
 
 /**
- * Federation entity statement / entity configuration.
+ * Resolve statement.
  *
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 3.1.
+ *     <li>OpenID Connect Federation 1.0, section 7.2.2.
  * </ul>
  */
 @Immutable
-public final class EntityStatement {
+public final class ResolveStatement {
 	
 	
 	/**
-	 * The federation entity statement JOSE object type
-	 * ({@code entity-statement+jwt}).
+	 * The resolve statement JOSE object type
+	 * ({@code resolve-response+jwt}).
 	 */
-	public static final JOSEObjectType JOSE_OBJECT_TYPE = new JOSEObjectType("entity-statement+jwt");
+	public static final JOSEObjectType JOSE_OBJECT_TYPE = new JOSEObjectType("resolve-response+jwt");
 	
 	
 	/**
-	 * The federation entity statement content type
-	 * ({@code application/entity-statement+jwt}).
+	 * The resolve response content type
+	 * ({@code application/resolve-response+jwt}).
 	 */
 	public static final ContentType CONTENT_TYPE = new ContentType("application", JOSE_OBJECT_TYPE.getType());
 	
@@ -71,18 +70,18 @@ public final class EntityStatement {
 	/**
 	 * The statement claims.
 	 */
-	private final EntityStatementClaimsSet claimsSet;
+	private final ResolveClaimsSet claimsSet;
 	
 	
 	/**
-	 * Creates a new federation entity statement.
+	 * Creates a new resolve statement.
 	 *
 	 * @param statementJWT The signed statement as signed JWT. Must not be
 	 *                     {@code null}.
 	 * @param claimsSet    The statement claims. Must not be {@code null}.
 	 */
-	private EntityStatement(final SignedJWT statementJWT,
-				final EntityStatementClaimsSet claimsSet) {
+	private ResolveStatement(final SignedJWT statementJWT,
+				 final ResolveClaimsSet claimsSet) {
 		
 		if (statementJWT == null) {
 			throw new IllegalArgumentException("The entity statement must not be null");
@@ -96,16 +95,6 @@ public final class EntityStatement {
 			throw new IllegalArgumentException("The entity statement claims set must not be null");
 		}
 		this.claimsSet = claimsSet;
-	}
-	
-	
-	/**
-	 * Returns the entity ID.
-	 *
-	 * @return The entity ID.
-	 */
-	public EntityID getEntityID() {
-		return getClaimsSet().getSubjectEntityID();
 	}
 	
 	
@@ -124,42 +113,8 @@ public final class EntityStatement {
 	 *
 	 * @return The statement claims.
 	 */
-	public EntityStatementClaimsSet getClaimsSet() {
+	public ResolveClaimsSet getClaimsSet() {
 		return claimsSet;
-	}
-	
-	
-	/**
-	 * Returns {@code true} if this entity statement is for a
-	 * {@link EntityRole#TRUST_ANCHOR trust anchor}.
-	 *
-	 * @return {@code true} for a trust anchor, else {@code false}.
-	 */
-	public boolean isTrustAnchor() {
-		
-		return getClaimsSet().isSelfStatement() && CollectionUtils.isEmpty(getClaimsSet().getAuthorityHints());
-	}
-	
-	
-	/**
-	 * Verifies the signature for a self-statement (typically for a trust
-	 * anchor or leaf) and checks the statement issue and expiration times.
-	 *
-	 * @return The SHA-256 thumbprint of the key used to successfully
-	 *         verify the signature.
-	 *
-	 * @throws BadJOSEException If the signature is invalid or the
-	 *                          statement is expired or before the issue
-	 *                          time.
-	 * @throws JOSEException    On a internal JOSE exception.
-	 */
-	public Base64URL verifySignatureOfSelfStatement() throws BadJOSEException, JOSEException {
-		
-		if (! getClaimsSet().isSelfStatement()) {
-			throw new BadJOSEException("Entity statement not self-issued");
-		}
-		
-		return verifySignature(getClaimsSet().getJWKSet());
 	}
 	
 	
@@ -184,24 +139,24 @@ public final class EntityStatement {
 		return JWTUtils.verifySignature(
 			statementJWT,
 			JOSE_OBJECT_TYPE,
-			new EntityStatementClaimsVerifier(null),
+			new ResolveClaimsVerifier(),
 			jwkSet);
 	}
 	
 	
 	/**
-	 * Signs the specified federation entity claims set.
+	 * Signs the specified resolve claims set.
 	 *
 	 * @param claimsSet  The claims set. Must not be {@code null}.
 	 * @param signingJWK The private signing JWK. Must be contained in the
 	 *                   entity JWK set and not {@code null}.
 	 *
-	 * @return The signed federation entity statement.
+	 * @return The signed resolve statement.
 	 *
 	 * @throws JOSEException On a internal signing exception.
 	 */
-	public static EntityStatement sign(final EntityStatementClaimsSet claimsSet,
-					   final JWK signingJWK)
+	public static ResolveStatement sign(final ResolveClaimsSet claimsSet,
+					    final JWK signingJWK)
 		throws JOSEException {
 		
 		return sign(claimsSet, signingJWK, JWTUtils.resolveSigningAlgorithm(signingJWK));
@@ -209,7 +164,7 @@ public final class EntityStatement {
 	
 	
 	/**
-	 * Signs the specified federation entity claims set.
+	 * Signs the specified resolve claims set.
 	 *
 	 * @param claimsSet  The claims set. Must not be {@code null}.
 	 * @param signingJWK The private signing JWK. Must be contained in the
@@ -217,21 +172,17 @@ public final class EntityStatement {
 	 * @param jwsAlg     The signing algorithm. Must be supported by the
 	 *                   JWK and not {@code null}.
 	 *
-	 * @return The signed federation entity statement.
+	 * @return The signed resolve statement.
 	 *
-	 * @throws JOSEException On a internal signing exception.
+	 * @throws JOSEException On an internal signing exception.
 	 */
-	public static EntityStatement sign(final EntityStatementClaimsSet claimsSet,
-					   final JWK signingJWK,
-					   final JWSAlgorithm jwsAlg)
+	public static ResolveStatement sign(final ResolveClaimsSet claimsSet,
+					    final JWK signingJWK,
+					    final JWSAlgorithm jwsAlg)
 		throws JOSEException {
 		
-		if (claimsSet.isSelfStatement() && ! claimsSet.getJWKSet().containsJWK(signingJWK)) {
-			throw new JOSEException("Signing JWK not found in JWK set of self-statement");
-		}
-		
 		try {
-			return new EntityStatement(
+			return new ResolveStatement(
 				JWTUtils.sign(
 					signingJWK,
 					jwsAlg,
@@ -245,39 +196,39 @@ public final class EntityStatement {
 	
 	
 	/**
-	 * Parses a federation entity statement.
+	 * Parses a resolve statement.
 	 *
 	 * @param signedStmt The signed statement as a signed JWT. Must not be
 	 *                   {@code null}.
 	 *
-	 * @return The federation entity statement.
+	 * @return The resolve statement.
 	 *
 	 * @throws ParseException If parsing failed.
 	 */
-	public static EntityStatement parse(final SignedJWT signedStmt)
+	public static ResolveStatement parse(final SignedJWT signedStmt)
 		throws ParseException {
 		
-		return new EntityStatement(signedStmt, new EntityStatementClaimsSet(JWTUtils.parseSignedJWTClaimsSet(signedStmt)));
+		return new ResolveStatement(signedStmt, new ResolveClaimsSet(JWTUtils.parseSignedJWTClaimsSet(signedStmt)));
 	}
 	
 	
 	/**
-	 * Parses a federation entity statement.
+	 * Parses a resolve statement.
 	 *
 	 * @param signedStmtString The signed statement as a signed JWT string.
 	 *                         Must not be {@code null}.
 	 *
-	 * @return The federation entity statement.
+	 * @return The resolve statement.
 	 *
 	 * @throws ParseException If parsing failed.
 	 */
-	public static EntityStatement parse(final String signedStmtString)
+	public static ResolveStatement parse(final String signedStmtString)
 		throws ParseException {
 		
 		try {
 			return parse(SignedJWT.parse(signedStmtString));
 		} catch (java.text.ParseException e) {
-			throw new ParseException("Invalid entity statement: " + e.getMessage(), e);
+			throw new ParseException("Invalid resolve statement: " + e.getMessage(), e);
 		}
 	}
 }
