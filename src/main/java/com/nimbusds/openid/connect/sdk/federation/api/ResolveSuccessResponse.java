@@ -19,12 +19,9 @@ package com.nimbusds.openid.connect.sdk.federation.api;
 
 
 import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
 
-import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 
 
 /**
@@ -41,34 +38,33 @@ public class ResolveSuccessResponse extends ResolveResponse {
 	
 	
 	/**
-	 * The metadata JSON object.
+	 * The resolve statement.
 	 */
-	private final JSONObject metadata;
+	private final ResolveStatement resolveStatement;
 	
 	
 	/**
 	 * Creates a new trust negotiation success response.
 	 *
-	 * @param metadata The metadata JSON object for the requested {@link
-	 *                 EntityType entity type}. Must not be {@code null}.
+	 * @param resolveStatement The resolve statement. Must not be
+	 *                         {@code null}.
 	 */
-	public ResolveSuccessResponse(final JSONObject metadata) {
-		if (metadata == null) {
-			throw new IllegalArgumentException("The metadata JSON object must not be null");
+	public ResolveSuccessResponse(final ResolveStatement resolveStatement) {
+		if (resolveStatement == null) {
+			throw new IllegalArgumentException("The resolve statement must not be null");
 		}
-		this.metadata = metadata;
+		this.resolveStatement = resolveStatement;
 	}
 	
 	
 	/**
-	 * Returns metadata JSON object for the requested {@link
-	 * EntityType
-	 * metadata type}.
+	 * Returns the resolve statement. No signature or expiration validation
+	 * is performed.
 	 *
-	 * @return The metadata JSON object.
+	 * @return The resolve statement.
 	 */
-	public JSONObject getMetadataJSONObject() {
-		return metadata;
+	public ResolveStatement getResolveStatement() {
+		return resolveStatement;
 	}
 	
 	
@@ -81,19 +77,18 @@ public class ResolveSuccessResponse extends ResolveResponse {
 	@Override
 	public HTTPResponse toHTTPResponse() {
 		HTTPResponse httpResponse = new HTTPResponse(HTTPResponse.SC_OK);
-		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
-		httpResponse.setContent(getMetadataJSONObject().toJSONString());
+		httpResponse.setEntityContentType(ResolveStatement.CONTENT_TYPE);
+		httpResponse.setContent(getResolveStatement().getSignedStatement().serialize());
 		return httpResponse;
 	}
 	
 	
 	/**
-	 * Parses a trust negotiation success response from the specified HTTP
-	 * response.
+	 * Parses a resolve success response from the specified HTTP response.
 	 *
 	 * @param httpResponse The HTTP response. Must not be {@code null}.
 	 *
-	 * @return The trust negotiation success response.
+	 * @return The resolve success response.
 	 *
 	 * @throws ParseException If parsing failed.
 	 */
@@ -101,7 +96,7 @@ public class ResolveSuccessResponse extends ResolveResponse {
 		throws ParseException {
 		
 		httpResponse.ensureStatusCode(HTTPResponse.SC_OK);
-		JSONObject jsonObject = httpResponse.getContentAsJSONObject();
-		return new ResolveSuccessResponse(jsonObject);
+		httpResponse.ensureEntityContentType(ResolveStatement.CONTENT_TYPE);
+		return new ResolveSuccessResponse(ResolveStatement.parse(httpResponse.getContent()));
 	}
 }

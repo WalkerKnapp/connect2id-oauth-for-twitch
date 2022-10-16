@@ -31,13 +31,12 @@ public class ResolveResponseTest extends TestCase {
 	
 	public void testParseSuccess() throws ParseException {
 		
-		OIDCProviderMetadata opMetadata = ResolveSuccessResponseTest.createSampleOPMetadata();
-		JSONObject jsonObject = opMetadata.toJSONObject();
-		ResolveSuccessResponse response = new ResolveSuccessResponse(jsonObject);
+		ResolveStatement statement = ResolveSuccessResponseTest.createSampleResolveStatement();
+		ResolveSuccessResponse response = new ResolveSuccessResponse(statement);
 		HTTPResponse httpResponse = response.toHTTPResponse();
 		
 		response = ResolveResponse.parse(httpResponse).toSuccessResponse();
-		assertEquals(jsonObject, response.getMetadataJSONObject());
+		assertEquals(statement.getSignedStatement().serialize(), response.getResolveStatement().getSignedStatement().serialize());
 		assertTrue(response.indicatesSuccess());
 	}
 	
