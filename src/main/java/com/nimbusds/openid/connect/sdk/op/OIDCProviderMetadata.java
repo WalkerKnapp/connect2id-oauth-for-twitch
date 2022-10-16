@@ -1,7 +1,7 @@
 /*
  * oauth2-oidc-sdk
  *
- * Copyright 2012-2016, Connect2id Ltd and contributors.
+ * Copyright 2012-2022 Connect2id Ltd and contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
  * this file except in compliance with the License. You may obtain a copy of the
@@ -1878,8 +1878,8 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 		
 		return resolve(issuer, 0, 0);
 	}
-	
-	
+
+
 	/**
 	 * Resolves OpenID Provider metadata from the specified issuer
 	 * identifier. The metadata is downloaded by HTTP GET from
@@ -1898,34 +1898,68 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 *
 	 * @throws GeneralException If the issuer identifier or the downloaded
 	 *                          metadata are invalid.
-	 * @throws IOException      On a HTTP exception.
+	 * @throws IOException      On an HTTP exception.
 	 */
 	public static OIDCProviderMetadata resolve(final Issuer issuer,
 						   final int connectTimeout,
 						   final int readTimeout)
 		throws GeneralException, IOException {
-		
+
+		HTTPRequestConfigurator requestConfigurator = new HTTPRequestConfigurator() {
+			@Override
+			public void configure(HTTPRequest httpRequest) {
+				httpRequest.setConnectTimeout(connectTimeout);
+				httpRequest.setReadTimeout(readTimeout);
+			}
+		};
+
+		return resolve(issuer, requestConfigurator);
+	}
+
+
+	/**
+	 * Resolves OpenID Provider metadata from the specified issuer
+	 * identifier. The metadata is downloaded by HTTP GET from
+	 * {@code [issuer-url]/.well-known/openid-configuration}, using the
+	 * specified HTTP request configuration.
+	 *
+	 * @param issuer              The issuer identifier. Must represent a valid
+	 *                            HTTPS or HTTP URL. Must not be {@code null}.
+	 * @param requestConfigurator An instance implementation of the {@link HTTPRequestConfigurator}
+	 *                            interface which allows additional configuration
+	 *                            of the {@link HTTPRequest} object used for
+	 *                            fetching OpenID Provider metadata.
+	 *
+	 * @return The OpenID Provider metadata.
+	 *
+	 * @throws GeneralException If the issuer identifier or the downloaded
+	 *                          metadata are invalid.
+	 * @throws IOException      On an HTTP exception.
+	 */
+	public static OIDCProviderMetadata resolve(final Issuer issuer,
+											   final HTTPRequestConfigurator requestConfigurator)
+		throws GeneralException, IOException {
+
 		URL configURL = resolveURL(issuer);
-		
+
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, configURL);
-		httpRequest.setConnectTimeout(connectTimeout);
-		httpRequest.setReadTimeout(readTimeout);
-		
+		requestConfigurator.configure(httpRequest);
+
 		HTTPResponse httpResponse = httpRequest.send();
-		
+
 		if (httpResponse.getStatusCode() != 200) {
 			throw new IOException("Couldn't download OpenID Provider metadata from " + configURL +
-				": Status code " + httpResponse.getStatusCode());
+				  ": Status code " + httpResponse.getStatusCode());
 		}
-		
+
 		JSONObject jsonObject = httpResponse.getContentAsJSONObject();
-		
+
 		OIDCProviderMetadata op = OIDCProviderMetadata.parse(jsonObject);
-		
+
 		if (! issuer.equals(op.getIssuer())) {
 			throw new GeneralException("The returned issuer doesn't match the expected: " + op.getIssuer());
 		}
-		
+
 		return op;
 	}
 }
