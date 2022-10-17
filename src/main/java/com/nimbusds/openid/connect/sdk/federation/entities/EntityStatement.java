@@ -31,7 +31,6 @@ import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.nimbusds.openid.connect.sdk.federation.utils.JWTUtils;
 
 
@@ -126,18 +125,6 @@ public final class EntityStatement {
 	 */
 	public EntityStatementClaimsSet getClaimsSet() {
 		return claimsSet;
-	}
-	
-	
-	/**
-	 * Returns {@code true} if this entity statement is for a
-	 * {@link EntityRole#TRUST_ANCHOR trust anchor}.
-	 *
-	 * @return {@code true} for a trust anchor, else {@code false}.
-	 */
-	public boolean isTrustAnchor() {
-		
-		return getClaimsSet().isSelfStatement() && CollectionUtils.isEmpty(getClaimsSet().getAuthorityHints());
 	}
 	
 	

@@ -150,7 +150,6 @@ public class EntityStatementTest extends TestCase {
 		
 		assertEquals(OP_METADATA.getIssuer().getValue(), entityStatement.getEntityID().getValue());
 		assertEquals(claimsSet.toJWTClaimsSet().getClaims(), entityStatement.getClaimsSet().toJWTClaimsSet().getClaims());
-		assertFalse(entityStatement.isTrustAnchor());
 		
 		JWSHeader jwsHeader = entityStatement.getSignedStatement().getHeader();
 		assertEquals(JWSAlgorithm.RS256, jwsHeader.getAlgorithm());
@@ -343,16 +342,5 @@ public class EntityStatementTest extends TestCase {
 		} catch (ParseException e) {
 			assertEquals("Invalid entity statement: Invalid serialized unsecured/JWS/JWE object: Missing part delimiters", e.getMessage());
 		}
-	}
-	
-	
-	public void testIsForTrustAnchor() throws Exception {
-		
-		EntityStatementClaimsSet claimsSet = createSelfIssuedEntityStatementClaimsSet();
-		claimsSet.setAuthorityHints(null);
-		
-		EntityStatement entityStatement = EntityStatement.sign(claimsSet, RSA_JWK);
-		
-		assertTrue(entityStatement.isTrustAnchor());
 	}
 }

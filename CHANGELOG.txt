@@ -2065,7 +2065,7 @@ version 9.41.1 (2022-08-26)
     * Updates Nimbus JOSE+JWT to 9.24.3
     * Updates optional Google Tink to 1.7.0.
     * Updates optional transitive dependencies to OpenSAML 3.x
-      org.apache.santuario:xmlsec and ommons-codec:commons-codec to address
+      org.apache.santuario:xmlsec and commons-codec:commons-codec to address
       CVEs reported by Snyk.
 
 version 9.42 (2022-09-01)
@@ -2086,7 +2086,7 @@ version 9.43 (2022-09-03)
 version 9.43.1 (2022-09-09)
     * Updates Nimbus JOSE+JWT to 9.24.4
 
-version 9.44 (2022-10-16)
+version 10.0 (2022-10-16)
     * Breaking change, upgrades OpenID Connect Federation 1.0 support to draft
       23.
     * Updates EntityStatement (breaking change).
