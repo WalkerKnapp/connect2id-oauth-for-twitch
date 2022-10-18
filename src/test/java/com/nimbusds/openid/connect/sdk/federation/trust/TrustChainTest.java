@@ -41,10 +41,7 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.SubjectType;
-import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
-import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
-import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatementClaimsSet;
-import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
+import com.nimbusds.openid.connect.sdk.federation.entities.*;
 import com.nimbusds.openid.connect.sdk.federation.policy.MetadataPolicy;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyOperation;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyViolationException;
@@ -75,6 +72,8 @@ public class TrustChainTest extends TestCase {
 	public static final JWKSet OP_JWK_SET;
 	
 	public static final OIDCProviderMetadata OP_METADATA;
+	
+	public static final FederationEntityMetadata ANCHOR_METADATA;
 	
 	static {
 		try {
@@ -110,6 +109,9 @@ public class TrustChainTest extends TestCase {
 		OP_METADATA.setAuthorizationEndpointURI(URI.create("https://op.c2id.com/login"));
 		OP_METADATA.setTokenEndpointURI(URI.create("https://op.c2id.com/token"));
 		OP_METADATA.applyDefaults();
+		
+		ANCHOR_METADATA = new FederationEntityMetadata(URI.create("https://federation.example.com/fetch"));
+		ANCHOR_METADATA.setFederationListEndpointURI(URI.create("https://federation.example.com/list"));
 	}
 	
 	
@@ -164,6 +166,25 @@ public class TrustChainTest extends TestCase {
 	}
 	
 	
+	public static EntityStatementClaimsSet createAnchorSelfStatementClaimsSet() {
+		
+		Date now = new Date();
+		long nowTS = DateUtils.toSecondsSinceEpoch(now);
+		Date iat = DateUtils.fromSecondsSinceEpoch(nowTS);
+		Date exp = DateUtils.fromSecondsSinceEpoch(nowTS + 60);
+		
+		EntityStatementClaimsSet stmt = new EntityStatementClaimsSet(
+			ANCHOR_ENTITY_ID.toIssuer(),
+			ANCHOR_ENTITY_ID.toSubject(),
+			iat,
+			exp,
+			ANCHOR_JWK_SET
+		);
+		stmt.setFederationEntityMetadata(ANCHOR_METADATA);
+		return stmt;
+	}
+	
+	
 	// Anchor -> OP
 	public void testMinimal() throws Exception {
 		
@@ -178,6 +199,7 @@ public class TrustChainTest extends TestCase {
 		
 		assertEquals(leafStmt, trustChain.getLeafConfiguration());
 		assertEquals(superiorStatements, trustChain.getSuperiorStatements());
+		assertNull(trustChain.getTrustAnchorConfiguration());
 		
 		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
 		
@@ -206,6 +228,7 @@ public class TrustChainTest extends TestCase {
 		trustChain = TrustChain.parseSerialized(serializedJWTs);
 		assertEquals(leafStmt.getClaimsSet(), trustChain.getLeafConfiguration().getClaimsSet());
 		assertEquals(anchorClaimsAboutLeaf, trustChain.getSuperiorStatements().get(0).getClaimsSet());
+		assertNull(trustChain.getTrustAnchorConfiguration());
 		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
 		trustChain.verifySignatures(ANCHOR_JWK_SET);
 	}
@@ -228,6 +251,7 @@ public class TrustChainTest extends TestCase {
 		
 		assertEquals(leafStmt, trustChain.getLeafConfiguration());
 		assertEquals(superiorStatements, trustChain.getSuperiorStatements());
+		assertNull(trustChain.getTrustAnchorConfiguration());
 		
 		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
 		
@@ -262,6 +286,120 @@ public class TrustChainTest extends TestCase {
 		assertEquals(leafStmt.getClaimsSet(), trustChain.getLeafConfiguration().getClaimsSet());
 		assertEquals(intermediateClaimsAboutLeaf, trustChain.getSuperiorStatements().get(0).getClaimsSet());
 		assertEquals(anchorClaimsAboutIntermediate, trustChain.getSuperiorStatements().get(1).getClaimsSet());
+		assertNull(trustChain.getTrustAnchorConfiguration());
+		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
+		trustChain.verifySignatures(ANCHOR_JWK_SET);
+	}
+	
+	
+	// Anchor -> OP
+	public void testMinimal_withAnchorConfig() throws Exception {
+		
+		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaimsAboutLeaf = createOPStatementClaimsSet(new Issuer(ANCHOR_ENTITY_ID.getValue()), ANCHOR_ENTITY_ID);
+		EntityStatement anchorStmtAboutLeaf = EntityStatement.sign(anchorClaimsAboutLeaf, ANCHOR_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaims = createAnchorSelfStatementClaimsSet();
+		EntityStatement anchorStmt = EntityStatement.sign(anchorClaims, ANCHOR_RSA_JWK);
+		
+		List<EntityStatement> superiorStatements = Collections.singletonList(anchorStmtAboutLeaf);
+		TrustChain trustChain = new TrustChain(leafStmt, superiorStatements, anchorStmt);
+		
+		assertEquals(leafStmt, trustChain.getLeafConfiguration());
+		assertEquals(superiorStatements, trustChain.getSuperiorStatements());
+		assertEquals(anchorStmt, trustChain.getTrustAnchorConfiguration());
+		
+		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
+		
+		trustChain.verifySignatures(ANCHOR_JWK_SET);
+		
+		// Iterator from leaf
+		Iterator<EntityStatement> it = trustChain.iteratorFromLeaf();
+		
+		assertTrue(it.hasNext());
+		assertEquals(leafStmt, it.next());
+		
+		assertTrue(it.hasNext());
+		assertEquals(anchorStmtAboutLeaf, it.next());
+		
+		assertFalse(it.hasNext());
+		assertNull(it.next());
+		
+		assertEquals(1, trustChain.length());
+		
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_PROVIDER).entrySet().isEmpty());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_RELYING_PARTY).entrySet().isEmpty());
+		
+		// Serialise and parse
+		List<String> serializedJWTs = trustChain.toSerializedJWTs();
+		assertEquals(3, serializedJWTs.size());
+		trustChain = TrustChain.parseSerialized(serializedJWTs);
+		assertEquals(leafStmt.getClaimsSet(), trustChain.getLeafConfiguration().getClaimsSet());
+		assertEquals(anchorClaimsAboutLeaf, trustChain.getSuperiorStatements().get(0).getClaimsSet());
+		assertEquals(anchorClaims, trustChain.getTrustAnchorConfiguration().getClaimsSet());
+		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
+		trustChain.verifySignatures(ANCHOR_JWK_SET);
+	}
+	
+	
+	// Anchor -> Intermediate -> OP
+	public void testWithIntermediate_withAnchorConfig() throws Exception {
+		
+		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(INTERMEDIATE_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
+		
+		EntityStatementClaimsSet intermediateClaimsAboutLeaf = createOPStatementClaimsSet(new Issuer(INTERMEDIATE_ENTITY_ID), INTERMEDIATE_ENTITY_ID);
+		EntityStatement intermediateStmtAboutLeaf = EntityStatement.sign(intermediateClaimsAboutLeaf, INTERMEDIATE_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaimsAboutIntermediate = createIntermediateStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement anchorStmtAboutIntermediate = EntityStatement.sign(anchorClaimsAboutIntermediate, ANCHOR_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaims = createAnchorSelfStatementClaimsSet();
+		EntityStatement anchorStmt = EntityStatement.sign(anchorClaims, ANCHOR_RSA_JWK);
+		
+		List<EntityStatement> superiorStatements = Arrays.asList(intermediateStmtAboutLeaf, anchorStmtAboutIntermediate);
+		TrustChain trustChain = new TrustChain(leafStmt, superiorStatements, anchorStmt);
+		
+		assertEquals(leafStmt, trustChain.getLeafConfiguration());
+		assertEquals(superiorStatements, trustChain.getSuperiorStatements());
+		assertEquals(anchorStmt, trustChain.getTrustAnchorConfiguration());
+		
+		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
+		
+		trustChain.verifySignatures(ANCHOR_JWK_SET);
+		
+		assertNotNull(trustChain.resolveExpirationTime());
+		
+		// Iterator from leaf
+		Iterator<EntityStatement> it = trustChain.iteratorFromLeaf();
+		
+		assertTrue(it.hasNext());
+		assertEquals(leafStmt, it.next());
+		
+		assertTrue(it.hasNext());
+		assertEquals(intermediateStmtAboutLeaf, it.next());
+		
+		assertTrue(it.hasNext());
+		assertEquals(anchorStmtAboutIntermediate, it.next());
+		
+		assertFalse(it.hasNext());
+		assertNull(it.next());
+		
+		assertEquals(2, trustChain.length());
+		
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_PROVIDER).entrySet().isEmpty());
+		assertTrue(trustChain.resolveCombinedMetadataPolicy(EntityType.OPENID_RELYING_PARTY).entrySet().isEmpty());
+		
+		// Serialise and parse
+		List<String> serializedJWTs = trustChain.toSerializedJWTs();
+		assertEquals(4, serializedJWTs.size());
+		trustChain = TrustChain.parseSerialized(serializedJWTs);
+		assertEquals(leafStmt.getClaimsSet(), trustChain.getLeafConfiguration().getClaimsSet());
+		assertEquals(intermediateClaimsAboutLeaf, trustChain.getSuperiorStatements().get(0).getClaimsSet());
+		assertEquals(anchorClaimsAboutIntermediate, trustChain.getSuperiorStatements().get(1).getClaimsSet());
+		assertEquals(anchorClaims, trustChain.getTrustAnchorConfiguration().getClaimsSet());
 		assertEquals(ANCHOR_ENTITY_ID, trustChain.getTrustAnchorEntityID());
 		trustChain.verifySignatures(ANCHOR_JWK_SET);
 	}
@@ -318,6 +456,50 @@ public class TrustChainTest extends TestCase {
 	}
 	
 	
+	public void testConstructor_nullLeaf() throws JOSEException {
+		
+		EntityStatementClaimsSet anchorClaimsAboutLeaf = createOPStatementClaimsSet(new Issuer(ANCHOR_ENTITY_ID.getValue()), ANCHOR_ENTITY_ID);
+		EntityStatement anchorStmtAboutLeaf = EntityStatement.sign(anchorClaimsAboutLeaf, ANCHOR_RSA_JWK);
+		
+		List<EntityStatement> superiorStatements = Collections.singletonList(anchorStmtAboutLeaf);
+		
+		try {
+			new TrustChain(null, superiorStatements);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("The leaf entity configuration must not be null", e.getMessage());
+		}
+	}
+	
+	
+	public void testConstructor_nullSuperiors() throws JOSEException {
+		
+		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
+		
+		try {
+			new TrustChain(leafStmt, null);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("There must be at least one superior statement (issued by the trust anchor)", e.getMessage());
+		}
+	}
+	
+	
+	public void testConstructor_emptySuperiors() throws JOSEException {
+		
+		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
+		
+		try {
+			new TrustChain(leafStmt, Collections.<EntityStatement>emptyList());
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("There must be at least one superior statement (issued by the trust anchor)", e.getMessage());
+		}
+	}
+	
+	
 	public void testConstructor_brokenSubIssChain() throws Exception {
 		
 		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
@@ -340,6 +522,44 @@ public class TrustChainTest extends TestCase {
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertEquals("Broken subject - issuer chain", e.getMessage());
+		}
+	}
+	
+	
+	public void testConstructor_illegalTrustAnchorConfig() throws Exception {
+		
+		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaimsAboutLeaf = createOPStatementClaimsSet(new Issuer(ANCHOR_ENTITY_ID.getValue()), ANCHOR_ENTITY_ID);
+		EntityStatement anchorStmtAboutLeaf = EntityStatement.sign(anchorClaimsAboutLeaf, ANCHOR_RSA_JWK);
+		
+		List<EntityStatement> superiorStatements = Collections.singletonList(anchorStmtAboutLeaf);
+		
+		try {
+			new TrustChain(leafStmt, superiorStatements, leafStmt); // leaf instead of anchor
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("Broken subject - issuer chain", e.getMessage());
+		}
+	}
+	
+	
+	public void testConstructor_illegalTrustAnchorConfig_noSelfStatement() throws Exception {
+		
+		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaimsAboutLeaf = createOPStatementClaimsSet(new Issuer(ANCHOR_ENTITY_ID.getValue()), ANCHOR_ENTITY_ID);
+		EntityStatement anchorStmtAboutLeaf = EntityStatement.sign(anchorClaimsAboutLeaf, ANCHOR_RSA_JWK);
+		
+		List<EntityStatement> superiorStatements = Collections.singletonList(anchorStmtAboutLeaf);
+		
+		try {
+			new TrustChain(leafStmt, superiorStatements, anchorStmtAboutLeaf); // statement instead of anchor
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("The trust anchor entity configuration must be a self-statement", e.getMessage());
 		}
 	}
 	
@@ -371,7 +591,7 @@ public class TrustChainTest extends TestCase {
 			trustChain.verifySignatures(ANCHOR_JWK_SET);
 			fail();
 		} catch (BadJOSEException e) {
-			assertEquals("Invalid leaf statement: JWT rejected: Invalid signature", e.getMessage());
+			assertEquals("Invalid leaf entity configuration: JWT rejected: Invalid signature", e.getMessage());
 		}
 	}
 	
@@ -404,6 +624,72 @@ public class TrustChainTest extends TestCase {
 			fail();
 		} catch (BadJOSEException e) {
 			assertEquals("Invalid statement from https://federation.example.com: JWT rejected: Invalid signature", e.getMessage());
+		}
+	}
+	
+	
+	public void testVerifySignature_invalidAnchorConfigSignature()
+		throws Exception {
+		
+		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaimsAboutLeaf = createOPStatementClaimsSet(new Issuer(ANCHOR_ENTITY_ID.getValue()), ANCHOR_ENTITY_ID);
+		EntityStatement anchorStmtAboutLeaf = EntityStatement.sign(anchorClaimsAboutLeaf, ANCHOR_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaims = createAnchorSelfStatementClaimsSet();
+		RSAKey invalidKey = new RSAKeyGenerator(2048).keyID(ANCHOR_RSA_JWK.getKeyID()).generate();
+		SignedJWT anchorJWT = new SignedJWT(
+			new JWSHeader.Builder(JWSAlgorithm.RS256)
+				.type(EntityStatement.JOSE_OBJECT_TYPE)
+				.keyID(invalidKey.getKeyID())
+				.build(),
+			anchorClaims.toJWTClaimsSet());
+		anchorJWT.sign(new RSASSASigner(invalidKey));
+		EntityStatement anchorStmt = EntityStatement.parse(anchorJWT);
+		
+		List<EntityStatement> superiorStatements = Collections.singletonList(anchorStmtAboutLeaf);
+		
+		TrustChain trustChain = new TrustChain(leafStmt, superiorStatements, anchorStmt);
+		
+		try {
+			trustChain.verifySignatures(ANCHOR_JWK_SET);
+			fail();
+		} catch (BadJOSEException e) {
+			assertEquals("Invalid trust anchor entity configuration: JWT rejected: Invalid signature", e.getMessage());
+		}
+	}
+	
+	
+	public void testVerifySignature_anchorKeyNotFoundInItsConfig()
+		throws Exception {
+		
+		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaimsAboutLeaf = createOPStatementClaimsSet(new Issuer(ANCHOR_ENTITY_ID.getValue()), ANCHOR_ENTITY_ID);
+		EntityStatement anchorStmtAboutLeaf = EntityStatement.sign(anchorClaimsAboutLeaf, ANCHOR_RSA_JWK);
+		
+		RSAKey newAnchorKey = new RSAKeyGenerator(2048).keyIDFromThumbprint(true).generate();
+		EntityStatementClaimsSet anchorClaims = createAnchorSelfStatementClaimsSet();
+		anchorClaims = new EntityStatementClaimsSet(
+			anchorClaims.getIssuer(),
+			anchorClaims.getSubject(),
+			anchorClaims.getIssueTime(),
+			anchorClaims.getExpirationTime(),
+			new JWKSet(newAnchorKey)
+		);
+		EntityStatement anchorStmt = EntityStatement.sign(anchorClaims, newAnchorKey);
+		
+		List<EntityStatement> superiorStatements = Collections.singletonList(anchorStmtAboutLeaf);
+		
+		TrustChain trustChain = new TrustChain(leafStmt, superiorStatements, anchorStmt);
+		
+		try {
+			trustChain.verifySignatures(ANCHOR_JWK_SET);
+			fail();
+		} catch (BadJOSEException e) {
+			assertEquals("Signing JWK with thumbprint " + ANCHOR_RSA_JWK.computeThumbprint() + " not found in trust anchor entity configuration", e.getMessage());
 		}
 	}
 	
@@ -705,7 +991,7 @@ public class TrustChainTest extends TestCase {
 	}
 	
 	
-	public void testParseJWTs_illegalOrderOfStatements() throws JOSEException {
+	public void testParseJWTs_illegalOrderOfStatements_leafNotFirst() throws JOSEException {
 		
 		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
 		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
@@ -721,6 +1007,54 @@ public class TrustChainTest extends TestCase {
 				anchorStmtAboutIntermediate.getSignedStatement().serialize(),
 				intermediateStmtAboutLeaf.getSignedStatement().serialize(),
 				leafStmt.getSignedStatement().serialize()));
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Illegal trust chain: The leaf entity configuration must be a self-statement", e.getMessage());
+		}
+	}
+	
+	
+	public void testParseJWTs_illegalOrderOfStatements_superiorChainBroken() throws JOSEException {
+		
+		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
+		
+		EntityStatementClaimsSet intermediateClaimsAboutLeaf = createOPStatementClaimsSet(new Issuer(INTERMEDIATE_ENTITY_ID), INTERMEDIATE_ENTITY_ID);
+		EntityStatement intermediateStmtAboutLeaf = EntityStatement.sign(intermediateClaimsAboutLeaf, INTERMEDIATE_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaimsAboutIntermediate = createIntermediateStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement anchorStmtAboutIntermediate = EntityStatement.sign(anchorClaimsAboutIntermediate, ANCHOR_RSA_JWK);
+		
+		try {
+			TrustChain.parseSerialized(Arrays.asList(
+				leafStmt.getSignedStatement().serialize(),
+				anchorStmtAboutIntermediate.getSignedStatement().serialize(),
+				intermediateStmtAboutLeaf.getSignedStatement().serialize()));
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Illegal trust chain: Broken subject - issuer chain", e.getMessage());
+		}
+	}
+	
+	
+	public void testParseJWTs_illegalOrderOfStatements_illegalAnchorConfig() throws JOSEException {
+		
+		EntityStatementClaimsSet leafClaims = createOPSelfStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, OP_RSA_JWK);
+		
+		EntityStatementClaimsSet intermediateClaimsAboutLeaf = createOPStatementClaimsSet(new Issuer(INTERMEDIATE_ENTITY_ID), INTERMEDIATE_ENTITY_ID);
+		EntityStatement intermediateStmtAboutLeaf = EntityStatement.sign(intermediateClaimsAboutLeaf, INTERMEDIATE_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaimsAboutIntermediate = createIntermediateStatementClaimsSet(ANCHOR_ENTITY_ID);
+		EntityStatement anchorStmtAboutIntermediate = EntityStatement.sign(anchorClaimsAboutIntermediate, ANCHOR_RSA_JWK);
+		
+		try {
+			TrustChain.parseSerialized(Arrays.asList(
+				leafStmt.getSignedStatement().serialize(),
+				anchorStmtAboutIntermediate.getSignedStatement().serialize(),
+				intermediateStmtAboutLeaf.getSignedStatement().serialize(),
+				intermediateStmtAboutLeaf.getSignedStatement().serialize() // repeat
+				));
 			fail();
 		} catch (ParseException e) {
 			assertEquals("Illegal trust chain: Broken subject - issuer chain", e.getMessage());

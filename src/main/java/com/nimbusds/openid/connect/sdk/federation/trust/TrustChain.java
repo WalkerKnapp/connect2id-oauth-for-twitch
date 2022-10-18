@@ -73,6 +73,12 @@ public final class TrustChain {
 	
 	
 	/**
+	 * The optional trust anchor entity configuration.
+	 */
+	private final EntityStatement trustAnchor;
+	
+	
+	/**
 	 * Caches the resolved expiration time for this trust chain.
 	 */
 	private Date exp;
@@ -95,32 +101,79 @@ public final class TrustChain {
 	 *                                  broken.
 	 */
 	public TrustChain(final EntityStatement leaf, final List<EntityStatement> superiors) {
+		this(leaf, superiors, null);
+	}
+	
+	
+	/**
+	 * Creates a new trust chain. Validates the subject - issuer chain, the
+	 * signatures are not verified.
+	 *
+	 * @param leaf        The leaf entity configuration. Must not be
+	 *                    {@code null}.
+	 * @param superiors   The superior entity statements, starting with a
+	 *                    statement of the first superior about the leaf,
+	 *                    ending with the statement of the trust anchor
+	 *                    about the last intermediate or the leaf (for a
+	 *                    minimal trust chain). Must contain at least one
+	 *                    entity statement.
+	 * @param trustAnchor The optional trust anchor entity configuration,
+	 *                    {@code null} if not specified.
+	 *
+	 * @throws IllegalArgumentException If the subject - issuer chain is
+	 *                                  broken.
+	 */
+	public TrustChain(final EntityStatement leaf, final List<EntityStatement> superiors, final EntityStatement trustAnchor) {
+		
+		// leaf config checks
 		if (leaf == null) {
 			throw new IllegalArgumentException("The leaf entity configuration must not be null");
 		}
+		if (! leaf.getClaimsSet().isSelfStatement()) {
+			throw new IllegalArgumentException("The leaf entity configuration must be a self-statement");
+		}
 		this.leaf = leaf;
 		
+		// superior statements check
 		if (CollectionUtils.isEmpty(superiors)) {
 			throw new IllegalArgumentException("There must be at least one superior statement (issued by the trust anchor)");
 		}
 		this.superiors = superiors;
-		if (! hasValidIssuerSubjectChain(leaf, superiors)) {
+		
+		// optional trust anchor config checks
+		this.trustAnchor = trustAnchor;
+		
+		if (trustAnchor != null && ! trustAnchor.getClaimsSet().isSelfStatement()) {
+			throw new IllegalArgumentException("The trust anchor entity configuration must be a self-statement");
+		}
+		
+		if (! hasValidIssuerSubjectChain(leaf, superiors, trustAnchor)) {
 			throw new IllegalArgumentException("Broken subject - issuer chain");
 		}
 	}
 	
 	
-	private static boolean hasValidIssuerSubjectChain(final EntityStatement leaf, final List<EntityStatement> superiors) {
+	private static boolean hasValidIssuerSubjectChain(final EntityStatement leaf,
+							  final List<EntityStatement> superiors,
+							  final EntityStatement trustAnchor) {
 		
 		Subject nextExpectedSubject = leaf.getClaimsSet().getSubject();
 		
 		for (EntityStatement superiorStmt : superiors) {
 			if (! nextExpectedSubject.equals(superiorStmt.getClaimsSet().getSubject())) {
-				return false;
+				return false; // chain breaks
 			}
 			nextExpectedSubject = new Subject(superiorStmt.getClaimsSet().getIssuer().getValue());
 		}
-		return true;
+		
+		if (trustAnchor == null) {
+			// No optional trust anchor config
+			return true;
+		}
+		
+		// The last issuer in the chain is the trust anchor
+		EntityStatement topSuperior = superiors.get(superiors.size() - 1);
+		return topSuperior.getClaimsSet().getIssuer().equals(trustAnchor.getClaimsSet().getIssuer());
 	}
 	
 	
@@ -144,6 +197,17 @@ public final class TrustChain {
 	 */
 	public List<EntityStatement> getSuperiorStatements() {
 		return superiors;
+	}
+	
+	
+	/**
+	 * Returns the optional trust anchor entity configuration.
+	 *
+	 * @return The trust anchor entity configuration, {@code null} if not
+	 *         specified.
+	 */
+	public EntityStatement getTrustAnchorConfiguration() {
+		return trustAnchor;
 	}
 	
 	
@@ -230,15 +294,16 @@ public final class TrustChain {
 	
 	
 	/**
-	 * Return an iterator starting from the leaf entity statement.
+	 * Return an iterator starting from the leaf entity statement. The
+	 * optional trust anchor entity configuration is omitted.
 	 *
 	 * @return The iterator.
 	 */
 	public Iterator<EntityStatement> iteratorFromLeaf() {
 		
 		// Init
-		final AtomicReference<EntityStatement> next = new AtomicReference<>(getLeafConfiguration());
-		final Iterator<EntityStatement> superiorsIterator = getSuperiorStatements().iterator();
+		final AtomicReference<EntityStatement> next = new AtomicReference<>(leaf);
+		final Iterator<EntityStatement> superiorsIterator = superiors.iterator();
 		
 		return new Iterator<EntityStatement>() {
 			@Override
@@ -255,7 +320,7 @@ public final class TrustChain {
 				}
 				
 				// Set statement to return on next iteration
-				if (toReturn.equals(getLeafConfiguration())) {
+				if (toReturn.equals(leaf)) {
 					// Return first superior
 					next.set(superiorsIterator.next());
 				} else {
@@ -329,7 +394,7 @@ public final class TrustChain {
 		try {
 			signingJWKThumbprint = leaf.verifySignatureOfSelfStatement();
 		} catch (BadJOSEException e) {
-			throw new BadJOSEException("Invalid leaf statement: " + e.getMessage(), e);
+			throw new BadJOSEException("Invalid leaf entity configuration: " + e.getMessage(), e);
 		}
 		
 		for (int i=0; i < superiors.size(); i++) {
@@ -354,6 +419,19 @@ public final class TrustChain {
 				throw new BadJOSEException("Invalid statement from " + stmt.getClaimsSet().getIssuer() + ": " + e.getMessage(), e);
 			}
 		}
+		
+		if (trustAnchor != null) {
+			
+			if (! hasJWKWithThumbprint(trustAnchor.getClaimsSet().getJWKSet(), signingJWKThumbprint)) {
+				throw new BadJOSEException("Signing JWK with thumbprint " + signingJWKThumbprint + " not found in trust anchor entity configuration");
+			}
+			
+			try {
+				trustAnchor.verifySignatureOfSelfStatement();
+			} catch (BadJOSEException e) {
+				throw new BadJOSEException("Invalid trust anchor entity configuration: " + e.getMessage(), e);
+			}
+		}
 	}
 	
 	
@@ -364,7 +442,6 @@ public final class TrustChain {
 		}
 		
 		for (JWK jwk: jwkSet.getKeys()) {
-			
 			try {
 				if (thumbprint.equals(jwk.computeThumbprint())) {
 					return true;
@@ -372,7 +449,6 @@ public final class TrustChain {
 			} catch (JOSEException e) {
 				throw new ProviderException(e.getMessage(), e);
 			}
-			
 		}
 		
 		return false;
@@ -387,9 +463,12 @@ public final class TrustChain {
 	public List<SignedJWT> toJWTs() {
 	
 		List<SignedJWT> out = new LinkedList<>();
-		out.add(getLeafConfiguration().getSignedStatement());
-		for (EntityStatement s: getSuperiorStatements()) {
+		out.add(leaf.getSignedStatement());
+		for (EntityStatement s: superiors) {
 			out.add(s.getSignedStatement());
+		}
+		if (trustAnchor != null) {
+			out.add(trustAnchor.getSignedStatement());
 		}
 		return out;
 	}
@@ -428,6 +507,7 @@ public final class TrustChain {
 		
 		EntityStatement leaf = null;
 		List<EntityStatement> superiors = new LinkedList<>();
+		EntityStatement trustAnchor = null;
 		
 		for (SignedJWT jwt: ListUtils.removeNullItems(statementJWTs)) {
 			
@@ -438,15 +518,21 @@ public final class TrustChain {
 					throw new ParseException("Invalid leaf entity configuration: " + e.getMessage(), e);
 				}
 			} else {
+				EntityStatement statement;
 				try {
-					superiors.add(EntityStatement.parse(jwt));
+					statement = EntityStatement.parse(jwt);
 				} catch (ParseException e) {
 					throw new ParseException("Invalid superior entity statement: " + e.getMessage(), e);
+				}
+				if (! statement.getClaimsSet().isSelfStatement()) {
+					superiors.add(statement);
+				} else {
+					trustAnchor = statement; // assume optional TA config
 				}
 			}
 		}
 		try {
-			return new TrustChain(leaf, superiors);
+			return new TrustChain(leaf, superiors, trustAnchor);
 		} catch (Exception e) {
 			throw new ParseException("Illegal trust chain: " + e.getMessage(), e);
 		}
