@@ -25,6 +25,8 @@ import java.net.URLEncoder;
 import java.util.*;
 
 import junit.framework.TestCase;
+import net.minidev.json.JSONArray;
+import org.checkerframework.checker.units.qual.A;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -44,8 +46,7 @@ import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagException;
 import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
-import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.oauth2.sdk.id.*;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallenge;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
@@ -53,6 +54,10 @@ import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.*;
 import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.claims.ClaimsSetRequest;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatementClaimsSet;
+import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
+import com.nimbusds.openid.connect.sdk.federation.trust.TrustChainTest;
 
 
 public class AuthorizationRequestTest extends TestCase {
@@ -74,7 +79,8 @@ public class AuthorizationRequestTest extends TestCase {
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("request_uri"));
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("prompt"));
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("dpop_jkt"));
-		assertEquals(14, AuthorizationRequest.getRegisteredParameterNames().size());
+		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("trust_chain"));
+		assertEquals(15, AuthorizationRequest.getRegisteredParameterNames().size());
 	}
 	
 	
@@ -103,6 +109,8 @@ public class AuthorizationRequestTest extends TestCase {
 		assertNull(req.getResources());
 		
 		assertFalse(req.includeGrantedScopes());
+		
+		assertNull(req.getTrustChain());
 
 		assertNull(req.getCustomParameter("custom-param"));
 		assertTrue(req.getCustomParameters().isEmpty());
@@ -133,6 +141,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(ResponseMode.QUERY, req.impliedResponseMode());
 		assertNull(req.getResources());
 		assertFalse(req.includeGrantedScopes());
+		assertNull(req.getTrustChain());
 
 		assertNull(req.getCustomParameter("custom-param"));
 		assertTrue(req.getCustomParameters().isEmpty());
@@ -166,6 +175,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(ResponseMode.QUERY, req.impliedResponseMode());
 		assertNull(req.getResources());
 		assertFalse(req.includeGrantedScopes());
+		assertNull(req.getTrustChain());
 		assertNull(req.getCustomParameter("custom-param"));
 		assertTrue(req.getCustomParameters().isEmpty());
 	}
@@ -375,6 +385,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertFalse(request.includeGrantedScopes());
 		assertNull(request.getPrompt());
 		assertNull(request.getDPoPJWKThumbprintConfirmation());
+		assertNull(request.getTrustChain());
 		assertTrue(request.getCustomParameters().isEmpty());
 	}
 
@@ -394,6 +405,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertNull(request.getCodeChallenge());
 		assertNull(request.getCodeChallengeMethod());
 		assertFalse(request.includeGrantedScopes());
+		assertNull(request.getTrustChain());
 		assertTrue(request.getCustomParameters().isEmpty());
 	}
 
@@ -415,6 +427,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertNull(request.getCodeChallenge());
 		assertNull(request.getCodeChallengeMethod());
 		assertFalse(request.includeGrantedScopes());
+		assertNull(request.getTrustChain());
 		assertTrue(request.getCustomParameters().isEmpty());
 	}
 
@@ -436,6 +449,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertNull(request.getCodeChallenge());
 		assertNull(request.getCodeChallengeMethod());
 		assertFalse(request.includeGrantedScopes());
+		assertNull(request.getTrustChain());
 		assertTrue(request.getCustomParameters().isEmpty());
 	}
 
@@ -550,7 +564,6 @@ public class AuthorizationRequestTest extends TestCase {
 		CodeVerifier codeVerifier = new CodeVerifier();
 		CodeChallenge codeChallenge = CodeChallenge.compute(CodeChallengeMethod.PLAIN, codeVerifier);
 
-
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("123"))
 			.endpointURI(new URI("https://c2id.com/login"))
 			.redirectionURI(new URI("https://client.com/cb"))
@@ -580,6 +593,73 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(Collections.singletonList("200"), request.getCustomParameters().get("y"));
 		assertEquals(Collections.singletonList("300"), request.getCustomParameters().get("z"));
 		assertEquals(3, request.getCustomParameters().size());
+	}
+	
+	
+	// OIDC Federation 1.0
+	private static TrustChain createSampleTrustChain() throws JOSEException {
+		
+		EntityStatementClaimsSet leafClaims = TrustChainTest.createOPSelfStatementClaimsSet(TrustChainTest.ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, TrustChainTest.OP_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaimsAboutLeaf = TrustChainTest.createOPStatementClaimsSet(new Issuer(TrustChainTest.ANCHOR_ENTITY_ID.getValue()), TrustChainTest.ANCHOR_ENTITY_ID);
+		EntityStatement anchorStmtAboutLeaf = EntityStatement.sign(anchorClaimsAboutLeaf, TrustChainTest.ANCHOR_RSA_JWK);
+		
+		List<EntityStatement> superiorStatements = Collections.singletonList(anchorStmtAboutLeaf);
+		return new TrustChain(leafStmt, superiorStatements);
+	}
+	
+	
+	public void testBuilder_trustChain() throws Exception {
+		
+		TrustChain trustChain = createSampleTrustChain();
+		
+		AuthorizationRequest request = new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID("123"))
+			.endpointURI(URI.create("https://c2id.com/login"))
+			.trustChain(trustChain)
+			.build();
+		
+		assertEquals(ResponseType.CODE, request.getResponseType());
+		assertEquals(new ClientID("123"), request.getClientID());
+		assertEquals(trustChain.toSerializedJWTs(), request.getTrustChain().toSerializedJWTs());
+		
+		Map<String, List<String>> params = request.toParameters();
+		
+		assertEquals(Collections.singletonList(ResponseType.CODE.toString()), params.get("response_type"));
+		assertEquals(Collections.singletonList(new ClientID("123").getValue()), params.get("client_id"));
+		
+		JSONArray trustChainArray = new JSONArray();
+		trustChainArray.addAll(trustChain.toSerializedJWTs());
+		assertEquals(Collections.singletonList(trustChainArray.toJSONString()), params.get("trust_chain"));
+		
+		assertEquals(3, params.size());
+		
+		request = AuthorizationRequest.parse(request.toURI());
+		
+		assertEquals(ResponseType.CODE, request.getResponseType());
+		assertEquals(new ClientID("123"), request.getClientID());
+		assertEquals(trustChain.toSerializedJWTs(), request.getTrustChain().toSerializedJWTs());
+		
+		assertEquals(3, request.toParameters().size());
+	}
+	
+	
+	public void testParse_trustChainParseException() {
+		
+		AuthorizationRequest request = new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID("123"))
+			.endpointURI(URI.create("https://c2id.com/login"))
+			.build();
+		
+		Map<String, List<String>> params = request.toParameters();
+		
+		params.put("trust_chain", Collections.singletonList("[\"abc\"]"));
+		
+		try {
+			AuthorizationRequest.parse(params);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Invalid JWT in trust chain: Invalid serialized unsecured/JWS/JWE object: Missing part delimiters", e.getMessage());
+		}
 	}
 
 
@@ -687,6 +767,7 @@ public class AuthorizationRequestTest extends TestCase {
 			null,
 			new Prompt(Prompt.Type.LOGIN, Prompt.Type.CONSENT),
 			new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs")),
+			createSampleTrustChain(),
 			customParams);
 		
 		AuthorizationRequest out = new AuthorizationRequest.Builder(in).build();
@@ -703,6 +784,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(in.includeGrantedScopes(), out.includeGrantedScopes());
 		assertEquals(in.getPrompt(), out.getPrompt());
 		assertEquals(in.getDPoPJWKThumbprintConfirmation(), out.getDPoPJWKThumbprintConfirmation());
+		assertEquals(in.getTrustChain(), out.getTrustChain());
 		assertEquals(in.getCustomParameters(), out.getCustomParameters());
 		assertEquals(in.getEndpointURI(), out.getEndpointURI());
 		
@@ -1285,6 +1367,43 @@ public class AuthorizationRequestTest extends TestCase {
 			assertEquals("Invalid request parameter: The JWT sub (subject) claim must not equal the client_id", e.getMessage());
 			assertEquals(clientID, e.getClientID());
 		}
+	}
+	
+	
+	public void testJAR_trustChain() throws JOSEException, java.text.ParseException {
+		
+		TrustChain trustChain = createSampleTrustChain();
+		
+		AuthorizationRequest request = new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID("123"))
+			.trustChain(trustChain)
+			.build();
+		
+		JWTClaimsSet jwtClaimsSet = request.toJWTClaimsSet();
+		
+		assertEquals(request.getResponseType().toString(), jwtClaimsSet.getStringClaim("response_type"));
+		assertEquals(request.getClientID().toString(), jwtClaimsSet.getStringClaim("client_id"));
+		assertEquals(request.getTrustChain().toSerializedJWTs(), jwtClaimsSet.getStringListClaim("trust_chain"));
+		assertEquals(3, jwtClaimsSet.getClaims().size());
+		
+		Audience aud = new Audience("https://c2id.com/login");
+		JWTClaimsSet federationJWTClaimsSet = new JWTClaimsSet.Builder(jwtClaimsSet)
+			.audience(aud.getValue())
+			.issuer(request.getClientID().getValue())
+			.jwtID(new JWTID().getValue())
+			.expirationTime(new Date(1000L))
+			.build();
+		
+		SignedJWT jar = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), federationJWTClaimsSet);
+		jar.sign(new RSASSASigner(new RSAKeyGenerator(2048).keyID("1").generate()));
+		
+		request = new AuthorizationRequest.Builder(jar, request.getClientID())
+			.endpointURI(URI.create("https://c2id.com/login"))
+			.build();
+		
+		Map<String, List<String>> params = request.toParameters();
+		assertEquals(Collections.singletonList(jar.serialize()), params.get("request"));
+		assertEquals(Collections.singletonList(request.getClientID().getValue()), params.get("client_id"));
+		assertEquals(2, params.size());
 	}
 	
 	

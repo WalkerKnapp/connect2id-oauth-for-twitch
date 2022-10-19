@@ -89,6 +89,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("display"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("prompt"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("dpop_jkt"));
+		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("trust_chain"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("max_age"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("ui_locales"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("claims_locales"));
@@ -100,7 +101,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("request_uri"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("request"));
 
-		assertEquals(24, AuthenticationRequest.getRegisteredParameterNames().size());
+		assertEquals(25, AuthenticationRequest.getRegisteredParameterNames().size());
 	}
 
 	

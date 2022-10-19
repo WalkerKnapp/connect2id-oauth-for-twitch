@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 
 import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONArray;
 
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWT;
@@ -39,6 +40,7 @@ import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
 import com.nimbusds.oauth2.sdk.util.*;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.Prompt;
+import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 
 
 /**
@@ -75,6 +77,7 @@ import com.nimbusds.openid.connect.sdk.Prompt;
  *         OAuth 2.0 (JARM)
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
  *         (DPoP) (draft-ietf-oauth-dpop-11).
+ *     <li>OpenID Connect Federation 1.0, section 10.1.
  * </ul>
  */
 @Immutable
@@ -104,6 +107,7 @@ public class AuthorizationRequest extends AbstractRequest {
 		p.add("request");
 		p.add("prompt");
 		p.add("dpop_jkt");
+		p.add("trust_chain");
 
 		REGISTERED_PARAMETER_NAMES = Collections.unmodifiableSet(p);
 	}
@@ -192,6 +196,12 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * The DPoP JWK SHA-256 thumbprint (optional).
 	 */
 	private final JWKThumbprintConfirmation dpopJKT;
+	
+	
+	/**
+	 * The OpenID Connect Federation 1.0 trust chain (optional).
+	 */
+	private final TrustChain trustChain;
 
 
 	/**
@@ -296,6 +306,12 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * The DPoP JWK SHA-256 thumbprint (optional).
 		 */
 		private JWKThumbprintConfirmation dpopJKT;
+		
+		
+		/**
+		 * The OpenID Connect Federation 1.0 trust chain (optional).
+		 */
+		private TrustChain trustChain;
 
 
 		/**
@@ -383,7 +399,7 @@ public class AuthorizationRequest extends AbstractRequest {
 		public Builder(final AuthorizationRequest request) {
 			
 			uri = request.getEndpointURI();
-			scope = request.scope;
+			scope = request.getScope();
 			rt = request.getResponseType();
 			clientID = request.getClientID();
 			redirectURI = request.getRedirectionURI();
@@ -393,10 +409,11 @@ public class AuthorizationRequest extends AbstractRequest {
 			codeChallengeMethod = request.getCodeChallengeMethod();
 			resources = request.getResources();
 			includeGrantedScopes = request.includeGrantedScopes();
-			requestObject = request.requestObject;
-			requestURI = request.requestURI;
-			prompt = request.prompt;
-			dpopJKT = request.dpopJKT;
+			requestObject = request.getRequestObject();
+			requestURI = request.getRequestURI();
+			prompt = request.getPrompt();
+			dpopJKT = request.getDPoPJWKThumbprintConfirmation();
+			trustChain = request.getTrustChain();
 			
 			if (request instanceof AuthenticationRequest) {
 				AuthenticationRequest oidcRequest = (AuthenticationRequest) request;
@@ -647,6 +664,21 @@ public class AuthorizationRequest extends AbstractRequest {
 		
 		
 		/**
+		 * Sets the OpenID Connect Federation 1.0 trust chain.
+		 * Corresponds to the optional {@code trust_chain} parameter.
+		 *
+		 * @param trustChain The trust chain, {@code null} if not
+		 *                   specified.
+		 *
+		 * @return This builder.
+		 */
+		public Builder trustChain(final TrustChain trustChain) {
+			this.trustChain = trustChain;
+			return this;
+		}
+		
+		
+		/**
 		 * Sets a custom parameter.
 		 *
 		 * @param name   The parameter name. Must not be {@code null}.
@@ -689,7 +721,7 @@ public class AuthorizationRequest extends AbstractRequest {
 				return new AuthorizationRequest(uri, rt, rm, clientID, redirectURI, scope, state,
 					codeChallenge, codeChallengeMethod, resources, includeGrantedScopes,
 					requestObject, requestURI,
-					prompt, dpopJKT,
+					prompt, dpopJKT, trustChain,
 					customParams);
 			} catch (IllegalArgumentException e) {
 				throw new IllegalStateException(e.getMessage(), e);
@@ -906,6 +938,86 @@ public class AuthorizationRequest extends AbstractRequest {
 				    final Prompt prompt,
 				    final JWKThumbprintConfirmation dpopJKT,
 				    final Map<String, List<String>> customParams) {
+		
+		this(uri, rt, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod, resources, includeGrantedScopes, requestObject, requestURI, prompt, dpopJKT, null, customParams);
+	}
+
+
+	/**
+	 * Creates a new authorisation request with extension and custom
+	 * parameters.
+	 *
+	 * @param uri                  The URI of the authorisation endpoint.
+	 *                             May be {@code null} if the
+	 *                             {@link #toHTTPRequest} method will not
+	 *                             be used.
+	 * @param rt                   The response type. Corresponds to the
+	 *                             {@code response_type} parameter. Must
+	 *                             not be {@code null}, unless a request a
+	 *                             request object or URI is specified.
+	 * @param rm                   The response mode. Corresponds to the
+	 *                             optional {@code response_mode}
+	 *                             parameter. Use of this parameter is not
+	 *                             recommended unless a non-default
+	 *                             response mode is requested (e.g.
+	 *                             form_post).
+	 * @param clientID             The client identifier. Corresponds to
+	 *                             the {@code client_id} parameter. Must
+	 *                             not be {@code null}, unless a request
+	 *                             object or URI is specified.
+	 * @param redirectURI          The redirection URI. Corresponds to the
+	 *                             optional {@code redirect_uri} parameter.
+	 *                             {@code null} if not specified.
+	 * @param scope                The request scope. Corresponds to the
+	 *                             optional {@code scope} parameter.
+	 *                             {@code null} if not specified.
+	 * @param state                The state. Corresponds to the
+	 *                             recommended {@code state} parameter.
+	 *                             {@code null} if not specified.
+	 * @param codeChallenge        The code challenge for PKCE,
+	 *                             {@code null} if not specified.
+	 * @param codeChallengeMethod  The code challenge method for PKCE,
+	 *                             {@code null} if not specified.
+	 * @param resources            The resource URI(s), {@code null} if not
+	 *                             specified.
+	 * @param includeGrantedScopes {@code true} to request incremental
+	 *                             authorisation.
+	 * @param requestObject        The request object. Corresponds to the
+	 *                             optional {@code request} parameter. Must
+	 *                             not be specified together with a request
+	 *                             object URI. {@code null} if not
+	 *                             specified.
+	 * @param requestURI           The request object URI. Corresponds to
+	 *                             the optional {@code request_uri}
+	 *                             parameter. Must not be specified
+	 *                             together with a request object.
+	 *                             {@code null} if not specified.
+	 * @param prompt               The requested prompt. Corresponds to the
+	 *                             optional {@code prompt} parameter.
+	 * @param dpopJKT              The DPoP JWK SHA-256 thumbprint,
+	 *                             {@code null} if not specified.
+	 * @param trustChain           The OpenID Connect Federation 1.0 trust
+	 *                             chain, {@code null} if not specified.
+	 * @param customParams         Custom parameters, empty map or
+	 *                             {@code null} if none.
+	 */
+	public AuthorizationRequest(final URI uri,
+				    final ResponseType rt,
+				    final ResponseMode rm,
+				    final ClientID clientID,
+				    final URI redirectURI,
+				    final Scope scope,
+				    final State state,
+				    final CodeChallenge codeChallenge,
+				    final CodeChallengeMethod codeChallengeMethod,
+				    final List<URI> resources,
+				    final boolean includeGrantedScopes,
+				    final JWT requestObject,
+				    final URI requestURI,
+				    final Prompt prompt,
+				    final JWKThumbprintConfirmation dpopJKT,
+				    final TrustChain trustChain,
+				    final Map<String, List<String>> customParams) {
 
 		super(uri);
 
@@ -958,6 +1070,8 @@ public class AuthorizationRequest extends AbstractRequest {
 		this.prompt = prompt; // technically OpenID
 		
 		this.dpopJKT = dpopJKT;
+		
+		this.trustChain = trustChain;
 
 		if (MapUtils.isNotEmpty(customParams)) {
 			this.customParams = Collections.unmodifiableMap(customParams);
@@ -990,7 +1104,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 *         {@link #getRequestURI() request_uri} parameter.
 	 */
 	public ResponseType getResponseType() {
-	
 		return rt;
 	}
 
@@ -1002,7 +1115,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @return The response mode, {@code null} if not specified.
 	 */
 	public ResponseMode getResponseMode() {
-
 		return rm;
 	}
 
@@ -1021,7 +1133,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @return The implied response mode.
 	 */
 	public ResponseMode impliedResponseMode() {
-		
 		return ResponseMode.resolve(rm, rt);
 	}
 
@@ -1033,7 +1144,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @return The client identifier.
 	 */
 	public ClientID getClientID() {
-	
 		return clientID;
 	}
 
@@ -1045,7 +1155,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @return The redirection URI, {@code null} if not specified.
 	 */
 	public URI getRedirectionURI() {
-	
 		return redirectURI;
 	}
 	
@@ -1057,7 +1166,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @return The scope, {@code null} if not specified.
 	 */
 	public Scope getScope() {
-	
 		return scope;
 	}
 	
@@ -1069,7 +1177,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @return The state, {@code null} if not specified.
 	 */
 	public State getState() {
-	
 		return state;
 	}
 
@@ -1080,7 +1187,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @return The code challenge, {@code null} if not specified.
 	 */
 	public CodeChallenge getCodeChallenge() {
-
 		return codeChallenge;
 	}
 
@@ -1091,7 +1197,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @return The code challenge method, {@code null} if not specified.
 	 */
 	public CodeChallengeMethod getCodeChallengeMethod() {
-
 		return codeChallengeMethod;
 	}
 	
@@ -1102,7 +1207,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @return The resource URI(s), {@code null} if not specified.
 	 */
 	public List<URI> getResources() {
-		
 		return resources;
 	}
 	
@@ -1114,7 +1218,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 *         else {@code false}.
 	 */
 	public boolean includeGrantedScopes() {
-		
 		return includeGrantedScopes;
 	}
 	
@@ -1126,7 +1229,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @return The request object, {@code null} if not specified.
 	 */
 	public JWT getRequestObject() {
-		
 		return requestObject;
 	}
 	
@@ -1138,7 +1240,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @return The request object URI, {@code null} if not specified.
 	 */
 	public URI getRequestURI() {
-		
 		return requestURI;
 	}
 	
@@ -1152,7 +1253,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 *         {@code false}.
 	 */
 	public boolean specifiesRequestObject() {
-		
 		return requestObject != null || requestURI != null;
 	}
 	
@@ -1164,7 +1264,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @return The requested prompt, {@code null} if not specified.
 	 */
 	public Prompt getPrompt() {
-		
 		return prompt;
 	}
 	
@@ -1176,8 +1275,17 @@ public class AuthorizationRequest extends AbstractRequest {
 	 *         specified.
 	 */
 	public JWKThumbprintConfirmation getDPoPJWKThumbprintConfirmation() {
-		
 		return dpopJKT;
+	}
+	
+	
+	/**
+	 * Returns the OpenID Connect Federation 1.0 trust chain.
+	 *
+	 * @return The trust chain, {@code null} if not specified.
+	 */
+	public TrustChain getTrustChain() {
+		return trustChain;
 	}
 	
 	
@@ -1188,7 +1296,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 *         empty map if none.
 	 */
 	public Map<String,List<String>> getCustomParameters () {
-
 		return customParams;
 	}
 	
@@ -1201,7 +1308,6 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @return The parameter value(s), {@code null} if not specified.
 	 */
 	public List<String> getCustomParameter(final String name) {
-
 		return customParams.get(name);
 	}
 	
@@ -1227,54 +1333,60 @@ public class AuthorizationRequest extends AbstractRequest {
 		// Put custom params first, so they may be overwritten by std params
 		Map<String, List<String>> params = new LinkedHashMap<>(customParams);
 		
-		params.put("client_id", Collections.singletonList(clientID.getValue()));
+		params.put("client_id", Collections.singletonList(getClientID().getValue()));
 		
-		if (rt != null)
-			params.put("response_type", Collections.singletonList(rt.toString()));
+		if (getResponseType() != null)
+			params.put("response_type", Collections.singletonList(getResponseType().toString()));
 
-		if (rm != null)
-			params.put("response_mode", Collections.singletonList(rm.getValue()));
+		if (getResponseMode() != null)
+			params.put("response_mode", Collections.singletonList(getResponseMode().getValue()));
 
-		if (redirectURI != null)
-			params.put("redirect_uri", Collections.singletonList(redirectURI.toString()));
+		if (getRedirectionURI() != null)
+			params.put("redirect_uri", Collections.singletonList(getRedirectionURI().toString()));
 
-		if (scope != null)
-			params.put("scope", Collections.singletonList(scope.toString()));
+		if (getScope() != null)
+			params.put("scope", Collections.singletonList(getScope().toString()));
 		
-		if (state != null)
-			params.put("state", Collections.singletonList(state.getValue()));
+		if (getState() != null)
+			params.put("state", Collections.singletonList(getState().getValue()));
 
-		if (codeChallenge != null) {
-			params.put("code_challenge", Collections.singletonList(codeChallenge.getValue()));
+		if (getCodeChallenge() != null) {
+			params.put("code_challenge", Collections.singletonList(getCodeChallenge().getValue()));
 
-			if (codeChallengeMethod != null) {
-				params.put("code_challenge_method", Collections.singletonList(codeChallengeMethod.getValue()));
+			if (getCodeChallengeMethod() != null) {
+				params.put("code_challenge_method", Collections.singletonList(getCodeChallengeMethod().getValue()));
 			}
 		}
 		
-		if (includeGrantedScopes)
+		if (includeGrantedScopes())
 			params.put("include_granted_scopes", Collections.singletonList("true"));
 		
-		if (resources != null)
-			params.put("resource", URIUtils.toStringList(resources));
+		if (getResources() != null)
+			params.put("resource", URIUtils.toStringList(getResources()));
 		
-		if (requestObject != null) {
+		if (getRequestObject() != null) {
 			try {
-				params.put("request", Collections.singletonList(requestObject.serialize()));
+				params.put("request", Collections.singletonList(getRequestObject().serialize()));
 				
 			} catch (IllegalStateException e) {
 				throw new SerializeException("Couldn't serialize request object to JWT: " + e.getMessage(), e);
 			}
 		}
 		
-		if (requestURI != null)
-			params.put("request_uri", Collections.singletonList(requestURI.toString()));
+		if (getRequestURI() != null)
+			params.put("request_uri", Collections.singletonList(getRequestURI().toString()));
 		
-		if (prompt != null)
-			params.put("prompt", Collections.singletonList(prompt.toString()));
+		if (getPrompt() != null)
+			params.put("prompt", Collections.singletonList(getPrompt().toString()));
 		
-		if (dpopJKT != null)
-			params.put("dpop_jkt", Collections.singletonList(dpopJKT.getValue().toString()));
+		if (getDPoPJWKThumbprintConfirmation() != null)
+			params.put("dpop_jkt", Collections.singletonList(getDPoPJWKThumbprintConfirmation().getValue().toString()));
+		
+		if (getTrustChain() != null) {
+			JSONArray jsonArray = new JSONArray();
+			jsonArray.addAll(getTrustChain().toSerializedJWTs());
+			params.put("trust_chain", Collections.singletonList(jsonArray.toJSONString()));
+		}
 
 		return params;
 	}
@@ -1292,7 +1404,18 @@ public class AuthorizationRequest extends AbstractRequest {
 			throw new IllegalStateException("Cannot create nested JWT secured authorization request");
 		}
 		
-		return JWTClaimsSetUtils.toJWTClaimsSet(toParameters());
+		Map<String, List<String>> params = toParameters();
+		
+		JWTClaimsSet jwtClaimsSet = JWTClaimsSetUtils.toJWTClaimsSet(params);
+		
+		if (params.containsKey("trust_chain")) {
+			// JWT claim value must be a JSON array
+			jwtClaimsSet = new JWTClaimsSet.Builder(jwtClaimsSet)
+				.claim("trust_chain", getTrustChain().toSerializedJWTs())
+				.build();
+		}
+		
+		return jwtClaimsSet;
 	}
 	
 	
@@ -1614,6 +1737,13 @@ public class AuthorizationRequest extends AbstractRequest {
 			dpopJKT = new JWKThumbprintConfirmation(new Base64URL(v));
 		}
 		
+		TrustChain trustChain = null;
+		v = MultivaluedMapUtils.getFirstValue(params, "trust_chain");
+		if (StringUtils.isNotBlank(v)) {
+			JSONArray jsonArray = JSONArrayUtils.parse(v);
+			trustChain = TrustChain.parseSerialized(JSONArrayUtils.toStringList(jsonArray));
+		}
+		
 		// Parse custom parameters
 		Map<String,List<String>> customParams = null;
 
@@ -1632,7 +1762,7 @@ public class AuthorizationRequest extends AbstractRequest {
 		return new AuthorizationRequest(uri, rt, rm, clientID, redirectURI, scope, state,
 			codeChallenge, codeChallengeMethod, resources, includeGrantedScopes,
 			requestObject, requestURI,
-			prompt, dpopJKT,
+			prompt, dpopJKT, trustChain,
 			customParams);
 	}
 
