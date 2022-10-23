@@ -28,9 +28,11 @@ import java.security.MessageDigest;
 import java.util.*;
 
 import junit.framework.TestCase;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.RandomStringUtils;
 
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
@@ -60,6 +62,10 @@ import com.nimbusds.openid.connect.sdk.assurance.request.MinimalVerificationSpec
 import com.nimbusds.openid.connect.sdk.assurance.request.VerifiedClaimsSetRequest;
 import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.claims.ClaimsSetRequest;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatementClaimsSet;
+import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
+import com.nimbusds.openid.connect.sdk.federation.trust.TrustChainTest;
 
 
 public class AuthenticationRequestTest extends TestCase {
@@ -154,6 +160,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertNull(request.getDisplay());
 		assertNull(request.getPrompt());
 		assertNull(request.getDPoPJWKThumbprintConfirmation());
+		assertNull(request.getTrustChain());
 		assertEquals(-1, request.getMaxAge());
 		assertNull(request.getUILocales());
 		assertNull(request.getIDTokenHint());
@@ -201,6 +208,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertNull(request.getDisplay());
 		assertNull(request.getPrompt());
 		assertNull(request.getDPoPJWKThumbprintConfirmation());
+		assertNull(request.getTrustChain());
 		assertEquals(-1, request.getMaxAge());
 		assertNull(request.getUILocales());
 		assertNull(request.getIDTokenHint());
@@ -312,6 +320,8 @@ public class AuthenticationRequestTest extends TestCase {
 		prompt.add(Prompt.Type.CONSENT);
 		
 		JWKThumbprintConfirmation dpopJKT = new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs"));
+		
+		TrustChain trustChain = createSampleTrustChain();
 
 		int maxAge = 3600;
 
@@ -349,7 +359,7 @@ public class AuthenticationRequestTest extends TestCase {
 
 		AuthenticationRequest request = new AuthenticationRequest(
 			uri, rts, rm, scope, clientID, redirectURI, state, nonce,
-			display, prompt, dpopJKT, maxAge, uiLocales, claimsLocales,
+			display, prompt, dpopJKT, trustChain, maxAge, uiLocales, claimsLocales,
 			idTokenHint, loginHint, acrValues, claims, purpose, null, null,
 			codeChallenge, codeChallengeMethod,
 			resources,
@@ -388,6 +398,8 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals("Prompt size", 2, promptOut.size());
 		
 		assertEquals(dpopJKT, request.getDPoPJWKThumbprintConfirmation());
+		
+		assertEquals(trustChain, request.getTrustChain());
 
 		assertEquals(3600, request.getMaxAge());
 
@@ -461,6 +473,10 @@ public class AuthenticationRequestTest extends TestCase {
 		assertTrue("Prompt login", promptOut.contains(Prompt.Type.LOGIN));
 		assertTrue("Prompt consent", promptOut.contains(Prompt.Type.CONSENT));
 		assertEquals("Prompt size", 2, promptOut.size());
+		
+		assertEquals(dpopJKT, request.getDPoPJWKThumbprintConfirmation());
+		
+		assertEquals(trustChain.toSerializedJWTs(), request.getTrustChain().toSerializedJWTs());
 
 		assertEquals(3600, request.getMaxAge());
 
@@ -1112,6 +1128,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertNull(request.getDisplay());
 		assertNull(request.getPrompt());
 		assertNull(request.getDPoPJWKThumbprintConfirmation());
+		assertNull(request.getTrustChain());
 		assertEquals(-1, request.getMaxAge());
 		assertNull(request.getUILocales());
 		assertNull(request.getClaimsLocales());
@@ -1144,6 +1161,8 @@ public class AuthenticationRequestTest extends TestCase {
 
 		CodeVerifier codeVerifier = new CodeVerifier();
 		
+		TrustChain trustChain = createSampleTrustChain();
+		
 		AuthenticationRequest request = new AuthenticationRequest.Builder(
 			new ResponseType("code", "id_token"),
 			new Scope("openid", "email"),
@@ -1154,6 +1173,7 @@ public class AuthenticationRequestTest extends TestCase {
 			.display(Display.POPUP)
 			.prompt(new Prompt(Prompt.Type.NONE))
 			.dPoPJWKThumbprintConfirmation(new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs")))
+			.trustChain(trustChain)
 			.maxAge(3600)
 			.uiLocales(Arrays.asList(LangTag.parse("en-GB"), LangTag.parse("en-US")))
 			.claimsLocales(Arrays.asList(LangTag.parse("bg-BG"), LangTag.parse("fr-FR")))
@@ -1183,6 +1203,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals(Display.POPUP, request.getDisplay());
 		assertEquals(new Prompt(Prompt.Type.NONE), request.getPrompt());
 		assertEquals(new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs")), request.getDPoPJWKThumbprintConfirmation());
+		assertEquals(trustChain, request.getTrustChain());
 		assertEquals(3600, request.getMaxAge());
 		assertEquals(Arrays.asList(LangTag.parse("en-GB"), LangTag.parse("en-US")), request.getUILocales());
 		assertEquals(Arrays.asList(LangTag.parse("bg-BG"), LangTag.parse("fr-FR")), request.getClaimsLocales());
@@ -2026,6 +2047,7 @@ public class AuthenticationRequestTest extends TestCase {
 			.display(Display.POPUP)
 			.prompt(new Prompt(Prompt.Type.NONE))
 			.dPoPJWKThumbprintConfirmation(new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs")))
+			.trustChain(createSampleTrustChain())
 			.maxAge(900)
 			.uiLocales(LangTagUtils.parseLangTagList("en", "de"))
 			.claimsLocales(LangTagUtils.parseLangTagList("fr", "bg"))
@@ -2051,6 +2073,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals(in.getDisplay(), out.getDisplay());
 		assertEquals(in.getPrompt(), out.getPrompt());
 		assertEquals(in.getDPoPJWKThumbprintConfirmation(), out.getDPoPJWKThumbprintConfirmation());
+		assertEquals(in.getTrustChain(), out.getTrustChain());
 		assertEquals(in.getMaxAge(), out.getMaxAge());
 		assertEquals(in.getUILocales(), out.getUILocales());
 		assertEquals(in.getClaimsLocales(), out.getClaimsLocales());
@@ -2085,6 +2108,7 @@ public class AuthenticationRequestTest extends TestCase {
 			.display(Display.POPUP)
 			.prompt(new Prompt(Prompt.Type.NONE))
 			.dPoPJWKThumbprintConfirmation(new JWKThumbprintConfirmation(new Base64URL("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs")))
+			.trustChain(createSampleTrustChain())
 			.maxAge(900)
 			.uiLocales(LangTagUtils.parseLangTagList("en", "de"))
 			.claimsLocales(LangTagUtils.parseLangTagList("fr", "bg"))
@@ -2110,6 +2134,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals(in.getDisplay(), out.getDisplay());
 		assertEquals(in.getPrompt(), out.getPrompt());
 		assertEquals(in.getDPoPJWKThumbprintConfirmation(), out.getDPoPJWKThumbprintConfirmation());
+		assertEquals(in.getTrustChain(), out.getTrustChain());
 		assertEquals(in.getMaxAge(), out.getMaxAge());
 		assertEquals(in.getUILocales(), out.getUILocales());
 		assertEquals(in.getClaimsLocales(), out.getClaimsLocales());
@@ -2471,6 +2496,90 @@ public class AuthenticationRequestTest extends TestCase {
 		authRequest = AuthenticationRequest.parse(params);
 		
 		assertEquals(dpopJKT, authRequest.getDPoPJWKThumbprintConfirmation());
+	}
+	
+	
+	// OIDC Federation 1.0
+	static TrustChain createSampleTrustChain() throws JOSEException {
+		
+		EntityStatementClaimsSet leafClaims = TrustChainTest.createOPSelfStatementClaimsSet(TrustChainTest.ANCHOR_ENTITY_ID);
+		EntityStatement leafStmt = EntityStatement.sign(leafClaims, TrustChainTest.OP_RSA_JWK);
+		
+		EntityStatementClaimsSet anchorClaimsAboutLeaf = TrustChainTest.createOPStatementClaimsSet(new Issuer(TrustChainTest.ANCHOR_ENTITY_ID.getValue()), TrustChainTest.ANCHOR_ENTITY_ID);
+		EntityStatement anchorStmtAboutLeaf = EntityStatement.sign(anchorClaimsAboutLeaf, TrustChainTest.ANCHOR_RSA_JWK);
+		
+		List<EntityStatement> superiorStatements = Collections.singletonList(anchorStmtAboutLeaf);
+		return new TrustChain(leafStmt, superiorStatements);
+	}
+	
+	
+	public void testBuilder_trustChain() throws Exception {
+		
+		ResponseType responseType = ResponseType.CODE;
+		Scope scope = new Scope("openid");
+		ClientID clientID = new ClientID("123");
+		URI redirectURI = URI.create("https://example.com/cb");
+		TrustChain trustChain = createSampleTrustChain();
+		
+		AuthenticationRequest request = new AuthenticationRequest.Builder(responseType, scope, clientID, redirectURI)
+			.endpointURI(URI.create("https://c2id.com/login"))
+			.trustChain(trustChain)
+			.build();
+		
+		assertEquals(responseType, request.getResponseType());
+		assertEquals(scope, request.getScope());
+		assertEquals(clientID, request.getClientID());
+		assertEquals(redirectURI, request.getRedirectionURI());
+		assertEquals(trustChain.toSerializedJWTs(), request.getTrustChain().toSerializedJWTs());
+		
+		Map<String, List<String>> params = request.toParameters();
+		
+		assertEquals(Collections.singletonList(responseType.toString()), params.get("response_type"));
+		assertEquals(Collections.singletonList(scope.toString()), params.get("scope"));
+		assertEquals(Collections.singletonList(clientID.getValue()), params.get("client_id"));
+		assertEquals(Collections.singletonList(redirectURI.toString()), params.get("redirect_uri"));
+		
+		JSONArray trustChainArray = new JSONArray();
+		trustChainArray.addAll(trustChain.toSerializedJWTs());
+		assertEquals(Collections.singletonList(trustChainArray.toJSONString()), params.get("trust_chain"));
+		
+		assertEquals(5, params.size());
+		
+		request = AuthenticationRequest.parse(request.toURI());
+		
+		assertEquals(responseType, request.getResponseType());
+		assertEquals(scope, request.getScope());
+		assertEquals(clientID, request.getClientID());
+		assertEquals(redirectURI, request.getRedirectionURI());
+		assertEquals(trustChain.toSerializedJWTs(), request.getTrustChain().toSerializedJWTs());
+		
+		assertEquals(5, request.toParameters().size());
+	}
+	
+	
+	public void testParse_trustChainParseException() throws JOSEException {
+		
+		ResponseType responseType = ResponseType.CODE;
+		Scope scope = new Scope("openid");
+		ClientID clientID = new ClientID("123");
+		URI redirectURI = URI.create("https://example.com/cb");
+		TrustChain trustChain = createSampleTrustChain();
+		
+		AuthenticationRequest request = new AuthenticationRequest.Builder(responseType, scope, clientID, redirectURI)
+			.endpointURI(URI.create("https://c2id.com/login"))
+			.trustChain(trustChain)
+			.build();
+		
+		Map<String, List<String>> params = request.toParameters();
+		
+		params.put("trust_chain", Collections.singletonList("[\"abc\"]"));
+		
+		try {
+			AuthenticationRequest.parse(params);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Invalid JWT in trust chain: Invalid serialized unsecured/JWS/JWE object: Missing part delimiters", e.getMessage());
+		}
 	}
 	
 	

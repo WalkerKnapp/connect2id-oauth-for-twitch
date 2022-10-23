@@ -922,6 +922,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @param customParams         Custom parameters, empty map or
 	 *                             {@code null} if none.
 	 */
+	@Deprecated
 	public AuthorizationRequest(final URI uri,
 				    final ResponseType rt,
 				    final ResponseMode rm,

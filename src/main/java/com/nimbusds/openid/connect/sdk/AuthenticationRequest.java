@@ -39,6 +39,7 @@ import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
 import com.nimbusds.oauth2.sdk.util.*;
 import com.nimbusds.openid.connect.sdk.claims.ACR;
+import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 
 
 /**
@@ -70,6 +71,7 @@ import com.nimbusds.openid.connect.sdk.claims.ACR;
  *         OAuth 2.0 (JARM)
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
  *         (DPoP) (draft-ietf-oauth-dpop-11).
+ *     <li>OpenID Connect Federation 1.0, section 10.1.
  *     <li>OpenID Connect for Identity Assurance 1.0, section 8.
  * </ul>
  */
@@ -250,6 +252,12 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * The DPoP JWK SHA-256 thumbprint (optional).
 		 */
 		private JWKThumbprintConfirmation dpopJKT;
+		
+		
+		/**
+		 * The OpenID Connect Federation 1.0 trust chain (optional).
+		 */
+		private TrustChain trustChain;
 
 
 		/**
@@ -459,7 +467,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 *                Must not be {@code null}.
 		 */
 		public Builder(final AuthenticationRequest request) {
-			
 			uri = request.getEndpointURI();
 			rt = request.getResponseType();
 			clientID = request.getClientID();
@@ -470,6 +477,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 			display = request.getDisplay();
 			prompt = request.getPrompt();
 			dpopJKT = request.getDPoPJWKThumbprintConfirmation();
+			trustChain = request.getTrustChain();
 			maxAge = request.getMaxAge();
 			uiLocales = request.getUILocales();
 			claimsLocales = request.getClaimsLocales();
@@ -555,7 +563,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder state(final State state) {
-
 			this.state = state;
 			return this;
 		}
@@ -570,7 +577,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder endpointURI(final URI uri) {
-
 			this.uri = uri;
 			return this;
 		}
@@ -585,7 +591,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder nonce(final Nonce nonce) {
-
 			this.nonce = nonce;
 			return this;
 		}
@@ -601,7 +606,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder display(final Display display) {
-
 			this.display = display;
 			return this;
 		}
@@ -617,7 +621,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder prompt(final Prompt prompt) {
-
 			this.prompt = prompt;
 			return this;
 		}
@@ -636,6 +639,21 @@ public class AuthenticationRequest extends AuthorizationRequest {
 			this.dpopJKT = dpopJKT;
 			return this;
 		}
+		
+		
+		/**
+		 * Sets the OpenID Connect Federation 1.0 trust chain.
+		 * Corresponds to the optional {@code trust_chain} parameter.
+		 *
+		 * @param trustChain The trust chain, {@code null} if not
+		 *                   specified.
+		 *
+		 * @return This builder.
+		 */
+		public Builder trustChain(final TrustChain trustChain) {
+			this.trustChain = trustChain;
+			return this;
+		}
 
 
 		/**
@@ -648,7 +666,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder maxAge(final int maxAge) {
-
 			this.maxAge = maxAge;
 			return this;
 		}
@@ -665,7 +682,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder uiLocales(final List<LangTag> uiLocales) {
-
 			this.uiLocales = uiLocales;
 			return this;
 		}
@@ -682,7 +698,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder claimsLocales(final List<LangTag> claimsLocales) {
-
 			this.claimsLocales = claimsLocales;
 			return this;
 		}
@@ -698,7 +713,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder idTokenHint(final JWT idTokenHint) {
-
 			this.idTokenHint = idTokenHint;
 			return this;
 		}
@@ -714,7 +728,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder loginHint(final String loginHint) {
-
 			this.loginHint = loginHint;
 			return this;
 		}
@@ -731,7 +744,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder acrValues(final List<ACR> acrValues) {
-
 			this.acrValues = acrValues;
 			return this;
 		}
@@ -775,7 +787,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder claims(final OIDCClaimsRequest claims) {
-
 			this.claims = claims;
 			return this;
 		}
@@ -790,7 +801,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder purpose(final String purpose) {
-			
 			this.purpose = purpose;
 			return this;
 		}
@@ -807,7 +817,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder requestObject(final JWT requestObject) {
-
 			this.requestObject = requestObject;
 			return this;
 		}
@@ -824,7 +833,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder requestURI(final URI requestURI) {
-
 			this.requestURI = requestURI;
 			return this;
 		}
@@ -841,7 +849,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder responseMode(final ResponseMode rm) {
-
 			this.rm = rm;
 			return this;
 		}
@@ -860,7 +867,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 */
 		@Deprecated
 		public Builder codeChallenge(final CodeChallenge codeChallenge, final CodeChallengeMethod codeChallengeMethod) {
-			
 			this.codeChallenge = codeChallenge;
 			this.codeChallengeMethod = codeChallengeMethod;
 			return this;
@@ -884,7 +890,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder codeChallenge(final CodeVerifier codeVerifier, final CodeChallengeMethod codeChallengeMethod) {
-			
 			if (codeVerifier != null) {
 				CodeChallengeMethod method = codeChallengeMethod != null ? codeChallengeMethod : CodeChallengeMethod.getDefault();
 				this.codeChallenge = CodeChallenge.compute(method, codeVerifier);
@@ -942,7 +947,6 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder includeGrantedScopes(final boolean includeGrantedScopes) {
-			
 			this.includeGrantedScopes = includeGrantedScopes;
 			return this;
 		}
@@ -958,13 +962,11 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * @return This builder.
 		 */
 		public Builder customParameter(final String name, final String ... values) {
-			
 			if (values == null || values.length == 0) {
 				customParams.remove(name);
 			} else {
 				customParams.put(name, Arrays.asList(values));
 			}
-			
 			return this;
 		}
 
@@ -979,7 +981,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 			try {
 				return new AuthenticationRequest(
 					uri, rt, rm, scope, clientID, redirectURI, state, nonce,
-					display, prompt, dpopJKT, maxAge, uiLocales, claimsLocales,
+					display, prompt, dpopJKT, trustChain, maxAge, uiLocales, claimsLocales,
 					idTokenHint, loginHint, acrValues, claims,
 					purpose,
 					requestObject, requestURI,
@@ -1295,7 +1297,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 				     final boolean includeGrantedScopes,
 				     final Map<String,List<String>> customParams) {
 
-		this(uri, rt, rm, scope, clientID, redirectURI, state, nonce, display, prompt, null,
+		this(uri, rt, rm, scope, clientID, redirectURI, state, nonce, display, prompt, null, null,
 			maxAge, uiLocales, claimsLocales, idTokenHint, loginHint, acrValues, claims, purpose,
 			requestObject, requestURI, codeChallenge, codeChallengeMethod,
 			resources, includeGrantedScopes,
@@ -1401,6 +1403,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 * @param customParams         Additional custom parameters, empty map
 	 *                             or {@code null} if none.
 	 */
+	@Deprecated
 	public AuthenticationRequest(final URI uri,
 				     final ResponseType rt,
 				     final ResponseMode rm,
@@ -1427,8 +1430,144 @@ public class AuthenticationRequest extends AuthorizationRequest {
 				     final List<URI> resources,
 				     final boolean includeGrantedScopes,
 				     final Map<String,List<String>> customParams) {
+		
+		this(uri, rt, rm, scope, clientID, redirectURI, state, nonce, display, prompt, dpopJKT, null,
+			maxAge, uiLocales, claimsLocales, idTokenHint, loginHint, acrValues, claims, purpose,
+			requestObject, requestURI, codeChallenge, codeChallengeMethod,
+			resources, includeGrantedScopes,
+			customParams);
+	}
 
-		super(uri, rt, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod, resources, includeGrantedScopes, requestObject, requestURI, prompt, dpopJKT, customParams);
+	
+	/**
+	 * Creates a new OpenID Connect authentication request with extension
+	 * and custom parameters.
+	 *
+	 * @param uri                  The URI of the OAuth 2.0 authorisation
+	 *                             endpoint. May be {@code null} if the
+	 *                             {@link #toHTTPRequest} method will not
+	 *                             be used.
+	 * @param rt                   The response type set. Corresponds to
+	 *                             the {@code response_type} parameter.
+	 *                             Must specify a valid OpenID Connect
+	 *                             response type. Must not be {@code null}.
+	 * @param rm                   The response mode. Corresponds to the
+	 *                             optional {@code response_mode}
+	 *                             parameter. Use of this parameter is not
+	 *                             recommended unless a non-default
+	 *                             response mode is requested (e.g.
+	 *                             form_post).
+	 * @param scope                The request scope. Corresponds to the
+	 *                             {@code scope} parameter. Must contain an
+	 *                             {@link OIDCScopeValue#OPENID openid
+	 *                             value}. Must not be {@code null}.
+	 * @param clientID             The client identifier. Corresponds to
+	 *                             the {@code client_id} parameter. Must
+	 *                             not be {@code null}.
+	 * @param redirectURI          The redirection URI. Corresponds to the
+	 *                             {@code redirect_uri} parameter. Must not
+	 *                             be {@code null} unless set by means of
+	 *                             the optional {@code request_object} /
+	 *                             {@code request_uri} parameter.
+	 * @param state                The state. Corresponds to the
+	 *                             recommended {@code state} parameter.
+	 *                             {@code null} if not specified.
+	 * @param nonce                The nonce. Corresponds to the
+	 *                             {@code nonce} parameter. May be
+	 *                             {@code null} for code flow.
+	 * @param display              The requested display type. Corresponds
+	 *                             to the optional {@code display}
+	 *                             parameter.
+	 *                             {@code null} if not specified.
+	 * @param prompt               The requested prompt. Corresponds to the
+	 *                             optional {@code prompt} parameter.
+	 *                             {@code null} if not specified.
+	 * @param dpopJKT              The DPoP JWK SHA-256 thumbprint,
+	 *                             {@code null} if not specified.
+	 * @param trustChain           The OpenID Connect Federation 1.0 trust
+	 *                             chain, {@code null} if not specified.
+	 * @param maxAge               The required maximum authentication age,
+	 *                             in seconds. Corresponds to the optional
+	 *                             {@code max_age} parameter. -1 if not
+	 *                             specified, zero implies
+	 *                             {@code prompt=login}.
+	 * @param uiLocales            The preferred languages and scripts for
+	 *                             the user interface. Corresponds to the
+	 *                             optional {@code ui_locales} parameter.
+	 *                             {@code null} if not specified.
+	 * @param claimsLocales        The preferred languages and scripts for
+	 *                             claims being returned. Corresponds to
+	 *                             the optional {@code claims_locales}
+	 *                             parameter. {@code null} if not
+	 *                             specified.
+	 * @param idTokenHint          The ID Token hint. Corresponds to the
+	 *                             optional {@code id_token_hint}
+	 *                             parameter. {@code null} if not
+	 *                             specified.
+	 * @param loginHint            The login hint. Corresponds to the
+	 *                             optional {@code login_hint} parameter.
+	 *                             {@code null} if not specified.
+	 * @param acrValues            The requested Authentication Context
+	 *                             Class Reference values. Corresponds to
+	 *                             the optional {@code acr_values}
+	 *                             parameter. {@code null} if not
+	 *                             specified.
+	 * @param claims               The individual OpenID claims to be
+	 *                             returned. Corresponds to the optional
+	 *                             {@code claims} parameter. {@code null}
+	 *                             if not specified.
+	 * @param purpose              The transaction specific purpose,
+	 *                             {@code null} if not specified.
+	 * @param requestObject        The request object. Corresponds to the
+	 *                             optional {@code request} parameter. Must
+	 *                             not be specified together with a request
+	 *                             object URI. {@code null} if not
+	 *                             specified.
+	 * @param requestURI           The request object URI. Corresponds to
+	 *                             the optional {@code request_uri}
+	 *                             parameter. Must not be specified
+	 *                             together with a request object.
+	 *                             {@code null} if not specified.
+	 * @param codeChallenge        The code challenge for PKCE,
+	 *                             {@code null} if not specified.
+	 * @param codeChallengeMethod  The code challenge method for PKCE,
+	 *                             {@code null} if not specified.
+	 * @param resources            The resource URI(s), {@code null} if not
+	 *                             specified.
+	 * @param includeGrantedScopes {@code true} to request incremental
+	 *                             authorisation.
+	 * @param customParams         Additional custom parameters, empty map
+	 *                             or {@code null} if none.
+	 */
+	public AuthenticationRequest(final URI uri,
+				     final ResponseType rt,
+				     final ResponseMode rm,
+				     final Scope scope,
+				     final ClientID clientID,
+				     final URI redirectURI,
+				     final State state,
+				     final Nonce nonce,
+				     final Display display,
+				     final Prompt prompt,
+				     final JWKThumbprintConfirmation dpopJKT,
+				     final TrustChain trustChain,
+				     final int maxAge,
+				     final List<LangTag> uiLocales,
+				     final List<LangTag> claimsLocales,
+				     final JWT idTokenHint,
+				     final String loginHint,
+				     final List<ACR> acrValues,
+				     final OIDCClaimsRequest claims,
+				     final String purpose,
+				     final JWT requestObject,
+				     final URI requestURI,
+				     final CodeChallenge codeChallenge,
+				     final CodeChallengeMethod codeChallengeMethod,
+				     final List<URI> resources,
+				     final boolean includeGrantedScopes,
+				     final Map<String,List<String>> customParams) {
+
+		super(uri, rt, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod, resources, includeGrantedScopes, requestObject, requestURI, prompt, dpopJKT, trustChain, customParams);
 		
 		if (! specifiesRequestObject()) {
 			
@@ -1983,7 +2122,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 
 		return new AuthenticationRequest(
 			uri, ar.getResponseType(), ar.getResponseMode(), ar.getScope(), ar.getClientID(), ar.getRedirectionURI(), ar.getState(), nonce,
-			display, ar.getPrompt(), ar.getDPoPJWKThumbprintConfirmation(), maxAge, uiLocales, claimsLocales,
+			display, ar.getPrompt(), ar.getDPoPJWKThumbprintConfirmation(), ar.getTrustChain(), maxAge, uiLocales, claimsLocales,
 			idTokenHint, loginHint, acrValues, claims, purpose,
 			ar.getRequestObject(), ar.getRequestURI(),
 			ar.getCodeChallenge(), ar.getCodeChallengeMethod(),

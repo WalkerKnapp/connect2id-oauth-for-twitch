@@ -2086,7 +2086,7 @@ version 9.43 (2022-09-03)
 version 9.43.1 (2022-09-09)
     * Updates Nimbus JOSE+JWT to 9.24.4
 
-version 10.0 (2022-10-19)
+version 10.0 (2022-10-23)
     * Breaking change, upgrades OpenID Connect Federation 1.0 support to draft
       23.
     * Updates EntityStatement (breaking change).
@@ -2109,5 +2109,6 @@ version 10.0 (2022-10-19)
     * Updates the Federation API classes (breaking changes).
     * Updates TrustChain and TrustChain resolver (breaking changes).
     * Factors out common federation JWT methods in to JWTUtils.
-    * Adds trust_chain support in AuthorizationRequest.
+    * Adds trust_chain support in AuthorizationRequest and
+      AuthenticationRequest.
     * Adds static ClaimsSet.getJSONArrayClaim method.

@@ -597,7 +597,7 @@ public class AuthorizationRequestTest extends TestCase {
 	
 	
 	// OIDC Federation 1.0
-	private static TrustChain createSampleTrustChain() throws JOSEException {
+	static TrustChain createSampleTrustChain() throws JOSEException {
 		
 		EntityStatementClaimsSet leafClaims = TrustChainTest.createOPSelfStatementClaimsSet(TrustChainTest.ANCHOR_ENTITY_ID);
 		EntityStatement leafStmt = EntityStatement.sign(leafClaims, TrustChainTest.OP_RSA_JWK);
