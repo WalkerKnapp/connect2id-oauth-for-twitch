@@ -2112,3 +2112,10 @@ version 10.0 (2022-10-24)
     * Adds trust_chain support in AuthorizationRequest and
       AuthenticationRequest.
     * Adds static ClaimsSet.getJSONArrayClaim method.
+
+version 10.1 (2022-10-27)
+    * Adds HTTPRequestConfigurator interface.
+    * Adds new static OIDCProviderMetadata.resolve(Issuer,
+      HTTPRequestConfigurator) method.
+    * Adds new static AuthorizationServerMetadata.resolve(Issuer,
+      HTTPRequestConfigurator) method.

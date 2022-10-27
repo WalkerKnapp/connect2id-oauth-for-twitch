@@ -26,6 +26,8 @@ import static org.junit.Assert.fail;
 
 import com.nimbusds.oauth2.sdk.GeneralException;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.http.HTTPRequestConfigurator;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import org.junit.After;
 import org.junit.Before;
@@ -111,6 +113,37 @@ public class AuthorizationServerMetadataResolveTest {
 			.withBody(metadata.toJSONObject().toJSONString());
 		
 		AuthorizationServerMetadata result = AuthorizationServerMetadata.resolve(issuer);
+		
+		assertEquals(issuer, result.getIssuer());
+	}
+	
+	
+	@Test
+	public void testResolveWithConfigurator()
+		throws Exception {
+		
+		Issuer issuer = new Issuer("http://localhost:" + port());
+		
+		AuthorizationServerMetadata metadata = new AuthorizationServerMetadata(issuer);
+		metadata.applyDefaults();
+		
+		onRequest()
+			.havingMethodEqualTo("GET")
+			.havingPathEqualTo("/.well-known/oauth-authorization-server")
+			.havingHeaderEqualTo("Accept", "application/json")
+			.respond()
+			.withStatus(200)
+			.withContentType("application/json")
+			.withBody(metadata.toJSONObject().toJSONString());
+		
+		AuthorizationServerMetadata result = AuthorizationServerMetadata.resolve(
+			issuer,
+			new HTTPRequestConfigurator() {
+				@Override
+				public void configure(HTTPRequest httpRequest) {
+					httpRequest.setAccept("application/json");
+				}
+			});
 		
 		assertEquals(issuer, result.getIssuer());
 	}

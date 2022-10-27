@@ -28,6 +28,8 @@ import static org.junit.Assert.fail;
 
 import com.nimbusds.oauth2.sdk.GeneralException;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.http.HTTPRequestConfigurator;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.SubjectType;
 import net.minidev.json.JSONObject;
@@ -125,6 +127,39 @@ public class OIDCProviderMetadataResolveTest {
 		
 		OIDCProviderMetadata result = OIDCProviderMetadata.resolve(issuer);
 		
+		assertEquals(issuer, result.getIssuer());
+	}
+	
+	
+	@Test
+	public void testResolveWithConfigurator()
+		throws Exception {
+		
+		Issuer issuer = new Issuer("http://localhost:" + port());
+		
+		OIDCProviderMetadata metadata = new OIDCProviderMetadata(
+			issuer,
+			Collections.singletonList(SubjectType.PAIRWISE),
+			URI.create("http://localhost:" + port() + "/jwks.json"));
+		metadata.applyDefaults();
+		
+		onRequest()
+			.havingMethodEqualTo("GET")
+			.havingPathEqualTo("/.well-known/openid-configuration")
+			.havingHeaderEqualTo("Accept", "application/json")
+			.respond()
+			.withStatus(200)
+			.withContentType("application/json")
+			.withBody(metadata.toJSONObject().toJSONString());
+		
+		OIDCProviderMetadata result = OIDCProviderMetadata.resolve(
+			issuer,
+			new HTTPRequestConfigurator() {
+				@Override
+				public void configure(HTTPRequest httpRequest) {
+					httpRequest.setAccept("application/json");
+				}
+			});
 		assertEquals(issuer, result.getIssuer());
 	}
 	

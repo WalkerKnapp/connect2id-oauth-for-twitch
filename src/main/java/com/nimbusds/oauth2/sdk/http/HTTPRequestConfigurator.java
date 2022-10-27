@@ -1,7 +1,7 @@
 /*
  * oauth2-oidc-sdk
  *
- * Copyright 2022 Connect2id Ltd and contributors.
+ * Copyright 2012-2021, Connect2id Ltd and contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
  * this file except in compliance with the License. You may obtain a copy of the
@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.nimbusds.openid.connect.sdk.op;
+package com.nimbusds.oauth2.sdk.http;
 
-import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 
 /**
  * {@link HTTPRequest} instance configurator.
@@ -30,5 +29,5 @@ public interface HTTPRequestConfigurator {
      *
      * @param httpRequest The request instance.
      */
-    void configure(HTTPRequest httpRequest);
+    void configure(final HTTPRequest httpRequest);
 }

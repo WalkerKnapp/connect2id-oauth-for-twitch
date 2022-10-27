@@ -37,6 +37,7 @@ import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.as.AuthorizationServerEndpointMetadata;
 import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.http.HTTPRequestConfigurator;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.Issuer;
@@ -1786,14 +1787,16 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 * Resolves OpenID Provider metadata from the specified issuer
 	 * identifier. The metadata is downloaded by HTTP GET from
 	 * {@code [issuer-url]/.well-known/openid-configuration}, using the
-	 * specified HTTP request configuration.
+	 * specified HTTP request configurator.
 	 *
-	 * @param issuer              The issuer identifier. Must represent a valid
-	 *                            HTTPS or HTTP URL. Must not be {@code null}.
-	 * @param requestConfigurator An instance implementation of the {@link HTTPRequestConfigurator}
-	 *                            interface which allows additional configuration
-	 *                            of the {@link HTTPRequest} object used for
-	 *                            fetching OpenID Provider metadata.
+	 * @param issuer              The issuer identifier. Must represent a
+	 *                            valid HTTPS or HTTP URL. Must not be
+	 *                            {@code null}.
+	 * @param requestConfigurator An {@link HTTPRequestConfigurator}
+	 *                            instance to perform additional
+	 *                            {@link HTTPRequest} configuration to
+	 *                            fetch the OpenID Provider metadata. Must
+	 *                            not be {@code null}.
 	 *
 	 * @return The OpenID Provider metadata.
 	 *
@@ -1802,7 +1805,7 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 * @throws IOException      On an HTTP exception.
 	 */
 	public static OIDCProviderMetadata resolve(final Issuer issuer,
-											   final HTTPRequestConfigurator requestConfigurator)
+						   final HTTPRequestConfigurator requestConfigurator)
 		throws GeneralException, IOException {
 
 		URL configURL = resolveURL(issuer);

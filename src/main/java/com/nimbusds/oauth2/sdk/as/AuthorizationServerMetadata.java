@@ -39,6 +39,7 @@ import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import com.nimbusds.oauth2.sdk.ciba.BackChannelTokenDeliveryMode;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.http.HTTPRequestConfigurator;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.Issuer;
@@ -2271,11 +2272,47 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 							  final int readTimeout)
 		throws GeneralException, IOException {
 		
+		HTTPRequestConfigurator requestConfigurator = new HTTPRequestConfigurator() {
+			@Override
+			public void configure(HTTPRequest httpRequest) {
+				httpRequest.setConnectTimeout(connectTimeout);
+				httpRequest.setReadTimeout(readTimeout);
+			}
+		};
+		
+		return resolve(issuer, requestConfigurator);
+	}
+	
+	
+	/**
+	 * Resolves OAuth 2.0 authorisation server metadata from the specified
+	 * issuer identifier. The metadata is downloaded by HTTP GET from
+	 * {@code [issuer-url]/.well-known/oauth-authorization-server}, using
+	 * the specified HTTP request configurator.
+	 *
+	 * @param issuer              The issuer identifier. Must represent a
+	 *                            valid HTTPS or HTTP URL. Must not be
+	 *                            {@code null}.
+	 * @param requestConfigurator An {@link HTTPRequestConfigurator}
+	 *                            instance to perform additional
+	 *                            {@link HTTPRequest} configuration to
+	 *                            fetch the OpenID Provider metadata. Must
+	 *                            not be {@code null}.
+	 *
+	 * @return The OAuth 2.0 authorisation server metadata.
+	 *
+	 * @throws GeneralException If the issuer identifier or the downloaded
+	 *                          metadata are invalid.
+	 * @throws IOException      On a HTTP exception.
+	 */
+	public static AuthorizationServerMetadata resolve(final Issuer issuer,
+							  final HTTPRequestConfigurator requestConfigurator)
+		throws GeneralException, IOException {
+		
 		URL configURL = resolveURL(issuer);
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, configURL);
-		httpRequest.setConnectTimeout(connectTimeout);
-		httpRequest.setReadTimeout(readTimeout);
+		requestConfigurator.configure(httpRequest);
 		
 		HTTPResponse httpResponse = httpRequest.send();
 		
