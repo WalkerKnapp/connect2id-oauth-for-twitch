@@ -23,6 +23,7 @@ import java.util.*;
 
 import net.jcip.annotations.Immutable;
 
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -31,6 +32,7 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
 
 
@@ -196,11 +198,20 @@ public class TrustMarkStatusRequest extends FederationAPIRequest {
 	}
 	
 	
+	@Override
+	public HTTPRequest toHTTPRequest() {
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, getEndpointURI());
+		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+		httpRequest.setQuery(URLUtils.serializeParameters(toParameters()));
+		return httpRequest;
+	}
+	
+	
 	/**
-	 * Parses a trust mark status request from the specified query string
+	 * Parses a trust mark status request from the specified request
 	 * parameters.
 	 *
-	 * @param params The query string parameters. Must not be {@code null}.
+	 * @param params The request parameters. Must not be {@code null}.
 	 *
 	 * @return The trust mark status request.
 	 *
@@ -265,7 +276,8 @@ public class TrustMarkStatusRequest extends FederationAPIRequest {
 	public static TrustMarkStatusRequest parse(final HTTPRequest httpRequest)
 		throws ParseException {
 		
-		httpRequest.ensureMethod(HTTPRequest.Method.GET);
+		httpRequest.ensureMethod(HTTPRequest.Method.POST);
+		httpRequest.ensureEntityContentType(ContentType.APPLICATION_URLENCODED);
 		
 		TrustMarkStatusRequest request = TrustMarkStatusRequest.parse(httpRequest.getQueryParameters());
 		

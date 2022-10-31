@@ -26,6 +26,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -89,7 +90,8 @@ public class TrustMarkStatusRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = request.toHTTPRequest();
 		assertEquals(ENDPOINT, httpRequest.getURI());
-		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
+		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
+		assertEquals(ContentType.APPLICATION_URLENCODED, httpRequest.getEntityContentType());
 		params = httpRequest.getQueryParameters();
 		assertEquals(Collections.singletonList(SUBJECT.getValue()), params.get("sub"));
 		assertEquals(Collections.singletonList(ID.getValue()), params.get("id"));
@@ -123,7 +125,8 @@ public class TrustMarkStatusRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = request.toHTTPRequest();
 		assertEquals(ENDPOINT, httpRequest.getURI());
-		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
+		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
+		assertEquals(ContentType.APPLICATION_URLENCODED, httpRequest.getEntityContentType());
 		params = httpRequest.getQueryParameters();
 		assertEquals(Collections.singletonList(SUBJECT.getValue()), params.get("sub"));
 		assertEquals(Collections.singletonList(ID.getValue()), params.get("id"));
@@ -154,7 +157,8 @@ public class TrustMarkStatusRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = request.toHTTPRequest();
 		assertEquals(ENDPOINT, httpRequest.getURI());
-		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
+		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
+		assertEquals(ContentType.APPLICATION_URLENCODED, httpRequest.getEntityContentType());
 		params = httpRequest.getQueryParameters();
 		assertEquals(Collections.singletonList(TRUST_MARK.serialize()), params.get("trust_mark"));
 		assertEquals(1, params.size());
@@ -201,19 +205,44 @@ public class TrustMarkStatusRequestTest extends TestCase {
 	}
 	
 	
-	public void testParse_notGET() {
+	public void testParse_notPOST() {
+		try {
+			TrustMarkStatusRequest.parse(new HTTPRequest(HTTPRequest.Method.GET, ENDPOINT));
+			fail();
+		} catch (ParseException e) {
+			assertEquals("The HTTP request method must be POST", e.getMessage());
+		}
+	}
+	
+	
+	public void testParse_missingContentType() {
 		try {
 			TrustMarkStatusRequest.parse(new HTTPRequest(HTTPRequest.Method.POST, ENDPOINT));
 			fail();
 		} catch (ParseException e) {
-			assertEquals("The HTTP request method must be GET", e.getMessage());
+			assertEquals("Missing HTTP Content-Type header", e.getMessage());
+		}
+	}
+	
+	
+	public void testParse_invalidContentType() {
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, ENDPOINT);
+		httpRequest.setEntityContentType(ContentType.APPLICATION_JSON);
+		httpRequest.setQuery("{}");
+		try {
+			TrustMarkStatusRequest.parse(httpRequest);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("The HTTP Content-Type header must be application/x-www-form-urlencoded, received application/json", e.getMessage());
 		}
 	}
 	
 	
 	public void testParse_emptyQuery() {
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, ENDPOINT);
+		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
 		try {
-			TrustMarkStatusRequest.parse(new HTTPRequest(HTTPRequest.Method.GET, ENDPOINT));
+			TrustMarkStatusRequest.parse(httpRequest);
 			fail();
 		} catch (ParseException e) {
 			assertEquals("Invalid request: The subject must not be null", e.getMessage());

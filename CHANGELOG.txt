@@ -2119,3 +2119,6 @@ version 10.1 (2022-10-27)
       HTTPRequestConfigurator) method.
     * Adds new static AuthorizationServerMetadata.resolve(Issuer,
       HTTPRequestConfigurator) method.
+
+version 10.2 (2022-10-31)
+    * TrustMarkStatusRequest must use HTTP POST.

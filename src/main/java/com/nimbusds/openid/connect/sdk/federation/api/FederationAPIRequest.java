@@ -51,9 +51,9 @@ public abstract class FederationAPIRequest extends AbstractRequest {
 	
 	
 	/**
-	 * Returns the request query parameters.
+	 * Returns the request parameters.
 	 *
-	 * @return The request query parameters.
+	 * @return The request parameters.
 	 */
 	public abstract Map<String, List<String>> toParameters();
 	
