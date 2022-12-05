@@ -2122,3 +2122,7 @@ version 10.1 (2022-10-27)
 
 version 10.2 (2022-10-31)
     * TrustMarkStatusRequest must use HTTP POST.
+
+version 10.2.1 (2022-12-05)
+    * Fixes OIDCProviderMetadata backchannel_logout_session_supported parse bug
+      (iss #404).

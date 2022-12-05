@@ -1553,7 +1553,7 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 		if (jsonObject.get("backchannel_logout_supported") != null)
 			op.backChannelLogoutSupported = JSONObjectUtils.getBoolean(jsonObject, "backchannel_logout_supported");
 		
-		if (op.frontChannelLogoutSupported && jsonObject.get("backchannel_logout_session_supported") != null)
+		if (op.backChannelLogoutSupported && jsonObject.get("backchannel_logout_session_supported") != null)
 			op.backChannelLogoutSessionSupported = JSONObjectUtils.getBoolean(jsonObject, "backchannel_logout_session_supported");
 		
 		if (jsonObject.get("mtls_endpoint_aliases") != null)

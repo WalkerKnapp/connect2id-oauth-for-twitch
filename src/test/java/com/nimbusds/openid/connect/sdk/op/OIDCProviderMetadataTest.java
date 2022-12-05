@@ -1156,7 +1156,7 @@ public class OIDCProviderMetadataTest extends TestCase {
 	}
 	
 	
-	public void testParseBasicFrontAndBackChannelLogoutSupport()
+	public void testParseBasicFrontChannelLogoutSupport()
 		throws ParseException {
 		
 		OIDCProviderMetadata meta = new OIDCProviderMetadata(
@@ -1166,20 +1166,89 @@ public class OIDCProviderMetadataTest extends TestCase {
 		
 		meta.applyDefaults();
 		meta.setSupportsFrontChannelLogout(true);
-		meta.setSupportsBackChannelLogout(true);
 		
 		JSONObject out = meta.toJSONObject();
 		
 		// Optional session supported flag defaults to false
 		assertNotNull(out.remove("frontchannel_logout_session_supported"));
-		assertNotNull(out.remove("backchannel_logout_session_supported"));
 		
 		meta = OIDCProviderMetadata.parse(out.toJSONString());
 		
 		assertTrue(meta.supportsFrontChannelLogout());
 		assertFalse(meta.supportsFrontChannelLogoutSession());
+		assertFalse(meta.supportsBackChannelLogout());
+		assertFalse(meta.supportsBackChannelLogoutSession());
+	}
+	
+	
+	public void testParseBasicBackChannelLogoutSupport()
+		throws ParseException {
+		
+		OIDCProviderMetadata meta = new OIDCProviderMetadata(
+			new Issuer("https://c2id.com"),
+			Collections.singletonList(SubjectType.PUBLIC),
+			URI.create("https://c2id.com/jwks.json"));
+		
+		meta.applyDefaults();
+		meta.setSupportsBackChannelLogout(true);
+		
+		JSONObject out = meta.toJSONObject();
+		
+		// Optional session supported flag defaults to false
+		assertNotNull(out.remove("backchannel_logout_session_supported"));
+		
+		meta = OIDCProviderMetadata.parse(out.toJSONString());
+		
+		assertFalse(meta.supportsFrontChannelLogout());
+		assertFalse(meta.supportsFrontChannelLogoutSession());
 		assertTrue(meta.supportsBackChannelLogout());
 		assertFalse(meta.supportsBackChannelLogoutSession());
+	}
+	
+	
+	public void testParseFrontChannelLogoutSupportWithSession()
+		throws ParseException {
+		
+		OIDCProviderMetadata meta = new OIDCProviderMetadata(
+			new Issuer("https://c2id.com"),
+			Collections.singletonList(SubjectType.PUBLIC),
+			URI.create("https://c2id.com/jwks.json"));
+		
+		meta.applyDefaults();
+		meta.setSupportsFrontChannelLogout(true);
+		meta.setSupportsFrontChannelLogoutSession(true);
+		
+		JSONObject out = meta.toJSONObject();
+		
+		meta = OIDCProviderMetadata.parse(out.toJSONString());
+		
+		assertTrue(meta.supportsFrontChannelLogout());
+		assertTrue(meta.supportsFrontChannelLogoutSession());
+		assertFalse(meta.supportsBackChannelLogout());
+		assertFalse(meta.supportsBackChannelLogoutSession());
+	}
+	
+	
+	public void testParseBackChannelLogoutSupportWithSession()
+		throws ParseException {
+		
+		OIDCProviderMetadata meta = new OIDCProviderMetadata(
+			new Issuer("https://c2id.com"),
+			Collections.singletonList(SubjectType.PUBLIC),
+			URI.create("https://c2id.com/jwks.json"));
+		
+		meta.applyDefaults();
+		meta.setSupportsBackChannelLogout(true);
+		meta.setSupportsBackChannelLogoutSession(true);
+		
+		JSONObject out = meta.toJSONObject();
+		
+		meta = OIDCProviderMetadata.parse(out.toJSONString());
+		
+		assertFalse(meta.supportsFrontChannelLogout());
+		assertFalse(meta.supportsFrontChannelLogoutSession());
+		assertTrue(meta.supportsBackChannelLogout());
+		assertTrue(meta.supportsBackChannelLogoutSession());
 	}
 	
 	
