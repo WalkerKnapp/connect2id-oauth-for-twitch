@@ -123,7 +123,7 @@ This SDK version implements the following standards and drafts:
 
 * OpenID Connect for Identity Assurance 1.0 - draft 12
 
-* OpenID Connect Federation 1.0 - draft 24
+* OpenID Connect Federation 1.0 - draft 25
 
 * Initiating User Registration via OpenID Connect (draft 04)
 
