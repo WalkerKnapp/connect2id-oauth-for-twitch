@@ -22,6 +22,7 @@ import static com.nimbusds.openid.connect.sdk.federation.api.EntityListingSucces
 
 import junit.framework.TestCase;
 
+import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
@@ -40,6 +41,24 @@ public class EntityListingResponseTest extends TestCase {
 	}
 	
 	
+	public void testUnsupportedParameterError() throws ParseException {
+		
+		FederationAPIError error = new FederationAPIError(
+			"unsupported_parameter",
+			"Unsupported parameter")
+			.withStatusCode(400);
+		
+		EntityListingErrorResponse response = new EntityListingErrorResponse(error);
+		HTTPResponse httpResponse = response.toHTTPResponse();
+		
+		response = EntityListingErrorResponse.parse(httpResponse).toErrorResponse();
+		assertEquals(error.toJSONObject(), response.getErrorObject().toJSONObject());
+		assertFalse(response.indicatesSuccess());
+		
+		assertEquals(OAuth2Error.UNSUPPORTED_PARAMETER, response.getErrorObject());
+	}
+	
+	
 	public void testParseError() throws ParseException {
 		
 		FederationAPIError error = new FederationAPIError(
@@ -53,5 +72,7 @@ public class EntityListingResponseTest extends TestCase {
 		response = EntityListingErrorResponse.parse(httpResponse).toErrorResponse();
 		assertEquals(error.toJSONObject(), response.getErrorObject().toJSONObject());
 		assertFalse(response.indicatesSuccess());
+		
+		assertEquals(OAuth2Error.INVALID_REQUEST, response.getErrorObject());
 	}
 }

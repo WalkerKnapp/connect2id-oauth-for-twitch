@@ -51,6 +51,7 @@ public class OAuth2ErrorTest extends TestCase {
 		assertEquals(0, OAuth2Error.USE_DPOP_NONCE.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.MISSING_TRUST_ANCHOR.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.VALIDATION_FAILED.getHTTPStatusCode());
+		assertEquals(400, OAuth2Error.UNSUPPORTED_PARAMETER.getHTTPStatusCode());
 	}
 	
 	
@@ -127,6 +128,10 @@ public class OAuth2ErrorTest extends TestCase {
 		assertEquals("validation_failed", OAuth2Error.VALIDATION_FAILED.getCode());
 		assertEquals("Trust chain validation failed", OAuth2Error.VALIDATION_FAILED.getDescription());
 		assertEquals(400, OAuth2Error.VALIDATION_FAILED.getHTTPStatusCode());
+		
+		assertEquals("unsupported_parameter", OAuth2Error.UNSUPPORTED_PARAMETER.getCode());
+		assertEquals("Unsupported parameter", OAuth2Error.UNSUPPORTED_PARAMETER.getDescription());
+		assertEquals(400, OAuth2Error.UNSUPPORTED_PARAMETER.getHTTPStatusCode());
 	}
 	
 	

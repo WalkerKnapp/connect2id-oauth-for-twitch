@@ -300,6 +300,19 @@ public final class OAuth2Error {
 	
 	
 	/**
+	 * The {@link OAuth2Error#UNSUPPORTED_PARAMETER} error code string.
+	 */
+	public static final String UNSUPPORTED_PARAMETER_CODE = "unsupported_parameter";
+	
+	
+	/**
+	 * Unsupported parameter.
+	 */
+	public static final ErrorObject UNSUPPORTED_PARAMETER =
+		new ErrorObject(UNSUPPORTED_PARAMETER_CODE, "Unsupported parameter", HTTPResponse.SC_BAD_REQUEST);
+	
+	
+	/**
 	 * Prevents public instantiation.
 	 */
 	private OAuth2Error() { }
