@@ -2132,3 +2132,7 @@ version 10.3 (2022-12-06)
     * Adds OAuth2Error.UNSUPPORTED_PARAMETER (unsupported_parameter) error.
     * Updates FederationEntityMetadata to support
       federation_trust_mark_status_endpoint and logo_uri.
+    * Deprecates EntityType.TRUST_MARK_ISSUER.
+    * Deprecates TrustMarkIssuerMetadata.
+    * Deprecates CommonFederationClaimsSet.getTrustMarkIssuerMetadata.
+    * Deprecates EntityStatementClaimsSet.setTrustMarkIssuerMetadata.

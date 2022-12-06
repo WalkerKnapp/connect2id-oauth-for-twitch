@@ -534,6 +534,7 @@ public class EntityStatementClaimsSet extends CommonFederationClaimsSet {
 	 * @param trustMarkIssuerMetadata The trust mark issuer metadata,
 	 *                                {@code null} if not specified.
 	 */
+	@Deprecated
 	public void setTrustMarkIssuerMetadata(final TrustMarkIssuerMetadata trustMarkIssuerMetadata) {
 		
 		JSONObject o = trustMarkIssuerMetadata != null ? trustMarkIssuerMetadata.toJSONObject() : null;

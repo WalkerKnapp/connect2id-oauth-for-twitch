@@ -297,6 +297,7 @@ public abstract class CommonFederationClaimsSet extends CommonClaimsSet {
 	 * @return The trust mark issuer metadata, {@code null} if not
 	 *         specified or if parsing failed.
 	 */
+	@Deprecated
 	public TrustMarkIssuerMetadata getTrustMarkIssuerMetadata() {
 		
 		JSONObject o = getMetadata(EntityType.TRUST_MARK_ISSUER);

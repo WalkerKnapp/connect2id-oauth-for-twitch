@@ -34,7 +34,7 @@ public class EntityTypeTest extends TestCase {
 		assertEquals("oauth_client", EntityType.OAUTH_CLIENT.getValue());
 		assertEquals("oauth_resource", EntityType.OAUTH_RESOURCE.getValue());
 		assertEquals("federation_entity", EntityType.FEDERATION_ENTITY.getValue());
-		assertEquals("trust_mark_issuer", EntityType.TRUST_MARK_ISSUER.getValue());
+		assertEquals("trust_mark_issuer", EntityType.TRUST_MARK_ISSUER.getValue()); // deprecated
 	}
 	
 	public void testConstructor() {

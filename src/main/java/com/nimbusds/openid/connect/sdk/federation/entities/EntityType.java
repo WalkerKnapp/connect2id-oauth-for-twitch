@@ -78,6 +78,7 @@ public final class EntityType extends Identifier {
 	/**
 	 * Trust mark issuer ({@code trust_mark_issuer}).
 	 */
+	@Deprecated
 	public static final EntityType TRUST_MARK_ISSUER = new EntityType("trust_mark_issuer");
 	
 	
