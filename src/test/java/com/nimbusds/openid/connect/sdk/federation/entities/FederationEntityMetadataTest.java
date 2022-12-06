@@ -48,6 +48,11 @@ public class FederationEntityMetadataTest extends TestCase {
 		metadata.setFederationResolveEndpointURI(resolveEndpoint);
 		assertEquals(resolveEndpoint, metadata.getFederationResolveEndpointURI());
 		
+		assertNull(metadata.getFederationTrustMarkStatusEndpointURI());
+		URI statusEndpoint = URI.create("https://c2id.com/fed/status");
+		metadata.setFederationTrustMarkStatusEndpointURI(statusEndpoint);
+		assertEquals(statusEndpoint, metadata.getFederationTrustMarkStatusEndpointURI());
+		
 		assertNull(metadata.getOrganizationName());
 		String name = "Org name";
 		metadata.setOrganizationName(name);
@@ -57,6 +62,11 @@ public class FederationEntityMetadataTest extends TestCase {
 		List<String> contacts = Arrays.asList("federation@c2id.com", "+359102030");
 		metadata.setContacts(contacts);
 		assertEquals(contacts, metadata.getContacts());
+		
+		assertNull(metadata.getLogoURI());
+		URI logoURI = URI.create("https://c2id.com/federation-logo.png");
+		metadata.setLogoURI(logoURI);
+		assertEquals(logoURI, metadata.getLogoURI());
 		
 		assertNull(metadata.getPolicyURI());
 		URI policyURI = URI.create("https://c2id.com/federation-policy.html");
@@ -72,8 +82,10 @@ public class FederationEntityMetadataTest extends TestCase {
 		assertEquals(fetchEndpoint.toString(), jsonObject.get("federation_fetch_endpoint"));
 		assertEquals(listEndpoint.toString(), jsonObject.get("federation_list_endpoint"));
 		assertEquals(resolveEndpoint.toString(), jsonObject.get("federation_resolve_endpoint"));
+		assertEquals(statusEndpoint.toString(), jsonObject.get("federation_trust_mark_status_endpoint"));
 		assertEquals(name, jsonObject.get("organization_name"));
 		assertEquals(contacts, JSONObjectUtils.getStringList(jsonObject, "contacts"));
+		assertEquals(logoURI.toString(), jsonObject.get("logo_uri"));
 		assertEquals(policyURI.toString(), jsonObject.get("policy_uri"));
 		assertEquals(homepageURI.toString(), jsonObject.get("homepage_uri"));
 		
@@ -82,7 +94,9 @@ public class FederationEntityMetadataTest extends TestCase {
 		assertEquals(fetchEndpoint, metadata.getFederationFetchEndpointURI());
 		assertEquals(listEndpoint, metadata.getFederationListEndpointURI());
 		assertEquals(resolveEndpoint, metadata.getFederationResolveEndpointURI());
+		assertEquals(statusEndpoint, metadata.getFederationTrustMarkStatusEndpointURI());
 		assertEquals(contacts, metadata.getContacts());
+		assertEquals(logoURI, metadata.getLogoURI());
 		assertEquals(policyURI, metadata.getPolicyURI());
 		assertEquals(homepageURI, metadata.getHomepageURI());
 	}
@@ -104,20 +118,48 @@ public class FederationEntityMetadataTest extends TestCase {
 		assertNull(metadata.getFederationFetchEndpointURI());
 		assertNull(metadata.getFederationListEndpointURI());
 		assertNull(metadata.getFederationResolveEndpointURI());
+		assertNull(metadata.getFederationTrustMarkStatusEndpointURI());
 		assertNull(metadata.getOrganizationName());
 		assertNull(metadata.getContacts());
 		assertNull(metadata.getPolicyURI());
+		assertNull(metadata.getLogoURI());
 		assertNull(metadata.getHomepageURI());
 	}
 	
 	
-	public void testParseExample()
+	public void testDefaultConstructor() {
+		
+		FederationEntityMetadata metadata = new FederationEntityMetadata();
+		assertNull(metadata.getFederationFetchEndpointURI());
+		assertNull(metadata.getFederationListEndpointURI());
+		assertNull(metadata.getFederationResolveEndpointURI());
+		assertNull(metadata.getFederationTrustMarkStatusEndpointURI());
+		assertNull(metadata.getOrganizationName());
+		assertNull(metadata.getContacts());
+		assertNull(metadata.getPolicyURI());
+		assertNull(metadata.getLogoURI());
+		assertNull(metadata.getHomepageURI());
+	}
+	
+	
+	public void testSetFetchEndpoint() {
+		
+		FederationEntityMetadata metadata = new FederationEntityMetadata();
+		
+		assertNull(metadata.getFederationFetchEndpointURI());
+		URI fetchEndpoint = URI.create("https://c2id.com/fed");
+		metadata.setFederationFetchEndpointURI(fetchEndpoint);
+		assertEquals(fetchEndpoint, metadata.getFederationFetchEndpointURI());
+	}
+	
+	
+	public void testParseExample_1()
 		throws ParseException {
 		
 		String json =
 			"{" +
-			"  \"federation_fetch_endpoint\":\"https://example.com/federation_fetch\"," +
-			"  \"federation_list_endpoint\":\"https://example.com/federation_list\"," +
+			"  \"federation_fetch_endpoint\": \"https://example.com/federation_fetch\"," +
+			"  \"federation_list_endpoint\": \"https://example.com/federation_list\"," +
 			"  \"organization_name\": \"The example cooperation\"," +
 			"  \"homepage_uri\": \"https://www.example.com\"" +
 			"}";
@@ -126,6 +168,28 @@ public class FederationEntityMetadataTest extends TestCase {
 		
 		assertEquals(URI.create("https://example.com/federation_fetch"), metadata.getFederationFetchEndpointURI());
 		assertEquals(URI.create("https://example.com/federation_list"), metadata.getFederationListEndpointURI());
+		assertEquals("The example cooperation", metadata.getOrganizationName());
+		assertEquals(URI.create("https://www.example.com"), metadata.getHomepageURI());
+	}
+	
+	
+	public void testParseExample_2()
+		throws ParseException {
+		
+		String json =
+			"{" +
+			"  \"federation_fetch_endpoint\": \"https://example.com/federation_fetch\"," +
+			"  \"federation_list_endpoint\": \"https://example.com/federation_list\"," +
+			"  \"federation_trust_mark_status_endpoint\": \"https://example.com/status\"," +
+			"  \"organization_name\": \"The example cooperation\"," +
+			"  \"homepage_uri\": \"https://www.example.com\"" +
+			"}";
+		
+		FederationEntityMetadata metadata = FederationEntityMetadata.parse(json);
+		
+		assertEquals(URI.create("https://example.com/federation_fetch"), metadata.getFederationFetchEndpointURI());
+		assertEquals(URI.create("https://example.com/federation_list"), metadata.getFederationListEndpointURI());
+		assertEquals(URI.create("https://example.com/status"), metadata.getFederationTrustMarkStatusEndpointURI());
 		assertEquals("The example cooperation", metadata.getOrganizationName());
 		assertEquals(URI.create("https://www.example.com"), metadata.getHomepageURI());
 	}

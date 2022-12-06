@@ -33,7 +33,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 4.7.
+ *     <li>OpenID Connect Federation 1.0, section 4.8.
  * </ul>
  */
 public class FederationEntityMetadata {
@@ -42,7 +42,7 @@ public class FederationEntityMetadata {
 	/**
 	 * The federation fetch endpoint.
 	 */
-	private final URI federationFetchEndpoint;
+	private URI federationFetchEndpoint;
 	
 	
 	/**
@@ -58,6 +58,12 @@ public class FederationEntityMetadata {
 	
 	
 	/**
+	 * The federation trust mark status endpoint.
+	 */
+	private URI federationTrustMarkStatusEndpoint;
+	
+	
+	/**
 	 * The organisation name.
 	 */
 	private String organizationName;
@@ -70,6 +76,12 @@ public class FederationEntityMetadata {
 	
 	
 	/**
+	 * The logo URI.
+	 */
+	private URI logoURI;
+	
+	
+	/**
 	 * The policy URI.
 	 */
 	private URI policyURI;
@@ -79,6 +91,12 @@ public class FederationEntityMetadata {
 	 * The homepage URI.
 	 */
 	private URI homepageURI;
+	
+	
+	/**
+	 * Creates a new federation entity metadata.
+	 */
+	public FederationEntityMetadata() {}
 	
 	
 	/**
@@ -103,6 +121,18 @@ public class FederationEntityMetadata {
 	 */
 	public URI getFederationFetchEndpointURI() {
 		return federationFetchEndpoint;
+	}
+	
+	
+	/**
+	 * Sets the federation fetch endpoint. Corresponds to the
+	 * {@code federation_fetch_endpoint} metadata field.
+	 *
+	 * @param federationFetchEndpoint The federation fetch endpoint,
+	 *                                {@code null} if not specified.
+	 */
+	public void setFederationFetchEndpointURI(final URI federationFetchEndpoint) {
+		this.federationFetchEndpoint = federationFetchEndpoint;
 	}
 	
 	
@@ -154,6 +184,30 @@ public class FederationEntityMetadata {
 	
 	
 	/**
+	 * Gets the federation trust mark status endpoint.
+	 *
+	 * @return The federation trust mark status endpoint, {@code null} if
+	 *         not specified.
+	 */
+	public URI getFederationTrustMarkStatusEndpointURI() {
+		return federationTrustMarkStatusEndpoint;
+	}
+	
+	
+	/**
+	 * Sets the federation trust mark status endpoint.
+	 *
+	 * @param federationTrustMarkStatusEndpoint The federation trust mark
+	 *                                          status endpoint,
+	 *                                          {@code null} if not
+	 *                                          specified.
+	 */
+	public void setFederationTrustMarkStatusEndpointURI(final URI federationTrustMarkStatusEndpoint) {
+		this.federationTrustMarkStatusEndpoint = federationTrustMarkStatusEndpoint;
+	}
+	
+	
+	/**
 	 * Gets the organisation name. Corresponds to the
 	 * {@code organization_name} metadata field.
 	 *
@@ -197,6 +251,28 @@ public class FederationEntityMetadata {
 	 */
 	public void setContacts(final List<String> contacts) {
 		this.contacts = contacts;
+	}
+	
+	
+	/**
+	 * Gets the logo URI. Corresponds to the {@code logo_uri} metadata
+	 * field.
+	 *
+	 * @return The logo URI, {@code null} if not specified.
+	 */
+	public URI getLogoURI() {
+		return logoURI;
+	}
+	
+	
+	/**
+	 * Sets the logo URI. Corresponds to the {@code logo_uri} metadata
+	 * field.
+	 *
+	 * @param logoURI The logo URI, {@code null} if not specified.
+	 */
+	public void setLogoURI(final URI logoURI) {
+		this.logoURI = logoURI;
 	}
 	
 	
@@ -252,10 +328,11 @@ public class FederationEntityMetadata {
 	 *
 	 * <pre>
 	 * {
-	 *   "federation_fetch_endpoint" : "https://example.com/federation_fetch",
-	 *   "federation_list_endpoint" : "https://example.com/federation_list",
-	 *   "name"                     : "The example cooperation",
-	 *   "homepage_uri"             : "https://www.example.com"
+	 *   "federation_fetch_endpoint"             : "https://example.com/federation_fetch",
+	 *   "federation_list_endpoint"              : "https://example.com/federation_list",
+	 *   "federation_trust_mark_status_endpoint" : "https://example.com/federation_status",
+	 *   "name"                                  : "The example cooperation",
+	 *   "homepage_uri"                          : "https://www.example.com"
 	 * }
 	 * </pre>
 	 *
@@ -273,11 +350,17 @@ public class FederationEntityMetadata {
 		if (getFederationResolveEndpointURI() != null) {
 			o.put("federation_resolve_endpoint", getFederationResolveEndpointURI().toString());
 		}
+		if (getFederationTrustMarkStatusEndpointURI() != null) {
+			o.put("federation_trust_mark_status_endpoint", getFederationTrustMarkStatusEndpointURI().toString());
+		}
 		if (getOrganizationName() != null) {
 			o.put("organization_name", getOrganizationName());
 		}
 		if (getContacts() != null) {
 			o.put("contacts", getContacts());
+		}
+		if (getLogoURI() != null) {
+			o.put("logo_uri", getLogoURI().toString());
 		}
 		if (getPolicyURI() != null) {
 			o.put("policy_uri", getPolicyURI().toString());
@@ -316,8 +399,10 @@ public class FederationEntityMetadata {
 		FederationEntityMetadata metadata = new FederationEntityMetadata(JSONObjectUtils.getURI(jsonObject, "federation_fetch_endpoint", null));
 		metadata.setFederationListEndpointURI(JSONObjectUtils.getURI(jsonObject, "federation_list_endpoint", null));
 		metadata.setFederationResolveEndpointURI(JSONObjectUtils.getURI(jsonObject, "federation_resolve_endpoint", null));
+		metadata.setFederationTrustMarkStatusEndpointURI(JSONObjectUtils.getURI(jsonObject, "federation_trust_mark_status_endpoint", null));
 		metadata.setOrganizationName(JSONObjectUtils.getString(jsonObject, "organization_name", null));
 		metadata.setContacts(JSONObjectUtils.getStringList(jsonObject, "contacts", null));
+		metadata.setLogoURI(JSONObjectUtils.getURI(jsonObject, "logo_uri", null));
 		metadata.setPolicyURI(JSONObjectUtils.getURI(jsonObject, "policy_uri", null));
 		metadata.setHomepageURI(JSONObjectUtils.getURI(jsonObject, "homepage_uri", null));
 		return metadata;
@@ -332,10 +417,11 @@ public class FederationEntityMetadata {
 	 *
 	 * <pre>
 	 * {
-	 *   "federation_fetch_endpoint" : "https://example.com/federation_fetch",
-	 *   "federation_list_endpoint" : "https://example.com/federation_list",
-	 *   "name"                     : "The example cooperation",
-	 *   "homepage_uri"             : "https://www.example.com"
+	 *   "federation_fetch_endpoint"             : "https://example.com/federation_fetch",
+	 *   "federation_list_endpoint"              : "https://example.com/federation_list",
+	 *   "federation_trust_mark_status_endpoint" : "https://example.com/federation_status",
+	 *   "name"                                  : "The example cooperation",
+	 *   "homepage_uri"                          : "https://www.example.com"
 	 * }
 	 * </pre>
 	 *

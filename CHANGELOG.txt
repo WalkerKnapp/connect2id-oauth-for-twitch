@@ -2130,3 +2130,5 @@ version 10.2.1 (2022-12-05)
 version 10.3 (2022-12-06)
     * Updates EntityListingRequest to support entity_type parameter.
     * Adds OAuth2Error.UNSUPPORTED_PARAMETER (unsupported_parameter) error.
+    * Updates FederationEntityMetadata to support
+      federation_trust_mark_status_endpoint and logo_uri.
