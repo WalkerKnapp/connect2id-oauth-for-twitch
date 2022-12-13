@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.util.DateUtils;
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
@@ -217,5 +218,77 @@ public class TrustMarksClaimsSetTest extends TestCase {
 		assertEquals(mark, claimsSet.getLogoURI());
 		assertEquals(exp, claimsSet.getExpirationTime());
 		assertEquals(ref, claimsSet.getReference());
+	}
+	
+	
+	public void testJWTClaimsSetConstructor_missingIssuer() throws java.text.ParseException {
+		
+		String json = "{" +
+			"\"sub\": \"https://umu.se/op\"," +
+			"\"iat\": 1577833200," +
+			"\"exp\": 1609369200," +
+			"\"id\": \"https://refeds.org/wp-content/uploads/2016/01/Sirtfi-1.0.pdf\"" +
+			"}";
+		
+		try {
+			new TrustMarkClaimsSet(JWTClaimsSet.parse(json));
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Missing iss (issuer) claim", e.getMessage());
+		}
+	}
+	
+	
+	public void testJWTClaimsSetConstructor_missingSubject() throws java.text.ParseException {
+		
+		String json = "{" +
+			"\"iss\": \"https://swamid.sunet.se\"," +
+			"\"iat\": 1577833200," +
+			"\"exp\": 1609369200," +
+			"\"id\": \"https://refeds.org/wp-content/uploads/2016/01/Sirtfi-1.0.pdf\"" +
+			"}";
+		
+		try {
+			new TrustMarkClaimsSet(JWTClaimsSet.parse(json));
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Missing sub (subject) claim", e.getMessage());
+		}
+	}
+	
+	
+	public void testJWTClaimsSetConstructor_missingID() throws java.text.ParseException {
+		
+		String json = "{" +
+			"\"iss\": \"https://swamid.sunet.se\"," +
+			"\"sub\": \"https://umu.se/op\"," +
+			"\"iat\": 1577833200," +
+			"\"exp\": 1609369200" +
+			"}";
+		
+		try {
+			new TrustMarkClaimsSet(JWTClaimsSet.parse(json));
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Missing id (identifier) claim", e.getMessage());
+		}
+	}
+	
+	
+	public void testJWTClaimsSetConstructor_missingIssueTime() throws java.text.ParseException {
+		
+		String json = "{" +
+			"\"iss\": \"https://swamid.sunet.se\"," +
+			"\"sub\": \"https://umu.se/op\"," +
+			"\"exp\": 1609369200," +
+			"\"id\": \"https://refeds.org/wp-content/uploads/2016/01/Sirtfi-1.0.pdf\"" +
+			"}";
+		
+		try {
+			new TrustMarkClaimsSet(JWTClaimsSet.parse(json));
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Missing iat (issued-at) claim", e.getMessage());
+		}
 	}
 }

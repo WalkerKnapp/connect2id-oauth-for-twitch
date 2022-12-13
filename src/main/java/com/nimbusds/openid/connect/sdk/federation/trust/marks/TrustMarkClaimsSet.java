@@ -27,6 +27,7 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.openid.connect.sdk.claims.CommonClaimsSet;
 
 
@@ -156,7 +157,13 @@ public class TrustMarkClaimsSet extends CommonClaimsSet {
 	 */
 	public Identifier getID() {
 		
-		return new Identifier(getStringClaim(ID_CLAIM_NAME));
+		String idString = getStringClaim(ID_CLAIM_NAME);
+		
+		if (StringUtils.isBlank(idString)) {
+			return null;
+		}
+		
+		return new Identifier(idString);
 	}
 	
 	

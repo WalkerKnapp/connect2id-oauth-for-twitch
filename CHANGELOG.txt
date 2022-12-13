@@ -2136,3 +2136,7 @@ version 10.3 (2022-12-06)
     * Deprecates TrustMarkIssuerMetadata.
     * Deprecates CommonFederationClaimsSet.getTrustMarkIssuerMetadata.
     * Deprecates EntityStatementClaimsSet.setTrustMarkIssuerMetadata.
+
+version 10.3.1 (2022-12-13)
+    * TrustMarkClaimsSet must throw ParseException when validating JWTClaimsSet
+      with missing "id" claim (iss #405).
