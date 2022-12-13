@@ -166,7 +166,7 @@ public class DefaultEntityStatementRetrieverTest {
 		
 		DefaultEntityStatementRetriever retriever = new DefaultEntityStatementRetriever();
 		
-		EntityStatement out = retriever.fetchSelfIssuedEntityStatement(new EntityID(issuer.getValue()));
+		EntityStatement out = retriever.fetchEntityConfiguration(new EntityID(issuer.getValue()));
 		
 		out.verifySignatureOfSelfStatement();
 		
@@ -195,7 +195,7 @@ public class DefaultEntityStatementRetrieverTest {
 		
 		DefaultEntityStatementRetriever retriever = new DefaultEntityStatementRetriever();
 		
-		EntityStatement out = retriever.fetchSelfIssuedEntityStatement(new EntityID(issuer.getValue()));
+		EntityStatement out = retriever.fetchEntityConfiguration(new EntityID(issuer.getValue()));
 		
 		out.verifySignatureOfSelfStatement();
 		
@@ -224,7 +224,7 @@ public class DefaultEntityStatementRetrieverTest {
 		
 		DefaultEntityStatementRetriever retriever = new DefaultEntityStatementRetriever();
 		
-		EntityStatement out = retriever.fetchSelfIssuedEntityStatement(new EntityID(issuer.getValue()));
+		EntityStatement out = retriever.fetchEntityConfiguration(new EntityID(issuer.getValue()));
 		
 		out.verifySignatureOfSelfStatement();
 		
@@ -267,7 +267,7 @@ public class DefaultEntityStatementRetrieverTest {
 		
 		DefaultEntityStatementRetriever retriever = new DefaultEntityStatementRetriever();
 		try {
-			retriever.fetchSelfIssuedEntityStatement(new EntityID(issuer.getValue()));
+			retriever.fetchEntityConfiguration(new EntityID(issuer.getValue()));
 			fail();
 		} catch (ResolveException e) {
 			assertEquals("Entity configuration error response from " + issuer + "/.well-known/openid-federation: 404", e.getMessage());
@@ -327,7 +327,7 @@ public class DefaultEntityStatementRetrieverTest {
 		
 		DefaultEntityStatementRetriever retriever = new DefaultEntityStatementRetriever();
 		try {
-			retriever.fetchSelfIssuedEntityStatement(new EntityID(issuer.getValue()));
+			retriever.fetchEntityConfiguration(new EntityID(issuer.getValue()));
 			fail();
 		} catch (ResolveException e) {
 			assertEquals("Entity configuration error response from http://localhost:" + port() + "/.well-known/openid-federation/rp: 404", e.getMessage());

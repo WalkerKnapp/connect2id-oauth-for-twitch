@@ -176,7 +176,7 @@ public class TrustChainResolver_withIntermediateTest extends TestCase {
 		
 		EntityStatementRetriever statementRetriever = new EntityStatementRetriever() {
 			@Override
-			public EntityStatement fetchSelfIssuedEntityStatement(EntityID target) throws ResolveException {
+			public EntityStatement fetchEntityConfiguration(EntityID target) throws ResolveException {
 				if (OP_ISSUER.getValue().equals(target.getValue())) {
 					return OP_SELF_STMT;
 				} else if (INTERMEDIATE_ISSUER.getValue().equals(target.getValue())) {
@@ -243,7 +243,7 @@ public class TrustChainResolver_withIntermediateTest extends TestCase {
 		
 		EntityStatementRetriever statementRetriever = new EntityStatementRetriever() {
 			@Override
-			public EntityStatement fetchSelfIssuedEntityStatement(EntityID target) throws ResolveException {
+			public EntityStatement fetchEntityConfiguration(EntityID target) throws ResolveException {
 				if (OP_ISSUER.getValue().equals(target.getValue())) {
 					fail();
 					return null;
@@ -311,7 +311,7 @@ public class TrustChainResolver_withIntermediateTest extends TestCase {
 		
 		EntityStatementRetriever statementRetriever = new EntityStatementRetriever() {
 			@Override
-			public EntityStatement fetchSelfIssuedEntityStatement(EntityID target) throws ResolveException {
+			public EntityStatement fetchEntityConfiguration(EntityID target) throws ResolveException {
 				if (OP_ISSUER.getValue().equals(target.getValue())) {
 					return OP_SELF_STMT;
 				} else if (INTERMEDIATE_ISSUER.getValue().equals(target.getValue())) {
@@ -362,7 +362,7 @@ public class TrustChainResolver_withIntermediateTest extends TestCase {
 		
 		EntityStatementRetriever statementRetriever = new EntityStatementRetriever() {
 			@Override
-			public EntityStatement fetchSelfIssuedEntityStatement(EntityID target) throws ResolveException {
+			public EntityStatement fetchEntityConfiguration(EntityID target) throws ResolveException {
 				if (OP_ISSUER.getValue().equals(target.getValue())) {
 					return OP_SELF_STMT;
 				} else if (INTERMEDIATE_ISSUER.getValue().equals(target.getValue())) {

@@ -128,7 +128,7 @@ public class TrustChainResolver_unknownAnchorTest extends TestCase {
 		
 		EntityStatementRetriever statementRetriever = new EntityStatementRetriever() {
 			@Override
-			public EntityStatement fetchSelfIssuedEntityStatement(EntityID target) throws ResolveException {
+			public EntityStatement fetchEntityConfiguration(EntityID target) throws ResolveException {
 				if (OP_ISSUER.getValue().equals(target.getValue())) {
 					return OP_SELF_STMT;
 				} else if (ANCHOR_ISSUER.getValue().equals(target.getValue())) {

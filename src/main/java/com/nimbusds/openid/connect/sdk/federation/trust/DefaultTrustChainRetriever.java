@@ -109,7 +109,7 @@ class DefaultTrustChainRetriever implements TrustChainRetriever {
 		
 		EntityStatement targetStatement;
 		try {
-			targetStatement = retriever.fetchSelfIssuedEntityStatement(target);
+			targetStatement = retriever.fetchEntityConfiguration(target);
 		} catch (ResolveException e) {
 			accumulatedExceptions.add(e);
 			return new TrustChainSet();
@@ -212,20 +212,20 @@ class DefaultTrustChainRetriever implements TrustChainRetriever {
 			
 			// TODO allowed_leaf_entity_types
 			
-			EntityStatement superiorSelfStmt;
+			EntityStatement superiorEntityConfiguration;
 			try {
-				superiorSelfStmt = retriever.fetchSelfIssuedEntityStatement(authority);
-				nextLevelAuthorityHints.put(authority, superiorSelfStmt.getClaimsSet().getAuthorityHints());
+				superiorEntityConfiguration = retriever.fetchEntityConfiguration(authority);
+				nextLevelAuthorityHints.put(authority, superiorEntityConfiguration.getClaimsSet().getAuthorityHints());
 			} catch (ResolveException e) {
-				accumulatedExceptions.add(new ResolveException("Couldn't fetch self-issued entity statement from " + authority + ": " + e.getMessage(), e));
+				accumulatedExceptions.add(new ResolveException("Couldn't fetch entity configuration from " + authority + ": " + e.getMessage(), e));
 				continue;
 			}
 			
-			if (trustAnchors.contains(superiorSelfStmt.getEntityID())) {
-				accumulatedTrustAnchorJWKSets.put(superiorSelfStmt.getEntityID(), superiorSelfStmt.getClaimsSet().getJWKSet());
+			if (trustAnchors.contains(superiorEntityConfiguration.getEntityID())) {
+				accumulatedTrustAnchorJWKSets.put(superiorEntityConfiguration.getEntityID(), superiorEntityConfiguration.getClaimsSet().getJWKSet());
 			}
 			
-			FederationEntityMetadata metadata = superiorSelfStmt.getClaimsSet().getFederationEntityMetadata();
+			FederationEntityMetadata metadata = superiorEntityConfiguration.getClaimsSet().getFederationEntityMetadata();
 			if (metadata == null) {
 				accumulatedExceptions.add(new ResolveException("No federation entity metadata for " + authority));
 				continue;

@@ -142,7 +142,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		
 		EntityStatementRetriever statementRetriever = new EntityStatementRetriever() {
 			@Override
-			public EntityStatement fetchSelfIssuedEntityStatement(EntityID target) throws ResolveException {
+			public EntityStatement fetchEntityConfiguration(EntityID target) throws ResolveException {
 				if (OP_ISSUER.getValue().equals(target.getValue())) {
 					return OP_SELF_STMT;
 				} else if (ANCHOR_ISSUER.getValue().equals(target.getValue())) {
@@ -219,7 +219,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		
 		EntityStatementRetriever statementRetriever = new EntityStatementRetriever() {
 			@Override
-			public EntityStatement fetchSelfIssuedEntityStatement(EntityID target) throws ResolveException {
+			public EntityStatement fetchEntityConfiguration(EntityID target) throws ResolveException {
 				if (OP_ISSUER.getValue().equals(target.getValue())) {
 					return OP_SELF_STMT;
 				} else if (ANCHOR_ISSUER.getValue().equals(target.getValue())) {
@@ -337,7 +337,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		
 		EntityStatementRetriever statementRetriever = new EntityStatementRetriever() {
 			@Override
-			public EntityStatement fetchSelfIssuedEntityStatement(EntityID target) throws ResolveException {
+			public EntityStatement fetchEntityConfiguration(EntityID target) throws ResolveException {
 				if (OP_ISSUER.getValue().equals(target.getValue())) {
 					return opStmt;
 				} else if (ANCHOR_ISSUER.getValue().equals(target.getValue())) {
@@ -415,7 +415,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		
 		EntityStatementRetriever statementRetriever = new EntityStatementRetriever() {
 			@Override
-			public EntityStatement fetchSelfIssuedEntityStatement(EntityID target) throws ResolveException {
+			public EntityStatement fetchEntityConfiguration(EntityID target) throws ResolveException {
 				if (OP_ISSUER.getValue().equals(target.getValue())) {
 					fail();
 					return null;
@@ -489,11 +489,11 @@ public class TrustChainResolver_basicTest extends TestCase {
 	}
 	
 	
-	public void testResolve_selfIssuedRetrievalThrowsResolveException() throws InvalidEntityMetadataException {
+	public void testResolve_entityConfigurationRetrievalThrowsResolveException() throws InvalidEntityMetadataException {
 		
 		EntityStatementRetriever statementRetriever = new EntityStatementRetriever() {
 			@Override
-			public EntityStatement fetchSelfIssuedEntityStatement(EntityID target) throws ResolveException {
+			public EntityStatement fetchEntityConfiguration(EntityID target) throws ResolveException {
 				throw new ResolveException("Invalid target");
 			}
 			
@@ -515,6 +515,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		assertEquals("Invalid target", e1.getMessage());
 		
 		assertEquals(1, chainRetriever.getAccumulatedExceptions().size());
+		assertEquals("Invalid target", chainRetriever.getAccumulatedExceptions().get(0).getMessage());
 		
 		// Test the resolver
 		TrustChainResolver resolver = new TrustChainResolver(Collections.singletonMap(new EntityID(ANCHOR_ISSUER), ANCHOR_JWK_SET), TrustChainConstraints.NO_CONSTRAINTS, statementRetriever);
@@ -533,7 +534,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		
 		EntityStatementRetriever statementRetriever = new EntityStatementRetriever() {
 			@Override
-			public EntityStatement fetchSelfIssuedEntityStatement(EntityID target) {
+			public EntityStatement fetchEntityConfiguration(EntityID target) {
 				if (OP_ISSUER.getValue().equals(target.getValue())) {
 					return OP_SELF_STMT;
 				} else if (ANCHOR_ISSUER.getValue().equals(target.getValue())) {
@@ -567,6 +568,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		assertEquals("No federation fetch URI in metadata for https://federation.com", e1.getMessage());
 		
 		assertEquals(1, chainRetriever.getAccumulatedExceptions().size());
+		assertEquals("No federation fetch URI in metadata for https://federation.com", chainRetriever.getAccumulatedExceptions().get(0).getMessage());
 		
 		// Test the resolver
 		TrustChainResolver resolver = new TrustChainResolver(Collections.singletonMap(new EntityID(ANCHOR_ISSUER), ANCHOR_JWK_SET), TrustChainConstraints.NO_CONSTRAINTS, statementRetriever);
@@ -585,7 +587,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		
 		EntityStatementRetriever statementRetriever = new EntityStatementRetriever() {
 			@Override
-			public EntityStatement fetchSelfIssuedEntityStatement(EntityID target) {
+			public EntityStatement fetchEntityConfiguration(EntityID target) {
 				if (OP_ISSUER.getValue().equals(target.getValue())) {
 					return OP_SELF_STMT;
 				} else if (ANCHOR_ISSUER.getValue().equals(target.getValue())) {
@@ -613,6 +615,7 @@ public class TrustChainResolver_basicTest extends TestCase {
 		assertEquals("Couldn't fetch entity statement from https://federation.com/api: HTTP timeout", e1.getMessage());
 		
 		assertEquals(1, chainRetriever.getAccumulatedExceptions().size());
+		assertEquals("Couldn't fetch entity statement from https://federation.com/api: HTTP timeout", chainRetriever.getAccumulatedExceptions().get(0).getMessage());
 		
 		// Test the resolver
 		TrustChainResolver resolver = new TrustChainResolver(Collections.singletonMap(new EntityID(ANCHOR_ISSUER), ANCHOR_JWK_SET), TrustChainConstraints.NO_CONSTRAINTS, statementRetriever);

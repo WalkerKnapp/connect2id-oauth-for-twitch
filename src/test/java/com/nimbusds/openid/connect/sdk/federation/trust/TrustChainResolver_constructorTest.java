@@ -111,7 +111,7 @@ public class TrustChainResolver_constructorTest extends TestCase {
 		
 		EntityStatementRetriever statementRetriever = new EntityStatementRetriever() {
 			@Override
-			public EntityStatement fetchSelfIssuedEntityStatement(EntityID target) throws ResolveException {
+			public EntityStatement fetchEntityConfiguration(EntityID target) throws ResolveException {
 				throw new ResolveException("Invalid target");
 			}
 			

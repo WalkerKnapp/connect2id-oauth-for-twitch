@@ -2140,3 +2140,9 @@ version 10.3 (2022-12-06)
 version 10.3.1 (2022-12-13)
     * TrustMarkClaimsSet must throw ParseException when validating JWTClaimsSet
       with missing "id" claim (iss #405).
+
+version 10.4 (2022-12-13)
+    * Renames EntityStatementRetriever.fetchSelfIssuedEntityStatement to
+      fetchEntityConfiguration (breaking change).
+    * Fixes the DefaultTrustChainRetriever#fetchStatementsFromAuthorities
+      ResolveException message (iss #407).

@@ -31,8 +31,7 @@ public interface EntityStatementRetriever {
 	
 	
 	/**
-	 * Fetches an entity's self-issued statement from its federation entity
-	 * configuration endpoint.
+	 * Fetches an entity configuration.
 	 *
 	 * @param target The entity ID. Must not be {@code null}.
 	 *
@@ -40,12 +39,12 @@ public interface EntityStatementRetriever {
 	 *
 	 * @throws ResolveException If fetching failed.
 	 */
-	EntityStatement fetchSelfIssuedEntityStatement(final EntityID target)
+	EntityStatement fetchEntityConfiguration(final EntityID target)
 		throws ResolveException;
 	
 	
 	/**
-	 * Fetches an entity statement from a federation API endpoint.
+	 * Fetches an entity statement.
 	 *
 	 * @param federationAPIEndpoint The federation API endpoint. Must not
 	 *                              be {@code null}.

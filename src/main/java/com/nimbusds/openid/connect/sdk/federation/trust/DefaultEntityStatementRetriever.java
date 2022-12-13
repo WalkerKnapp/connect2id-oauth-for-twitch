@@ -132,7 +132,7 @@ public class DefaultEntityStatementRetriever implements EntityStatementRetriever
 	
 	
 	@Override
-	public EntityStatement fetchSelfIssuedEntityStatement(final EntityID target)
+	public EntityStatement fetchEntityConfiguration(final EntityID target)
 		throws ResolveException {
 		
 		FederationEntityConfigurationRequest request = new FederationEntityConfigurationRequest(target);
