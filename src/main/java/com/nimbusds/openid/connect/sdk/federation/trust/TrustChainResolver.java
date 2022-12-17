@@ -216,7 +216,11 @@ public class TrustChainResolver {
 	 * @return The resolved trust chains, containing at least one valid and
 	 *         verified chain.
 	 *
-	 * @throws ResolveException If no trust chain could be resolved.
+	 * @throws ResolveException               If a trust chain could not be
+	 *                                        resolved.
+	 * @throws InvalidEntityMetadataException If the optional target entity
+	 *                                        metadata validation didn't
+	 *                                        pass.
 	 */
 	public TrustChainSet resolveTrustChains(final EntityID target,
 						final EntityMetadataValidator targetMetadataValidator)
