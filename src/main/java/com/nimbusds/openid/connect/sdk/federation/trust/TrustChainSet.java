@@ -59,7 +59,7 @@ public class TrustChainSet extends HashSet<TrustChain> {
 	
 	
 	/**
-	 * Returns a filtered trust chain set according to constraints.
+	 * Filters this trust chain set according to the specified constraints.
 	 *
 	 * @param constraints The constraints. Must not be {@code null}.
 	 *

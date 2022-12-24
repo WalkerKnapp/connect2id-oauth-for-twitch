@@ -103,7 +103,7 @@ public class TrustChainResolver {
 	 *                             determined by the underlying HTTP
 	 *                             client.
 	 * @param httpReadTimeoutMs    The HTTP read timeout in milliseconds,
-	 *                             zero means timout determined by the
+	 *                             zero means timeout determined by the
 	 *                             underlying HTTP client.
 	 */
 	public TrustChainResolver(final Map<EntityID, JWKSet> trustAnchors,
