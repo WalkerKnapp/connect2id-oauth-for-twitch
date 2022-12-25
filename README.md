@@ -110,13 +110,13 @@ This SDK version implements the following standards and drafts:
 
 * OpenID Connect Dynamic Registration 1.0 (2014-02-25)
 
-* OpenID Connect Session Management 1.0 (2017-01-25)
+* OpenID Connect Session Management 1.0 (2022-09-12)
 
-* OpenID Connect RP-Initiated Logout 1.0 (2022-04-18)
+* OpenID Connect RP-Initiated Logout 1.0 (2022-09-12)
 
-* OpenID Connect Front-Channel Logout 1.0 (2017-01-25)
+* OpenID Connect Front-Channel Logout 1.0 (2022-09-12)
 
-* OpenID Connect Back-Channel Logout 1.0 (2022-04-18)
+* OpenID Connect Back-Channel Logout 1.0 (2022-09-12)
 
 * OpenID Connect Extended Authentication Profile (EAP) ACR Values 1.0 -
   draft 00
@@ -125,15 +125,15 @@ This SDK version implements the following standards and drafts:
 
 * OpenID Connect Federation 1.0 - draft 25
 
-* Initiating User Registration via OpenID Connect (draft 04)
+* Initiating User Registration via OpenID Connect 1.0
 
 * OAuth 2.0 Multiple Response Type Encoding Practices 1.0 (2014-02-25)
 
 * Financial Services – Financial API - Part 1: Read Only API Security
-  Profile (2018-10-17)
+  Profile (2021-03-12)
 
 * Financial Services – Financial API - Part 2: Read and Write API Security
-  Profile (2018-10-17)
+  Profile (2021-03-12)
 
 * Financial-grade API: JWT Secured Authorization Response Mode for OAuth
   2.0 (JARM) (2018-10-17)
