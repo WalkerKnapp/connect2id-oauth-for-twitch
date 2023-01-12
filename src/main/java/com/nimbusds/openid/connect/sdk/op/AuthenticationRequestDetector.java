@@ -21,6 +21,7 @@ package com.nimbusds.openid.connect.sdk.op;
 import java.util.List;
 import java.util.Map;
 
+import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
@@ -30,6 +31,21 @@ import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
  * OpenID authentication request detector.
  */
 public class AuthenticationRequestDetector {
+	
+	/**
+	 * Returns {@code true} if the specified authorisation request is
+	 * likely an OpenID authentication request.
+	 *
+	 * @param request The authorisation request.
+	 *
+	 * @return {@code true} for a likely OpenID authentication request,
+	 *         else {@code false}.
+	 */
+	public static boolean isLikelyOpenID(final AuthorizationRequest request) {
+		
+		return request.getScope() != null && request.getScope().contains(OIDCScopeValue.OPENID);
+	}
+	
 	
 	/**
 	 * Returns {@code true} if the specified query parameters are likely

@@ -1,6 +1,6 @@
 # Nimbus OAuth 2.0 & 2.1 SDK with OpenID Connect extensions
 
-Copyright (c) Connect2id Ltd., 2012 - 2022
+Copyright (c) Connect2id Ltd., 2012 - 2023
 
 This open source SDK is your starting point for developing OAuth 2.0 and OpenID
 Connect based applications in Java. It is provided under the terms of the 

@@ -42,27 +42,42 @@ public class AuthenticationRequestDetectorTest extends TestCase {
 	
 	public void testIsLikelyOpenID_plainMinimalOAuth() {
 		
-		assertFalse(AuthenticationRequestDetector.isLikelyOpenID(
-			new AuthorizationRequest.Builder(
-				new ResponseType(ResponseType.Value.CODE),
-				new ClientID("123"))
-				.build()
-				.toParameters()
-		));
+		AuthorizationRequest request = new AuthorizationRequest.Builder(
+			new ResponseType(ResponseType.Value.CODE),
+			new ClientID("123"))
+			.build();
 		
+		assertFalse(AuthenticationRequestDetector.isLikelyOpenID(request));
+		
+		assertFalse(AuthenticationRequestDetector.isLikelyOpenID(request.toParameters()));
+	}
+	
+	
+	public void testIsLikelyOpenID_plainOAuthWithScope() {
+		
+		AuthorizationRequest request = new AuthorizationRequest.Builder(
+			new ResponseType(ResponseType.Value.CODE),
+			new ClientID("123"))
+			.scope(new Scope("read", "write"))
+			.build();
+		
+		assertFalse(AuthenticationRequestDetector.isLikelyOpenID(request));
+		
+		assertFalse(AuthenticationRequestDetector.isLikelyOpenID(request.toParameters()));
 	}
 	
 	
 	public void testIsLikelyOpenID_minimalOpenID() {
 		
-		assertTrue(AuthenticationRequestDetector.isLikelyOpenID(
-			new AuthenticationRequest.Builder(
-				new ResponseType(ResponseType.Value.CODE),
-				new Scope("openid"),
-				new ClientID("123"),
-				URI.create("https://example.com/cb"))
-				.build()
-				.toParameters()
-		));
+		AuthorizationRequest request = new AuthenticationRequest.Builder(
+			new ResponseType(ResponseType.Value.CODE),
+			new Scope("openid"),
+			new ClientID("123"),
+			URI.create("https://example.com/cb"))
+			.build();
+		
+		assertTrue(AuthenticationRequestDetector.isLikelyOpenID(request));
+		
+		assertTrue(AuthenticationRequestDetector.isLikelyOpenID(request.toParameters()));
 	}
 }

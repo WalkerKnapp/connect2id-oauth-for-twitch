@@ -2146,3 +2146,7 @@ version 10.4 (2022-12-13)
       fetchEntityConfiguration (breaking change).
     * Fixes the DefaultTrustChainRetriever#fetchStatementsFromAuthorities
       ResolveException message (iss #407).
+
+version 10.5 (2023-01-12)
+    * Adds AuthenticationRequestDetector.isLikelyOpenID(AuthorizationRequest)
+      static method.
