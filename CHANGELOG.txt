@@ -2150,3 +2150,6 @@ version 10.4 (2022-12-13)
 version 10.5 (2023-01-12)
     * Adds AuthenticationRequestDetector.isLikelyOpenID(AuthorizationRequest)
       static method.
+
+version 10.5.1 (2023-01-23)
+    * Updates Nimbus JOSE+JWT to 9.29
