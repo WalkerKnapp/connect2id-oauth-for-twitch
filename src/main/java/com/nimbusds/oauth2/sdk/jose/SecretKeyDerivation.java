@@ -126,20 +126,20 @@ public class SecretKeyDerivation {
 		
 		try {
 			hash = MessageDigest.getInstance("SHA-" + hashBitLength).digest(clientSecret.getValueBytes());
-			
 		} catch (NoSuchAlgorithmException e) {
 			throw new JOSEException(e.getMessage(), e);
 		}
 		
 		final byte[] keyBytes;
 		
-		// Left-truncate if necessary
+		// If necessary remove right-most bits to fit AES key length
+		// https://bitbucket.org/openid/connect/commits/15668505dbe66b290c7e84ecc2e7bff70d942012
 		switch (bits) {
 			case 128:
-				keyBytes = ByteUtils.subArray(hash, ByteUtils.byteLength(256 - 128), ByteUtils.byteLength(128));
+				keyBytes = ByteUtils.subArray(hash, 0, ByteUtils.byteLength(128));
 				break;
 			case 192:
-				keyBytes = ByteUtils.subArray(hash, ByteUtils.byteLength(256 - 192), ByteUtils.byteLength(192));
+				keyBytes = ByteUtils.subArray(hash, 0, ByteUtils.byteLength(192));
 				break;
 			case 256:
 			case 384:

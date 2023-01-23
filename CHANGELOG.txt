@@ -2152,4 +2152,6 @@ version 10.5 (2023-01-12)
       static method.
 
 version 10.5.1 (2023-01-23)
+    * SecretKeyDerivation must remove right-most bits, not left-most, see
+      OpenID Connect Core 1.0 errata 2020-07-24 (iss #412).
     * Updates Nimbus JOSE+JWT to 9.29

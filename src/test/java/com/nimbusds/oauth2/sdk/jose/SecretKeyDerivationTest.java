@@ -21,18 +21,21 @@ package com.nimbusds.oauth2.sdk.jose;
 import java.math.BigInteger;
 import javax.crypto.SecretKey;
 
+import static org.junit.Assert.assertArrayEquals;
+
+import junit.framework.TestCase;
+
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.AESEncrypter;
 import com.nimbusds.jose.crypto.DirectEncrypter;
 import com.nimbusds.jose.util.ByteUtils;
 import com.nimbusds.oauth2.sdk.auth.Secret;
-import junit.framework.TestCase;
 
 
 public class SecretKeyDerivationTest extends TestCase {
 	
 	
-	private static Secret CLIENT_SECRET = new Secret(ByteUtils.byteLength(256));
+	private static final Secret CLIENT_SECRET = new Secret(ByteUtils.byteLength(256));
 	
 	
 	public void testDerive_dir_A128GCM()
@@ -41,6 +44,7 @@ public class SecretKeyDerivationTest extends TestCase {
 		SecretKey key = SecretKeyDerivation.deriveSecretKey(CLIENT_SECRET, JWEAlgorithm.DIR, EncryptionMethod.A128GCM);
 		
 		assertEquals("AES", key.getAlgorithm());
+		assertArrayEquals(ByteUtils.subArray(CLIENT_SECRET.getSHA256(), 0, 128 / 8), key.getEncoded());
 		assertEquals(ByteUtils.byteLength(128), key.getEncoded().length);
 		
 		JWEObject jwe = new JWEObject(new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A128GCM), new Payload("Hello, world!"));
@@ -54,6 +58,7 @@ public class SecretKeyDerivationTest extends TestCase {
 		SecretKey key = SecretKeyDerivation.deriveSecretKey(CLIENT_SECRET, JWEAlgorithm.DIR, EncryptionMethod.A192GCM);
 		
 		assertEquals("AES", key.getAlgorithm());
+		assertArrayEquals(ByteUtils.subArray(CLIENT_SECRET.getSHA256(), 0, 192 / 8), key.getEncoded());
 		assertEquals(ByteUtils.byteLength(192), key.getEncoded().length);
 		
 		JWEObject jwe = new JWEObject(new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A192GCM), new Payload("Hello, world!"));
@@ -67,6 +72,7 @@ public class SecretKeyDerivationTest extends TestCase {
 		SecretKey key = SecretKeyDerivation.deriveSecretKey(CLIENT_SECRET, JWEAlgorithm.DIR, EncryptionMethod.A256GCM);
 		
 		assertEquals("AES", key.getAlgorithm());
+		assertArrayEquals(ByteUtils.subArray(CLIENT_SECRET.getSHA256(), 0, 256 / 8), key.getEncoded());
 		assertEquals(ByteUtils.byteLength(256), key.getEncoded().length);
 		
 		JWEObject jwe = new JWEObject(new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A256GCM), new Payload("Hello, world!"));
@@ -80,6 +86,7 @@ public class SecretKeyDerivationTest extends TestCase {
 		SecretKey key = SecretKeyDerivation.deriveSecretKey(CLIENT_SECRET, JWEAlgorithm.DIR, EncryptionMethod.A128CBC_HS256);
 		
 		assertEquals("AES", key.getAlgorithm());
+		assertArrayEquals(ByteUtils.subArray(CLIENT_SECRET.getSHA256(), 0, 256 / 8), key.getEncoded());
 		assertEquals(ByteUtils.byteLength(256), key.getEncoded().length);
 		
 		JWEObject jwe = new JWEObject(new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A128CBC_HS256), new Payload("Hello, world!"));
@@ -119,6 +126,7 @@ public class SecretKeyDerivationTest extends TestCase {
 		SecretKey key = SecretKeyDerivation.deriveSecretKey(CLIENT_SECRET, JWEAlgorithm.A128KW, EncryptionMethod.A256CBC_HS512);
 		
 		assertEquals("AES", key.getAlgorithm());
+		assertArrayEquals(ByteUtils.subArray(CLIENT_SECRET.getSHA256(), 0, 128 / 8), key.getEncoded());
 		assertEquals(ByteUtils.byteLength(128), key.getEncoded().length);
 		
 		JWEObject jwe = new JWEObject(new JWEHeader(JWEAlgorithm.A128KW, EncryptionMethod.A256CBC_HS512), new Payload("Hello, world!"));
@@ -132,6 +140,7 @@ public class SecretKeyDerivationTest extends TestCase {
 		SecretKey key = SecretKeyDerivation.deriveSecretKey(CLIENT_SECRET, JWEAlgorithm.A192KW, EncryptionMethod.A256CBC_HS512);
 		
 		assertEquals("AES", key.getAlgorithm());
+		assertArrayEquals(ByteUtils.subArray(CLIENT_SECRET.getSHA256(), 0, 192 / 8), key.getEncoded());
 		assertEquals(ByteUtils.byteLength(192), key.getEncoded().length);
 		
 		JWEObject jwe = new JWEObject(new JWEHeader(JWEAlgorithm.A192KW, EncryptionMethod.A256CBC_HS512), new Payload("Hello, world!"));
@@ -145,6 +154,7 @@ public class SecretKeyDerivationTest extends TestCase {
 		SecretKey key = SecretKeyDerivation.deriveSecretKey(CLIENT_SECRET, JWEAlgorithm.A256KW, EncryptionMethod.A256CBC_HS512);
 		
 		assertEquals("AES", key.getAlgorithm());
+		assertArrayEquals(ByteUtils.subArray(CLIENT_SECRET.getSHA256(), 0, 256 / 8), key.getEncoded());
 		assertEquals(ByteUtils.byteLength(256), key.getEncoded().length);
 		
 		JWEObject jwe = new JWEObject(new JWEHeader(JWEAlgorithm.A256KW, EncryptionMethod.A256CBC_HS512), new Payload("Hello, world!"));
@@ -158,6 +168,7 @@ public class SecretKeyDerivationTest extends TestCase {
 		SecretKey key = SecretKeyDerivation.deriveSecretKey(CLIENT_SECRET, JWEAlgorithm.A128GCMKW, EncryptionMethod.A256CBC_HS512);
 		
 		assertEquals("AES", key.getAlgorithm());
+		assertArrayEquals(ByteUtils.subArray(CLIENT_SECRET.getSHA256(), 0, 128 / 8), key.getEncoded());
 		assertEquals(ByteUtils.byteLength(128), key.getEncoded().length);
 		
 		JWEObject jwe = new JWEObject(new JWEHeader(JWEAlgorithm.A128GCMKW, EncryptionMethod.A256CBC_HS512), new Payload("Hello, world!"));
@@ -171,6 +182,7 @@ public class SecretKeyDerivationTest extends TestCase {
 		SecretKey key = SecretKeyDerivation.deriveSecretKey(CLIENT_SECRET, JWEAlgorithm.A192GCMKW, EncryptionMethod.A256CBC_HS512);
 		
 		assertEquals("AES", key.getAlgorithm());
+		assertArrayEquals(ByteUtils.subArray(CLIENT_SECRET.getSHA256(), 0, 192 / 8), key.getEncoded());
 		assertEquals(ByteUtils.byteLength(192), key.getEncoded().length);
 		
 		JWEObject jwe = new JWEObject(new JWEHeader(JWEAlgorithm.A192GCMKW, EncryptionMethod.A256CBC_HS512), new Payload("Hello, world!"));
@@ -184,6 +196,7 @@ public class SecretKeyDerivationTest extends TestCase {
 		SecretKey key = SecretKeyDerivation.deriveSecretKey(CLIENT_SECRET, JWEAlgorithm.A256GCMKW, EncryptionMethod.A256CBC_HS512);
 		
 		assertEquals("AES", key.getAlgorithm());
+		assertArrayEquals(ByteUtils.subArray(CLIENT_SECRET.getSHA256(), 0, 256 / 8), key.getEncoded());
 		assertEquals(ByteUtils.byteLength(256), key.getEncoded().length);
 		
 		JWEObject jwe = new JWEObject(new JWEHeader(JWEAlgorithm.A256GCMKW, EncryptionMethod.A256CBC_HS512), new Payload("Hello, world!"));
