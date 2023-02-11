@@ -562,4 +562,21 @@ public class MetadataPolicyTest extends TestCase {
 		assertEquals("ES256", out.get("id_token_signed_response_alg"));
 		assertEquals(1, out.size());
 	}
+	
+	
+	public void testEmulateEqualityPolicy() throws ParseException, PolicyViolationException {
+		
+		String json =
+			"{" +
+			"\"value\": [\"automatic\"]" +
+			"}";
+		
+		JSONObject spec = JSONObjectUtils.parse(json);
+		
+		MetadataPolicyEntry policyEntry = MetadataPolicyEntry.parse("client_registration_types", spec);
+		
+		assertEquals(Collections.singletonList("automatic"), policyEntry.apply(Arrays.asList("automatic")));
+		assertEquals(Collections.singletonList("automatic"), policyEntry.apply(Arrays.asList("explicit")));
+		assertEquals(Collections.singletonList("automatic"), policyEntry.apply(Arrays.asList("automatic", "explicit")));
+	}
 }
