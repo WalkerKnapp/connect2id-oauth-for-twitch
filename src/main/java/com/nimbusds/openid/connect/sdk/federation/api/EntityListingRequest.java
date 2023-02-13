@@ -101,7 +101,7 @@ public class EntityListingRequest extends FederationAPIRequest {
 	
 	@Override
 	public HTTPRequest toHTTPRequest() {
-		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, getEndpointURI());
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, getEndpointURI());
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
 		httpRequest.setQuery(URLUtils.serializeParameters(toParameters()));
 		return httpRequest;
@@ -120,15 +120,13 @@ public class EntityListingRequest extends FederationAPIRequest {
 	public static EntityListingRequest parse(final HTTPRequest httpRequest)
 		throws ParseException {
 		
-		httpRequest.ensureMethod(HTTPRequest.Method.POST);
+		httpRequest.ensureMethod(HTTPRequest.Method.GET);
 		
 		EntityType entityType = null;
-		if (ContentType.APPLICATION_URLENCODED.equals(httpRequest.getEntityContentType())) {
-			Map<String, List<String>> params = httpRequest.getQueryParameters();
-			String value = MultivaluedMapUtils.getFirstValue(params, "entity_type");
-			if (StringUtils.isNotBlank(value)) {
-				entityType = new EntityType(value);
-			}
+		Map<String, List<String>> params = httpRequest.getQueryParameters();
+		String value = MultivaluedMapUtils.getFirstValue(params, "entity_type");
+		if (StringUtils.isNotBlank(value)) {
+			entityType = new EntityType(value);
 		}
 		return new EntityListingRequest(httpRequest.getURI(), entityType);
 	}
