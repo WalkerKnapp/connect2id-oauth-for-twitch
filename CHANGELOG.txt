@@ -2157,5 +2157,8 @@ version 10.5.1 (2023-01-23)
     * Updates Nimbus JOSE+JWT to 9.29
 
 version 10.5.2 (2023-02-13)
-    * The EntityListingRequest must use HTTP GET, not POST (iss #418).
+    * EntityListingRequest must use HTTP GET, not POST (iss #418).
 
+version 10.6 (2023-02-14)
+    * Adds AuthorizationRequest.Builder.prompt(Prompt.Type...) method.
+    * Adds AuthenticationRequest.Builder.prompt(Prompt.Type...) method.

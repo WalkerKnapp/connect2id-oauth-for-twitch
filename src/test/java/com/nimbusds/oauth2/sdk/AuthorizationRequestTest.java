@@ -596,6 +596,60 @@ public class AuthorizationRequestTest extends TestCase {
 	}
 	
 	
+	public void testBuilderPromptTypesVarArg() {
+		
+		ClientID clientID = new ClientID("123");
+		
+		// One prompt value
+		AuthorizationRequest request = new AuthorizationRequest.Builder(
+			ResponseType.CODE,
+			clientID)
+			.prompt(Prompt.Type.LOGIN)
+			.build();
+		
+		assertEquals(ResponseType.CODE, request.getResponseType());
+		assertEquals(clientID, request.getClientID());
+		assertEquals(new Prompt(Prompt.Type.LOGIN), request.getPrompt());
+		assertEquals(3, request.toParameters().size());
+		
+		// Two prompt values
+		request = new AuthorizationRequest.Builder(
+			ResponseType.CODE,
+			clientID)
+			.prompt(Prompt.Type.LOGIN, Prompt.Type.CONSENT)
+			.build();
+		
+		assertEquals(ResponseType.CODE, request.getResponseType());
+		assertEquals(clientID, request.getClientID());
+		assertEquals(new Prompt(Prompt.Type.LOGIN, Prompt.Type.CONSENT), request.getPrompt());
+		assertEquals(3, request.toParameters().size());
+		
+		// Empty prompt
+		request = new AuthorizationRequest.Builder(
+			ResponseType.CODE,
+			clientID)
+			.prompt(new Prompt.Type[0])
+			.build();
+		
+		assertEquals(ResponseType.CODE, request.getResponseType());
+		assertEquals(clientID, request.getClientID());
+		assertTrue(request.getPrompt().isEmpty());
+		assertEquals(3, request.toParameters().size());
+		
+		// Null prompt
+		request = new AuthorizationRequest.Builder(
+			ResponseType.CODE,
+			clientID)
+			.prompt((Prompt.Type) null)
+			.build();
+		
+		assertEquals(ResponseType.CODE, request.getResponseType());
+		assertEquals(clientID, request.getClientID());
+		assertNull(request.getPrompt());
+		assertEquals(2, request.toParameters().size());
+	}
+	
+	
 	// OIDC Federation 1.0
 	static TrustChain createSampleTrustChain() throws JOSEException {
 		

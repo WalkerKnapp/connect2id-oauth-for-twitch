@@ -627,6 +627,24 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		
 		
 		/**
+		 * Sets the requested prompt. Corresponds to the optional
+		 * {@code prompt} parameter.
+		 *
+		 * @param promptType The requested prompt types, {@code null}
+		 *                   if not specified.
+		 *
+		 * @return This builder.
+		 */
+		public Builder prompt(final Prompt.Type ... promptType) {
+			if (promptType.length == 1 && promptType[0] == null) {
+				return prompt((Prompt)null);
+			} else {
+				return prompt(new Prompt(promptType));
+			}
+		}
+		
+		
+		/**
 		 * Sets the DPoP JWK SHA-256 thumbprint. Corresponds to the
 		 * optional {@code dpop_jkt} parameter.
 		 *

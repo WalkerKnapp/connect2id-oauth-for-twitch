@@ -1271,6 +1271,78 @@ public class AuthenticationRequestTest extends TestCase {
 	}
 	
 	
+	public void testBuilderPromptTypesVarArg() {
+		
+		Scope scope = new Scope(OIDCScopeValue.OPENID);
+		ClientID clientID = new ClientID("123");
+		URI redirectURI = URI.create("https://rp.example.com/cb");
+		
+		// One prompt value
+		AuthenticationRequest request = new AuthenticationRequest.Builder(
+			ResponseType.CODE,
+			scope,
+			clientID,
+			redirectURI)
+			.prompt(Prompt.Type.LOGIN)
+			.build();
+		
+		assertEquals(ResponseType.CODE, request.getResponseType());
+		assertEquals(scope, request.getScope());
+		assertEquals(clientID, request.getClientID());
+		assertEquals(redirectURI, request.getRedirectionURI());
+		assertEquals(new Prompt(Prompt.Type.LOGIN), request.getPrompt());
+		assertEquals(5, request.toParameters().size());
+		
+		// Two prompt values
+		request = new AuthenticationRequest.Builder(
+			ResponseType.CODE,
+			scope,
+			clientID,
+			redirectURI)
+			.prompt(Prompt.Type.LOGIN, Prompt.Type.CONSENT)
+			.build();
+		
+		assertEquals(ResponseType.CODE, request.getResponseType());
+		assertEquals(scope, request.getScope());
+		assertEquals(clientID, request.getClientID());
+		assertEquals(redirectURI, request.getRedirectionURI());
+		assertEquals(new Prompt(Prompt.Type.LOGIN, Prompt.Type.CONSENT), request.getPrompt());
+		assertEquals(5, request.toParameters().size());
+		
+		// Empty prompt
+		request = new AuthenticationRequest.Builder(
+			ResponseType.CODE,
+			scope,
+			clientID,
+			redirectURI)
+			.prompt(new Prompt.Type[0])
+			.build();
+		
+		assertEquals(ResponseType.CODE, request.getResponseType());
+		assertEquals(scope, request.getScope());
+		assertEquals(clientID, request.getClientID());
+		assertEquals(redirectURI, request.getRedirectionURI());
+		assertTrue(request.getPrompt().isEmpty());
+		assertEquals(5, request.toParameters().size());
+		
+		// Null prompt
+		request = new AuthenticationRequest.Builder(
+			ResponseType.CODE,
+			scope,
+			clientID,
+			redirectURI)
+			.prompt((Prompt.Type) null)
+			.build();
+		
+		assertEquals(ResponseType.CODE, request.getResponseType());
+		assertEquals(scope, request.getScope());
+		assertEquals(clientID, request.getClientID());
+		assertEquals(redirectURI, request.getRedirectionURI());
+		assertNull(request.getPrompt());
+		assertEquals(4, request.toParameters().size());
+	}
+	
+	
 	// https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/issues/345/token-and-authz-request-must-fail-with-400
 	public void testParse_repeatedParameter_clientID()
 		throws URISyntaxException {
