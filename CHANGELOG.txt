@@ -2162,3 +2162,8 @@ version 10.5.2 (2023-02-13)
 version 10.6 (2023-02-14)
     * Adds AuthorizationRequest.Builder.prompt(Prompt.Type...) method.
     * Adds AuthenticationRequest.Builder.prompt(Prompt.Type...) method.
+
+version 10.7 (2023-02-16)
+    * Adds ConfigurationType.JSON_OBJECT enum constant.
+    * Adds JSONObjectConfiguration interface.
+    * Updates ValueOperation to support JSON objects.

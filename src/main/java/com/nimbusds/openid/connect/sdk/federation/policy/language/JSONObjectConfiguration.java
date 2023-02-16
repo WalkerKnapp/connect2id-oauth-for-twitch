@@ -1,7 +1,7 @@
 /*
  * oauth2-oidc-sdk
  *
- * Copyright 2012-2020, Connect2id Ltd and contributors.
+ * Copyright 2012-2016, Connect2id Ltd and contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
  * this file except in compliance with the License. You may obtain a copy of the
@@ -15,21 +15,31 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.nimbusds.openid.connect.sdk.federation.policy.operations;
+package com.nimbusds.openid.connect.sdk.federation.policy.language;
+
+
+import net.minidev.json.JSONObject;
 
 
 /**
- * Enumeration of the configuration types for policy operations.
+ * JSON object configuration.
  */
-enum ConfigurationType {
+public interface JSONObjectConfiguration extends PolicyConfiguration {
 	
-	BOOLEAN,
 	
-	NUMBER,
+	/**
+	 * Configure.
+	 *
+	 * @param parameter The JSON object configuration parameter. Must not
+	 *                  be {@code null}.
+	 */
+	void configure(final JSONObject parameter);
 	
-	STRING,
 	
-	STRING_LIST,
-	
-	JSON_OBJECT
+	/**
+	 * Gets the JSON object configuration.
+	 *
+	 * @return The JSON object configuration parameter.
+	 */
+	JSONObject getJSONObjectConfiguration();
 }

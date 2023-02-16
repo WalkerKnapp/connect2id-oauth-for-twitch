@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
 
 import com.nimbusds.openid.connect.sdk.federation.policy.operations.*;
 
@@ -181,7 +182,7 @@ public class PolicyOperationApplicationTest extends TestCase {
 	}
 	
 	
-	public void testApply_value() throws PolicyViolationException {
+	public void testApply_value_booleanConfig() throws PolicyViolationException {
 		
 		ValueOperation operation = new ValueOperation();
 		operation.configure(true);
@@ -191,6 +192,27 @@ public class PolicyOperationApplicationTest extends TestCase {
 		assertTrue((Boolean)PolicyOperationApplication.apply(operation, null));
 		assertTrue((Boolean)PolicyOperationApplication.apply(operation, "some-string"));
 		assertTrue((Boolean)PolicyOperationApplication.apply(operation, Collections.singletonList("some-value")));
+		
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("key-1", "value-1");
+		assertTrue((Boolean)PolicyOperationApplication.apply(operation, jsonObject));
+	}
+	
+	
+	public void testApply_value_jsonObjectConfig() throws PolicyViolationException {
+		
+		JSONObject jsonObjectParam = new JSONObject();
+		jsonObjectParam.put("key-1", "value-1");
+		
+		ValueOperation operation = new ValueOperation();
+		operation.configure(jsonObjectParam);
+		
+		assertEquals(jsonObjectParam, PolicyOperationApplication.apply(operation, Boolean.TRUE));
+		assertEquals(jsonObjectParam, PolicyOperationApplication.apply(operation, Boolean.FALSE));
+		assertEquals(jsonObjectParam, PolicyOperationApplication.apply(operation, null));
+		assertEquals(jsonObjectParam, PolicyOperationApplication.apply(operation, "some-string"));
+		assertEquals(jsonObjectParam, PolicyOperationApplication.apply(operation, Collections.singletonList("some-value")));
+		assertEquals(jsonObjectParam, PolicyOperationApplication.apply(operation, jsonObjectParam));
 	}
 	
 	

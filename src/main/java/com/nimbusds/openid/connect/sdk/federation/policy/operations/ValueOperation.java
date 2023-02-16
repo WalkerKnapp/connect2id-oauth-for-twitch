@@ -22,6 +22,8 @@ import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 
+import net.minidev.json.JSONObject;
+
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.JSONUtils;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.*;
@@ -55,7 +57,7 @@ import com.nimbusds.openid.connect.sdk.federation.policy.language.*;
  * </ul>
  */
 public class ValueOperation implements PolicyOperation,
-	BooleanConfiguration, NumberConfiguration, StringConfiguration, StringListConfiguration,
+	BooleanConfiguration, NumberConfiguration, StringConfiguration, StringListConfiguration, JSONObjectConfiguration,
 	UntypedOperation {
 	
 	
@@ -75,6 +77,9 @@ public class ValueOperation implements PolicyOperation,
 	
 	
 	private List<String> stringListValue;
+	
+	
+	private JSONObject jsonObjectValue;
 	
 	
 	@Override
@@ -112,6 +117,13 @@ public class ValueOperation implements PolicyOperation,
 	
 	
 	@Override
+	public void configure(final JSONObject parameter) {
+		configType = ConfigurationType.JSON_OBJECT;
+		this.jsonObjectValue = parameter;
+	}
+	
+	
+	@Override
 	public void parseConfiguration(final Object jsonEntity) throws ParseException {
 		if (jsonEntity instanceof Boolean) {
 			configure(JSONUtils.toBoolean(jsonEntity));
@@ -119,6 +131,8 @@ public class ValueOperation implements PolicyOperation,
 			configure(JSONUtils.toNumber(jsonEntity));
 		} else if (jsonEntity instanceof String) {
 			configure(JSONUtils.toString(jsonEntity));
+		} else if (jsonEntity instanceof JSONObject) {
+			configure(JSONUtils.to(jsonEntity, JSONObject.class));
 		} else {
 			configure(JSONUtils.toStringList(jsonEntity));
 		}
@@ -135,10 +149,12 @@ public class ValueOperation implements PolicyOperation,
 			value = getBooleanConfiguration();
 		} else if (configType.equals(ConfigurationType.NUMBER)) {
 			value = getNumberConfiguration();
-		} else if (configType.equals(ConfigurationType.STRING_LIST)) {
-			value = getStringListConfiguration();
 		} else if (configType.equals(ConfigurationType.STRING)) {
 			value = getStringConfiguration();
+		} else if (configType.equals(ConfigurationType.STRING_LIST)) {
+			value = getStringListConfiguration();
+		} else if (configType.equals(ConfigurationType.JSON_OBJECT)) {
+			value = getJSONObjectConfiguration();
 		} else {
 			throw new IllegalStateException("Unsupported configuration type: " + configType);
 		}
@@ -171,6 +187,12 @@ public class ValueOperation implements PolicyOperation,
 	
 	
 	@Override
+	public JSONObject getJSONObjectConfiguration() {
+		return jsonObjectValue;
+	}
+	
+	
+	@Override
 	public PolicyOperation merge(final PolicyOperation other)
 		throws PolicyViolationException {
 		
@@ -196,7 +218,6 @@ public class ValueOperation implements PolicyOperation,
 				copy.configure(getStringConfiguration());
 				return copy;
 			}
-			
 		}
 		
 		if (configType.equals(ConfigurationType.BOOLEAN)) {
@@ -206,7 +227,6 @@ public class ValueOperation implements PolicyOperation,
 				copy.configure(getBooleanConfiguration());
 				return copy;
 			}
-			
 		}
 		
 		if (configType.equals(ConfigurationType.NUMBER)) {
@@ -214,6 +234,15 @@ public class ValueOperation implements PolicyOperation,
 			if (getNumberConfiguration() != null && getNumberConfiguration().equals(otherTyped.getNumberConfiguration())) {
 				ValueOperation copy = new ValueOperation();
 				copy.configure(getNumberConfiguration());
+				return copy;
+			}
+		}
+		
+		if (configType.equals(ConfigurationType.JSON_OBJECT)) {
+			
+			if (getJSONObjectConfiguration() == otherTyped.getJSONObjectConfiguration()) {
+				ValueOperation copy = new ValueOperation();
+				copy.configure(getJSONObjectConfiguration());
 				return copy;
 			}
 		}
@@ -237,6 +266,9 @@ public class ValueOperation implements PolicyOperation,
 		}
 		if (configType.equals(ConfigurationType.STRING)) {
 			return stringValue;
+		}
+		if (configType.equals(ConfigurationType.JSON_OBJECT)) {
+			return jsonObjectValue;
 		}
 		return stringListValue;
 	}

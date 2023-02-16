@@ -29,7 +29,8 @@ public class ConfigurationTypeTest extends TestCase {
 		assertEquals("STRING_LIST", ConfigurationType.STRING_LIST.name());
 		assertEquals("BOOLEAN", ConfigurationType.BOOLEAN.name());
 		assertEquals("NUMBER", ConfigurationType.NUMBER.name());
+		assertEquals("JSON_OBJECT", ConfigurationType.JSON_OBJECT.name());
 		
-		assertEquals(4, ConfigurationType.values().length);
+		assertEquals(5, ConfigurationType.values().length);
 	}
 }
