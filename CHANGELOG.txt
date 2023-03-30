@@ -2167,3 +2167,9 @@ version 10.7 (2023-02-16)
     * Adds ConfigurationType.JSON_OBJECT enum constant.
     * Adds JSONObjectConfiguration interface.
     * Updates ValueOperation to support JSON objects.
+
+version 10.7.1 (2023-03-30)
+    * Updates Nimbus JOSE+JWT to 9.30.2
+    * Updates JSON Smart to 2.4.10
+    * Updates Google Tink to 1.8.0
+
