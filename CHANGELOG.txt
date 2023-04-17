@@ -2173,3 +2173,6 @@ version 10.7.1 (2023-03-30)
     * Updates JSON Smart to 2.4.10
     * Updates Google Tink to 1.8.0
 
+version 10.7.2 (2023-04-17)
+    * ClientMetadata and OIDCClientMetadata.parse must not designate the
+      top-level client information fields as custom metadata fields (iss #421).

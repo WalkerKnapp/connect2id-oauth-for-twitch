@@ -2630,6 +2630,10 @@ public class ClientMetadata {
 			throw new ParseException(e.getMessage(), RegistrationError.INVALID_CLIENT_METADATA.appendDescription(": " + e.getMessage()), e.getCause());
 		}
 
+		// Remove any remaining top-level client information fields
+		for (String paramName: ClientInformation.getRegisteredParameterNames()) {
+			jsonObject.remove(paramName);
+		}
 		// The remaining fields are custom
 		metadata.customFields = jsonObject;
 

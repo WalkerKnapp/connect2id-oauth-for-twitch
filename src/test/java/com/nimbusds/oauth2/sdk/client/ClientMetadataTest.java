@@ -19,6 +19,7 @@ package com.nimbusds.oauth2.sdk.client;
 
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import junit.framework.TestCase;
@@ -34,6 +35,7 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagException;
 import com.nimbusds.oauth2.sdk.GrantType;
@@ -41,9 +43,12 @@ import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
+import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.ciba.BackChannelTokenDeliveryMode;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.SoftwareID;
 import com.nimbusds.oauth2.sdk.id.SoftwareVersion;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistrationType;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
@@ -1668,5 +1673,33 @@ public class ClientMetadataTest extends TestCase {
 		metadata = ClientMetadata.parse(metadata.toJSONObject());
 		
 		assertEquals(jwkSet.toJSONObject(), metadata.getJWKSet().toJSONObject());
+	}
+	
+	
+	public void testClientInformationFieldsMustNotBeParsedAsCustom() throws URISyntaxException, ParseException {
+		
+		ClientMetadata metadata = new ClientMetadata();
+		metadata.setRedirectionURI(new URI("https://example.com/1"));
+		metadata.applyDefaults();
+		
+		metadata.setCustomField("x-custom", "123");
+		metadata.setCustomField("y-custom", "456");
+		metadata.setCustomField("z-custom", "789");
+		
+		ClientInformation clientInfo = new ClientInformation(
+			new ClientID("123"),
+			DateUtils.nowWithSecondsPrecision(),
+			metadata,
+			new Secret(),
+			new URI("https://op.example.com/clints/123"),
+			new BearerAccessToken());
+		
+		ClientMetadata parsed = ClientMetadata.parse(clientInfo.toJSONObject());
+		assertEquals("123", parsed.getCustomField("x-custom"));
+		assertEquals("456", parsed.getCustomField("y-custom"));
+		assertEquals("789", parsed.getCustomField("z-custom"));
+		assertEquals(3, parsed.getCustomFields().size());
+		
+		assertEquals(metadata.toJSONObject(true), parsed.toJSONObject(true));
 	}
 }
