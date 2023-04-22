@@ -30,6 +30,7 @@ import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jose.util.X509CertUtils;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.cnf.AbstractConfirmation;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 
 
@@ -37,7 +38,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * X.509 certificate SHA-256 confirmation.
  */
 @Immutable
-public final class X509CertificateConfirmation {
+public final class X509CertificateConfirmation extends AbstractConfirmation {
 	
 	
 	/**
@@ -73,40 +74,7 @@ public final class X509CertificateConfirmation {
 	}
 	
 	
-	/**
-	 * Returns this X.509 certificate SHA-256 confirmation as a JSON
-	 * object.
-	 *
-	 * <p>Example:
-	 *
-	 * <pre>
-	 * {
-	 *   "cnf" : { "x5t#S256" : "bwcK0esc3ACC3DB2Y5_lESsXE8o9ltc05O89jdN-dg2" }
-	 * }
-	 * </pre>
-	 *
-	 * @return The JSON object.
-	 */
-	public JSONObject toJSONObject() {
-		
-		JSONObject jsonObject = new JSONObject();
-		Map.Entry<String, JSONObject> cnfClaim = toJWTClaim();
-		jsonObject.put(cnfClaim.getKey(), cnfClaim.getValue());
-		return jsonObject;
-	}
-	
-	
-	/**
-	 * Returns this X.509 certificate SHA-256 confirmation as a JWT claim.
-	 *
-	 * <p>Example:
-	 *
-	 * <pre>
-	 * "cnf" : { "x5t#S256" : "bwcK0esc3ACC3DB2Y5_lESsXE8o9ltc05O89jdN-dg2" }
-	 * </pre>
-	 *
-	 * @return The JWT claim name / value.
-	 */
+	@Override
 	public Map.Entry<String,JSONObject> toJWTClaim() {
 		
 		JSONObject cnf = new JSONObject();
@@ -116,30 +84,6 @@ public final class X509CertificateConfirmation {
 			"cnf",
 			cnf
 		);
-	}
-	
-	
-	/**
-	 * Applies this X.509 certificate SHA-256 confirmation to the specified
-	 * JWT claims set.
-	 *
-	 * @param jwtClaimsSet The JWT claims set.
-	 *
-	 * @return The modified JWT claims set.
-	 */
-	public JWTClaimsSet applyTo(final JWTClaimsSet jwtClaimsSet) {
-		
-		Map.Entry<String, JSONObject> cnfClaim = toJWTClaim();
-		
-		return new JWTClaimsSet.Builder(jwtClaimsSet)
-			.claim(cnfClaim.getKey(), cnfClaim.getValue())
-			.build();
-	}
-	
-	
-	@Override
-	public String toString() {
-		return toJSONObject().toJSONString();
 	}
 	
 	
@@ -159,7 +103,7 @@ public final class X509CertificateConfirmation {
 	
 	
 	/**
-	 * Parses a X.509 certificate confirmation from the specified JWT
+	 * Parses an X.509 certificate confirmation from the specified JWT
 	 * claims set.
 	 *
 	 * @param jwtClaimsSet The JWT claims set.
@@ -169,23 +113,18 @@ public final class X509CertificateConfirmation {
 	 */
 	public static X509CertificateConfirmation parse(final JWTClaimsSet jwtClaimsSet) {
 		
-		Map<String, Object> jsonObjectClaim;
-		try {
-			jsonObjectClaim = jwtClaimsSet.getJSONObjectClaim("cnf");
-		} catch (java.text.ParseException e) {
+		JSONObject cnf = parseConfirmationJSONObject(jwtClaimsSet);
+		
+		if (cnf == null) {
 			return null;
 		}
 		
-		if (jsonObjectClaim == null) {
-			return null;
-		}
-		
-		return parseFromConfirmationJSONObject(new JSONObject(jsonObjectClaim));
+		return parseFromConfirmationJSONObject(cnf);
 	}
 	
 	
 	/**
-	 * Parses a X.509 certificate confirmation from the specified JSON
+	 * Parses an X.509 certificate confirmation from the specified JSON
 	 * object representation of a JWT claims set.
 	 *
 	 * @param jsonObject The JSON object.
@@ -208,7 +147,7 @@ public final class X509CertificateConfirmation {
 	
 	
 	/**
-	 * Parses a X.509 certificate confirmation from the specified
+	 * Parses an X.509 certificate confirmation from the specified
 	 * confirmation ("cnf") JSON object.
 	 *
 	 * @param cnf The confirmation JSON object, {@code null} if none.

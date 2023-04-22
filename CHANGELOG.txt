@@ -2176,3 +2176,8 @@ version 10.7.1 (2023-03-30)
 version 10.7.2 (2023-04-17)
     * ClientMetadata and OIDCClientMetadata.parse must not designate the
       top-level client information fields as custom metadata fields (iss #421).
+
+version 10.8 (2023-04-22)
+    * Factors out an AbstractConfirmation class for X509CertificateConfirmation
+      and JWKThumbprintConfirmation.
+    * Adds new AbstractConfirmation.mergeInto(JSONObject) method.

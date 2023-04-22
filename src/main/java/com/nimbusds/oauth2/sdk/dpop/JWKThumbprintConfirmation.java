@@ -30,6 +30,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.cnf.AbstractConfirmation;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 
 
@@ -37,7 +38,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * JSON Web Key (JWK) SHA-256 thumbprint confirmation.
  */
 @Immutable
-public final class JWKThumbprintConfirmation {
+public final class JWKThumbprintConfirmation extends AbstractConfirmation {
 	
 	
 	/**
@@ -72,39 +73,7 @@ public final class JWKThumbprintConfirmation {
 	}
 	
 	
-	/**
-	 * Returns this JWK SHA-256 thumbprint confirmation as a JSON object.
-	 *
-	 * <p>Example:
-	 *
-	 * <pre>
-	 * {
-	 *   "cnf" : { "jkt" : "0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I" }
-	 * }
-	 * </pre>
-	 *
-	 * @return The JSON object.
-	 */
-	public JSONObject toJSONObject() {
-		
-		JSONObject jsonObject = new JSONObject();
-		Map.Entry<String,JSONObject> cnfClaim = toJWTClaim();
-		jsonObject.put(cnfClaim.getKey(), cnfClaim.getValue());
-		return jsonObject;
-	}
-	
-	
-	/**
-	 * Returns this JWK SHA-256 thumbprint confirmation as a JWT claim.
-	 *
-	 * <p>Example:
-	 *
-	 * <pre>
-	 * "cnf" : { "jkt" : "0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I" }
-	 * </pre>
-	 *
-	 * @return The JWT claim name / value.
-	 */
+	@Override
 	public Map.Entry<String,JSONObject> toJWTClaim() {
 		
 		JSONObject cnf = new JSONObject();
@@ -114,30 +83,6 @@ public final class JWKThumbprintConfirmation {
 			"cnf",
 			cnf
 		);
-	}
-	
-	
-	/**
-	 * Applies this JWK SHA-256 thumbprint confirmation to the specified
-	 * JWT claims set.
-	 *
-	 * @param jwtClaimsSet The JWT claims set.
-	 *
-	 * @return The modified JWT claims set.
-	 */
-	public JWTClaimsSet applyTo(final JWTClaimsSet jwtClaimsSet) {
-		
-		Map.Entry<String,JSONObject> cnfClaim = toJWTClaim();
-		
-		return new JWTClaimsSet.Builder(jwtClaimsSet)
-			.claim(cnfClaim.getKey(), cnfClaim.getValue())
-			.build();
-	}
-	
-	
-	@Override
-	public String toString() {
-		return toJSONObject().toJSONString();
 	}
 	
 	
@@ -167,18 +112,13 @@ public final class JWKThumbprintConfirmation {
 	 */
 	public static JWKThumbprintConfirmation parse(final JWTClaimsSet jwtClaimsSet) {
 		
-		Map<String, Object> jsonObjectClaim;
-		try {
-			jsonObjectClaim = jwtClaimsSet.getJSONObjectClaim("cnf");
-		} catch (java.text.ParseException e) {
+		JSONObject cnf = parseConfirmationJSONObject(jwtClaimsSet);
+		
+		if (cnf == null) {
 			return null;
 		}
 		
-		if (jsonObjectClaim == null) {
-			return null;
-		}
-		
-		return parseFromConfirmationJSONObject(new JSONObject(jsonObjectClaim));
+		return parseFromConfirmationJSONObject(cnf);
 	}
 	
 	

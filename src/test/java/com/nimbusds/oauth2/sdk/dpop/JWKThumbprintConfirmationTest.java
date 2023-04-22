@@ -18,6 +18,7 @@
 package com.nimbusds.oauth2.sdk.dpop;
 
 
+import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -27,8 +28,10 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jose.util.Base64URL;
+import com.nimbusds.jose.util.X509CertUtils;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.auth.X509CertificateConfirmation;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 
 
@@ -84,6 +87,40 @@ public class JWKThumbprintConfirmationTest extends TestCase {
 		cnf = JWKThumbprintConfirmation.parse(jsonObject);
 		
 		assertEquals(RSA_JWK_THUMBPRINT, cnf.getValue());
+	}
+	
+	public void testMergeInto()
+		throws Exception {
+		
+		JWKThumbprintConfirmation cnf = JWKThumbprintConfirmation.of(RSA_JWK);
+		
+		JSONObject jsonObject = new JSONObject();
+		cnf.mergeInto(jsonObject);
+		JSONObject cnfObject = JSONObjectUtils.getJSONObject(jsonObject, "cnf");
+		assertEquals(cnf.getValue().toString(), JSONObjectUtils.getString(cnfObject, "jkt"));
+		assertEquals(1, cnfObject.size());
+		assertEquals(1, jsonObject.size());
+	}
+	
+	
+	public void testMergeInto_existingMembers()
+		throws Exception {
+		
+		JWKThumbprintConfirmation cnf = JWKThumbprintConfirmation.of(RSA_JWK);
+		
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("a", "123");
+		JSONObject cnfObject = new JSONObject();
+		cnfObject.put("b", "456");
+		jsonObject.put("cnf", cnfObject);
+		
+		cnf.mergeInto(jsonObject);
+		assertEquals("123", JSONObjectUtils.getString(jsonObject, "a"));
+		cnfObject = JSONObjectUtils.getJSONObject(jsonObject, "cnf");
+		assertEquals(cnf.getValue().toString(), JSONObjectUtils.getString(cnfObject, "jkt"));
+		assertEquals("456", JSONObjectUtils.getString(cnfObject, "b"));
+		assertEquals(2, cnfObject.size());
+		assertEquals(2, jsonObject.size());
 	}
 	
 	

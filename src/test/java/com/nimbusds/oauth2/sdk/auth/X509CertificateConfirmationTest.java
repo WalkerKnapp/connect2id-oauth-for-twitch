@@ -73,6 +73,45 @@ public class X509CertificateConfirmationTest extends TestCase {
 	}
 	
 	
+	public void testMergeInto()
+		throws Exception {
+		
+		X509Certificate clientCert = X509CertUtils.parse(PEM_CERT);
+		Base64URL x5t = X509CertUtils.computeSHA256Thumbprint(clientCert);
+		X509CertificateConfirmation certCnf = new X509CertificateConfirmation(x5t);
+		
+		JSONObject jsonObject = new JSONObject();
+		certCnf.mergeInto(jsonObject);
+		JSONObject cnfObject = JSONObjectUtils.getJSONObject(jsonObject, "cnf");
+		assertEquals(x5t.toString(), JSONObjectUtils.getString(cnfObject, "x5t#S256"));
+		assertEquals(1, cnfObject.size());
+		assertEquals(1, jsonObject.size());
+	}
+	
+	
+	public void testMergeInto_existingMembers()
+		throws Exception {
+		
+		X509Certificate clientCert = X509CertUtils.parse(PEM_CERT);
+		Base64URL x5t = X509CertUtils.computeSHA256Thumbprint(clientCert);
+		X509CertificateConfirmation certCnf = new X509CertificateConfirmation(x5t);
+		
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("a", "123");
+		JSONObject cnf = new JSONObject();
+		cnf.put("b", "456");
+		jsonObject.put("cnf", cnf);
+		
+		certCnf.mergeInto(jsonObject);
+		assertEquals("123", JSONObjectUtils.getString(jsonObject, "a"));
+		JSONObject cnfObject = JSONObjectUtils.getJSONObject(jsonObject, "cnf");
+		assertEquals(x5t.toString(), JSONObjectUtils.getString(cnfObject, "x5t#S256"));
+		assertEquals("456", JSONObjectUtils.getString(cnfObject, "b"));
+		assertEquals(2, cnfObject.size());
+		assertEquals(2, jsonObject.size());
+	}
+	
+	
 	public void testOf()
 		throws Exception {
 		
@@ -135,7 +174,7 @@ public class X509CertificateConfirmationTest extends TestCase {
 			X509CertificateConfirmation.parse((JSONObject)null);
 			fail();
 		} catch (NullPointerException e) {
-			// ok
+			// ok;
 		}
 	}
 	
