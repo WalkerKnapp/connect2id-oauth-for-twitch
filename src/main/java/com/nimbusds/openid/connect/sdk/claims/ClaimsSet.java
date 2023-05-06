@@ -623,4 +623,10 @@ public class ClaimsSet implements JSONAware {
 	public int hashCode() {
 		return Objects.hash(claims);
 	}
+	
+	
+	@Override
+	public String toString() {
+		return toJSONString();
+	}
 }

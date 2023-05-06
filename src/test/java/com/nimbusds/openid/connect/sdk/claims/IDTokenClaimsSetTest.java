@@ -148,6 +148,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 		assertEquals("MTIzNDU2Nzg5MDEyMzQ1Ng", idTokenClaimsSet.getAccessTokenHash().getValue());
 
 		json = new JSONObject(idTokenClaimsSet.toJWTClaimsSet().toJSONObject()).toJSONString();
+		
+		assertEquals(json, idTokenClaimsSet.toString());
 
 		jwtClaimsSet = JWTClaimsSet.parse(json);
 
@@ -224,6 +226,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 		assertEquals(authorizedParty.getValue(), idTokenClaimsSet.getAuthorizedParty().getValue());
 
 		String json = idTokenClaimsSet.toJSONObject().toJSONString();
+		
+		assertEquals(json, idTokenClaimsSet.toString());
 
 		// Try to JWT claims set too
 		idTokenClaimsSet.toJWTClaimsSet();
@@ -289,8 +293,7 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testSingleAudSetAndGetWorkaround()
-		throws Exception {
+	public void testSingleAudSetAndGetWorkaround() {
 
 		Issuer issuer = new Issuer("iss");
 		Subject subject = new Subject("sub");

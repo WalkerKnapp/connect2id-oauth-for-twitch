@@ -152,4 +152,18 @@ public class ClaimsSetTest extends TestCase {
 		assertNotSame(a, b);
 		assertNotSame(a.hashCode(), b.hashCode());
 	}
+	
+	
+	public void testToString() {
+		
+		ClaimsSet c = new ClaimsSet();
+		assertEquals("{}", c.toJSONString());
+		assertEquals(c.toJSONString(), c.toString());
+		
+		Issuer issuer = new Issuer("https://c2id.com");
+		c.setIssuer(issuer);
+		
+		assertEquals("{\"iss\":\"https:\\/\\/c2id.com\"}", c.toJSONString());
+		assertEquals(c.toJSONString(), c.toString());
+	}
 }

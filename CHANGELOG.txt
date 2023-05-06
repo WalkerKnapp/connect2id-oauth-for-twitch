@@ -2181,3 +2181,6 @@ version 10.8 (2023-04-22)
     * Factors out an AbstractConfirmation class for X509CertificateConfirmation
       and JWKThumbprintConfirmation.
     * Adds new AbstractConfirmation.mergeInto(JSONObject) method.
+
+version 10.9 (2023-05-06)
+    * Adds ClaimsSet.toString() as toJSONString() alias.
