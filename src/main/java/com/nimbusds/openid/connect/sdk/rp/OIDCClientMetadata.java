@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
+import com.nimbusds.oauth2.sdk.ErrorObject;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
@@ -1189,7 +1190,10 @@ public class OIDCClientMetadata extends ClientMetadata {
 			// Insert client_client_metadata error code so that it
 			// can be reported back to the client if we have a
 			// registration event
-			throw new ParseException(e.getMessage(), RegistrationError.INVALID_CLIENT_METADATA.appendDescription(": " + e.getMessage()), e.getCause());
+			throw new ParseException(
+				e.getMessage(),
+				RegistrationError.INVALID_CLIENT_METADATA.appendDescription(ErrorObject.removeIllegalChars(": " + e.getMessage())),
+				e.getCause());
 		}
 
 		// The remaining fields are custom

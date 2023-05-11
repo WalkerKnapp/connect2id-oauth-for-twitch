@@ -2184,3 +2184,7 @@ version 10.8 (2023-04-22)
 
 version 10.9 (2023-05-06)
     * Adds ClaimsSet.toString() as toJSONString() alias.
+
+version 10.9.1 (2023-05-11)
+    * ClientMetadata.parse and OIDCClientMetadata.parse must filter out illegal
+      chars in the error_description (iss #423).

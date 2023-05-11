@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
+import com.nimbusds.oauth2.sdk.*;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
@@ -33,10 +34,6 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagUtils;
-import com.nimbusds.oauth2.sdk.GrantType;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.ResponseType;
-import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import com.nimbusds.oauth2.sdk.ciba.BackChannelTokenDeliveryMode;
 import com.nimbusds.oauth2.sdk.id.Identifier;
@@ -2460,7 +2457,7 @@ public class ClientMetadata {
 					metadata.setJWKSet(JWKSet.parse(JSONObjectUtils.getJSONObject(jsonObject, "jwks")));
 
 				} catch (java.text.ParseException e) {
-					throw new ParseException(e.getMessage(), e);
+					throw new ParseException("Illegal JWK set: " + e.getMessage(), e);
 				}
 
 				jsonObject.remove("jwks");
@@ -2627,7 +2624,11 @@ public class ClientMetadata {
 			// Insert client_client_metadata error code so that it
 			// can be reported back to the client if we have a
 			// registration event
-			throw new ParseException(e.getMessage(), RegistrationError.INVALID_CLIENT_METADATA.appendDescription(": " + e.getMessage()), e.getCause());
+			throw new ParseException(
+				e.getMessage(),
+				RegistrationError.INVALID_CLIENT_METADATA.appendDescription(ErrorObject.removeIllegalChars(": " + e.getMessage())),
+				e.getCause()
+			);
 		}
 
 		// Remove any remaining top-level client information fields

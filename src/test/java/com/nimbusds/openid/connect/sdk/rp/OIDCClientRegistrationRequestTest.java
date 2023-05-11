@@ -18,12 +18,16 @@
 package com.nimbusds.openid.connect.sdk.rp;
 
 
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.oauth2.sdk.ParseException;
 import junit.framework.TestCase;
 
 import com.nimbusds.common.contenttype.ContentType;
@@ -43,7 +47,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.SubjectType;
-
+import net.minidev.json.JSONObject;
 
 
 public class OIDCClientRegistrationRequestTest extends TestCase {
@@ -383,5 +387,29 @@ public class OIDCClientRegistrationRequestTest extends TestCase {
 		}
 		
 		// Success: nothing returned
+	}
+
+
+	public void testParseClientRegistrationWithEmptyJWKsObject() throws MalformedURLException, ParseException {
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://server.example.com/connect/register"));
+		httpRequest.setAuthorization(new BearerAccessToken().toAuthorizationHeader());
+		httpRequest.setEntityContentType(ContentType.APPLICATION_JSON);
+
+		OIDCClientMetadata clientMetadata = new OIDCClientMetadata();
+		clientMetadata.setGrantTypes(Collections.singleton(GrantType.CLIENT_CREDENTIALS));
+		clientMetadata.setTokenEndpointAuthMethod(ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH);
+		clientMetadata.setJWKSet(new JWKSet());
+		JSONObject jsonObject = clientMetadata.toJSONObject(true);
+		jsonObject.put("jwks", new JSONObject());
+		httpRequest.setQuery(jsonObject.toJSONString());
+
+		try {
+			OIDCClientRegistrationRequest.parse(httpRequest);
+		} catch (ParseException e) {
+			assertEquals("Illegal JWK set: Missing required \"keys\" member", e.getMessage());
+			assertEquals(RegistrationError.INVALID_CLIENT_METADATA.getCode(), e.getErrorObject().getCode());
+			assertEquals("Invalid client metadata field: Illegal JWK set: Missing required keys member", e.getErrorObject().getDescription());
+		}
 	}
 }
