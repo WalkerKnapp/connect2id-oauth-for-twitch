@@ -18,25 +18,24 @@
 package com.nimbusds.oauth2.sdk.http;
 
 
-import java.io.*;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.security.cert.X509Certificate;
-import java.util.List;
-import java.util.Map;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
-
-import net.jcip.annotations.ThreadSafe;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+import net.jcip.annotations.ThreadSafe;
+import net.minidev.json.JSONObject;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
+import java.security.cert.X509Certificate;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -1035,7 +1034,7 @@ public class HTTPRequest extends HTTPMessage {
 
 				if (errStream != null) {
 					// We have useful HTTP error body
-					reader = new BufferedReader(new InputStreamReader(errStream));
+					reader = new BufferedReader(new InputStreamReader(errStream, StandardCharsets.UTF_8));
 				} else {
 					// No content, set to empty string
 					reader = new BufferedReader(new StringReader(""));

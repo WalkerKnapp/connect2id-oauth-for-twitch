@@ -2188,3 +2188,7 @@ version 10.9 (2023-05-06)
 version 10.9.1 (2023-05-11)
     * ClientMetadata.parse and OIDCClientMetadata.parse must filter out illegal
       chars in the error_description (iss #423).
+
+version 10.9.2 (2023-06-21)
+    * HTTPResponse.send must read error responses from InputStreamReader using
+      UTF-8 character encoding (iss #426).
