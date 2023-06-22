@@ -468,7 +468,7 @@
 				<!-- run with mvn org.owasp:dependency-check-maven:check -->
 				<groupId>org.owasp</groupId>
 				<artifactId>dependency-check-maven</artifactId>
-				<version>6.5.1</version>
+				<version>8.3.1</version>
 				<executions>
 					<execution>
 						<goals>
