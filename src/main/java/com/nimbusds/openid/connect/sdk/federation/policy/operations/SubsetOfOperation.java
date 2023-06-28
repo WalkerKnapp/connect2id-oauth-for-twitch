@@ -18,12 +18,12 @@
 package com.nimbusds.openid.connect.sdk.federation.policy.operations;
 
 
-import java.util.*;
-
 import com.nimbusds.openid.connect.sdk.federation.policy.language.OperationName;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyOperation;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyViolationException;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.StringListOperation;
+
+import java.util.*;
 
 
 /**

@@ -61,15 +61,30 @@ public class SubsetOfOperationTest extends TestCase {
 	}
 	
 	
-	public void testSubsetIdentical() {
-		
-		List<String> param = Arrays.asList("code", "code token", "code id_token");
-		
+	public void testSubset_emptyIntersection() {
+
+		List<String> param = Arrays.asList("code", "code id_token");
+
 		SubsetOfOperation operation = new SubsetOfOperation();
 		assertEquals(new OperationName("subset_of"), operation.getOperationName());
 		operation.configure(param);
 		assertEquals(param, operation.getStringListConfiguration());
-		
+
+		List<String> stringList = Collections.singletonList("id_token");
+
+		assertNull(operation.apply(stringList));
+	}
+
+
+	public void testSubsetIdentical() {
+
+		List<String> param = Arrays.asList("code", "code token", "code id_token");
+
+		SubsetOfOperation operation = new SubsetOfOperation();
+		assertEquals(new OperationName("subset_of"), operation.getOperationName());
+		operation.configure(param);
+		assertEquals(param, operation.getStringListConfiguration());
+
 		assertEquals(param, operation.apply(param));
 	}
 	
