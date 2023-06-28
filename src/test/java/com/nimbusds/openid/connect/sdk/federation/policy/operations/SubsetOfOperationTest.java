@@ -18,15 +18,14 @@
 package com.nimbusds.openid.connect.sdk.federation.policy.operations;
 
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import junit.framework.TestCase;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.OperationName;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyViolationException;
+import junit.framework.TestCase;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 
 public class SubsetOfOperationTest extends TestCase {
@@ -44,6 +43,21 @@ public class SubsetOfOperationTest extends TestCase {
 		List<String> stringList = Arrays.asList("code", "code id_token token", "code id_token");
 		
 		assertEquals(Arrays.asList("code", "code id_token"), operation.apply(stringList));
+	}
+
+
+	public void testSubset_1() {
+
+		List<String> param = Collections.singletonList("code");
+
+		SubsetOfOperation operation = new SubsetOfOperation();
+		assertEquals(new OperationName("subset_of"), operation.getOperationName());
+		operation.configure(param);
+		assertEquals(param, operation.getStringListConfiguration());
+
+		List<String> stringList = Arrays.asList("code", "code id_token token", "code id_token");
+
+		assertEquals(Collections.singletonList("code"), operation.apply(stringList));
 	}
 	
 	
