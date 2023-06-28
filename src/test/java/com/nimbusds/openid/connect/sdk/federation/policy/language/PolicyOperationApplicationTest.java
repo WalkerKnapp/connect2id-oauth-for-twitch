@@ -49,7 +49,7 @@ public class PolicyOperationApplicationTest extends TestCase {
 		operation.configure(param);
 		
 		List<String> out = (List<String>)PolicyOperationApplication.apply(operation, Collections.singletonList("id_token"));
-		assertEquals(Collections.emptyList(), out);
+		assertNull(out);
 	}
 	
 	
