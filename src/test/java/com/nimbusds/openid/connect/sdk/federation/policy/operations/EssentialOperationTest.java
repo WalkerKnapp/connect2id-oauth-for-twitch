@@ -18,6 +18,7 @@
 package com.nimbusds.openid.connect.sdk.federation.policy.operations;
 
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import junit.framework.TestCase;
@@ -46,46 +47,52 @@ public class EssentialOperationTest extends TestCase {
 	}
 	
 	
-	public void testBooleanParam_true() throws PolicyViolationException {
-		
-		EssentialOperation operation = new EssentialOperation();
-		assertEquals(new OperationName("essential"), operation.getOperationName());
-		operation.configure(true);
-		
-		assertEquals(operation.getOperationName().getValue(), operation.toJSONObjectEntry().getKey());
-		assertEquals(true, operation.toJSONObjectEntry().getValue());
-		
-		assertTrue((Boolean) operation.apply(true));
-		assertFalse((Boolean) operation.apply(false));
+	public void testBooleanParam() throws PolicyViolationException {
+
+		for (boolean isEssential: Arrays.asList(true, false)) {
+
+			EssentialOperation operation = new EssentialOperation();
+			assertEquals(new OperationName("essential"), operation.getOperationName());
+			operation.configure(isEssential);
+
+			assertEquals(operation.getOperationName().getValue(), operation.toJSONObjectEntry().getKey());
+			assertEquals(isEssential, operation.toJSONObjectEntry().getValue());
+
+			assertTrue((Boolean) operation.apply(true));
+			assertFalse((Boolean) operation.apply(false));
+		}
 	}
 	
 
 	public void testStringParam() throws PolicyViolationException {
-		
-		EssentialOperation operation = new EssentialOperation();
-		assertEquals(new OperationName("essential"), operation.getOperationName());
-		operation.configure(true);
-		
-		assertEquals(operation.getOperationName().getValue(), operation.toJSONObjectEntry().getKey());
-		assertEquals(true, operation.toJSONObjectEntry().getValue());
-		
-		assertEquals(operation.getOperationName().getValue(), operation.toJSONObjectEntry().getKey());
-		assertEquals(true, operation.toJSONObjectEntry().getValue());
-		
-		assertEquals("abc", operation.apply("abc"));
+
+		for (boolean isEssential: Arrays.asList(true, false)) {
+
+			EssentialOperation operation = new EssentialOperation();
+			assertEquals(new OperationName("essential"), operation.getOperationName());
+			operation.configure(isEssential);
+
+			assertEquals(operation.getOperationName().getValue(), operation.toJSONObjectEntry().getKey());
+			assertEquals(isEssential, operation.toJSONObjectEntry().getValue());
+
+			assertEquals("abc", operation.apply("abc"));
+		}
 	}
 	
 
 	public void testStringListParam() throws PolicyViolationException {
-		
-		EssentialOperation operation = new EssentialOperation();
-		assertEquals(new OperationName("essential"), operation.getOperationName());
-		operation.configure(true);
-		
-		assertEquals(operation.getOperationName().getValue(), operation.toJSONObjectEntry().getKey());
-		assertEquals(true, operation.toJSONObjectEntry().getValue());
-		
-		assertEquals(Collections.singletonList("abc"), operation.apply(Collections.singletonList("abc")));
+
+		for (boolean isEssential: Arrays.asList(true, false)) {
+
+			EssentialOperation operation = new EssentialOperation();
+			assertEquals(new OperationName("essential"), operation.getOperationName());
+			operation.configure(isEssential);
+
+			assertEquals(operation.getOperationName().getValue(), operation.toJSONObjectEntry().getKey());
+			assertEquals(isEssential, operation.toJSONObjectEntry().getValue());
+
+			assertEquals(Collections.singletonList("abc"), operation.apply(Collections.singletonList("abc")));
+		}
 	}
 	
 	
