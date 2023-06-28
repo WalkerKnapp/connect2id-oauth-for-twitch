@@ -143,6 +143,6 @@ public class AddOperation extends AbstractSetBasedOperation implements StringCon
 				result.add(s);
 			}
 		}
-		return result;
+		return Collections.unmodifiableList(result);
 	}
 }

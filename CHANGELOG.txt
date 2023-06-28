@@ -2196,3 +2196,5 @@ version 10.9.2 (2023-06-21)
 version 10.10 (2023-06-28)
     * The OpenID Connect Federation 1.0 AddOperation.apply method must not
       add value(s) that are already present in the parameter.
+    * The OpenID Connect Federation 1.0 AddOperation.apply method must return
+      an immutable List<String>.

@@ -75,6 +75,22 @@ public class AddOperationTest extends TestCase {
 		// Must not add value already present
 		assertEquals(stringListParam, addOperation.apply(Collections.singletonList("support@federation.example.com")));
 	}
+
+
+	public void testResultImmutable() {
+
+		AddOperation addOperation = new AddOperation();
+		addOperation.configure("c");
+
+		List<String> result = addOperation.apply(Arrays.asList("a", "b"));
+
+		try {
+			result.add("d");
+			fail();
+		} catch (UnsupportedOperationException e) {
+			assertNull(e.getMessage());
+		}
+	}
 	
 	
 	public void testIllegalState() {
