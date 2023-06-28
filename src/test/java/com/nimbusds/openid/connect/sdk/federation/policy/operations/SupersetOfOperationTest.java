@@ -43,19 +43,49 @@ public class SupersetOfOperationTest extends TestCase {
 		
 		List<String> stringList = Arrays.asList("ES256", "ES384", "RS256", "RS512");
 		
-		assertEquals(Arrays.asList("ES256", "ES384", "RS256", "RS512"), operation.apply(stringList));
+		assertEquals(stringList, operation.apply(stringList));
 	}
-	
-	
-	public void testSupersetEmptyValue() {
-		
-		List<String> param = Arrays.asList("ES256", "RS256");
-		
+
+
+	public void testSupersetOneValue() throws PolicyViolationException {
+
+		List<String> param = Collections.singletonList("ES256");
+
 		SupersetOfOperation operation = new SupersetOfOperation();
 		assertEquals(new OperationName("superset_of"), operation.getOperationName());
 		operation.configure(param);
 		assertEquals(param, operation.getStringListConfiguration());
-		
+
+		List<String> stringList = Collections.singletonList("ES256");
+
+		assertEquals(stringList, operation.apply(stringList));
+	}
+
+
+	public void testSupersetOneValue_1() throws PolicyViolationException {
+
+		List<String> param = Collections.singletonList("ES256");
+
+		SupersetOfOperation operation = new SupersetOfOperation();
+		assertEquals(new OperationName("superset_of"), operation.getOperationName());
+		operation.configure(param);
+		assertEquals(param, operation.getStringListConfiguration());
+
+		List<String> stringList = Arrays.asList("ES256", "ES384", "ES512");
+
+		assertEquals(stringList, operation.apply(stringList));
+	}
+
+
+	public void testSupersetEmptyValue() {
+
+		List<String> param = Arrays.asList("ES256", "RS256");
+
+		SupersetOfOperation operation = new SupersetOfOperation();
+		assertEquals(new OperationName("superset_of"), operation.getOperationName());
+		operation.configure(param);
+		assertEquals(param, operation.getStringListConfiguration());
+
 		try {
 			operation.apply(Collections.<String>emptyList());
 			fail();
@@ -63,7 +93,43 @@ public class SupersetOfOperationTest extends TestCase {
 			assertEquals("Missing values: [ES256, RS256]", e.getMessage());
 		}
 	}
-	
+
+	public void testSuperset_missingValue() {
+
+		List<String> param = Arrays.asList("ES256", "RS256");
+
+		SupersetOfOperation operation = new SupersetOfOperation();
+		assertEquals(new OperationName("superset_of"), operation.getOperationName());
+		operation.configure(param);
+		assertEquals(param, operation.getStringListConfiguration());
+
+		List<String> stringList = Collections.singletonList("ES256");
+
+		try {
+			assertEquals(stringList, operation.apply(stringList));
+		} catch (PolicyViolationException e) {
+			assertEquals("Missing values: [RS256]", e.getMessage());
+		}
+	}
+
+	public void testSuperset_missingTwoValues() {
+
+		List<String> param = Arrays.asList("ES256", "RS256");
+
+		SupersetOfOperation operation = new SupersetOfOperation();
+		assertEquals(new OperationName("superset_of"), operation.getOperationName());
+		operation.configure(param);
+		assertEquals(param, operation.getStringListConfiguration());
+
+		List<String> stringList = Collections.singletonList("PS256");
+
+		try {
+			assertEquals(stringList, operation.apply(stringList));
+		} catch (PolicyViolationException e) {
+			assertEquals("Missing values: [ES256, RS256]", e.getMessage());
+		}
+	}
+
 	
 	public void testSupersetNullValue() {
 		
