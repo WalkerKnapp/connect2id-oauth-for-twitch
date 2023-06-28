@@ -35,7 +35,7 @@ import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyViolatio
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 4.2.
+ *     <li>OpenID Connect Federation 1.0, section 5.1.4.
  * </ul>
  */
 public interface PolicyOperationCombinationValidator {

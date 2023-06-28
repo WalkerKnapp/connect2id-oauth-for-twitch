@@ -39,7 +39,7 @@ import com.nimbusds.openid.connect.sdk.federation.policy.language.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0, section 4.1.6.
+ *     <li>OpenID Connect Federation 1.0, section 5.1.2.
  * </ul>
  */
 public class DefaultOperation implements PolicyOperation,

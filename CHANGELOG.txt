@@ -2192,3 +2192,6 @@ version 10.9.1 (2023-05-11)
 version 10.9.2 (2023-06-21)
     * HTTPResponse.send must read error responses from InputStreamReader using
       UTF-8 character encoding (iss #426).
+
+version 10.10 (2023-06-28)
+    *
