@@ -41,17 +41,20 @@ public class ValueOperationTest extends TestCase {
 	
 	
 	public void testBooleanParam() {
-		
-		ValueOperation valueOperation = new ValueOperation();
-		valueOperation.configure(true);
-		assertTrue(valueOperation.getBooleanConfiguration());
-		
-		assertEquals(valueOperation.getOperationName().getValue(), valueOperation.toJSONObjectEntry().getKey());
-		assertEquals(true, valueOperation.toJSONObjectEntry().getValue());
-		
-		assertTrue((Boolean) valueOperation.apply(null));
-		assertTrue((Boolean) valueOperation.apply(true));
-		assertTrue((Boolean) valueOperation.apply(false));
+
+		for (boolean setValue: Arrays.asList(true, false)) {
+
+			ValueOperation valueOperation = new ValueOperation();
+			valueOperation.configure(setValue);
+			assertEquals(setValue, valueOperation.getBooleanConfiguration());
+
+			assertEquals(valueOperation.getOperationName().getValue(), valueOperation.toJSONObjectEntry().getKey());
+			assertEquals(setValue, valueOperation.toJSONObjectEntry().getValue());
+
+			assertEquals(setValue, ((Boolean) valueOperation.apply(null)).booleanValue());
+			assertEquals(setValue, ((Boolean) valueOperation.apply(true)).booleanValue());
+			assertEquals(setValue, ((Boolean) valueOperation.apply(false)).booleanValue());
+		}
 	}
 	
 
