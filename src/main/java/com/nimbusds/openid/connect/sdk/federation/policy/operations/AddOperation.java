@@ -18,11 +18,11 @@
 package com.nimbusds.openid.connect.sdk.federation.policy.operations;
 
 
-import java.util.*;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.JSONUtils;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.*;
+
+import java.util.*;
 
 
 /**
@@ -138,7 +138,11 @@ public class AddOperation extends AbstractSetBasedOperation implements StringCon
 		}
 		
 		List<String> result = new LinkedList<>(value);
-		result.addAll(setConfig);
+		for (String s: setConfig) {
+			if (! value.contains(s)) {
+				result.add(s);
+			}
+		}
 		return result;
 	}
 }

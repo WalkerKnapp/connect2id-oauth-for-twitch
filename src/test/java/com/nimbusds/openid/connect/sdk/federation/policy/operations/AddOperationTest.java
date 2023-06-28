@@ -49,6 +49,9 @@ public class AddOperationTest extends TestCase {
 		assertEquals(Collections.singletonList(stringParam), addOperation.apply(Collections.<String>emptyList()));
 		assertEquals(Arrays.asList("support@example.com", stringParam), addOperation.apply(Collections.singletonList("support@example.com")));
 		assertEquals(Arrays.asList("admin@example.com", "support@example.com", stringParam), addOperation.apply(Arrays.asList("admin@example.com", "support@example.com")));
+
+		// Must not add value already present
+		assertEquals(Collections.singletonList(stringParam), addOperation.apply(Collections.singletonList(stringParam)));
 	}
 	
 
@@ -68,6 +71,9 @@ public class AddOperationTest extends TestCase {
 		assertEquals(stringListParam, addOperation.apply(Collections.<String>emptyList()));
 		assertEquals(Arrays.asList("support@example.com", stringListParam.get(0), stringListParam.get(1)), addOperation.apply(Collections.singletonList("support@example.com")));
 		assertEquals(Arrays.asList("admin@example.com", "support@example.com", stringListParam.get(0), stringListParam.get(1)), addOperation.apply(Arrays.asList("admin@example.com", "support@example.com")));
+
+		// Must not add value already present
+		assertEquals(stringListParam, addOperation.apply(Collections.singletonList("support@federation.example.com")));
 	}
 	
 	

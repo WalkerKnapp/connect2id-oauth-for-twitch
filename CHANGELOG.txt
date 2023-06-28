@@ -2194,4 +2194,5 @@ version 10.9.2 (2023-06-21)
       UTF-8 character encoding (iss #426).
 
 version 10.10 (2023-06-28)
-    *
+    * The OpenID Connect Federation 1.0 AddOperation.apply method must not
+      add value(s) that are already present in the parameter.
