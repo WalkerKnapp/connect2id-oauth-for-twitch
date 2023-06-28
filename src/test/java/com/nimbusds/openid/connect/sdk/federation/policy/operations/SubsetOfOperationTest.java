@@ -69,7 +69,7 @@ public class SubsetOfOperationTest extends TestCase {
 		operation.configure(param);
 		assertEquals(param, operation.getStringListConfiguration());
 		
-		assertEquals(Collections.emptyList(), operation.apply(Collections.<String>emptyList()));
+		assertNull(operation.apply(Collections.<String>emptyList()));
 	}
 	
 	
@@ -82,7 +82,7 @@ public class SubsetOfOperationTest extends TestCase {
 		operation.configure(param);
 		assertEquals(param, operation.getStringListConfiguration());
 		
-		assertEquals(Collections.emptyList(), operation.apply(null));
+		assertNull(operation.apply(null));
 	}
 	
 	

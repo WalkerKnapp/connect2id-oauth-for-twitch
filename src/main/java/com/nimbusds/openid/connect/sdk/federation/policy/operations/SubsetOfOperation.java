@@ -97,12 +97,16 @@ public class SubsetOfOperation extends AbstractSetBasedOperation implements Stri
 		}
 		
 		if (stringList == null) {
-			// TODO check with spec https://bitbucket.org/openid/connect/issues/1156/federation-411-subset_of-edge-cases
-			return Collections.emptyList();
+			return null;
 		}
 		
 		Set<String> setValue = new LinkedHashSet<>(stringList);
 		setValue.retainAll(setConfig);
+
+		if (setValue.isEmpty()) {
+			return null;
+		}
+
 		return Collections.unmodifiableList(new LinkedList<>(setValue));
 	}
 }
