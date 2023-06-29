@@ -18,13 +18,6 @@
 package com.nimbusds.openid.connect.sdk.federation.policy;
 
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
@@ -32,10 +25,13 @@ import com.nimbusds.openid.connect.sdk.federation.policy.language.OperationName;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyOperation;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyOperationApplication;
 import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyViolationException;
-import com.nimbusds.openid.connect.sdk.federation.policy.operations.DefaultPolicyOperationCombinationValidator;
-import com.nimbusds.openid.connect.sdk.federation.policy.operations.DefaultPolicyOperationFactory;
-import com.nimbusds.openid.connect.sdk.federation.policy.operations.PolicyOperationCombinationValidator;
-import com.nimbusds.openid.connect.sdk.federation.policy.operations.PolicyOperationFactory;
+import com.nimbusds.openid.connect.sdk.federation.policy.operations.*;
+import net.minidev.json.JSONObject;
+
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -140,20 +136,34 @@ public class MetadataPolicyEntry implements Map.Entry<String, List<PolicyOperati
 	
 	
 	/**
-	 * Returns a map of the operations for this policy entry.
+	 * Returns a map of the operations for this policy entry, in their
+	 * {@link StandardOperations#NAMES_IN_APPLICATION_ORDER standard
+	 * execution order}. Non-standard (custom) policy operations will be
+	 * put at the end, in no particular order between them.
 	 *
 	 * @return The map, empty if no operations.
 	 */
 	public Map<OperationName,PolicyOperation> getOperationsMap() {
 		
-		Map<OperationName,PolicyOperation> map = new HashMap<>();
+		Map<OperationName,PolicyOperation> map = new LinkedHashMap<>();
 		
 		if (getPolicyOperations() == null) {
 			return map;
 		}
-		
+
+		for (OperationName opName: StandardOperations.NAMES_IN_APPLICATION_ORDER) {
+			for (PolicyOperation op: getPolicyOperations()) {
+				if (opName.equals(op.getOperationName())) {
+					map.put(opName, op);
+				}
+			}
+		}
+
+		// Append any custom operations
 		for (PolicyOperation op: getPolicyOperations()) {
-			map.put(op.getOperationName(), op);
+			if (! StandardOperations.NAMES_IN_APPLICATION_ORDER.contains(op.getOperationName())) {
+				map.put(op.getOperationName(), op);
+			}
 		}
 		
 		return map;
@@ -251,11 +261,42 @@ public class MetadataPolicyEntry implements Map.Entry<String, List<PolicyOperati
 			// no ops
 			return value;
 		}
-		
+
 		// Apply policy operations in list
 		Object updatedValue = value;
-		for (PolicyOperation op: getValue()) {
-			updatedValue = PolicyOperationApplication.apply(op, updatedValue);
+
+		boolean valueIsEssential = false;
+
+		for (Map.Entry<OperationName, PolicyOperation> en: getOperationsMap().entrySet()) {
+
+			if (value == null && ! valueIsEssential) {
+
+				if (OneOfOperation.NAME.equals(en.getKey())
+				||
+				SubsetOfOperation.NAME.equals(en.getKey())
+				||
+				SupersetOfOperation.NAME.equals(en.getKey())
+				) {
+					continue; // skip
+				}
+			}
+
+			updatedValue = PolicyOperationApplication.apply(en.getValue(), updatedValue);
+
+			if (ValueOperation.NAME.equals(en.getKey())) {
+				// Stop after "value"
+				return updatedValue;
+			}
+
+			if (EssentialOperation.NAME.equals(en.getKey())) {
+
+				if (((EssentialOperation)en.getValue()).getBooleanConfiguration()) {
+					valueIsEssential = true;
+				} else if (updatedValue == null) {
+					// Skip further value checks
+					return null;
+				}
+			}
 		}
 		return updatedValue;
 	}

@@ -2203,3 +2203,6 @@ version 10.10 (2023-06-29)
       an immutable List<String>.
     * The OpenID Connect Federation 1.0 SubsetOfOperation.apply method must
       return null instead of an empty List<String>.
+    * Updates MetadataPolicyEntry.apply to process "one_of", "subset_of" and
+      "superset_of" for voluntary parameters according to OpenID Connect
+      Federation 1.0 draft 29.

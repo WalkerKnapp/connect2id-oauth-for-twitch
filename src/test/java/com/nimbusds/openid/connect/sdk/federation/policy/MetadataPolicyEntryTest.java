@@ -18,10 +18,7 @@
 package com.nimbusds.openid.connect.sdk.federation.policy;
 
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
@@ -73,6 +70,154 @@ public class MetadataPolicyEntryTest extends TestCase {
 		assertNull(entry.getPolicyOperations());
 		
 		assertTrue(entry.getOperationsMap().isEmpty());
+	}
+
+
+	public void testSubsetOfSuperSetOfCombinationCannotEmulateEquality() throws ParseException, PolicyViolationException {
+
+		String json =
+			"{" +
+			"\"subset_of\": [\"a\",\"b\"]," +
+			"\"superset_of\": [\"a\",\"b\"]" +
+			"}";
+
+		JSONObject spec = JSONObjectUtils.parse(json);
+
+		MetadataPolicyEntry policyEntry = MetadataPolicyEntry.parse("some_param", spec);
+
+		// ok
+		assertEquals(Arrays.asList("a", "b"), policyEntry.apply(Arrays.asList("a", "b")));
+
+		// ok
+		try {
+			policyEntry.apply(Collections.singletonList("a"));
+			fail();
+		} catch (PolicyViolationException e) {
+			assertEquals("Missing values: [b]", e.getMessage());
+		}
+
+		// input modified!
+		assertEquals(Arrays.asList("a", "b"), policyEntry.apply(Arrays.asList("a", "b", "c")));
+	}
+
+
+	public void testValueOperation() throws ParseException, PolicyViolationException {
+
+		String json =
+			"{" +
+			"\"value\": \"a\"" +
+			"}";
+
+		JSONObject spec = JSONObjectUtils.parse(json);
+
+		MetadataPolicyEntry policyEntry = MetadataPolicyEntry.parse("some_param", spec);
+
+		assertEquals("a", policyEntry.apply("b"));
+		assertEquals("a", policyEntry.apply(null));
+		assertEquals("a", policyEntry.apply("a"));
+	}
+
+
+	public void testValueOperation_ignoreOtherOps() throws PolicyViolationException {
+
+		ValueOperation valueOperation = new ValueOperation();
+		valueOperation.configure("a");
+
+		DefaultOperation defaultOperation = new DefaultOperation();
+		defaultOperation.configure("a");
+
+		MetadataPolicyEntry policyEntry = new MetadataPolicyEntry(
+			"some_param",
+			Arrays.asList((PolicyOperation)valueOperation, (PolicyOperation)defaultOperation)
+		);
+
+		assertEquals("a", policyEntry.apply("b"));
+		assertEquals("a", policyEntry.apply(null));
+		assertEquals("a", policyEntry.apply("a"));
+	}
+
+
+	public void testEssentialOperation_voluntary_ignoreFollowingOpsWhenParamIsNull() throws PolicyViolationException {
+
+		EssentialOperation essentialOperation = new EssentialOperation();
+		essentialOperation.configure(false); // explicit voluntary
+
+		// one_of
+		OneOfOperation oneOfOperation = new OneOfOperation();
+		oneOfOperation.configure(Arrays.asList("a", "b"));
+		MetadataPolicyEntry policyEntry = new MetadataPolicyEntry(
+			"some_param",
+			Arrays.asList((PolicyOperation)essentialOperation, (PolicyOperation)oneOfOperation)
+		);
+		assertNull(policyEntry.apply(null));
+
+		// superset_of
+		SupersetOfOperation supersetOfOperation = new SupersetOfOperation();
+		supersetOfOperation.configure(Arrays.asList("a", "b"));
+		policyEntry = new MetadataPolicyEntry(
+			"some_param",
+			Arrays.asList((PolicyOperation)essentialOperation, (PolicyOperation)supersetOfOperation)
+		);
+		assertNull(policyEntry.apply(null));
+
+		// subset_of
+		SubsetOfOperation subsetOfOperation = new SubsetOfOperation();
+		subsetOfOperation.configure(Arrays.asList("a", "b"));
+		policyEntry = new MetadataPolicyEntry(
+			"some_param",
+			Arrays.asList((PolicyOperation)essentialOperation, (PolicyOperation)subsetOfOperation)
+		);
+		assertNull(policyEntry.apply(null));
+	}
+
+
+	public void testVoluntary_ignoreFollowingOpsWhenParamIsNull() throws PolicyViolationException {
+
+		// one_of
+		OneOfOperation oneOfOperation = new OneOfOperation();
+		oneOfOperation.configure(Arrays.asList("a", "b"));
+		MetadataPolicyEntry policyEntry = new MetadataPolicyEntry(
+			"some_param",
+			Collections.singletonList((PolicyOperation) oneOfOperation)
+		);
+		assertNull(policyEntry.apply(null));
+
+		// superset_of
+		SupersetOfOperation supersetOfOperation = new SupersetOfOperation();
+		supersetOfOperation.configure(Arrays.asList("a", "b"));
+		policyEntry = new MetadataPolicyEntry(
+			"some_param",
+			Collections.singletonList((PolicyOperation) supersetOfOperation)
+		);
+		assertNull(policyEntry.apply(null));
+
+		// subset_of
+		SubsetOfOperation subsetOfOperation = new SubsetOfOperation();
+		subsetOfOperation.configure(Arrays.asList("a", "b"));
+		policyEntry = new MetadataPolicyEntry(
+			"some_param",
+			Collections.singletonList((PolicyOperation) subsetOfOperation)
+		);
+		assertNull(policyEntry.apply(null));
+	}
+
+
+	public void testEssentialOperation() throws PolicyViolationException {
+
+		ValueOperation valueOperation = new ValueOperation();
+		valueOperation.configure("a");
+
+		DefaultOperation defaultOperation = new DefaultOperation();
+		defaultOperation.configure("a");
+
+		MetadataPolicyEntry policyEntry = new MetadataPolicyEntry(
+			"some_param",
+			Arrays.asList((PolicyOperation)valueOperation, (PolicyOperation)defaultOperation)
+		);
+
+		assertEquals("a", policyEntry.apply("b"));
+		assertEquals("a", policyEntry.apply(null));
+		assertEquals("a", policyEntry.apply("a"));
 	}
 	
 	
