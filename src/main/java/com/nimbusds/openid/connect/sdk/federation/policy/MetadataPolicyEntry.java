@@ -297,6 +297,13 @@ public class MetadataPolicyEntry implements Map.Entry<String, List<PolicyOperati
 					return null;
 				}
 			}
+
+			if (SubsetOfOperation.NAME.equals(en.getKey()) && valueIsEssential) {
+
+				if (updatedValue == null) {
+					throw new PolicyViolationException("Essential parameter failed subset_of check");
+				}
+			}
 		}
 		return updatedValue;
 	}

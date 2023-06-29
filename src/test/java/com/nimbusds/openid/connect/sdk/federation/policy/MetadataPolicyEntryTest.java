@@ -219,6 +219,29 @@ public class MetadataPolicyEntryTest extends TestCase {
 		assertEquals("a", policyEntry.apply(null));
 		assertEquals("a", policyEntry.apply("a"));
 	}
+
+
+	public void testPolicyViolationExceptionOnEssentialSubsetOfReturningNull() {
+
+		// essential
+		EssentialOperation essentialOperation = new EssentialOperation();
+		essentialOperation.configure(true);
+
+		// subset_of
+		SubsetOfOperation subsetOfOperation = new SubsetOfOperation();
+		subsetOfOperation.configure(Arrays.asList("a", "b"));
+		MetadataPolicyEntry policyEntry = new MetadataPolicyEntry(
+			"some_param",
+			Arrays.asList((PolicyOperation) essentialOperation, (PolicyOperation) subsetOfOperation)
+		);
+
+		try {
+			policyEntry.apply(Arrays.asList("c", "d"));
+			fail();
+		} catch (PolicyViolationException e) {
+			assertEquals("Essential parameter failed subset_of check", e.getMessage());
+		}
+	}
 	
 	
 	public void testScopesExample() throws ParseException, PolicyViolationException {

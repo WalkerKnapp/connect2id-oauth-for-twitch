@@ -2206,3 +2206,7 @@ version 10.10 (2023-06-29)
     * Updates MetadataPolicyEntry.apply to process "one_of", "subset_of" and
       "superset_of" for voluntary parameters according to OpenID Connect
       Federation 1.0 draft 29.
+
+version 10.10.1 (2023-06-29)
+    * MetadataPolicyEntry.apply must throw a PolicyViolationException when an
+      essential parameter fails a subset_of check.
