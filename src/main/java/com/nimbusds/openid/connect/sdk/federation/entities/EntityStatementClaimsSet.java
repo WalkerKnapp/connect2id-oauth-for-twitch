@@ -18,17 +18,9 @@
 package com.nimbusds.openid.connect.sdk.federation.entities;
 
 
-import java.util.*;
-
-import com.nimbusds.openid.connect.sdk.rp.OIDCClientInformation;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
-import com.nimbusds.oauth2.sdk.client.ClientMetadata;
 import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
@@ -39,8 +31,11 @@ import com.nimbusds.openid.connect.sdk.federation.policy.language.PolicyViolatio
 import com.nimbusds.openid.connect.sdk.federation.trust.constraints.TrustChainConstraints;
 import com.nimbusds.openid.connect.sdk.federation.trust.marks.TrustMarkEntry;
 import com.nimbusds.openid.connect.sdk.federation.trust.marks.TrustMarkIssuerMetadata;
-import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
-import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
+import com.nimbusds.openid.connect.sdk.rp.OIDCClientInformation;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+
+import java.util.*;
 
 
 /**
@@ -407,70 +402,6 @@ public class EntityStatementClaimsSet extends CommonFederationClaimsSet {
 		
 		return false;
 	}
-	
-	
-	/**
-	 * Gets the metadata for the specified entity type. Use a typed getter,
-	 * such as {@link #getRPMetadata}, when available. Corresponds to the
-	 * {@code metadata} claim.
-	 *
-	 * @param type The entity type. Must not be {@code null}.
-	 *
-	 * @return The metadata, {@code null} if not specified or if parsing
-	 *         failed.
-	 */
-	public JSONObject getMetadata(final EntityType type) {
-		
-		JSONObject o = getJSONObjectClaim(METADATA_CLAIM_NAME);
-		
-		if (o == null) {
-			return null;
-		}
-		
-		try {
-			return JSONObjectUtils.getJSONObject(o, type.getValue(), null);
-		} catch (ParseException e) {
-			return null;
-		}
-	}
-	
-	
-	/**
-	 * Sets the metadata for the specified entity type. Use a typed setter,
-	 * such as {@link #setRPMetadata}, when available. Corresponds to the
-	 * {@code metadata} claim.
-	 *
-	 * @param type     The type. Must not be {@code null}.
-	 * @param metadata The metadata, {@code null} if not specified.
-	 */
-	public void setMetadata(final EntityType type, final JSONObject metadata) {
-		
-		JSONObject o = getJSONObjectClaim(METADATA_CLAIM_NAME);
-		
-		if (o == null) {
-			if (metadata == null) {
-				return; // nothing to clear
-			}
-			o = new JSONObject();
-		}
-		
-		o.put(type.getValue(), metadata);
-		
-		setClaim(METADATA_CLAIM_NAME, o);
-	}
-	
-	
-	/**
-	 * Sets the OpenID relying party metadata if present for this entity.
-	 * Corresponds to the {@code metadata.openid_relying_party} claim.
-	 *
-	 * @param rpMetadata The RP metadata, {@code null} if not specified.
-	 */
-	public void setRPMetadata(final OIDCClientMetadata rpMetadata) {
-		
-		JSONObject o = rpMetadata != null ? rpMetadata.toJSONObject() : null;
-		setMetadata(EntityType.OPENID_RELYING_PARTY, o);
-	}
 
 
 	/**
@@ -511,61 +442,6 @@ public class EntityStatementClaimsSet extends CommonFederationClaimsSet {
 
 		JSONObject o = rpInfo != null ? rpInfo.toJSONObject() : null;
 		setMetadata(EntityType.OPENID_RELYING_PARTY, o);
-	}
-	
-	
-	/**
-	 * Gets the OpenID provider metadata if present for this entity.
-	 * Corresponds to the {@code metadata.openid_provider} claim.
-	 *
-	 * @param opMetadata The OP metadata, {@code null} if not specified.
-	 */
-	public void setOPMetadata(final OIDCProviderMetadata opMetadata) {
-		
-		JSONObject o = opMetadata != null ? opMetadata.toJSONObject() : null;
-		setMetadata(EntityType.OPENID_PROVIDER, o);
-	}
-	
-	
-	/**
-	 * Sets the OAuth 2.0 client metadata if present for this entity.
-	 * Corresponds to the {@code metadata.oauth_client} claim.
-	 *
-	 * @param clientMetadata The client metadata, {@code null} if not
-	 *                       specified.
-	 */
-	public void setOAuthClientMetadata(final ClientMetadata clientMetadata) {
-		
-		JSONObject o = clientMetadata != null ? clientMetadata.toJSONObject() : null;
-		setMetadata(EntityType.OAUTH_CLIENT, o);
-	}
-	
-	
-	/**
-	 * Sets the OAuth 2.0 authorisation server metadata if present for this
-	 * entity. Corresponds to the
-	 * {@code metadata.oauth_authorization_server} claim.
-	 *
-	 * @param asMetadata The AS metadata, {@code null} if not specified.
-	 */
-	public void setASMetadata(final AuthorizationServerMetadata asMetadata) {
-		
-		JSONObject o = asMetadata != null ? asMetadata.toJSONObject() : null;
-		setMetadata(EntityType.OAUTH_AUTHORIZATION_SERVER, o);
-	}
-	
-	
-	/**
-	 * Sets the federation entity metadata if present for this entity.
-	 * Corresponds to the {@code metadata.federation_entity} claim.
-	 *
-	 * @param entityMetadata The federation entity metadata, {@code null}
-	 *                       if not specified.
-	 */
-	public void setFederationEntityMetadata(final FederationEntityMetadata entityMetadata) {
-		
-		JSONObject o = entityMetadata != null ? entityMetadata.toJSONObject() : null;
-		setMetadata(EntityType.FEDERATION_ENTITY, o);
 	}
 	
 	

@@ -2214,3 +2214,11 @@ version 10.10.1 (2023-06-29)
 version 10.11 (2023-07-08)
     * Adds EntityStatementClaimsSet.getRPInformation and setRPInformation
       methods (iss #428).
+    * Moves setMetadata to parent CommonFederationClaimsSet class.
+    * Moves setRPMetadata to parent CommonFederationClaimsSet class.
+    * Moves setOPMetadata to parent CommonFederationClaimsSet class.
+    * Moves setOAuthClientMetadata to parent CommonFederationClaimsSet class.
+    * Moves setOAuthClientMetadata to parent CommonFederationClaimsSet class.
+    * Moves setASMetadata to parent CommonFederationClaimsSet class.
+    * Moves setFederationEntityMetadata to parent CommonFederationClaimsSet
+      class.

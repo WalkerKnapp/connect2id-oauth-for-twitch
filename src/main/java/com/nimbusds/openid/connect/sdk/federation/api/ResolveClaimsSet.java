@@ -18,10 +18,6 @@
 package com.nimbusds.openid.connect.sdk.federation.api;
 
 
-import java.util.*;
-
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.Issuer;
@@ -32,6 +28,9 @@ import com.nimbusds.oauth2.sdk.util.MapUtils;
 import com.nimbusds.openid.connect.sdk.federation.entities.CommonFederationClaimsSet;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
+import net.minidev.json.JSONObject;
+
+import java.util.*;
 
 
 /**
