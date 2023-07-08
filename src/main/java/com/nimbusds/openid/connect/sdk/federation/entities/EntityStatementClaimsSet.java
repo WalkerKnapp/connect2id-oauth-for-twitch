@@ -20,6 +20,7 @@ package com.nimbusds.openid.connect.sdk.federation.entities;
 
 import java.util.*;
 
+import com.nimbusds.openid.connect.sdk.rp.OIDCClientInformation;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
@@ -468,6 +469,47 @@ public class EntityStatementClaimsSet extends CommonFederationClaimsSet {
 	public void setRPMetadata(final OIDCClientMetadata rpMetadata) {
 		
 		JSONObject o = rpMetadata != null ? rpMetadata.toJSONObject() : null;
+		setMetadata(EntityType.OPENID_RELYING_PARTY, o);
+	}
+
+
+	/**
+	 * Gets the OpenID relying party information (metadata plus {@code
+	 * client_id} and potentially other client information fields) if
+	 * present for this entity. Corresponds to the
+	 * {@code metadata.openid_relying_party} claim.
+	 *
+	 * @return The RP information, {@code null} if not specified or if
+	 *         parsing failed.
+	 */
+	public OIDCClientInformation getRPInformation() {
+
+		JSONObject o = getMetadata(EntityType.OPENID_RELYING_PARTY);
+
+		if (o == null) {
+			return null;
+		}
+
+		try {
+			return OIDCClientInformation.parse(o);
+		} catch (ParseException e) {
+			return null;
+		}
+	}
+
+
+	/**
+	 * Sets the OpenID relying party information (metadata plus {@code
+	 * client_id} and potentially other client information fields) if
+	 * present for this entity. Corresponds to the
+	 * {@code metadata.openid_relying_party} claim.
+	 *
+	 * @param rpInfo  The RP information, {@code null} if not specified or
+	 *                if parsing failed.
+	 */
+	public void setRPInformation(final OIDCClientInformation rpInfo) {
+
+		JSONObject o = rpInfo != null ? rpInfo.toJSONObject() : null;
 		setMetadata(EntityType.OPENID_RELYING_PARTY, o);
 	}
 	

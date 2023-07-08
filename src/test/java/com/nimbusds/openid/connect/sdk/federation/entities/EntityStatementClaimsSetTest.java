@@ -21,6 +21,8 @@ package com.nimbusds.openid.connect.sdk.federation.entities;
 import java.net.URI;
 import java.util.*;
 
+import com.nimbusds.oauth2.sdk.id.*;
+import com.nimbusds.openid.connect.sdk.rp.OIDCClientInformation;
 import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
 
@@ -38,10 +40,6 @@ import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
 import com.nimbusds.oauth2.sdk.client.ClientMetadata;
-import com.nimbusds.oauth2.sdk.id.Audience;
-import com.nimbusds.oauth2.sdk.id.Identifier;
-import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.federation.policy.MetadataPolicy;
@@ -593,6 +591,97 @@ public class EntityStatementClaimsSetTest extends TestCase {
 		assertEquals(stmt.getCriticalExtensionClaims(), parsed.getCriticalExtensionClaims());
 		assertEquals(stmt.getStringClaim("jti"), parsed.getStringClaim("jti"));
 		assertEquals(stmt.getCriticalPolicyExtensions(), parsed.getCriticalPolicyExtensions());
+	}
+
+
+	// Includes trust_anchor_id
+	public void testWithRPInformation_OPStated()
+		throws Exception {
+
+		Issuer iss = new Issuer("https://op.c2id.com");
+		Subject sub = new Subject("https://rp.c2id.com");
+
+		Date iat = DateUtils.fromSecondsSinceEpoch(1000);
+		Date exp = DateUtils.fromSecondsSinceEpoch(2000);
+
+		EntityStatementClaimsSet stmt = new EntityStatementClaimsSet(
+			iss,
+			sub,
+			iat,
+			exp,
+			JWK_SET);
+
+		stmt.validateRequiredClaimsPresence();
+
+		assertFalse(stmt.isSelfStatement());
+		assertFalse(stmt.hasMetadata());
+
+		// aud
+		List<Audience> audList = new Audience(sub).toSingleAudienceList();
+		stmt.setAudience(audList);
+		assertEquals(audList, stmt.getAudience());
+
+		// authority_hints
+		List<EntityID> authorityHints = Collections.singletonList(new EntityID("https://federation.example.com"));
+		stmt.setAuthorityHints(authorityHints);
+		assertEquals(authorityHints, stmt.getAuthorityHints());
+
+		// metadata -> openid_relying_party
+		OIDCClientMetadata rpMetadata = createRPMetadata();
+		OIDCClientInformation rpInfo = new OIDCClientInformation(new ClientID(sub), rpMetadata);
+		stmt.setRPInformation(rpInfo);
+		assertEquals(rpMetadata.toJSONObject(), stmt.getRPMetadata().toJSONObject());
+		assertEquals(rpInfo.toJSONObject(), stmt.getRPInformation().toJSONObject());
+
+		// passes now
+		assertTrue(stmt.hasMetadata());
+		stmt.validateRequiredClaimsPresence();
+
+		EntityID trustAnchorID = new EntityID("https://federation.example.com");
+		stmt.setTrustAnchorID(trustAnchorID);
+		assertEquals(trustAnchorID, stmt.getTrustAnchorID());
+
+		stmt.validateRequiredClaimsPresence();
+
+		// output
+		JWTClaimsSet jwtClaimsSet = stmt.toJWTClaimsSet();
+
+		assertEquals(iss.getValue(), jwtClaimsSet.getIssuer());
+		assertEquals(sub.getValue(), jwtClaimsSet.getSubject());
+		assertEquals(iat, jwtClaimsSet.getIssueTime());
+		assertEquals(exp, jwtClaimsSet.getExpirationTime());
+		assertEquals(JWK_SET.toJSONObject(), jwtClaimsSet.getJSONObjectClaim("jwks"));
+		assertEquals(audList.get(0).getValue(), jwtClaimsSet.getAudience().get(0));
+		assertEquals(authorityHints.get(0).getValue(), jwtClaimsSet.getStringListClaim("authority_hints").get(0));
+
+		Map<String, Object> metadata = jwtClaimsSet.getJSONObjectClaim("metadata");
+		OIDCClientMetadata parsedRPMetadata = OIDCClientMetadata.parse(new JSONObject(com.nimbusds.jose.util.JSONObjectUtils.getJSONObject(metadata, "openid_relying_party")));
+		assertEquals(rpMetadata.toJSONObject(), parsedRPMetadata.toJSONObject());
+		assertEquals(1, metadata.size());
+
+		metadata = jwtClaimsSet.getJSONObjectClaim("metadata");
+		OIDCClientInformation parsedRPInfo = OIDCClientInformation.parse(new JSONObject(com.nimbusds.jose.util.JSONObjectUtils.getJSONObject(metadata, "openid_relying_party")));
+		assertEquals(rpInfo.toJSONObject(), parsedRPInfo.toJSONObject());
+		assertEquals(1, metadata.size());
+
+		assertEquals(trustAnchorID.getValue(), jwtClaimsSet.getStringClaim("trust_anchor_id"));
+
+		assertEquals(9, jwtClaimsSet.getClaims().size());
+
+
+		// parse
+		EntityStatementClaimsSet parsed = new EntityStatementClaimsSet(jwtClaimsSet);
+
+		assertEquals(stmt.getIssuer(), parsed.getIssuer());
+		assertEquals(stmt.getSubject(), parsed.getSubject());
+		assertEquals(stmt.getIssueTime(), parsed.getIssueTime());
+		assertEquals(stmt.getExpirationTime(), parsed.getExpirationTime());
+		assertEquals(stmt.getJWKSet().toJSONObject(), parsed.getJWKSet().toJSONObject());
+		assertEquals(stmt.getAudience(), parsed.getAudience());
+		assertEquals(stmt.getAuthorityHints(), parsed.getAuthorityHints());
+		assertEquals(stmt.getRPMetadata().toJSONObject(), parsed.getRPMetadata().toJSONObject());
+		assertEquals(stmt.getRPInformation().toJSONObject(), parsed.getRPInformation().toJSONObject());
+		assertEquals(stmt.getTrustAnchorID(), parsed.getTrustAnchorID());
 	}
 	
 	
