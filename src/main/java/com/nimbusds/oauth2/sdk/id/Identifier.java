@@ -18,6 +18,11 @@
 package com.nimbusds.oauth2.sdk.id;
 
 
+import com.nimbusds.jose.util.Base64URL;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
+import net.minidev.json.JSONAware;
+import net.minidev.json.JSONValue;
+
 import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -25,17 +30,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import net.minidev.json.JSONAware;
-import net.minidev.json.JSONValue;
-
-import com.nimbusds.jose.util.Base64URL;
-import com.nimbusds.oauth2.sdk.util.StringUtils;
-
 
 /**
- * The base class for representing identifiers and identities. Provides
- * constructors that generate Base64URL-encoded secure random identifier
- * values.
+ * The base class for representing identifiers. Provides constructors that
+ * generate Base64URL-encoded secure random identifier values.
  *
  * <p>Extending classes must override the {@link #equals} method.
  */
@@ -86,8 +84,7 @@ public class Identifier implements Serializable, Comparable<Identifier>, JSONAwa
 	/**
 	 * Creates a new identifier with the specified value.
 	 *
-	 * @param value The identifier value. Must not be {@code null} or empty
-	 *              string.
+	 * @param value The value. Must not be {@code null} or empty string.
 	 */
 	public Identifier(final String value) {
 

@@ -102,6 +102,8 @@ This SDK version implements the following standards and drafts:
 
 * OAuth 2.0 Authorization Server Issuer Identification (RFC 9207)
 
+* OAuth 2.0 Rich Authorization Requests (RFC 9396)
+
 * OpenID Connect Core 1.0 (2014-02-25)
 
 * OpenID Connect Core Unmet Authentication Requirements 1.0 (2019-05-08)
