@@ -278,26 +278,26 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * The authorisation code challenge method for PKCE (optional).
 		 */
 		private CodeChallengeMethod codeChallengeMethod;
-		
-		
-		/**
-		 * Indicates incremental authorisation (optional).
-		 */
-		private boolean includeGrantedScopes;
 
 
 		/**
 		 * The RAR details (optional).
 		 */
 		private List<AuthorizationDetail> authorizationDetails;
-		
-		
+
+
 		/**
 		 * The resource URI(s) (optional).
 		 */
 		private List<URI> resources;
-		
-		
+
+
+		/**
+		 * Indicates incremental authorisation (optional).
+		 */
+		private boolean includeGrantedScopes;
+
+
 		/**
 		 * Request object (optional).
 		 */

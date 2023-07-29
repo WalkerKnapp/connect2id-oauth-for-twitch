@@ -18,11 +18,6 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.net.URI;
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
@@ -37,9 +32,14 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallenge;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.util.*;
 import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.*;
 
 
 /**
@@ -64,7 +64,10 @@ import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
  * <ul>
  *     <li>OpenID Connect Core 1.0, section 3.1.2.1.
  *     <li>Proof Key for Code Exchange by OAuth Public Clients (RFC 7636).
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396).
  *     <li>Resource Indicators for OAuth 2.0 (RFC 8707)
+ *     <li>OAuth 2.0 Incremental Authorization
+ *         (draft-ietf-oauth-incremental-authz-04)
  *     <li>The OAuth 2.0 Authorization Framework: JWT Secured Authorization
  *         Request (JAR) (RFC 9101)
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
@@ -344,6 +347,12 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 * The authorisation code challenge method for PKCE (optional).
 		 */
 		private CodeChallengeMethod codeChallengeMethod;
+
+
+		/**
+		 * The RAR details (optional).
+		 */
+		private List<AuthorizationDetail> authorizationDetails;
 		
 		
 		/**
@@ -491,6 +500,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 			rm = request.getResponseMode();
 			codeChallenge = request.getCodeChallenge();
 			codeChallengeMethod = request.getCodeChallengeMethod();
+			authorizationDetails = request.getAuthorizationDetails();
 			resources = request.getResources();
 			includeGrantedScopes = request.includeGrantedScopes();
 			customParams.putAll(request.getCustomParameters());
@@ -918,6 +928,20 @@ public class AuthenticationRequest extends AuthorizationRequest {
 			}
 			return this;
 		}
+
+
+		/**
+		 * Sets the Rich Authorisation Request (RAR) details.
+		 *
+		 * @param authorizationDetails The authorisation details,
+		 *                             {@code null} if not specified.
+		 *
+		 * @return This builder.
+		 */
+		public Builder authorizationDetails(final List<AuthorizationDetail> authorizationDetails) {
+			this.authorizationDetails = authorizationDetails;
+			return this;
+		}
 		
 		
 		/**
@@ -1004,6 +1028,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 					purpose,
 					requestObject, requestURI,
 					codeChallenge, codeChallengeMethod,
+					authorizationDetails,
 					resources,
 					includeGrantedScopes,
 					customParams);
@@ -1557,6 +1582,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 * @param customParams         Additional custom parameters, empty map
 	 *                             or {@code null} if none.
 	 */
+	@Deprecated
 	public AuthenticationRequest(final URI uri,
 				     final ResponseType rt,
 				     final ResponseMode rm,
@@ -1585,31 +1611,174 @@ public class AuthenticationRequest extends AuthorizationRequest {
 				     final boolean includeGrantedScopes,
 				     final Map<String,List<String>> customParams) {
 
-		super(uri, rt, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod, resources, includeGrantedScopes, requestObject, requestURI, prompt, dpopJKT, trustChain, customParams);
-		
+		this(uri, rt, rm, scope, clientID, redirectURI, state, nonce, display, prompt,
+			dpopJKT, trustChain,
+			maxAge, uiLocales, claimsLocales, idTokenHint, loginHint, acrValues, claims, purpose,
+			requestObject, requestURI,
+			codeChallenge, codeChallengeMethod,
+			null, resources, includeGrantedScopes,
+			customParams);
+	}
+
+
+	/**
+	 * Creates a new OpenID Connect authentication request with extension
+	 * and custom parameters.
+	 *
+	 * @param uri                  The URI of the OAuth 2.0 authorisation
+	 *                             endpoint. May be {@code null} if the
+	 *                             {@link #toHTTPRequest} method will not
+	 *                             be used.
+	 * @param rt                   The response type set. Corresponds to
+	 *                             the {@code response_type} parameter.
+	 *                             Must specify a valid OpenID Connect
+	 *                             response type. Must not be {@code null}.
+	 * @param rm                   The response mode. Corresponds to the
+	 *                             optional {@code response_mode}
+	 *                             parameter. Use of this parameter is not
+	 *                             recommended unless a non-default
+	 *                             response mode is requested (e.g.
+	 *                             form_post).
+	 * @param scope                The request scope. Corresponds to the
+	 *                             {@code scope} parameter. Must contain an
+	 *                             {@link OIDCScopeValue#OPENID openid
+	 *                             value}. Must not be {@code null}.
+	 * @param clientID             The client identifier. Corresponds to
+	 *                             the {@code client_id} parameter. Must
+	 *                             not be {@code null}.
+	 * @param redirectURI          The redirection URI. Corresponds to the
+	 *                             {@code redirect_uri} parameter. Must not
+	 *                             be {@code null} unless set by means of
+	 *                             the optional {@code request_object} /
+	 *                             {@code request_uri} parameter.
+	 * @param state                The state. Corresponds to the
+	 *                             recommended {@code state} parameter.
+	 *                             {@code null} if not specified.
+	 * @param nonce                The nonce. Corresponds to the
+	 *                             {@code nonce} parameter. May be
+	 *                             {@code null} for code flow.
+	 * @param display              The requested display type. Corresponds
+	 *                             to the optional {@code display}
+	 *                             parameter.
+	 *                             {@code null} if not specified.
+	 * @param prompt               The requested prompt. Corresponds to the
+	 *                             optional {@code prompt} parameter.
+	 *                             {@code null} if not specified.
+	 * @param dpopJKT              The DPoP JWK SHA-256 thumbprint,
+	 *                             {@code null} if not specified.
+	 * @param trustChain           The OpenID Connect Federation 1.0 trust
+	 *                             chain, {@code null} if not specified.
+	 * @param maxAge               The required maximum authentication age,
+	 *                             in seconds. Corresponds to the optional
+	 *                             {@code max_age} parameter. -1 if not
+	 *                             specified, zero implies
+	 *                             {@code prompt=login}.
+	 * @param uiLocales            The preferred languages and scripts for
+	 *                             the user interface. Corresponds to the
+	 *                             optional {@code ui_locales} parameter.
+	 *                             {@code null} if not specified.
+	 * @param claimsLocales        The preferred languages and scripts for
+	 *                             claims being returned. Corresponds to
+	 *                             the optional {@code claims_locales}
+	 *                             parameter. {@code null} if not
+	 *                             specified.
+	 * @param idTokenHint          The ID Token hint. Corresponds to the
+	 *                             optional {@code id_token_hint}
+	 *                             parameter. {@code null} if not
+	 *                             specified.
+	 * @param loginHint            The login hint. Corresponds to the
+	 *                             optional {@code login_hint} parameter.
+	 *                             {@code null} if not specified.
+	 * @param acrValues            The requested Authentication Context
+	 *                             Class Reference values. Corresponds to
+	 *                             the optional {@code acr_values}
+	 *                             parameter. {@code null} if not
+	 *                             specified.
+	 * @param claims               The individual OpenID claims to be
+	 *                             returned. Corresponds to the optional
+	 *                             {@code claims} parameter. {@code null}
+	 *                             if not specified.
+	 * @param purpose              The transaction specific purpose,
+	 *                             {@code null} if not specified.
+	 * @param requestObject        The request object. Corresponds to the
+	 *                             optional {@code request} parameter. Must
+	 *                             not be specified together with a request
+	 *                             object URI. {@code null} if not
+	 *                             specified.
+	 * @param requestURI           The request object URI. Corresponds to
+	 *                             the optional {@code request_uri}
+	 *                             parameter. Must not be specified
+	 *                             together with a request object.
+	 *                             {@code null} if not specified.
+	 * @param codeChallenge        The code challenge for PKCE,
+	 *                             {@code null} if not specified.
+	 * @param codeChallengeMethod  The code challenge method for PKCE,
+	 *                             {@code null} if not specified.
+	 * @param authorizationDetails
+	 * @param resources            The resource URI(s), {@code null} if not
+	 *                             specified.
+	 * @param includeGrantedScopes {@code true} to request incremental
+	 *                             authorisation.
+	 * @param customParams         Additional custom parameters, empty map
+	 *                             or {@code null} if none.
+	 */
+	public AuthenticationRequest(final URI uri,
+				     final ResponseType rt,
+				     final ResponseMode rm,
+				     final Scope scope,
+				     final ClientID clientID,
+				     final URI redirectURI,
+				     final State state,
+				     final Nonce nonce,
+				     final Display display,
+				     final Prompt prompt,
+				     final JWKThumbprintConfirmation dpopJKT,
+				     final TrustChain trustChain,
+				     final int maxAge,
+				     final List<LangTag> uiLocales,
+				     final List<LangTag> claimsLocales,
+				     final JWT idTokenHint,
+				     final String loginHint,
+				     final List<ACR> acrValues,
+				     final OIDCClaimsRequest claims,
+				     final String purpose,
+				     final JWT requestObject,
+				     final URI requestURI,
+				     final CodeChallenge codeChallenge,
+				     final CodeChallengeMethod codeChallengeMethod,
+				     final List<AuthorizationDetail> authorizationDetails,
+				     final List<URI> resources,
+				     final boolean includeGrantedScopes,
+				     final Map<String,List<String>> customParams) {
+
+		super(uri, rt, rm, clientID, redirectURI, scope, state,
+			codeChallenge, codeChallengeMethod,
+			authorizationDetails, resources, includeGrantedScopes,
+			requestObject, requestURI, prompt, dpopJKT, trustChain, customParams);
+
 		if (! specifiesRequestObject()) {
-			
+
 			// Check parameters required by OpenID Connect if no JAR
-			
+
 			if (redirectURI == null)
 				throw new IllegalArgumentException("The redirection URI must not be null");
-			
+
 			OIDCResponseTypeValidator.validate(rt);
-			
+
 			if (scope == null)
 				throw new IllegalArgumentException("The scope must not be null");
-			
+
 			if (!scope.contains(OIDCScopeValue.OPENID))
 				throw new IllegalArgumentException("The scope must include an \"openid\" value");
-			
+
 			// Check nonce requirement
 			if (nonce == null && Nonce.isRequired(rt)) {
 				throw new IllegalArgumentException("Nonce required for response_type=" + rt);
 			}
 		}
-		
+
 		this.nonce = nonce;
-		
+
 		// Optional parameters
 		this.display = display;
 		this.maxAge = maxAge;
@@ -1633,7 +1802,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 			this.acrValues = null;
 
 		this.claims = claims;
-		
+
 		if (purpose != null) {
 			if (purpose.length() < PURPOSE_MIN_LENGTH) {
 				throw new IllegalArgumentException("The purpose must not be shorter than " + PURPOSE_MIN_LENGTH + " characters");
@@ -1642,7 +1811,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 				throw new IllegalArgumentException("The purpose must not be longer than " + PURPOSE_MAX_LENGTH +" characters");
 			}
 		}
-		
+
 		this.purpose = purpose;
 	}
 
@@ -2144,6 +2313,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 			idTokenHint, loginHint, acrValues, claims, purpose,
 			ar.getRequestObject(), ar.getRequestURI(),
 			ar.getCodeChallenge(), ar.getCodeChallengeMethod(),
+			ar.getAuthorizationDetails(),
 			ar.getResources(),
 			ar.includeGrantedScopes(),
 			customParams);

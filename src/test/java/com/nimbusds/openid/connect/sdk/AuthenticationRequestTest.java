@@ -18,20 +18,6 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
-import java.util.*;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import org.apache.commons.lang.RandomStringUtils;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -56,6 +42,8 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallenge;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.assurance.IdentityTrustFramework;
 import com.nimbusds.openid.connect.sdk.assurance.request.MinimalVerificationSpec;
@@ -66,6 +54,19 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatementClaimsSet;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChainTest;
+import junit.framework.TestCase;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import org.apache.commons.lang.RandomStringUtils;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
+import java.util.*;
 
 
 public class AuthenticationRequestTest extends TestCase {
@@ -88,6 +89,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("state"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("code_challenge"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("code_challenge_method"));
+		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("authorization_details"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("resource"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("include_granted_scopes"));
 
@@ -107,7 +109,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("request_uri"));
 		assertTrue(AuthenticationRequest.getRegisteredParameterNames().contains("request"));
 
-		assertEquals(25, AuthenticationRequest.getRegisteredParameterNames().size());
+		assertEquals(26, AuthenticationRequest.getRegisteredParameterNames().size());
 	}
 
 	
@@ -116,8 +118,7 @@ public class AuthenticationRequestTest extends TestCase {
 
 		URI uri = new URI("https://c2id.com/login/");
 		
-		ResponseType rts = new ResponseType();
-		rts.add(ResponseType.Value.CODE);
+		ResponseType rts = ResponseType.CODE;
 
 		Scope scope = new Scope();
 		scope.add(OIDCScopeValue.OPENID);
@@ -173,6 +174,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertNull(request.getRequestURI());
 		assertNull(request.getCodeChallenge());
 		assertNull(request.getCodeChallengeMethod());
+		assertNull(request.getAuthorizationDetails());
 		assertNull(request.getResources());
 		assertFalse(request.includeGrantedScopes());
 		assertTrue(request.getCustomParameters().isEmpty());
@@ -221,6 +223,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertNull(request.getRequestURI());
 		assertNull(request.getCodeChallenge());
 		assertNull(request.getCodeChallengeMethod());
+		assertNull(request.getAuthorizationDetails());
 		assertNull(request.getResources());
 		assertFalse(request.includeGrantedScopes());
 		assertTrue(request.getCustomParameters().isEmpty());
@@ -232,8 +235,7 @@ public class AuthenticationRequestTest extends TestCase {
 
 		URI uri = new URI("https://c2id.com/login/");
 
-		ResponseType rts = new ResponseType();
-		rts.add(ResponseType.Value.CODE);
+		ResponseType rts = ResponseType.CODE;
 
 		Scope scope = new Scope();
 		scope.add(OIDCScopeValue.OPENID);
@@ -281,7 +283,9 @@ public class AuthenticationRequestTest extends TestCase {
 
 		assertNull(request.getCodeChallenge());
 		assertNull(request.getCodeChallengeMethod());
-		
+
+		assertNull(request.getAuthorizationDetails());
+
 		assertNull(request.getResources());
 		
 		assertFalse(request.includeGrantedScopes());
@@ -295,8 +299,7 @@ public class AuthenticationRequestTest extends TestCase {
 
 		URI uri = new URI("https://c2id.com/login/");
 
-		ResponseType rts = new ResponseType();
-		rts.add(ResponseType.Value.CODE);
+		ResponseType rts = ResponseType.CODE;
 
 		ResponseMode rm = ResponseMode.FORM_POST;
 
@@ -349,7 +352,9 @@ public class AuthenticationRequestTest extends TestCase {
 		CodeVerifier codeVerifier = new CodeVerifier();
 		CodeChallengeMethod codeChallengeMethod = CodeChallengeMethod.S256;
 		CodeChallenge codeChallenge = CodeChallenge.compute(codeChallengeMethod, codeVerifier);
-		
+
+		List<AuthorizationDetail> authorizationDetails = Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build());
+
 		List<URI> resources = Collections.singletonList(URI.create("https://rs1.com"));
 
 		Map<String,List<String>> customParams = new HashMap<>();
@@ -362,6 +367,7 @@ public class AuthenticationRequestTest extends TestCase {
 			display, prompt, dpopJKT, trustChain, maxAge, uiLocales, claimsLocales,
 			idTokenHint, loginHint, acrValues, claims, purpose, null, null,
 			codeChallenge, codeChallengeMethod,
+			authorizationDetails,
 			resources,
 			true,
 			customParams);
@@ -430,7 +436,9 @@ public class AuthenticationRequestTest extends TestCase {
 
 		assertEquals(codeChallenge, request.getCodeChallenge());
 		assertEquals(codeChallengeMethod, request.getCodeChallengeMethod());
-		
+
+		assertEquals(authorizationDetails, request.getAuthorizationDetails());
+
 		assertEquals(resources, request.getResources());
 
 		assertEquals(Collections.singletonList("100"), request.getCustomParameter("x"));
@@ -506,7 +514,9 @@ public class AuthenticationRequestTest extends TestCase {
 
 		assertEquals(codeChallenge, request.getCodeChallenge());
 		assertEquals(codeChallengeMethod, request.getCodeChallengeMethod());
-		
+
+		assertEquals(authorizationDetails, request.getAuthorizationDetails());
+
 		assertEquals(resources, request.getResources());
 		
 		assertTrue(request.includeGrantedScopes());
@@ -1112,7 +1122,7 @@ public class AuthenticationRequestTest extends TestCase {
 		throws Exception {
 
 		AuthenticationRequest request = new AuthenticationRequest.Builder(
-			new ResponseType("code"),
+			ResponseType.CODE,
 			new Scope("openid", "email"),
 			new ClientID("123"),
 			new URI("https://client.com/cb")).build();
@@ -1140,6 +1150,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertNull(request.getRequestURI());
 		assertNull(request.getCodeChallenge());
 		assertNull(request.getCodeChallengeMethod());
+		assertNull(request.getAuthorizationDetails());
 		assertNull(request.getResources());
 		assertFalse(request.includeGrantedScopes());
 		assertTrue(request.getCustomParameters().isEmpty());
@@ -1164,7 +1175,7 @@ public class AuthenticationRequestTest extends TestCase {
 		TrustChain trustChain = createSampleTrustChain();
 		
 		AuthenticationRequest request = new AuthenticationRequest.Builder(
-			new ResponseType("code", "id_token"),
+			ResponseType.CODE_IDTOKEN,
 			new Scope("openid", "email"),
 			new ClientID("123"),
 			new URI("https://client.com/cb"))
@@ -1184,6 +1195,7 @@ public class AuthenticationRequestTest extends TestCase {
 			.purpose(purpose)
 			.responseMode(ResponseMode.FORM_POST)
 			.codeChallenge(codeVerifier, CodeChallengeMethod.S256)
+			.authorizationDetails(Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build()))
 			.resources(URI.create("https://rs1.com"))
 			.includeGrantedScopes(true)
 			.customParameter("x", "100")
@@ -1192,7 +1204,7 @@ public class AuthenticationRequestTest extends TestCase {
 			.endpointURI(new URI("https://c2id.com/login"))
 			.build();
 		
-		assertEquals(new ResponseType("code", "id_token"), request.getResponseType());
+		assertEquals(ResponseType.CODE_IDTOKEN, request.getResponseType());
 		assertEquals(ResponseMode.FORM_POST, request.getResponseMode());
 		assertEquals(ResponseMode.FORM_POST, request.impliedResponseMode());
 		assertEquals(new Scope("openid", "email"), request.getScope());
@@ -1215,6 +1227,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals(purpose, request.getPurpose());
 		assertEquals(CodeChallenge.compute(CodeChallengeMethod.S256, codeVerifier), request.getCodeChallenge());
 		assertEquals(CodeChallengeMethod.S256, request.getCodeChallengeMethod());
+		assertEquals(Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build()), request.getAuthorizationDetails());
 		assertEquals(Collections.singletonList(URI.create("https://rs1.com")), request.getResources());
 		assertTrue(request.includeGrantedScopes());
 		assertEquals(Collections.singletonList("100"), request.getCustomParameter("x"));
@@ -2093,7 +2106,7 @@ public class AuthenticationRequestTest extends TestCase {
 	
 	public void testResponseTypeCodeTokenMustNotRequireNonce() {
 		
-		AuthenticationRequest request = new AuthenticationRequest.Builder(
+		new AuthenticationRequest.Builder(
 			new ResponseType("code", "token"),
 			new Scope("openid"),
 			new ClientID("123"),
@@ -2130,6 +2143,7 @@ public class AuthenticationRequestTest extends TestCase {
 			.requestObject(JWTParser.parse(EXAMPLE_JWT_STRING))
 			.responseMode(ResponseMode.FORM_POST)
 			.codeChallenge(new CodeVerifier(), CodeChallengeMethod.S256)
+			.authorizationDetails(Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build()))
 			.customParameter("apples", "10")
 			.endpointURI(new URI("https://c2id.com/login"))
 			.build();
@@ -2159,6 +2173,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals(in.getResponseMode(), out.getResponseMode());
 		assertEquals(in.getCodeChallenge(), out.getCodeChallenge());
 		assertEquals(in.getCodeChallengeMethod(), out.getCodeChallengeMethod());
+		assertEquals(in.getAuthorizationDetails(), out.getAuthorizationDetails());
 		assertEquals(in.getCustomParameters(), out.getCustomParameters());
 		assertEquals(in.getEndpointURI(), out.getEndpointURI());
 	}
@@ -2191,6 +2206,7 @@ public class AuthenticationRequestTest extends TestCase {
 			.requestURI(new URI("https://example.com/request.jwt"))
 			.responseMode(ResponseMode.FORM_POST)
 			.codeChallenge(new CodeVerifier(), CodeChallengeMethod.S256)
+			.authorizationDetails(Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build()))
 			.customParameter("apples", "10")
 			.endpointURI(new URI("https://c2id.com/login"))
 			.build();
@@ -2220,6 +2236,7 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals(in.getResponseMode(), out.getResponseMode());
 		assertEquals(in.getCodeChallenge(), out.getCodeChallenge());
 		assertEquals(in.getCodeChallengeMethod(), out.getCodeChallengeMethod());
+		assertEquals(in.getAuthorizationDetails(), out.getAuthorizationDetails());
 		assertEquals(in.getCustomParameters(), out.getCustomParameters());
 		assertEquals(in.getEndpointURI(), out.getEndpointURI());
 	}
@@ -2541,6 +2558,82 @@ public class AuthenticationRequestTest extends TestCase {
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertEquals("The client ID must not be null", e.getMessage());
+		}
+	}
+
+
+	public void testRAR() throws ParseException {
+
+		ResponseType responseType = ResponseType.CODE;
+		ClientID clientID = new ClientID("123");
+		Scope scope = new Scope("openid");
+		URI redirectURI = URI.create("https://example.com/cb");
+		List<AuthorizationDetail> authorizationDetails = Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("api_1")).build());
+
+		AuthenticationRequest request = new AuthenticationRequest.Builder(responseType, scope, clientID, redirectURI)
+			.authorizationDetails(authorizationDetails)
+			.build();
+
+		Map<String, List<String>> parameters = request.toParameters();
+
+		assertEquals(Collections.singletonList(responseType.toString()), parameters.get("response_type"));
+		assertEquals(Collections.singletonList(scope.toString()), parameters.get("scope"));
+		assertEquals(Collections.singletonList(clientID.getValue()), parameters.get("client_id"));
+		assertEquals(Collections.singletonList(redirectURI.toString()), parameters.get("redirect_uri"));
+		assertEquals(Collections.singletonList(AuthorizationDetail.toJSONString(authorizationDetails)), parameters.get("authorization_details"));
+		assertEquals(5, parameters.size());
+
+		request = AuthenticationRequest.parse(parameters);
+
+		assertEquals(responseType, request.getResponseType());
+		assertEquals(scope, request.getScope());
+		assertEquals(clientID, request.getClientID());
+		assertEquals(redirectURI, request.getRedirectionURI());
+		assertEquals(authorizationDetails, request.getAuthorizationDetails());
+		assertEquals(5, request.toParameters().size());
+	}
+
+
+	public void testRAR_parseException_missingType() {
+
+		ResponseType responseType = ResponseType.CODE;
+		ClientID clientID = new ClientID("123");
+		Scope scope = new Scope("openid");
+		URI redirectURI = URI.create("https://example.com/cb");
+
+		AuthenticationRequest request = new AuthenticationRequest.Builder(responseType, scope, clientID, redirectURI)
+			.build();
+
+		Map<String, List<String>> parameters = request.toParameters();
+		parameters.put("authorization_details", Collections.singletonList("[{},{}]"));
+
+		try {
+			AuthorizationRequest.parse(parameters);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Invalid authorization details: Invalid authorization detail at position 0: Illegal or missing type", e.getMessage());
+		}
+	}
+
+
+	public void testRAR_parseException_invalidJSON() {
+
+		ResponseType responseType = ResponseType.CODE;
+		ClientID clientID = new ClientID("123");
+		Scope scope = new Scope("openid");
+		URI redirectURI = URI.create("https://example.com/cb");
+
+		AuthenticationRequest request = new AuthenticationRequest.Builder(responseType, scope, clientID, redirectURI)
+			.build();
+
+		Map<String, List<String>> parameters = request.toParameters();
+		parameters.put("authorization_details", Collections.singletonList("xxx"));
+
+		try {
+			AuthenticationRequest.parse(parameters);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Invalid authorization details: Invalid JSON: Unexpected token xxx at position 3.", e.getMessage());
 		}
 	}
 	
