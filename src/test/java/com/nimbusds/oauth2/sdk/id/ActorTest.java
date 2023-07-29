@@ -109,12 +109,16 @@ public class ActorTest extends TestCase {
 
 	public void testEquality() {
 
-		assertTrue(new Actor(new Subject("claire")).equals(new Actor(new Subject("claire"))));
+		assertEquals(new Actor(new Subject("claire")), new Actor(new Subject("claire")));
 
-		assertTrue(new Actor(new Subject("claire"), new Issuer("https://openid.com"), null)
-			.equals(new Actor(new Subject("claire"), new Issuer("https://openid.com"), null)));
+		assertEquals(
+			new Actor(new Subject("claire"), new Issuer("https://openid.com"), null),
+			new Actor(new Subject("claire"), new Issuer("https://openid.com"), null)
+		);
 
-		assertTrue(new Actor(new Subject("claire"), new Issuer("https://openid.com"), new Actor(new Subject("cindy")))
-			.equals(new Actor(new Subject("claire"), new Issuer("https://openid.com"), new Actor(new Subject("cindy")))));
+		assertEquals(
+			new Actor(new Subject("claire"), new Issuer("https://openid.com"),
+			new Actor(new Subject("cindy"))), new Actor(new Subject("claire"), new Issuer("https://openid.com"), new Actor(new Subject("cindy")))
+		);
 	}
 }
