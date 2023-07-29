@@ -39,6 +39,7 @@ public class OAuth2ErrorTest extends TestCase {
 		assertEquals(400, OAuth2Error.INVALID_GRANT.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.INVALID_REQUEST.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.INVALID_SCOPE.getHTTPStatusCode());
+		assertEquals(400, OAuth2Error.INVALID_AUTHORIZATION_DETAILS.getHTTPStatusCode());
 		assertEquals(500, OAuth2Error.SERVER_ERROR.getHTTPStatusCode());
 		assertEquals(503, OAuth2Error.TEMPORARILY_UNAVAILABLE.getHTTPStatusCode());
 		assertEquals(400, OAuth2Error.UNAUTHORIZED_CLIENT.getHTTPStatusCode());
@@ -76,6 +77,14 @@ public class OAuth2ErrorTest extends TestCase {
 		assertEquals("Request parameter not supported", OAuth2Error.REQUEST_NOT_SUPPORTED.getDescription());
 		assertNull(OAuth2Error.REQUEST_NOT_SUPPORTED.getURI());
 		assertEquals(302, OAuth2Error.REQUEST_NOT_SUPPORTED.getHTTPStatusCode());
+	}
+
+
+	public void testInvalidAuthorizationDetailsError() {
+
+		assertEquals("invalid_authorization_details", OAuth2Error.INVALID_AUTHORIZATION_DETAILS.getCode());
+		assertEquals("Invalid, unknown or malformed authorization details", OAuth2Error.INVALID_AUTHORIZATION_DETAILS.getDescription());
+		assertEquals(400, OAuth2Error.INVALID_AUTHORIZATION_DETAILS.getHTTPStatusCode());
 	}
 	
 	

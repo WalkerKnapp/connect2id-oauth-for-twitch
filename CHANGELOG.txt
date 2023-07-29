@@ -2227,3 +2227,4 @@ version 10.12 (2023-07-29)
     * Adds OAuth 2.0 Rich Authorization Requests (RAR) (RFC 9396) support.
     * AuthorizationRequest receives authorization_details (RAR) support.
     * AuthenticationRequest receives authorization_details (RAR) support.
+    * Adds OAuth2Error.INVALID_AUTHORIZATION_DETAILS constant for RAR.

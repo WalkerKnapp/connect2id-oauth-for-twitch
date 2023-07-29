@@ -93,6 +93,19 @@ public final class OAuth2Error {
 		new ErrorObject(INVALID_SCOPE_CODE, "Invalid, unknown or malformed scope", HTTPResponse.SC_BAD_REQUEST);
 
 	/**
+	 * The {@link OAuth2Error#INVALID_AUTHORIZATION_DETAILS} error code
+	 * string.
+	 */
+	public static final String INVALID_AUTHORIZATION_DETAILS_CODE = "invalid_authorization_details";
+
+	/**
+	 * The requested authorisation details are invalid, unknown, or
+	 * malformed.
+	 */
+	public static final ErrorObject INVALID_AUTHORIZATION_DETAILS =
+		new ErrorObject(INVALID_AUTHORIZATION_DETAILS_CODE, "Invalid, unknown or malformed authorization details", HTTPResponse.SC_BAD_REQUEST);
+
+	/**
 	 * The {@link OAuth2Error#SERVER_ERROR} error code string.
 	 */
 	public static final String SERVER_ERROR_CODE = "server_error";
