@@ -19,8 +19,10 @@ package com.nimbusds.oauth2.sdk.rar;
 
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.Identifier;
+import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import junit.framework.TestCase;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import java.net.URI;
@@ -326,6 +328,149 @@ public class AuthorizationDetailTest extends TestCase {
                         fail();
                 } catch (ParseException e) {
                         assertEquals("Illegal or missing type", e.getMessage());
+                }
+        }
+        
+        
+        
+        public void testParseArray_exampleFigure9()
+                throws ParseException {
+                
+                String json = "[" +
+                        "   {" +
+                        "      \"type\": \"account_information\"," +
+                        "      \"actions\": [" +
+                        "         \"list_accounts\"," +
+                        "         \"read_balances\"," +
+                        "         \"read_transactions\"" +
+                        "      ]," +
+                        "      \"locations\": [" +
+                        "         \"https://example.com/accounts\"" +
+                        "      ]" +
+                        "   }," +
+                        "   {" +
+                        "      \"type\": \"payment_initiation\"," +
+                        "      \"actions\": [" +
+                        "         \"initiate\"," +
+                        "         \"status\"," +
+                        "         \"cancel\"" +
+                        "      ]," +
+                        "      \"locations\": [" +
+                        "         \"https://example.com/payments\"" +
+                        "      ]," +
+                        "      \"instructedAmount\": {" +
+                        "         \"currency\": \"EUR\"," +
+                        "         \"amount\": \"123.50\"" +
+                        "      }," +
+                        "      \"creditorName\": \"Merchant A\"," +
+                        "      \"creditorAccount\": {" +
+                        "         \"iban\": \"DE02100100109307118603\"" +
+                        "      }," +
+                        "      \"remittanceInformationUnstructured\": \"Ref Number Merchant\"" +
+                        "   }" +
+                        "]";
+
+                JSONArray jsonArray = JSONArrayUtils.parse(json);
+                List<JSONObject> jsonObjectList = JSONArrayUtils.toJSONObjectList(jsonArray);
+
+                List<AuthorizationDetail> details = AuthorizationDetail.parseList(jsonObjectList);
+
+                assertEquals(2, details.size());
+
+                AuthorizationDetail accountInformation = details.get(0);
+                assertEquals(new AuthorizationType("account_information"), accountInformation.getType());
+                assertEquals(
+                        Arrays.asList(
+                                new Action("list_accounts"),
+                                new Action("read_balances"),
+                                new Action("read_transactions")),
+                        accountInformation.getActions()
+                );
+                assertEquals(Collections.singletonList(new Location("https://example.com/accounts")), accountInformation.getLocations());
+
+
+                AuthorizationDetail paymentInitiation = details.get(1);
+                assertEquals(new AuthorizationType("payment_initiation"), paymentInitiation.getType());
+                assertEquals(
+                        Arrays.asList(
+                                new Action("initiate"),
+                                new Action("status"),
+                                new Action("cancel")),
+                        paymentInitiation.getActions()
+                );
+                assertEquals(Collections.singletonList(new Location("https://example.com/payments")), paymentInitiation.getLocations());
+                JSONObject instructedAmount = new JSONObject();
+                instructedAmount.put("currency", "EUR");
+                instructedAmount.put("amount", "123.50");
+                assertEquals(instructedAmount, paymentInitiation.getJSONObjectField("instructedAmount"));
+                assertEquals("Merchant A", paymentInitiation.getStringField("creditorName"));
+                JSONObject creditorAccount = new JSONObject();
+                creditorAccount.put("iban", "DE02100100109307118603");
+                assertEquals(creditorAccount, paymentInitiation.getJSONObjectField("creditorAccount"));
+                assertEquals("Ref Number Merchant", paymentInitiation.getStringField("remittanceInformationUnstructured"));
+        }
+
+
+        public void testArray_serialize_parse()
+                throws ParseException {
+
+                AuthorizationDetail detail_1 = new AuthorizationDetail.Builder(new AuthorizationType("api_1"))
+                        .build();
+
+                AuthorizationDetail detail_2 = new AuthorizationDetail.Builder(new AuthorizationType("api_2"))
+                        .build();
+
+                String json = AuthorizationDetail.toJSONString(Arrays.asList(detail_1, detail_2));
+
+                assertEquals("[{\"type\":\"api_1\"},{\"type\":\"api_2\"}]", json);
+
+                List<AuthorizationDetail> details = AuthorizationDetail.parseList(json);
+
+                assertEquals(detail_1, details.get(0));
+                assertEquals(detail_2, details.get(1));
+
+                assertEquals(2, details.size());
+        }
+
+
+        public void testParseArray_empty()
+                throws ParseException {
+
+                assertTrue(AuthorizationDetail.parseList(Collections.<JSONObject>emptyList()).isEmpty());
+        }
+
+
+        public void testParseArray_illegalObjects()
+                throws ParseException {
+
+                String json = "[{},{}]";
+
+                try {
+                        AuthorizationDetail.parseList(json);
+                        fail();
+                } catch (ParseException e) {
+                        assertEquals("Invalid authorization details: Invalid authorization detail at position 0: Illegal or missing type", e.getMessage());
+                }
+
+                JSONArray jsonArray = JSONArrayUtils.parse(json);
+                List<JSONObject> jsonObjects = JSONArrayUtils.toJSONObjectList(jsonArray);
+
+                try {
+                        AuthorizationDetail.parseList(jsonObjects);
+                        fail();
+                } catch (ParseException e) {
+                        assertEquals("Invalid authorization detail at position 0: Illegal or missing type", e.getMessage());
+                }
+        }
+
+
+        public void testParseArray_illegalJSON() {
+
+                try {
+                        AuthorizationDetail.parseList("xxx");
+                        fail();
+                } catch (ParseException e) {
+                        assertEquals("Invalid authorization details: Invalid JSON: Unexpected token xxx at position 3.", e.getMessage());
                 }
         }
 

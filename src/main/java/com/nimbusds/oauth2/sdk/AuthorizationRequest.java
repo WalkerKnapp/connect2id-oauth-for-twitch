@@ -18,13 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONArray;
-
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -37,10 +30,17 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallenge;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.util.*;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.Prompt;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONArray;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 
 
 /**
@@ -68,6 +68,7 @@ import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
  *     <li>OAuth 2.0 Multiple Response Type Encoding Practices 1.0.
  *     <li>OAuth 2.0 Form Post Response Mode 1.0.
  *     <li>Proof Key for Code Exchange by OAuth Public Clients (RFC 7636).
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396).
  *     <li>Resource Indicators for OAuth 2.0 (RFC 8707)
  *     <li>OAuth 2.0 Incremental Authorization
  *         (draft-ietf-oauth-incremental-authz-04)
@@ -101,6 +102,7 @@ public class AuthorizationRequest extends AbstractRequest {
 		p.add("response_mode");
 		p.add("code_challenge");
 		p.add("code_challenge_method");
+		p.add("authorization_details");
 		p.add("resource");
 		p.add("include_granted_scopes");
 		p.add("request_uri");
@@ -160,6 +162,12 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * The authorisation code challenge method for PKCE (optional).
 	 */
 	private final CodeChallengeMethod codeChallengeMethod;
+
+
+	/**
+	 * The RAR details (optional).
+	 */
+	private final List<AuthorizationDetail> authorizationDetails;
 	
 	
 	/**
@@ -276,6 +284,12 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * Indicates incremental authorisation (optional).
 		 */
 		private boolean includeGrantedScopes;
+
+
+		/**
+		 * The RAR details (optional).
+		 */
+		private List<AuthorizationDetail> authorizationDetails;
 		
 		
 		/**
@@ -407,6 +421,7 @@ public class AuthorizationRequest extends AbstractRequest {
 			rm = request.getResponseMode();
 			codeChallenge = request.getCodeChallenge();
 			codeChallengeMethod = request.getCodeChallengeMethod();
+			authorizationDetails = request.getAuthorizationDetails();
 			resources = request.getResources();
 			includeGrantedScopes = request.includeGrantedScopes();
 			requestObject = request.getRequestObject();
@@ -547,6 +562,20 @@ public class AuthorizationRequest extends AbstractRequest {
 				this.codeChallenge = null;
 				this.codeChallengeMethod = null;
 			}
+			return this;
+		}
+
+
+		/**
+		 * Sets the Rich Authorisation Request (RAR) details.
+		 *
+		 * @param authorizationDetails The authorisation details,
+		 *                             {@code null} if not specified.
+		 *
+		 * @return This builder.
+		 */
+		public Builder authorizationDetails(final List<AuthorizationDetail> authorizationDetails) {
+			this.authorizationDetails = authorizationDetails;
 			return this;
 		}
 		
@@ -737,7 +766,8 @@ public class AuthorizationRequest extends AbstractRequest {
 		public AuthorizationRequest build() {
 			try {
 				return new AuthorizationRequest(uri, rt, rm, clientID, redirectURI, scope, state,
-					codeChallenge, codeChallengeMethod, resources, includeGrantedScopes,
+					codeChallenge, codeChallengeMethod,
+					authorizationDetails, resources, includeGrantedScopes,
 					requestObject, requestURI,
 					prompt, dpopJKT, trustChain,
 					customParams);
@@ -819,8 +849,8 @@ public class AuthorizationRequest extends AbstractRequest {
 	 *                             be used.
 	 * @param rt                   The response type. Corresponds to the
 	 *                             {@code response_type} parameter. Must
-	 *                             not be {@code null}, unless a request a
-	 *                             request object or URI is specified.
+	 *                             not be {@code null}, unless a request
+	 *                             object or URI is specified.
 	 * @param rm                   The response mode. Corresponds to the
 	 *                             optional {@code response_mode}
 	 *                             parameter. Use of this parameter is not
@@ -880,7 +910,9 @@ public class AuthorizationRequest extends AbstractRequest {
 				    final Prompt prompt,
 				    final Map<String, List<String>> customParams) {
 
-		this(uri, rt, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod, resources, includeGrantedScopes, requestObject, requestURI, prompt, null, customParams);
+		this(uri, rt, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod,
+			resources, includeGrantedScopes,
+			requestObject, requestURI, prompt, null, customParams);
 	}
 
 
@@ -894,8 +926,8 @@ public class AuthorizationRequest extends AbstractRequest {
 	 *                             be used.
 	 * @param rt                   The response type. Corresponds to the
 	 *                             {@code response_type} parameter. Must
-	 *                             not be {@code null}, unless a request a
-	 *                             request object or URI is specified.
+	 *                             not be {@code null}, unless a request
+	 *                             object or URI is specified.
 	 * @param rm                   The response mode. Corresponds to the
 	 *                             optional {@code response_mode}
 	 *                             parameter. Use of this parameter is not
@@ -958,7 +990,10 @@ public class AuthorizationRequest extends AbstractRequest {
 				    final JWKThumbprintConfirmation dpopJKT,
 				    final Map<String, List<String>> customParams) {
 		
-		this(uri, rt, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod, resources, includeGrantedScopes, requestObject, requestURI, prompt, dpopJKT, null, customParams);
+		this(uri, rt, rm, clientID, redirectURI, scope, state,
+			codeChallenge, codeChallengeMethod,
+			resources, includeGrantedScopes,
+			requestObject, requestURI, prompt, dpopJKT, null, customParams);
 	}
 
 
@@ -1020,6 +1055,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @param customParams         Custom parameters, empty map or
 	 *                             {@code null} if none.
 	 */
+	@Deprecated
 	public AuthorizationRequest(final URI uri,
 				    final ResponseType rt,
 				    final ResponseMode rm,
@@ -1029,6 +1065,92 @@ public class AuthorizationRequest extends AbstractRequest {
 				    final State state,
 				    final CodeChallenge codeChallenge,
 				    final CodeChallengeMethod codeChallengeMethod,
+				    final List<URI> resources,
+				    final boolean includeGrantedScopes,
+				    final JWT requestObject,
+				    final URI requestURI,
+				    final Prompt prompt,
+				    final JWKThumbprintConfirmation dpopJKT,
+				    final TrustChain trustChain,
+				    final Map<String, List<String>> customParams) {
+
+		this(uri, rt, rm, clientID, redirectURI, scope, state,
+			codeChallenge, codeChallengeMethod,
+			null, resources, includeGrantedScopes,
+			requestObject, requestURI, prompt ,dpopJKT, trustChain, customParams);
+	}
+
+
+	/**
+	 * Creates a new authorisation request with extension and custom
+	 * parameters.
+	 *
+	 * @param uri                  The URI of the authorisation endpoint.
+	 *                             May be {@code null} if the
+	 *                             {@link #toHTTPRequest} method will not
+	 *                             be used.
+	 * @param rt                   The response type. Corresponds to the
+	 *                             {@code response_type} parameter. Must
+	 *                             not be {@code null}, unless a request a
+	 *                             request object or URI is specified.
+	 * @param rm                   The response mode. Corresponds to the
+	 *                             optional {@code response_mode}
+	 *                             parameter. Use of this parameter is not
+	 *                             recommended unless a non-default
+	 *                             response mode is requested (e.g.
+	 *                             form_post).
+	 * @param clientID             The client identifier. Corresponds to
+	 *                             the {@code client_id} parameter. Must
+	 *                             not be {@code null}, unless a request
+	 *                             object or URI is specified.
+	 * @param redirectURI          The redirection URI. Corresponds to the
+	 *                             optional {@code redirect_uri} parameter.
+	 *                             {@code null} if not specified.
+	 * @param scope                The request scope. Corresponds to the
+	 *                             optional {@code scope} parameter.
+	 *                             {@code null} if not specified.
+	 * @param state                The state. Corresponds to the
+	 *                             recommended {@code state} parameter.
+	 *                             {@code null} if not specified.
+	 * @param codeChallenge        The code challenge for PKCE,
+	 *                             {@code null} if not specified.
+	 * @param codeChallengeMethod  The code challenge method for PKCE,
+	 *                             {@code null} if not specified.
+	 * @param authorizationDetails The Rich Authorisation Request (RAR)
+	 *                             details, {@code null} if not specified.
+	 * @param resources            The resource URI(s), {@code null} if not
+	 *                             specified.
+	 * @param includeGrantedScopes {@code true} to request incremental
+	 *                             authorisation.
+	 * @param requestObject        The request object. Corresponds to the
+	 *                             optional {@code request} parameter. Must
+	 *                             not be specified together with a request
+	 *                             object URI. {@code null} if not
+	 *                             specified.
+	 * @param requestURI           The request object URI. Corresponds to
+	 *                             the optional {@code request_uri}
+	 *                             parameter. Must not be specified
+	 *                             together with a request object.
+	 *                             {@code null} if not specified.
+	 * @param prompt               The requested prompt. Corresponds to the
+	 *                             optional {@code prompt} parameter.
+	 * @param dpopJKT              The DPoP JWK SHA-256 thumbprint,
+	 *                             {@code null} if not specified.
+	 * @param trustChain           The OpenID Connect Federation 1.0 trust
+	 *                             chain, {@code null} if not specified.
+	 * @param customParams         Custom parameters, empty map or
+	 *                             {@code null} if none.
+	 */
+	public AuthorizationRequest(final URI uri,
+				    final ResponseType rt,
+				    final ResponseMode rm,
+				    final ClientID clientID,
+				    final URI redirectURI,
+				    final Scope scope,
+				    final State state,
+				    final CodeChallenge codeChallenge,
+				    final CodeChallengeMethod codeChallengeMethod,
+				    final List<AuthorizationDetail> authorizationDetails,
 				    final List<URI> resources,
 				    final boolean includeGrantedScopes,
 				    final JWT requestObject,
@@ -1060,17 +1182,19 @@ public class AuthorizationRequest extends AbstractRequest {
 
 		this.codeChallenge = codeChallenge;
 		this.codeChallengeMethod = codeChallengeMethod;
-		
+
+		this.authorizationDetails = authorizationDetails;
+
 		this.resources = ResourceUtils.ensureLegalResourceURIs(resources);
-		
+
 		this.includeGrantedScopes = includeGrantedScopes;
-		
+
 		if (requestObject != null && requestURI != null)
 			throw new IllegalArgumentException("Either a request object or a request URI must be specified, but not both");
-		
+
 		this.requestObject = requestObject;
 		this.requestURI = requestURI;
-		
+
 		if (requestObject instanceof SignedJWT) {
 			// Make sure the "sub" claim is not set to the client_id value
 			// https://tools.ietf.org/html/draft-ietf-oauth-jwsreq-29#section-10.8
@@ -1085,11 +1209,11 @@ public class AuthorizationRequest extends AbstractRequest {
 				throw new IllegalArgumentException("Illegal request parameter: The JWT sub (subject) claim must not equal the client_id");
 			}
 		}
-		
+
 		this.prompt = prompt; // technically OpenID
-		
+
 		this.dpopJKT = dpopJKT;
-		
+
 		this.trustChain = trustChain;
 
 		if (MapUtils.isNotEmpty(customParams)) {
@@ -1217,6 +1341,16 @@ public class AuthorizationRequest extends AbstractRequest {
 	 */
 	public CodeChallengeMethod getCodeChallengeMethod() {
 		return codeChallengeMethod;
+	}
+
+
+	/**
+	 * Returns the Rich Authorisation Request (RAR) details.
+	 *
+	 * @return The authorisation details, {@code null} if not specified.
+	 */
+	public List<AuthorizationDetail> getAuthorizationDetails() {
+		return authorizationDetails;
 	}
 	
 	
@@ -1376,6 +1510,10 @@ public class AuthorizationRequest extends AbstractRequest {
 				params.put("code_challenge_method", Collections.singletonList(getCodeChallengeMethod().getValue()));
 			}
 		}
+
+		if (getAuthorizationDetails() != null) {
+			params.put("authorization_details", Collections.singletonList(AuthorizationDetail.toJSONString(getAuthorizationDetails())));
+		}
 		
 		if (includeGrantedScopes())
 			params.put("include_granted_scopes", Collections.singletonList("true"));
@@ -1386,7 +1524,6 @@ public class AuthorizationRequest extends AbstractRequest {
 		if (getRequestObject() != null) {
 			try {
 				params.put("request", Collections.singletonList(getRequestObject().serialize()));
-				
 			} catch (IllegalStateException e) {
 				throw new SerializeException("Couldn't serialize request object to JWT: " + e.getMessage(), e);
 			}
@@ -1724,6 +1861,13 @@ public class AuthorizationRequest extends AbstractRequest {
 			if (StringUtils.isNotBlank(v))
 				codeChallengeMethod = CodeChallengeMethod.parse(v);
 		}
+
+
+		List<AuthorizationDetail> authorizationDetails = null;
+		v = MultivaluedMapUtils.getFirstValue(params, "authorization_details");
+		if (StringUtils.isNotBlank(v)) {
+			authorizationDetails = AuthorizationDetail.parseList(v);
+		}
 		
 		
 		List<URI> resources;
@@ -1779,7 +1923,8 @@ public class AuthorizationRequest extends AbstractRequest {
 
 
 		return new AuthorizationRequest(uri, rt, rm, clientID, redirectURI, scope, state,
-			codeChallenge, codeChallengeMethod, resources, includeGrantedScopes,
+			codeChallenge, codeChallengeMethod,
+			authorizationDetails, resources, includeGrantedScopes,
 			requestObject, requestURI,
 			prompt, dpopJKT, trustChain,
 			customParams);

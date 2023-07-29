@@ -19,8 +19,10 @@ package com.nimbusds.oauth2.sdk.rar;
 
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.Identifier;
+import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.oauth2.sdk.util.ListUtils;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import java.util.Collections;
@@ -398,6 +400,23 @@ public class AuthorizationDetail {
 
 
         /**
+         * Returns the JSON array string representation of the specified
+         * authorisation details.
+         *
+         * @param details The authorisation details. Must not be {@code null}.
+         *
+         * @return The JSON string.
+         */
+        public static String toJSONString(final List<AuthorizationDetail> details) {
+                JSONArray jsonArray = new JSONArray();
+                for (AuthorizationDetail detail: details) {
+                        jsonArray.add(detail.toJSONObject());
+                }
+                return jsonArray.toJSONString();
+        }
+
+
+        /**
          * Parses an authorisation detail from the specified JSON object.
          *
          * @param jsonObject The JSON object. Must not be {@code null}.
@@ -419,5 +438,59 @@ public class AuthorizationDetail {
                 }
 
                 return detail;
+        }
+
+
+        /**
+         * Parses an authorisation details list from the specified JSON objects
+         * list.
+         *
+         * @param jsonObjects The JSON objects list. Must not be {@code null}.
+         *
+         * @return The authorisation details, as unmodifiable list.
+         *
+         * @throws ParseException If parsing failed.
+         */
+        public static List<AuthorizationDetail> parseList(final List<JSONObject> jsonObjects)
+                throws ParseException {
+
+                List<AuthorizationDetail> details = new LinkedList<>();
+
+                int i=0;
+                for (JSONObject jsonObject: ListUtils.removeNullItems(jsonObjects)) {
+
+                        AuthorizationDetail detail;
+                        try {
+                                detail = parse(jsonObject);
+                        } catch (ParseException e) {
+                                throw new ParseException("Invalid authorization detail at position " + i + ": " + e.getMessage());
+                        }
+                        details.add(detail);
+                }
+
+                return Collections.unmodifiableList(details);
+        }
+
+
+        /**
+         * Parses an authorisation details list from the specified JSON array
+         * string.
+         *
+         * @param json The JSON string. Must not be {@code null}.
+         *
+         * @return The authorisation details, as unmodifiable list.
+         *
+         * @throws ParseException If parsing failed.
+         */
+        public static List<AuthorizationDetail> parseList(final String json)
+                throws ParseException {
+
+                try {
+                        JSONArray jsonArray = JSONArrayUtils.parse(json);
+                        List<JSONObject> jsonObjects = JSONArrayUtils.toJSONObjectList(jsonArray);
+                        return parseList(jsonObjects);
+                } catch (ParseException e) {
+                        throw new ParseException("Invalid authorization details: " + e.getMessage());
+                }
         }
 }

@@ -24,6 +24,9 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.*;
 
+import com.nimbusds.oauth2.sdk.rar.Action;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import junit.framework.TestCase;
 import net.minidev.json.JSONArray;
 import org.checkerframework.checker.units.qual.A;
@@ -73,6 +76,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("state"));
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("code_challenge"));
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("code_challenge_method"));
+		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("authorization_details"));
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("resource"));
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("include_granted_scopes"));
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("request"));
@@ -80,7 +84,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("prompt"));
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("dpop_jkt"));
 		assertTrue(AuthorizationRequest.getRegisteredParameterNames().contains("trust_chain"));
-		assertEquals(15, AuthorizationRequest.getRegisteredParameterNames().size());
+		assertEquals(16, AuthorizationRequest.getRegisteredParameterNames().size());
 	}
 	
 	
@@ -89,8 +93,7 @@ public class AuthorizationRequestTest extends TestCase {
 		
 		URI uri = new URI("https://c2id.com/authz/");
 
-		ResponseType rts = new ResponseType();
-		rts.add(ResponseType.Value.CODE);
+		ResponseType rts = ResponseType.CODE;
 
 		ClientID clientID = new ClientID("123456");
 
@@ -105,7 +108,9 @@ public class AuthorizationRequestTest extends TestCase {
 		assertNull(req.getState());
 		assertNull(req.getResponseMode());
 		assertEquals(ResponseMode.QUERY, req.impliedResponseMode());
-		
+
+		assertNull(req.getAuthorizationDetails());
+
 		assertNull(req.getResources());
 		
 		assertFalse(req.includeGrantedScopes());
@@ -139,6 +144,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertNull(req.getState());
 		assertNull(req.getResponseMode());
 		assertEquals(ResponseMode.QUERY, req.impliedResponseMode());
+		assertNull(req.getAuthorizationDetails());
 		assertNull(req.getResources());
 		assertFalse(req.includeGrantedScopes());
 		assertNull(req.getTrustChain());
@@ -153,8 +159,7 @@ public class AuthorizationRequestTest extends TestCase {
 
 		URI uri = new URI("https://c2id.com/authz/");
 
-		ResponseType rts = new ResponseType();
-		rts.add(ResponseType.Value.CODE);
+		ResponseType rts = ResponseType.CODE;
 
 		ClientID clientID = new ClientID("123456");
 
@@ -173,6 +178,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertNull(req.getState());
 		assertNull(req.getResponseMode());
 		assertEquals(ResponseMode.QUERY, req.impliedResponseMode());
+		assertNull(req.getAuthorizationDetails());
 		assertNull(req.getResources());
 		assertFalse(req.includeGrantedScopes());
 		assertNull(req.getTrustChain());
@@ -185,7 +191,7 @@ public class AuthorizationRequestTest extends TestCase {
 		throws Exception {
 
 		URI redirectURI = new URI("https://client.com/cb");
-		ResponseType rts = new ResponseType("code");
+		ResponseType rts = ResponseType.CODE;
 		ClientID clientID = new ClientID("123456");
 		URI endpointURI = new URI("https://c2id.com/login");
 
@@ -219,8 +225,7 @@ public class AuthorizationRequestTest extends TestCase {
 
 		URI uri = new URI("https://c2id.com/authz/");
 
-		ResponseType rts = new ResponseType();
-		rts.add(ResponseType.Value.CODE);
+		ResponseType rts = ResponseType.CODE;
 
 		ResponseMode rm = ResponseMode.FORM_POST;
 
@@ -235,7 +240,11 @@ public class AuthorizationRequestTest extends TestCase {
 		CodeVerifier codeVerifier = new CodeVerifier();
 		CodeChallengeMethod codeChallengeMethod = CodeChallengeMethod.S256;
 		CodeChallenge codeChallenge = CodeChallenge.compute(codeChallengeMethod, codeVerifier);
-		
+
+		AuthorizationDetail detail_1 = new AuthorizationDetail.Builder(new AuthorizationType("api_1")).build();
+		AuthorizationDetail detail_2 = new AuthorizationDetail.Builder(new AuthorizationType("api_2")).build();
+		List<AuthorizationDetail> authorizationDetails = Arrays.asList(detail_1, detail_2);
+
 		List<URI> resources = Arrays.asList(URI.create("https://rs1.com"), URI.create("https://rs2.com"));
 		
 		Prompt prompt = new Prompt(Prompt.Type.LOGIN);
@@ -248,7 +257,10 @@ public class AuthorizationRequestTest extends TestCase {
 		customParams.put("z", Collections.singletonList("300"));
 
 
-		AuthorizationRequest req = new AuthorizationRequest(uri, rts, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod, resources, true, null, null, prompt, dpopJKT, customParams);
+		AuthorizationRequest req = new AuthorizationRequest(
+			uri, rts, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod,
+			authorizationDetails, resources, true,
+			null, null, prompt, dpopJKT, null, customParams);
 
 		assertEquals(uri, req.getEndpointURI());
 		assertEquals(rts, req.getResponseType());
@@ -258,6 +270,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(redirectURI, req.getRedirectionURI());
 		assertEquals(scope, req.getScope());
 		assertEquals(state, req.getState());
+		assertEquals(authorizationDetails, req.getAuthorizationDetails());
 		assertEquals(resources, req.getResources());
 		assertEquals(prompt, req.getPrompt());
 		assertEquals(dpopJKT, req.getDPoPJWKThumbprintConfirmation());
@@ -274,6 +287,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(Collections.singletonList(state.getValue()), params.get("state"));
 		assertEquals(Collections.singletonList(codeChallenge.getValue()), params.get("code_challenge"));
 		assertEquals(Collections.singletonList(codeChallengeMethod.getValue()), params.get("code_challenge_method"));
+		assertEquals(Collections.singletonList(AuthorizationDetail.toJSONString(authorizationDetails)), params.get("authorization_details"));
 		assertEquals(Arrays.asList("https://rs1.com", "https://rs2.com"), params.get("resource"));
 		assertEquals(Collections.singletonList(prompt.toString()), params.get("prompt"));
 		assertEquals(Collections.singletonList(dpopJKT.getValue().toString()), params.get("dpop_jkt"));
@@ -281,7 +295,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(Collections.singletonList("100"), params.get("x"));
 		assertEquals(Collections.singletonList("200"), params.get("y"));
 		assertEquals(Collections.singletonList("300"), params.get("z"));
-		assertEquals(15, params.size());
+		assertEquals(16, params.size());
 
 		HTTPRequest httpReq = req.toHTTPRequest();
 		assertEquals(HTTPRequest.Method.GET, httpReq.getMethod());
@@ -299,6 +313,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(state, req.getState());
 		assertEquals(codeChallenge, req.getCodeChallenge());
 		assertEquals(codeChallengeMethod, req.getCodeChallengeMethod());
+		assertEquals(authorizationDetails, req.getAuthorizationDetails());
 		assertEquals(resources, req.getResources());
 		assertTrue(req.includeGrantedScopes());
 		assertEquals(prompt, req.getPrompt());
@@ -381,6 +396,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertNull(request.getState());
 		assertNull(request.getCodeChallenge());
 		assertNull(request.getCodeChallengeMethod());
+		assertNull(request.getAuthorizationDetails());
 		assertNull(request.getResources());
 		assertFalse(request.includeGrantedScopes());
 		assertNull(request.getPrompt());
@@ -404,7 +420,11 @@ public class AuthorizationRequestTest extends TestCase {
 		assertNull(request.getState());
 		assertNull(request.getCodeChallenge());
 		assertNull(request.getCodeChallengeMethod());
+		assertNull(request.getAuthorizationDetails());
+		assertNull(request.getResources());
 		assertFalse(request.includeGrantedScopes());
+		assertNull(request.getPrompt());
+		assertNull(request.getDPoPJWKThumbprintConfirmation());
 		assertNull(request.getTrustChain());
 		assertTrue(request.getCustomParameters().isEmpty());
 	}
@@ -412,11 +432,11 @@ public class AuthorizationRequestTest extends TestCase {
 
 	public void testBuilderMinimalNullCodeChallenge() {
 
-		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("token"), new ClientID("123"))
+		AuthorizationRequest request = new AuthorizationRequest.Builder(ResponseType.TOKEN, new ClientID("123"))
 			.codeChallenge((CodeVerifier) null, null)
 			.build();
 		
-		assertEquals(new ResponseType("token"), request.getResponseType());
+		assertEquals(ResponseType.TOKEN, request.getResponseType());
 		assertEquals(new ClientID("123"), request.getClientID());
 		assertNull(request.getEndpointURI());
 		assertNull(request.getRedirectionURI());
@@ -434,11 +454,11 @@ public class AuthorizationRequestTest extends TestCase {
 
 	public void testBuilderMinimalNullCodeChallenge_deprecated() {
 
-		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("token"), new ClientID("123"))
+		AuthorizationRequest request = new AuthorizationRequest.Builder(ResponseType.TOKEN, new ClientID("123"))
 			.codeChallenge((CodeChallenge) null, null)
 			.build();
 		
-		assertEquals(new ResponseType("token"), request.getResponseType());
+		assertEquals(ResponseType.TOKEN, request.getResponseType());
 		assertEquals(new ClientID("123"), request.getClientID());
 		assertNull(request.getEndpointURI());
 		assertNull(request.getRedirectionURI());
@@ -466,6 +486,7 @@ public class AuthorizationRequestTest extends TestCase {
 			.state(new State("123"))
 			.responseMode(ResponseMode.FORM_POST)
 			.codeChallenge(codeVerifier, CodeChallengeMethod.S256)
+			.authorizationDetails(Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("api_1")).build()))
 			.resources(URI.create("https://rs1.com"), URI.create("https://rs2.com"))
 			.includeGrantedScopes(true)
 			.prompt(new Prompt(Prompt.Type.LOGIN))
@@ -482,6 +503,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(new State("123"), request.getState());
 		assertEquals(CodeChallenge.compute(CodeChallengeMethod.S256, codeVerifier), request.getCodeChallenge());
 		assertEquals(CodeChallengeMethod.S256, request.getCodeChallengeMethod());
+		assertEquals(Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("api_1")).build()), request.getAuthorizationDetails());
 		assertEquals(Arrays.asList(URI.create("https://rs1.com"), URI.create("https://rs2.com")), request.getResources());
 		assertTrue(request.includeGrantedScopes());
 		assertEquals(new Prompt(Prompt.Type.LOGIN), request.getPrompt());
@@ -815,6 +837,7 @@ public class AuthorizationRequestTest extends TestCase {
 			new State(),
 			CodeChallenge.compute(CodeChallengeMethod.S256, new CodeVerifier()),
 			CodeChallengeMethod.S256,
+			Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("api_1")).build()),
 			Collections.singletonList(URI.create("https://rs1.com")),
 			true,
 			null,
@@ -835,6 +858,7 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(in.getCodeChallenge(), out.getCodeChallenge());
 		assertEquals(in.getCodeChallengeMethod(), out.getCodeChallengeMethod());
 		assertEquals(in.getResources(), out.getResources());
+		assertEquals(in.getAuthorizationDetails(), out.getAuthorizationDetails());
 		assertEquals(in.includeGrantedScopes(), out.includeGrantedScopes());
 		assertEquals(in.getPrompt(), out.getPrompt());
 		assertEquals(in.getDPoPJWKThumbprintConfirmation(), out.getDPoPJWKThumbprintConfirmation());
@@ -872,6 +896,72 @@ public class AuthorizationRequestTest extends TestCase {
 		assertEquals(Collections.singletonList("code"), finalParameters.get("response_type"));
 		assertEquals(Collections.singletonList("123"), finalParameters.get("client_id"));
 		assertEquals(3, finalParameters.size());
+	}
+
+
+	public void testRAR() throws ParseException {
+
+		ResponseType responseType = ResponseType.CODE;
+		ClientID clientID = new ClientID("123");
+		List<AuthorizationDetail> authorizationDetails = Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("api_1")).build());
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(responseType, clientID)
+			.authorizationDetails(authorizationDetails)
+			.build();
+
+		Map<String, List<String>> parameters = request.toParameters();
+
+		assertEquals(Collections.singletonList(responseType.toString()), parameters.get("response_type"));
+		assertEquals(Collections.singletonList(clientID.getValue()), parameters.get("client_id"));
+		assertEquals(Collections.singletonList(AuthorizationDetail.toJSONString(authorizationDetails)), parameters.get("authorization_details"));
+		assertEquals(3, parameters.size());
+
+		request = AuthorizationRequest.parse(parameters);
+
+		assertEquals(responseType, request.getResponseType());
+		assertEquals(clientID, request.getClientID());
+		assertEquals(authorizationDetails, request.getAuthorizationDetails());
+		assertEquals(3, request.toParameters().size());
+	}
+
+
+	public void testRAR_parseException_missingType() {
+
+		ResponseType responseType = ResponseType.CODE;
+		ClientID clientID = new ClientID("123");
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(responseType, clientID)
+			.build();
+
+		Map<String, List<String>> parameters = request.toParameters();
+		parameters.put("authorization_details", Collections.singletonList("[{},{}]"));
+
+		try {
+			AuthorizationRequest.parse(parameters);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Invalid authorization details: Invalid authorization detail at position 0: Illegal or missing type", e.getMessage());
+		}
+	}
+
+
+	public void testRAR_parseException_invalidJSON() {
+
+		ResponseType responseType = ResponseType.CODE;
+		ClientID clientID = new ClientID("123");
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(responseType, clientID)
+			.build();
+
+		Map<String, List<String>> parameters = request.toParameters();
+		parameters.put("authorization_details", Collections.singletonList("xxx"));
+
+		try {
+			AuthorizationRequest.parse(parameters);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Invalid authorization details: Invalid JSON: Unexpected token xxx at position 3.", e.getMessage());
+		}
 	}
 	
 	
