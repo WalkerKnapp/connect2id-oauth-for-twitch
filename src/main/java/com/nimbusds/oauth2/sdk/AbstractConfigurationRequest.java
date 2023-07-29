@@ -41,7 +41,7 @@ public abstract class AbstractConfigurationRequest extends AbstractRequest {
 	 * @param strategy      The well-known path composition strategy. Must
 	 *                      not be {@code null}.
 	 */
-	public AbstractConfigurationRequest(final URI baseURI, final String wellKnownPath, final WellKnownPathComposeStrategy strategy) {
+	protected AbstractConfigurationRequest(final URI baseURI, final String wellKnownPath, final WellKnownPathComposeStrategy strategy) {
 		
 		super(WellKnownPathComposeStrategy.POSTFIX.equals(strategy) ?
 			URI.create(URIUtils.removeTrailingSlash(baseURI) + wellKnownPath) :

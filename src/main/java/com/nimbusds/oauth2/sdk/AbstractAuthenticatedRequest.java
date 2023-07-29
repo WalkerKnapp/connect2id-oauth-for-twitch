@@ -56,8 +56,8 @@ public abstract class AbstractAuthenticatedRequest extends AbstractRequest {
 	 * @param clientAuth The client authentication. Must not be
 	 *                   {@code null}.
 	 */
-	public AbstractAuthenticatedRequest(final URI uri,
-					    final ClientAuthentication clientAuth) {
+	protected AbstractAuthenticatedRequest(final URI uri,
+					       final ClientAuthentication clientAuth) {
 
 		super(uri);
 
