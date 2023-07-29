@@ -39,5 +39,7 @@ public class PrivilegeTest extends TestCase {
 
                 assertNotSame(new Privilege("admin"), new Privilege("audit"));
                 assertNotSame(new Privilege("admin").hashCode(), new Privilege("audit").hashCode());
+
+                assertNotSame(new Privilege("admin"), "audit");
         }
 }

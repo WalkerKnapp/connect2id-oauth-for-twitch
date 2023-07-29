@@ -39,5 +39,7 @@ public class ActionTest extends TestCase {
 
                 assertNotSame(new Action("read"), new Action("write"));
                 assertNotSame(new Action("read").hashCode(), new Action("write").hashCode());
+
+                assertNotSame(new Action("read"), "write");
         }
 }

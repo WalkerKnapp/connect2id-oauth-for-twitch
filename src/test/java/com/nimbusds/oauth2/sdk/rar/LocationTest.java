@@ -56,5 +56,7 @@ public class LocationTest extends TestCase {
 
                 assertNotSame(new Location("rs_1"), new Location("rs_2"));
                 assertNotSame(new Location("rs_1").hashCode(), new Location("rs_2").hashCode());
+
+                assertNotSame(new Location("rs_1"), "rs_2");
         }
 }

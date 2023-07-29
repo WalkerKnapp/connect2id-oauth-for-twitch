@@ -55,5 +55,7 @@ public class AuthorizationTypeTest extends TestCase {
 
                 assertNotSame(new AuthorizationType("account_information"), new Action("payment_initiation"));
                 assertNotSame(new AuthorizationType("account_information").hashCode(), new Action("payment_initiation").hashCode());
+
+                assertNotSame(new AuthorizationType("account_information"), "payment_initiation");
         }
 }

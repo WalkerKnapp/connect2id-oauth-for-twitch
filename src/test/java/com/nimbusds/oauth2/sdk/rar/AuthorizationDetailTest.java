@@ -158,6 +158,66 @@ public class AuthorizationDetailTest extends TestCase {
         }
 
 
+        public void testEmptyIdentifier() {
+
+                AuthorizationType type = new AuthorizationType("payment_initiation");
+
+                AuthorizationDetail detail = new AuthorizationDetail.Builder(type)
+                        .field("identifier", "")
+                        .build();
+
+                assertNull(detail.getIdentifier());
+        }
+
+
+        public void testBlankIdentifier() {
+
+                AuthorizationType type = new AuthorizationType("payment_initiation");
+
+                AuthorizationDetail detail = new AuthorizationDetail.Builder(type)
+                        .field("identifier", " ")
+                        .build();
+
+                assertNull(detail.getIdentifier());
+        }
+
+
+        public void testGetStringField_illegalValue() throws ParseException {
+
+                String json =
+                        "{" +
+                        "  \"type\": \"payment_initiation\"," +
+                        "  \"actions\": [" +
+                        "     \"initiate\"," +
+                        "     \"status\"," +
+                        "     \"cancel\"" +
+                        "  ]" +
+                        "}";
+
+                AuthorizationDetail detail = AuthorizationDetail.parse(JSONObjectUtils.parse(json));
+
+                assertNull(detail.getStringField("actions"));
+        }
+
+
+        public void testGetJSONObjectField_illegalValue() throws ParseException {
+
+                String json =
+                        "{" +
+                        "  \"type\": \"payment_initiation\"," +
+                        "  \"actions\": [" +
+                        "     \"initiate\"," +
+                        "     \"status\"," +
+                        "     \"cancel\"" +
+                        "  ]" +
+                        "}";
+
+                AuthorizationDetail detail = AuthorizationDetail.parse(JSONObjectUtils.parse(json));
+
+                assertNull(detail.getJSONObjectField("actions"));
+        }
+
+
         // https://www.rfc-editor.org/rfc/rfc9396.html#figure-2
         public void testParse_exampleFigure2()
                 throws ParseException {
@@ -276,5 +336,7 @@ public class AuthorizationDetailTest extends TestCase {
                 AuthorizationDetail detail_2 = new AuthorizationDetail.Builder(new AuthorizationType("payment_initiation")).build();
 
                 assertNotSame(detail_1, detail_2);
+
+                assertNotSame(detail_1, "abc");
         }
 }
