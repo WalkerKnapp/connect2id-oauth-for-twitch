@@ -18,19 +18,20 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
+import com.nimbusds.jose.util.Base64;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
+import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
+
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONObject;
-
-import com.nimbusds.jose.util.Base64;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 
 
 public class BearerAccessTokenTest extends TestCase {
@@ -212,10 +213,55 @@ public class BearerAccessTokenTest extends TestCase {
 		assertTrue(token.getParameterNames().contains("issued_token_type"));
 		assertEquals(5, token.getParameterNames().size());
 	}
+
+
+	public void testValueConstructor_lifetime_scope_rar_uri()
+		throws Exception {
+
+		Scope scope = Scope.parse("read write");
+
+		List<AuthorizationDetail> authorizationDetails = Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build());
+
+		AccessToken token = new BearerAccessToken("abc", 1500, scope, authorizationDetails, TokenTypeURI.ACCESS_TOKEN);
+
+		assertEquals("abc", token.getValue());
+		assertEquals(1500L, token.getLifetime());
+		assertEquals(scope, token.getScope());
+		assertEquals(authorizationDetails, token.getAuthorizationDetails());
+		assertEquals(TokenTypeURI.ACCESS_TOKEN, token.getIssuedTokenType());
+
+		assertEquals("Bearer abc", token.toAuthorizationHeader());
+
+		JSONObject jsonObject = token.toJSONObject();
+
+		assertEquals("abc", jsonObject.get("access_token"));
+		assertEquals("Bearer", jsonObject.get("token_type"));
+		assertEquals(1500L, jsonObject.get("expires_in"));
+		assertEquals(scope, Scope.parse((String) jsonObject.get("scope")));
+		assertEquals(authorizationDetails, AuthorizationDetail.parseList((String) jsonObject.get("authorization_details")));
+		assertEquals(TokenTypeURI.ACCESS_TOKEN, TokenTypeURI.parse((String) jsonObject.get("issued_token_type")));
+		assertEquals(6, jsonObject.size());
+
+		token = BearerAccessToken.parse(jsonObject);
+
+		assertEquals("abc", token.getValue());
+		assertEquals(1500L, token.getLifetime());
+		assertEquals(scope, token.getScope());
+		assertEquals(authorizationDetails, token.getAuthorizationDetails());
+		assertEquals(TokenTypeURI.ACCESS_TOKEN, token.getIssuedTokenType());
+
+		assertTrue(token.getParameterNames().contains("access_token"));
+		assertTrue(token.getParameterNames().contains("token_type"));
+		assertTrue(token.getParameterNames().contains("expires_in"));
+		assertTrue(token.getParameterNames().contains("scope"));
+		assertTrue(token.getParameterNames().contains("authorization_details"));
+		assertTrue(token.getParameterNames().contains("issued_token_type"));
+		assertEquals(6, token.getParameterNames().size());
+	}
 	
 	
 	public void testParseFromHeader()
-		throws Exception {
+		throws ParseException {
 	
 		AccessToken token = AccessToken.parse("Bearer abc");
 		
@@ -359,8 +405,24 @@ public class BearerAccessTokenTest extends TestCase {
 	}
 
 
-	public void testParseFromJsonObject_invalidIssuedTokenType() {
+	public void testParseFromJSONObject_invalidAuthorizationDetails() {
 		
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("access_token", "abc");
+		jsonObject.put("token_type", "Bearer");
+		jsonObject.put("authorization_details", "[{},{}]");
+
+		try {
+			BearerAccessToken.parse(jsonObject);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Invalid authorization details: Invalid authorization detail at position 0: Illegal or missing type", e.getMessage());
+		}
+	}
+
+
+	public void testParseFromJSONObject_invalidIssuedTokenType() {
+
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("access_token", "abc");
 		jsonObject.put("token_type", "Bearer");

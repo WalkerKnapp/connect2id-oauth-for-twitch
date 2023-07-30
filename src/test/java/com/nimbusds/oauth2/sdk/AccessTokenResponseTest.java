@@ -18,11 +18,10 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
 
@@ -320,6 +319,54 @@ public class AccessTokenResponseTest extends TestCase {
 
 		assertEquals(accessTokenString, o.get("access_token"));
 		assertEquals("Bearer", o.get("token_type"));
+	}
+
+
+	public void testParseFromHTTPResponseWithRAR()
+		throws Exception {
+
+		HTTPResponse httpResponse = new HTTPResponse(HTTPResponse.SC_OK);
+		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
+		httpResponse.setCacheControl("no-store");
+		httpResponse.setPragma("no-cache");
+
+		JSONObject o = new JSONObject();
+
+		final String accessTokenString = "SlAV32hkKG";
+		o.put("access_token", accessTokenString);
+
+		o.put("token_type", "bearer");
+
+		List<AuthorizationDetail> authorizationDetails = Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build());
+		o.put("authorization_details", AuthorizationDetail.toJSONString(authorizationDetails));
+
+		httpResponse.setContent(o.toString());
+
+		AccessTokenResponse atr = AccessTokenResponse.parse(httpResponse);
+
+		assertTrue(atr.indicatesSuccess());
+		AccessToken accessToken = atr.getTokens().getAccessToken();
+		assertEquals(accessTokenString, accessToken.getValue());
+		BearerAccessToken bearerAccessToken = atr.getTokens().getBearerAccessToken();
+		assertEquals(accessTokenString, bearerAccessToken.getValue());
+		assertNull(accessToken.getScope());
+		assertEquals(authorizationDetails, accessToken.getAuthorizationDetails());
+
+		Tokens tokens = atr.getTokens();
+		assertEquals(accessToken, tokens.getAccessToken());
+
+		httpResponse = atr.toHTTPResponse();
+
+		assertEquals(ContentType.APPLICATION_JSON.toString(), httpResponse.getEntityContentType().toString());
+		assertEquals("no-store", httpResponse.getCacheControl());
+		assertEquals("no-cache", httpResponse.getPragma());
+
+		o = httpResponse.getContentAsJSONObject();
+
+		assertEquals(accessTokenString, o.get("access_token"));
+		assertEquals("Bearer", o.get("token_type"));
+		assertEquals(AuthorizationDetail.toJSONString(authorizationDetails), o.get("authorization_details"));
+		assertEquals(3, o.size());
 	}
 	
 	

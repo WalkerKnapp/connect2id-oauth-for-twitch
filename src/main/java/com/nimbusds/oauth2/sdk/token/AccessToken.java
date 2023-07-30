@@ -18,17 +18,17 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
+import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.minidev.json.JSONObject;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import net.minidev.json.JSONObject;
-
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.oauth2.sdk.http.HTTPRequest;
-import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 
 
 /**
@@ -39,6 +39,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  *
  * <ul>
  *     <li>OAuth 2.0 (RFC 6749), sections 1.4 and 5.1.
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 7.
  *     <li>OAuth 2.0 Token Exchange (RFC 8693), section 3.
  * </ul>
  */
@@ -65,7 +66,13 @@ public abstract class AccessToken extends Token {
 	 */
 	private final Scope scope;
 
-	
+
+	/**
+	 * Optional authorisation details.
+	 */
+	private final List<AuthorizationDetail> authorizationDetails;
+
+
 	/**
 	 * Optional identifier URI for the token type, as defined in OAuth 2.0
 	 * Token Exchange (RFC 8693).
@@ -157,6 +164,34 @@ public abstract class AccessToken extends Token {
 			   final Scope scope,
 			   final TokenTypeURI issuedTokenType) {
 
+		this(type, byteLength, lifetime, scope, null, issuedTokenType);
+	}
+
+
+	/**
+	 * Creates a new access token with a randomly generated value
+	 * of the specified byte length, Base64URL-encoded.
+	 *
+	 * @param type                 The access token type. Must not be
+	 *                             {@code null}.
+	 * @param byteLength           The byte length of the value to
+	 *                             generate. Must be greater than one.
+	 * @param lifetime             The lifetime in seconds, 0 if not
+	 *                             specified.
+	 * @param scope                The scope, {@code null} if not
+	 *                             specified.
+	 * @param authorizationDetails The authorisation details, {@code null}
+	 *                             if not specified.
+	 * @param issuedTokenType      The token type URI, {@code null} if not
+	 *                             specified.
+	 */
+	public AccessToken(final AccessTokenType type,
+			   final int byteLength,
+			   final long lifetime,
+			   final Scope scope,
+			   final List<AuthorizationDetail> authorizationDetails,
+			   final TokenTypeURI issuedTokenType) {
+
 		super(byteLength);
 
 		if (type == null)
@@ -166,6 +201,7 @@ public abstract class AccessToken extends Token {
 
 		this.lifetime = lifetime;
 		this.scope = scope;
+		this.authorizationDetails = authorizationDetails;
 		this.issuedTokenType = issuedTokenType;
 	}
 	
@@ -220,6 +256,29 @@ public abstract class AccessToken extends Token {
 			   final Scope scope,
 			   final TokenTypeURI issuedTokenType) {
 		
+		this(type, value, lifetime, scope, null, issuedTokenType);
+	}
+
+
+	/**
+	 * Creates a new access token with the specified value.
+	 *
+	 * @param type            The access token type. Must not be
+	 *                        {@code null}.
+	 * @param value           The access token value. Must not be
+	 *                        {@code null} or empty string.
+	 * @param lifetime        The lifetime in seconds, 0 if not specified.
+	 * @param scope           The scope, {@code null} if not specified.
+	 * @param issuedTokenType The token type URI, {@code null} if not
+	 *                        specified.
+	 */
+	public AccessToken(final AccessTokenType type,
+			   final String value,
+			   final long lifetime,
+			   final Scope scope,
+			   final List<AuthorizationDetail> authorizationDetails,
+			   final TokenTypeURI issuedTokenType) {
+
 		super(value);
 
 		if (type == null)
@@ -229,6 +288,7 @@ public abstract class AccessToken extends Token {
 
 		this.lifetime = lifetime;
 		this.scope = scope;
+		this.authorizationDetails = authorizationDetails;
 		this.issuedTokenType = issuedTokenType;
 	}
 
@@ -265,6 +325,17 @@ public abstract class AccessToken extends Token {
 		return scope;
 	}
 
+
+	/**
+	 * Returns the authorisation details for this access token.
+	 *
+	 * @return The authorisation details, {@code null} if not specified.
+	 */
+	public List<AuthorizationDetail> getAuthorizationDetails() {
+
+		return authorizationDetails;
+	}
+
 	
 	/**
 	 * Returns the identifier URI for the type of this access token. Used
@@ -291,6 +362,9 @@ public abstract class AccessToken extends Token {
 		if (getScope() != null)
 			paramNames.add("scope");
 
+		if (getAuthorizationDetails() != null)
+			paramNames.add("authorization_details");
+
 		if (getIssuedTokenType() != null) {
 			paramNames.add("issued_token_type");
 		}
@@ -312,6 +386,9 @@ public abstract class AccessToken extends Token {
 
 		if (getScope() != null)
 			o.put("scope", scope.toString());
+
+		if (getAuthorizationDetails() != null)
+			o.put("authorization_details", AuthorizationDetail.toJSONString(getAuthorizationDetails()));
 
 		if (getIssuedTokenType() != null) {
 			o.put("issued_token_type", getIssuedTokenType().getURI().toString());

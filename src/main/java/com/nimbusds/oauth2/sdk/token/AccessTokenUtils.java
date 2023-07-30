@@ -18,16 +18,16 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
-import java.util.List;
-import java.util.Map;
-
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import net.minidev.json.JSONObject;
+
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -113,6 +113,28 @@ class AccessTokenUtils {
 		throws ParseException {
 		
 		return Scope.parse(JSONObjectUtils.getString(params, "scope", null));
+	}
+
+
+	/**
+	 * Parses an {@code authorization_details} parameter.
+	 *
+	 * @param params The parameters. Must not be {@code null}.
+	 *
+	 * @return The authorisation details, {@code null} if not specified.
+	 *
+	 * @throws ParseException If parsing failed.
+	 */
+	static List<AuthorizationDetail> parseAuthorizationDetails(final JSONObject params)
+		throws ParseException {
+
+		String json = JSONObjectUtils.getString(params, "authorization_details", null);
+
+		if (json == null) {
+			return null;
+		}
+
+		return AuthorizationDetail.parseList(json);
 	}
 
 	

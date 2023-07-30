@@ -18,16 +18,17 @@
 package com.nimbusds.openid.connect.sdk.token;
 
 
-import java.util.Collections;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import com.nimbusds.oauth2.sdk.token.*;
+import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
+
+import java.util.Collections;
 
 
 /**
@@ -69,6 +70,7 @@ public class OIDCTokensTest extends TestCase {
 			"Chei4euPai5Phai0mohnaexeex7shou4",
 			60L,
 			Scope.parse("openid email"),
+			Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build()),
 			TokenTypeURI.ACCESS_TOKEN
 		);
 		RefreshToken refreshToken = new RefreshToken();
@@ -86,9 +88,10 @@ public class OIDCTokensTest extends TestCase {
 		assertTrue(tokens.getParameterNames().contains("access_token"));
 		assertTrue(tokens.getParameterNames().contains("expires_in"));
 		assertTrue(tokens.getParameterNames().contains("scope"));
+		assertTrue(tokens.getParameterNames().contains("authorization_details"));
 		assertTrue(tokens.getParameterNames().contains("issued_token_type"));
 		assertTrue(tokens.getParameterNames().contains("refresh_token"));
-		assertEquals(7, tokens.getParameterNames().size());
+		assertEquals(8, tokens.getParameterNames().size());
 
 		JSONObject jsonObject = tokens.toJSONObject();
 		assertEquals(ID_TOKEN_STRING, jsonObject.get("id_token"));
@@ -96,9 +99,10 @@ public class OIDCTokensTest extends TestCase {
 		assertEquals(accessToken.getValue(), jsonObject.get("access_token"));
 		assertEquals(60L, jsonObject.get("expires_in"));
 		assertEquals("openid email", jsonObject.get("scope"));
+		assertEquals(AuthorizationDetail.toJSONString(accessToken.getAuthorizationDetails()), jsonObject.get("authorization_details"));
 		assertEquals(accessToken.getIssuedTokenType().getURI().toString(), jsonObject.get("issued_token_type"));
 		assertEquals(refreshToken.getValue(), jsonObject.get("refresh_token"));
-		assertEquals(7, jsonObject.size());
+		assertEquals(8, jsonObject.size());
 
 		tokens = OIDCTokens.parse(jsonObject);
 
@@ -107,6 +111,7 @@ public class OIDCTokensTest extends TestCase {
 		assertEquals(accessToken.getValue(), tokens.getAccessToken().getValue());
 		assertEquals(accessToken.getLifetime(), tokens.getAccessToken().getLifetime());
 		assertEquals(accessToken.getScope(), tokens.getAccessToken().getScope());
+		assertEquals(accessToken.getAuthorizationDetails(), tokens.getAccessToken().getAuthorizationDetails());
 		assertEquals(accessToken.getIssuedTokenType(), tokens.getAccessToken().getIssuedTokenType());
 		assertEquals(refreshToken.getValue(), tokens.getRefreshToken().getValue());
 	}
@@ -119,6 +124,7 @@ public class OIDCTokensTest extends TestCase {
 			"Chei4euPai5Phai0mohnaexeex7shou4",
 			60L,
 			Scope.parse("openid email"),
+			Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build()),
 			TokenTypeURI.ACCESS_TOKEN
 		);
 		RefreshToken refreshToken = new RefreshToken();
@@ -136,9 +142,10 @@ public class OIDCTokensTest extends TestCase {
 		assertTrue(tokens.getParameterNames().contains("access_token"));
 		assertTrue(tokens.getParameterNames().contains("expires_in"));
 		assertTrue(tokens.getParameterNames().contains("scope"));
+		assertTrue(tokens.getParameterNames().contains("authorization_details"));
 		assertTrue(tokens.getParameterNames().contains("issued_token_type"));
 		assertTrue(tokens.getParameterNames().contains("refresh_token"));
-		assertEquals(7, tokens.getParameterNames().size());
+		assertEquals(8, tokens.getParameterNames().size());
 
 		JSONObject jsonObject = tokens.toJSONObject();
 		assertEquals(ID_TOKEN_STRING, jsonObject.get("id_token"));
@@ -146,9 +153,10 @@ public class OIDCTokensTest extends TestCase {
 		assertEquals(accessToken.getValue(), jsonObject.get("access_token"));
 		assertEquals(60L, jsonObject.get("expires_in"));
 		assertEquals("openid email", jsonObject.get("scope"));
+		assertEquals(AuthorizationDetail.toJSONString(accessToken.getAuthorizationDetails()), jsonObject.get("authorization_details"));
 		assertEquals(accessToken.getIssuedTokenType().getURI().toString(), jsonObject.get("issued_token_type"));
 		assertEquals(refreshToken.getValue(), jsonObject.get("refresh_token"));
-		assertEquals(7, jsonObject.size());
+		assertEquals(8, jsonObject.size());
 
 		tokens = OIDCTokens.parse(jsonObject);
 
@@ -157,6 +165,7 @@ public class OIDCTokensTest extends TestCase {
 		assertEquals(accessToken.getValue(), tokens.getAccessToken().getValue());
 		assertEquals(accessToken.getLifetime(), tokens.getAccessToken().getLifetime());
 		assertEquals(accessToken.getScope(), tokens.getAccessToken().getScope());
+		assertEquals(accessToken.getAuthorizationDetails(), tokens.getAccessToken().getAuthorizationDetails());
 		assertEquals(accessToken.getIssuedTokenType(), tokens.getAccessToken().getIssuedTokenType());
 		assertEquals(refreshToken.getValue(), tokens.getRefreshToken().getValue());
 	}
@@ -227,6 +236,7 @@ public class OIDCTokensTest extends TestCase {
 		assertEquals(accessToken.getValue(), tokens.getAccessToken().getValue());
 		assertEquals(0L, tokens.getAccessToken().getLifetime());
 		assertNull(tokens.getAccessToken().getScope());
+		assertNull(tokens.getAccessToken().getAuthorizationDetails());
 		assertNull(tokens.getAccessToken().getIssuedTokenType());
 		assertNull(tokens.getRefreshToken());
 	}
@@ -263,6 +273,7 @@ public class OIDCTokensTest extends TestCase {
 		assertEquals(accessToken.getValue(), tokens.getAccessToken().getValue());
 		assertEquals(0L, tokens.getAccessToken().getLifetime());
 		assertNull(tokens.getAccessToken().getScope());
+		assertNull(tokens.getAccessToken().getAuthorizationDetails());
 		assertNull(tokens.getAccessToken().getIssuedTokenType());
 		assertNull(tokens.getRefreshToken());
 	}

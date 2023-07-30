@@ -18,15 +18,14 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
+import net.minidev.json.JSONObject;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import net.minidev.json.JSONObject;
-
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 
 /**
@@ -100,6 +99,7 @@ public class Tokens {
 				accessToken.getValue(),
 				accessToken.getLifetime(),
 				accessToken.getScope(),
+				accessToken.getAuthorizationDetails(),
 				accessToken.getIssuedTokenType()
 			);
 		}
@@ -127,6 +127,7 @@ public class Tokens {
 				accessToken.getValue(),
 				accessToken.getLifetime(),
 				accessToken.getScope(),
+				accessToken.getAuthorizationDetails(),
 				accessToken.getIssuedTokenType()
 			);
 		}

@@ -2228,4 +2228,8 @@ version 10.12 (2023-07-30)
     * AuthorizationRequest receives authorization_details (RAR) support.
     * AuthenticationRequest receives authorization_details (RAR) support.
     * TokenRequest receives authorization_details (RAR) support.
+    * The Bearer and DPoP AccessToken classes receive authorization_details
+      (RAR) support.
+    * The AccessTokenResponse class receive authorization_details (RAR)
+      support.
     * Adds OAuth2Error.INVALID_AUTHORIZATION_DETAILS constant for RAR.

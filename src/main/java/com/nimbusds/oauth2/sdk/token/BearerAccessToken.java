@@ -18,15 +18,15 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
-import java.util.List;
-import java.util.Map;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -43,7 +43,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
  * }
  * </pre>
  *
- * <p>The above example token serialised to a HTTP Authorization header:
+ * <p>The above example token serialised to an HTTP Authorization header:
  *
  * <pre>
  * Authorization: Bearer 2YotnFZFEjr1zCsicMWpAA
@@ -54,6 +54,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
  * <ul>
  *     <li>OAuth 2.0 (RFC 6749), sections 1.4 and 5.1.
  *     <li>OAuth 2.0 Bearer Token Usage (RFC 6750).
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 7.
  *     <li>OAuth 2.0 Token Exchange (RFC 8693), section 3.
  * </ul>
  */
@@ -158,9 +159,36 @@ public class BearerAccessToken extends AccessToken {
 	 * @param issuedTokenType The token type URI, {@code null} if not
 	 *                        specified.
 	 */
-	public BearerAccessToken(final String value, final long lifetime, final Scope scope, final TokenTypeURI issuedTokenType) {
+	public BearerAccessToken(final String value,
+				 final long lifetime,
+				 final Scope scope,
+				 final TokenTypeURI issuedTokenType) {
 	
-		super(AccessTokenType.BEARER, value, lifetime, scope, issuedTokenType);
+		super(AccessTokenType.BEARER, value, lifetime, scope, null, issuedTokenType);
+	}
+
+
+	/**
+	 * Creates a new bearer access token with the specified value.
+	 *
+	 * @param value                The access token value. Must not be
+	 *                             {@code null} or empty string.
+	 * @param lifetime             The lifetime in seconds, 0 if not
+	 *                             specified.
+	 * @param scope                The scope, {@code null} if not
+	 *                             specified.
+	 * @param authorizationDetails The authorisation details, {@code null}
+	 *                             if not specified.
+	 * @param issuedTokenType      The token type URI, {@code null} if not
+	 *                             specified.
+	 */
+	public BearerAccessToken(final String value,
+				 final long lifetime,
+				 final Scope scope,
+				 final List<AuthorizationDetail> authorizationDetails,
+				 final TokenTypeURI issuedTokenType) {
+
+		super(AccessTokenType.BEARER, value, lifetime, scope, authorizationDetails, issuedTokenType);
 	}
 	
 	
@@ -210,8 +238,9 @@ public class BearerAccessToken extends AccessToken {
 		String accessTokenValue = AccessTokenUtils.parseValue(jsonObject);
 		long lifetime = AccessTokenUtils.parseLifetime(jsonObject);
 		Scope scope = AccessTokenUtils.parseScope(jsonObject);
+		List<AuthorizationDetail> authorizationDetails = AccessTokenUtils.parseAuthorizationDetails(jsonObject);
 		TokenTypeURI issuedTokenType = AccessTokenUtils.parseIssuedTokenType(jsonObject);
-		return new BearerAccessToken(accessTokenValue, lifetime, scope, issuedTokenType);
+		return new BearerAccessToken(accessTokenValue, lifetime, scope, authorizationDetails, issuedTokenType);
 	}
 	
 	
