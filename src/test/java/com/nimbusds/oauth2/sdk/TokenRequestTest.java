@@ -450,6 +450,25 @@ public class TokenRequestTest extends TestCase {
 			assertEquals("The \"client_credentials\" grant type requires client authentication", e.getMessage());
 		}
 	}
+
+
+	public void testConstructorIllegalResourceURI()
+		throws Exception {
+
+		try {
+			new TokenRequest(
+				new URI("https://c2id.com/token"),
+				new ClientSecretBasic(new ClientID("123"), new Secret("ni8ohr2ideng4euD")),
+				new ClientCredentialsGrant(),
+				new Scope("read", "write"),
+				Collections.singletonList(new URI("https://api.example.com/data#fragment")),
+				null
+				);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("Resource URI must be absolute and with no query or fragment: https://api.example.com/data#fragment", e.getMessage());
+		}
+	}
 	
 	
 	public void testCodeGrantWithBasicSecret()
