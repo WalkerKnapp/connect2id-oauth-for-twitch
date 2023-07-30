@@ -2223,8 +2223,9 @@ version 10.11 (2023-07-08)
     * Moves setFederationEntityMetadata to parent CommonFederationClaimsSet
       class.
 
-version 10.12 (2023-07-29)
+version 10.12 (2023-07-30)
     * Adds OAuth 2.0 Rich Authorization Requests (RAR) (RFC 9396) support.
     * AuthorizationRequest receives authorization_details (RAR) support.
     * AuthenticationRequest receives authorization_details (RAR) support.
+    * TokenRequest receives authorization_details (RAR) support.
     * Adds OAuth2Error.INVALID_AUTHORIZATION_DETAILS constant for RAR.

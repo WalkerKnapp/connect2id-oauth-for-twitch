@@ -18,19 +18,19 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.oauth2.sdk.util.*;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 
 
 /**
@@ -57,6 +57,7 @@ import com.nimbusds.oauth2.sdk.util.*;
  *
  * <ul>
  *     <li>OAuth 2.0 (RFC 6749), sections 4.1.3, 4.3.2, 4.4.2 and 6.
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 6.
  *     <li>Resource Indicators for OAuth 2.0 (RFC 8707)
  *     <li>OAuth 2.0 Incremental Authorization
  *         (draft-ietf-oauth-incremental-authz-04)
@@ -76,6 +77,12 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 	 * The requested scope, {@code null} if not specified.
 	 */
 	private final Scope scope;
+
+
+	/**
+	 * The RAR details (optional).
+	 */
+	private final List<AuthorizationDetail> authorizationDetails;
 	
 	
 	/**
@@ -95,6 +102,7 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 	 * Custom request parameters.
 	 */
 	private final Map<String,List<String>> customParams;
+
 
 	private static final Set<String> ALLOWED_REPEATED_PARAMS = new HashSet<>(Arrays.asList("resource", "audience"));
 
@@ -146,6 +154,40 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 			    final List<URI> resources,
 			    final Map<String,List<String>> customParams) {
 
+		this(uri, clientAuth, authzGrant, scope, null, resources, customParams);
+	}
+
+
+	/**
+	 * Creates a new token request with the specified client
+	 * authentication and extension and custom parameters.
+	 *
+	 * @param uri                  The URI of the token endpoint. May be
+	 *                             {@code null} if the
+	 *                             {@link #toHTTPRequest} method will not
+	 *                             be used.
+	 * @param clientAuth           The client authentication. Must not be
+	 *                             {@code null}.
+	 * @param authzGrant           The authorisation grant. Must not be
+	 *                             {@code null}.
+	 * @param scope                The requested scope, {@code null} if not
+	 *                             specified.
+	 * @param authorizationDetails The Rich Authorisation Request (RAR)
+	 *                             details, {@code null} if not specified.
+	 * @param resources            The resource URI(s), {@code null} if not
+	 *                             specified.
+	 * @param customParams         Custom parameters to be included in the
+	 *                             request body, empty map or {@code null}
+	 *                             if none.
+	 */
+	public TokenRequest(final URI uri,
+			    final ClientAuthentication clientAuth,
+			    final AuthorizationGrant authzGrant,
+			    final Scope scope,
+			    final List<AuthorizationDetail> authorizationDetails,
+			    final List<URI> resources,
+			    final Map<String,List<String>> customParams) {
+
 		super(uri, clientAuth);
 
 		if (clientAuth == null)
@@ -154,16 +196,18 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 		this.authzGrant = authzGrant;
 
 		this.scope = scope;
-		
+
 		if (resources != null) {
 			for (URI resourceURI: resources) {
 				if (! ResourceUtils.isLegalResourceURI(resourceURI))
 					throw new IllegalArgumentException("Resource URI must be absolute and with no query or fragment: " + resourceURI);
 			}
 		}
-		
+
+		this.authorizationDetails = authorizationDetails;
+
 		this.resources = resources;
-		
+
 		this.existingGrant = null; // only for confidential client
 
 		if (MapUtils.isNotEmpty(customParams)) {
@@ -195,7 +239,7 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 
 	/**
 	 * Creates a new token request, with no explicit client authentication
-	 * (may be present in the grant depending on its type).
+	 * (maybe present in the grant depending on its type).
 	 *
 	 * @param uri        The URI of the token endpoint. May be
 	 *                   {@code null} if the {@link #toHTTPRequest} method
@@ -217,7 +261,7 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 
 	/**
 	 * Creates a new token request, with no explicit client authentication
-	 * (may be present in the grant depending on its type) and extension
+	 * (maybe present in the grant depending on its type) and extension
 	 * and custom parameters.
 	 *
 	 * @param uri           The URI of the token endpoint. May be
@@ -245,6 +289,45 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 			    final RefreshToken existingGrant,
 			    final Map<String,List<String>> customParams) {
 
+		this(uri, clientID, authzGrant, scope, null, resources, existingGrant, customParams);
+	}
+
+
+	/**
+	 * Creates a new token request, with no explicit client authentication
+	 * (maybe present in the grant depending on its type) and extension
+	 * and custom parameters.
+	 *
+	 * @param uri                  The URI of the token endpoint. May be
+	 *                             {@code null} if the
+	 *                             {@link #toHTTPRequest}
+	 *                             method will not be used.
+	 * @param clientID             The client identifier, {@code null} if
+	 *                             not specified.
+	 * @param authzGrant           The authorisation grant. Must not be
+	 *                             {@code null}.
+	 * @param scope                The requested scope, {@code null} if not
+	 *                             specified.
+	 * @param authorizationDetails The Rich Authorisation Request (RAR)
+	 *                             details, {@code null} if not specified.
+	 * @param resources            The resource URI(s), {@code null} if not
+	 *                             specified.
+	 * @param existingGrant        Existing refresh token for incremental
+	 *                             authorisation of a public client,
+	 *                             {@code null} if not specified.
+	 * @param customParams         Custom parameters to be included in the
+	 *                             request body, empty map or {@code null}
+	 *                             if none.
+	 */
+	public TokenRequest(final URI uri,
+			    final ClientID clientID,
+			    final AuthorizationGrant authzGrant,
+			    final Scope scope,
+			    final List<AuthorizationDetail> authorizationDetails,
+			    final List<URI> resources,
+			    final RefreshToken existingGrant,
+			    final Map<String,List<String>> customParams) {
+
 		super(uri, clientID);
 
 		if (authzGrant.getType().requiresClientAuthentication()) {
@@ -258,16 +341,18 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 		this.authzGrant = authzGrant;
 
 		this.scope = scope;
-		
+
+		this.authorizationDetails = authorizationDetails;
+
 		if (resources != null) {
 			for (URI resourceURI: resources) {
 				if (! ResourceUtils.isLegalResourceURI(resourceURI))
 					throw new IllegalArgumentException("Resource URI must be absolute and with no query or fragment: " + resourceURI);
 			}
 		}
-		
+
 		this.resources = resources;
-		
+
 		this.existingGrant = existingGrant;
 
 		if (MapUtils.isNotEmpty(customParams)) {
@@ -280,7 +365,7 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 
 	/**
 	 * Creates a new token request, with no explicit client authentication
-	 * (may be present in the grant depending on its type).
+	 * (maybe present in the grant depending on its type).
 	 *
 	 * @param uri        The URI of the token endpoint. May be
 	 *                   {@code null} if the {@link #toHTTPRequest} method
@@ -351,6 +436,17 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 	public Scope getScope() {
 
 		return scope;
+	}
+
+
+	/**
+	 * Returns the Rich Authorisation Request (RAR) details.
+	 *
+	 * @return The authorisation details, {@code null} if not specified.
+	 */
+	public List<AuthorizationDetail> getAuthorizationDetails() {
+
+		return authorizationDetails;
 	}
 	
 	
@@ -432,6 +528,10 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 
 		if (getClientID() != null) {
 			params.put("client_id", Collections.singletonList(getClientID().getValue()));
+		}
+
+		if (getAuthorizationDetails() != null) {
+			params.put("authorization_details", Collections.singletonList(AuthorizationDetail.toJSONString(getAuthorizationDetails())));
 		}
 		
 		if (getResources() != null) {
@@ -535,8 +635,17 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 		if (scopeValue != null) {
 			scope = Scope.parse(scopeValue);
 		}
+
+		// Parse optional RAR
+		String json = MultivaluedMapUtils.getFirstValue(params, "authorization_details");
+
+		List<AuthorizationDetail> authorizationDetails = null;
+
+		if (json != null) {
+			authorizationDetails = AuthorizationDetail.parseList(json);
+		}
 		
-		// Parse resource URIs
+		// Parse optional resource URIs
 		List<URI> resources = null;
 		
 		List<String> vList = params.get("resource");
@@ -598,6 +707,10 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 			if (p.getKey().equalsIgnoreCase("scope")) {
 				continue; // skip
 			}
+
+			if (p.getKey().equalsIgnoreCase("authorization_details")) {
+				continue; // skip
+			}
 			
 			if (p.getKey().equalsIgnoreCase("resource")) {
 				continue; // skip
@@ -613,10 +726,10 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 		}
 
 		if (clientAuth != null) {
-			return new TokenRequest(uri, clientAuth, grant, scope, resources, customParams);
+			return new TokenRequest(uri, clientAuth, grant, scope, authorizationDetails, resources, customParams);
 		} else {
 			// public client
-			return new TokenRequest(uri, clientID, grant, scope, resources, existingGrant, customParams);
+			return new TokenRequest(uri, clientID, grant, scope, authorizationDetails, resources, existingGrant, customParams);
 		}
 	}
 }
