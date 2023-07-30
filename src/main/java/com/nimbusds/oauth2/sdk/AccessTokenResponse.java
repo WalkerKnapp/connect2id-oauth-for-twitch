@@ -121,7 +121,7 @@ public class AccessTokenResponse extends TokenResponse implements SuccessRespons
 	/**
 	 * Returns the custom parameters.
 	 *
-	 * @return The custom parameters, as a unmodifiable map, empty map if
+	 * @return The custom parameters, as an unmodifiable map, empty map if
 	 *         none.
 	 */
 	public Map<String,Object> getCustomParameters() {
