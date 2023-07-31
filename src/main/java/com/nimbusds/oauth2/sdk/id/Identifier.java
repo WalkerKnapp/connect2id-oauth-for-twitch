@@ -51,19 +51,21 @@ public class Identifier implements Serializable, Comparable<Identifier>, JSONAwa
 	
 	/**
 	 * Returns a string list representation of the specified identifier
-	 * collection.
+	 * collection. Omits {@code null} items in the collection.
 	 *
 	 * @param ids The identifiers, {@code null} if not specified.
 	 *
 	 * @return The string list, empty list if not specified.
 	 */
-	public static List<String> toStringList(final Collection<? extends  Identifier> ids) {
+	public static List<String> toStringList(final Collection<? extends Identifier> ids) {
 		if (ids == null) {
 			return Collections.emptyList();
 		}
 		List<String> stringList = new ArrayList<>(ids.size());
 		for (Identifier id: ids) {
-			stringList.add(id.getValue());
+			if (id != null) {
+				stringList.add(id.getValue());
+			}
 		}
 		return stringList;
 	}

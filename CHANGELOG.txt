@@ -2234,3 +2234,4 @@ version 10.12 (2023-07-31)
     * The TokenIntrospectionSuccessResponse receives authorization_details
       (RAR) support.
     * Adds OAuth2Error.INVALID_AUTHORIZATION_DETAILS constant for RAR.
+    * Identifier.toStringList(Collection) must omit null items (iss #430).

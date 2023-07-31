@@ -19,6 +19,8 @@ package com.nimbusds.oauth2.sdk.id;
 
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -44,5 +46,15 @@ public class IdentifierTest extends TestCase {
 			}
 
 		}) instanceof Serializable);
+	}
+
+
+	public void testToStringList_omitNullItems() {
+
+		List<Identifier> in = Arrays.asList(new Identifier("a"), new Identifier("b"), null, new Identifier("c"), null);
+
+		List<String> out = Identifier.toStringList(in);
+
+		assertEquals(Arrays.asList("a", "b", "c"), out);
 	}
 }
