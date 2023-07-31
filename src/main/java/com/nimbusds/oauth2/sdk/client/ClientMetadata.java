@@ -18,14 +18,6 @@
 package com.nimbusds.oauth2.sdk.client;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-
-import com.nimbusds.oauth2.sdk.*;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -34,15 +26,24 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagUtils;
+import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import com.nimbusds.oauth2.sdk.ciba.BackChannelTokenDeliveryMode;
 import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.SoftwareID;
 import com.nimbusds.oauth2.sdk.id.SoftwareVersion;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistrationType;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 
 
 /**
@@ -73,6 +74,7 @@ import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistratio
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
  *         OAuth 2.0 (JARM).
  *     <li>OAuth 2.0 Pushed Authorization Requests (RFC 9126)
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 10.
  *     <li>OpenID Connect Client Initiated Backchannel Authentication Flow -
  * 	   Core 1.0
  *     <li>OpenID Connect Federation 1.0 (draft 22)
@@ -128,7 +130,8 @@ public class ClientMetadata {
 		p.add("authorization_signed_response_alg");
 		p.add("authorization_encrypted_response_alg");
 		p.add("authorization_encrypted_response_enc");
-		
+		p.add("authorization_details_types");
+
 		// CIBA
 		p.add("backchannel_token_delivery_mode");
 		p.add("backchannel_client_notification_endpoint");
@@ -352,6 +355,12 @@ public class ClientMetadata {
 	 * If {@code true} PAR is required, else not.
 	 */
 	private boolean requirePAR = false;
+
+
+	/**
+	 * The authorisation details types.
+	 */
+	private List<AuthorizationType> authzTypes;
 	
 	
 	/**
@@ -453,6 +462,7 @@ public class ClientMetadata {
 		authzJWEAlg = metadata.getAuthorizationJWEAlg();
 		authzJWEEnc = metadata.getAuthorizationJWEEnc();
 		requirePAR = metadata.requiresPushedAuthorizationRequests();
+		authzTypes = metadata.getAuthorizationDetailsTypes();
 		backChannelTokenDeliveryMode = metadata.getBackChannelTokenDeliveryMode();
 		backChannelClientNotificationEndpoint = metadata.getBackChannelClientNotificationEndpoint();
 		backChannelAuthRequestJWSAlg = metadata.getBackChannelAuthRequestJWSAlg();
@@ -1716,6 +1726,33 @@ public class ClientMetadata {
 		
 		this.requirePAR = requirePAR;
 	}
+
+
+	/**
+	 * Gets the authorisation details types for Rich Authorisation Requests
+	 * (RAR). Corresponds to the {@code authorization_details_types}
+	 * metadata field.
+	 *
+	 * @return The authorisation types, {@code null} if not specified.
+	 */
+	public List<AuthorizationType> getAuthorizationDetailsTypes() {
+
+		return this.authzTypes;
+	}
+
+
+	/**
+	 * Sets the authorisation details types for Rich Authorisation Requests
+	 * (RAR). Corresponds to the {@code authorization_details_types}
+	 * metadata field.
+	 *
+	 * @param authzTypes The authorisation types, {@code null} if not
+	 *                   specified.
+	 */
+	public void setAuthorizationDetailsTypes(final List<AuthorizationType> authzTypes) {
+
+		this.authzTypes = authzTypes;
+	}
 	
 	
 	/**
@@ -2211,6 +2248,11 @@ public class ClientMetadata {
 		if (requirePAR) {
 			o.put("require_pushed_authorization_requests", true);
 		}
+
+		// RAR
+		if (authzTypes != null) {
+			o.put("authorization_details_types", Identifier.toStringList(authzTypes));
+		}
 		
 		// CIBA
 		
@@ -2574,6 +2616,18 @@ public class ClientMetadata {
 			if (jsonObject.get("require_pushed_authorization_requests") != null) {
 				metadata.requiresPushedAuthorizationRequests(JSONObjectUtils.getBoolean(jsonObject, "require_pushed_authorization_requests"));
 				jsonObject.remove("require_pushed_authorization_requests");
+			}
+
+			// RAR
+			if (jsonObject.get("authorization_details_types") != null) {
+				List<AuthorizationType> authzTypes = new LinkedList<>();
+				for (String v: JSONObjectUtils.getStringList(jsonObject, "authorization_details_types")) {
+					if (StringUtils.isNotBlank(v)) {
+						authzTypes.add(new AuthorizationType(v));
+					}
+				}
+				metadata.setAuthorizationDetailsTypes(authzTypes);
+				jsonObject.remove("authorization_details_types");
 			}
 			
 			// CIBA

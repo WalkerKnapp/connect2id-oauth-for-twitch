@@ -2235,5 +2235,7 @@ version 10.12 (2023-07-31)
       (RAR) support.
     * AuthorizationServerMetadata and OIDCProviderMetadata receive
       authorization_details_types_supported (RAR) support.
+    * ClientMetadata and OIDCClientMetadata receive
+      authorization_details_types_supported (RAR) support.
     * Adds OAuth2Error.INVALID_AUTHORIZATION_DETAILS constant for RAR.
     * Identifier.toStringList(Collection) must omit null items (iss #430).

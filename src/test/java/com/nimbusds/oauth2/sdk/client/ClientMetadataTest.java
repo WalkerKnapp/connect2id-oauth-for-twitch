@@ -18,14 +18,6 @@
 package com.nimbusds.oauth2.sdk.client;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONObject;
-import org.apache.commons.math3.util.Combinations;
-
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
@@ -46,12 +38,20 @@ import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.ciba.BackChannelTokenDeliveryMode;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.SoftwareID;
 import com.nimbusds.oauth2.sdk.id.SoftwareVersion;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistrationType;
-import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
+import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
+import org.apache.commons.math3.util.Combinations;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 
 
 public class ClientMetadataTest extends TestCase {
@@ -92,6 +92,7 @@ public class ClientMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("authorization_encrypted_response_enc"));
 		assertTrue(paramNames.contains("authorization_encrypted_response_enc"));
 		assertTrue(paramNames.contains("require_pushed_authorization_requests"));
+		assertTrue(paramNames.contains("authorization_details_types"));
 		assertTrue(paramNames.contains("backchannel_token_delivery_mode"));
 		assertTrue(paramNames.contains("backchannel_client_notification_endpoint"));
 		assertTrue(paramNames.contains("backchannel_authentication_request_signing_alg"));
@@ -99,7 +100,7 @@ public class ClientMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("organization_name"));
 		assertTrue(paramNames.contains("signed_jwks_uri"));
 		assertTrue(paramNames.contains("client_registration_types"));
-		assertEquals(38, ClientMetadata.getRegisteredParameterNames().size());
+		assertEquals(39, ClientMetadata.getRegisteredParameterNames().size());
 	}
 	
 	
@@ -239,6 +240,10 @@ public class ClientMetadataTest extends TestCase {
 		EncryptionMethod authzJWEEnc = EncryptionMethod.A256GCM;
 		meta.setAuthorizationJWEEnc(authzJWEEnc);
 		assertEquals(authzJWEEnc, meta.getAuthorizationJWEEnc());
+
+		List<AuthorizationType> authzTypes = Arrays.asList(new AuthorizationType("api_1"), new AuthorizationType("api_2"));
+		meta.setAuthorizationDetailsTypes(authzTypes);
+		assertEquals(authzTypes, meta.getAuthorizationDetailsTypes());
 		
 		// Test getters
 		assertEquals(redirectURIs, meta.getRedirectionURIs());
@@ -282,6 +287,7 @@ public class ClientMetadataTest extends TestCase {
 		assertEquals(authzJWSAlg, meta.getAuthorizationJWSAlg());
 		assertEquals(authzJWEAlg, meta.getAuthorizationJWEAlg());
 		assertEquals(authzJWEEnc, meta.getAuthorizationJWEEnc());
+		assertEquals(authzTypes, meta.getAuthorizationDetailsTypes());
 		assertTrue(meta.getCustomFields().isEmpty());
 		
 		assertEquals(cibaEndpoint, meta.getBackChannelClientNotificationEndpoint());
@@ -339,6 +345,7 @@ public class ClientMetadataTest extends TestCase {
 		assertEquals(cibaEndpoint, meta.getBackChannelClientNotificationEndpoint());
 		assertEquals(JWSAlgorithm.RS256, meta.getBackChannelAuthRequestJWSAlg());
 		assertTrue(meta.supportsBackChannelUserCodeParam());
+		assertEquals(authzTypes, meta.getAuthorizationDetailsTypes());
 	
 		assertTrue(meta.getCustomFields().isEmpty());
 	}
@@ -617,6 +624,9 @@ public class ClientMetadataTest extends TestCase {
 		
 		EncryptionMethod authzJWEEnc = EncryptionMethod.A256GCM;
 		meta.setAuthorizationJWEEnc(authzJWEEnc);
+
+		List<AuthorizationType> authzTypes = Arrays.asList(new AuthorizationType("api_1"), new AuthorizationType("api_2"));
+		meta.setAuthorizationDetailsTypes(authzTypes);
 		
 		meta.setBackChannelTokenDeliveryMode(BackChannelTokenDeliveryMode.PUSH);
 		URI cibaEndpoint = new URI("http://example.com/de/cn");
@@ -670,6 +680,7 @@ public class ClientMetadataTest extends TestCase {
 		assertEquals(authzJWSAlg, copy.getAuthorizationJWSAlg());
 		assertEquals(authzJWEAlg, copy.getAuthorizationJWEAlg());
 		assertEquals(authzJWEEnc, copy.getAuthorizationJWEEnc());
+		assertEquals(authzTypes, copy.getAuthorizationDetailsTypes());
 		
 		assertEquals(BackChannelTokenDeliveryMode.PUSH, meta.getBackChannelTokenDeliveryMode());
 		assertEquals(cibaEndpoint, meta.getBackChannelClientNotificationEndpoint());
@@ -720,6 +731,7 @@ public class ClientMetadataTest extends TestCase {
 		assertEquals(authzJWSAlg, copy.getAuthorizationJWSAlg());
 		assertEquals(authzJWEAlg, copy.getAuthorizationJWEAlg());
 		assertEquals(authzJWEEnc, copy.getAuthorizationJWEEnc());
+		assertEquals(authzTypes, meta.getAuthorizationDetailsTypes());
 		
 		assertEquals(BackChannelTokenDeliveryMode.PUSH, meta.getBackChannelTokenDeliveryMode());
 		assertEquals(cibaEndpoint, meta.getBackChannelClientNotificationEndpoint());
@@ -1611,6 +1623,40 @@ public class ClientMetadataTest extends TestCase {
 		assertTrue(clientMetadata.requiresPushedAuthorizationRequests());
 		
 		assertTrue(clientMetadata.getCustomFields().isEmpty());
+	}
+
+
+	public void testRAR()
+		throws ParseException {
+
+		ClientMetadata clientMetadata = new ClientMetadata();
+
+		assertNull(clientMetadata.getAuthorizationDetailsTypes());
+
+		List<AuthorizationType> authzTypes = Arrays.asList(new AuthorizationType("api_1"), new AuthorizationType("api_2"));
+		clientMetadata.setAuthorizationDetailsTypes(authzTypes);
+
+		assertEquals(authzTypes, clientMetadata.getAuthorizationDetailsTypes());
+
+		JSONObject jsonObject = clientMetadata.toJSONObject();
+		assertEquals(Identifier.toStringList(authzTypes), jsonObject.get("authorization_details_types"));
+
+		clientMetadata = ClientMetadata.parse(jsonObject);
+
+		assertEquals(authzTypes, clientMetadata.getAuthorizationDetailsTypes());
+	}
+
+
+	public void testRAR_parseNullItems()
+		throws ParseException {
+
+		ClientMetadata clientMetadata = new ClientMetadata();
+		JSONObject jsonObject = clientMetadata.toJSONObject();
+		jsonObject.put("authorization_details_types", Arrays.asList("api_1", null, "api_2", null));
+
+		clientMetadata = ClientMetadata.parse(jsonObject);
+
+		assertEquals(Arrays.asList(new AuthorizationType("api_1"), new AuthorizationType("api_2")), clientMetadata.getAuthorizationDetailsTypes());
 	}
 	
 	

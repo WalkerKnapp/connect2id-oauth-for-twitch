@@ -23,6 +23,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 
+import com.nimbusds.oauth2.sdk.id.Identifier;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
 
@@ -102,7 +104,10 @@ public class OIDCClientMetadataTest extends TestCase {
 		
 		// PAR
 		assertTrue(paramNames.contains("require_pushed_authorization_requests"));
-		
+
+		// RAR
+		assertTrue(paramNames.contains("authorization_details_types"));
+
 		// CIBA
 		assertTrue(paramNames.contains("backchannel_token_delivery_mode"));
 		assertTrue(paramNames.contains("backchannel_client_notification_endpoint"));
@@ -132,7 +137,7 @@ public class OIDCClientMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("organization_name"));
 		assertTrue(paramNames.contains("signed_jwks_uri"));
 		assertTrue(paramNames.contains("client_registration_types"));
-		assertEquals(57, OIDCClientMetadata.getRegisteredParameterNames().size());
+		assertEquals(58, OIDCClientMetadata.getRegisteredParameterNames().size());
 	}
 	
 	
@@ -527,6 +532,27 @@ public class OIDCClientMetadataTest extends TestCase {
 		assertTrue(clientMetadata.requiresPushedAuthorizationRequests());
 		
 		assertTrue(clientMetadata.getCustomFields().isEmpty());
+	}
+
+
+	public void testRAR()
+		throws ParseException {
+
+		OIDCClientMetadata clientMetadata = new OIDCClientMetadata();
+
+		assertNull(clientMetadata.getAuthorizationDetailsTypes());
+
+		List<AuthorizationType> authzTypes = Arrays.asList(new AuthorizationType("api_1"), new AuthorizationType("api_2"));
+		clientMetadata.setAuthorizationDetailsTypes(authzTypes);
+
+		assertEquals(authzTypes, clientMetadata.getAuthorizationDetailsTypes());
+
+		JSONObject jsonObject = clientMetadata.toJSONObject();
+		assertEquals(Identifier.toStringList(authzTypes), jsonObject.get("authorization_details_types"));
+
+		clientMetadata = OIDCClientMetadata.parse(jsonObject);
+
+		assertEquals(authzTypes, clientMetadata.getAuthorizationDetailsTypes());
 	}
 
 

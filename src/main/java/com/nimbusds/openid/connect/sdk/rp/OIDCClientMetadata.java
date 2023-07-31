@@ -60,6 +60,8 @@ import com.nimbusds.openid.connect.sdk.id.SectorID;
  *         Access Tokens (RFC 8705), sections 2.1.2 and 3.4.
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
  *         OAuth 2.0 (JARM)
+ *     <li>OAuth 2.0 Pushed Authorization Requests (RFC 9126)
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 10.
  * </ul>
  */
 public class OIDCClientMetadata extends ClientMetadata {

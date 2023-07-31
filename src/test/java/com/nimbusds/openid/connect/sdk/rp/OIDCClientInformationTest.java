@@ -73,7 +73,8 @@ public class OIDCClientInformationTest extends TestCase {
 		assertTrue(paramNames.contains("authorization_encrypted_response_enc"));
 		assertTrue(paramNames.contains("authorization_encrypted_response_enc"));
 		assertTrue(paramNames.contains("require_pushed_authorization_requests"));
-		
+		assertTrue(paramNames.contains("authorization_details_types"));
+
 		// CIBA
 		assertTrue(paramNames.contains("backchannel_token_delivery_mode"));
 		assertTrue(paramNames.contains("backchannel_client_notification_endpoint"));
@@ -106,7 +107,7 @@ public class OIDCClientInformationTest extends TestCase {
 		assertTrue(paramNames.contains("organization_name"));
 		assertTrue(paramNames.contains("signed_jwks_uri"));
 		assertTrue(paramNames.contains("client_registration_types"));
-		assertEquals(63, paramNames.size());
+		assertEquals(64, paramNames.size());
 	}
 
 
