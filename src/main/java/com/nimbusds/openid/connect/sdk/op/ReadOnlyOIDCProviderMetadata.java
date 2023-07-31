@@ -53,6 +53,7 @@ import com.nimbusds.openid.connect.sdk.claims.ClaimType;
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
  *         OAuth 2.0 (JARM)
  *     <li>OAuth 2.0 Authorization Server Issuer Identification (RFC 9207)
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
  * </ul>
  */
 public interface ReadOnlyOIDCProviderMetadata extends ReadOnlyAuthorizationServerMetadata, ReadOnlyOIDCProviderEndpointMetadata {

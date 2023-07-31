@@ -18,12 +18,6 @@
 package com.nimbusds.openid.connect.sdk.op;
 
 
-import java.net.URI;
-import java.util.*;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEAlgorithm;
@@ -37,8 +31,10 @@ import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import com.nimbusds.oauth2.sdk.ciba.BackChannelTokenDeliveryMode;
 import com.nimbusds.oauth2.sdk.client.ClientType;
+import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.*;
 import com.nimbusds.openid.connect.sdk.assurance.IdentityTrustFramework;
@@ -49,6 +45,11 @@ import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.claims.ClaimType;
 import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistrationType;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
+import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.*;
 
 
 public class OIDCProviderMetadataTest extends TestCase {
@@ -117,6 +118,7 @@ public class OIDCProviderMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("authorization_encryption_alg_values_supported"));
 		assertTrue(paramNames.contains("authorization_encryption_enc_values_supported"));
 		assertTrue(paramNames.contains("device_authorization_endpoint"));
+		assertTrue(paramNames.contains("authorization_details_types_supported"));
 		assertTrue(paramNames.contains("incremental_authz_types_supported"));
 		assertTrue(paramNames.contains("verified_claims_supported"));
 		assertTrue(paramNames.contains("trust_frameworks_supported"));
@@ -139,7 +141,7 @@ public class OIDCProviderMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("request_authentication_signing_alg_values_supported"));
 		assertTrue(paramNames.contains("federation_registration_endpoint"));
 		assertTrue(paramNames.contains("prompt_values_supported"));
-		assertEquals(85, paramNames.size());
+		assertEquals(86, paramNames.size());
 	}
 
 
@@ -1331,6 +1333,31 @@ public class OIDCProviderMetadataTest extends TestCase {
 		metadata = OIDCProviderMetadata.parse(jsonObject.toJSONString());
 		assertEquals(parEndpoint, metadata.getPushedAuthorizationRequestEndpointURI());
 		assertTrue(metadata.requiresPushedAuthorizationRequests());
+	}
+
+
+	public void testRAR()
+		throws ParseException {
+
+		OIDCProviderMetadata metadata = new OIDCProviderMetadata(new Issuer("https://c2id.com"), Collections.singletonList(SubjectType.PUBLIC), URI.create("https://c2id.com/jwks.json"));
+
+		assertNull(metadata.getAuthorizationDetailsTypes());
+
+		metadata.applyDefaults();
+
+		assertNull(metadata.getAuthorizationDetailsTypes());
+
+		List<AuthorizationType> authzTypes = Arrays.asList(new AuthorizationType("payment_initiation"), new AuthorizationType("account_information"));
+		metadata.setAuthorizationDetailsTypes(authzTypes);
+
+		assertEquals(authzTypes, metadata.getAuthorizationDetailsTypes());
+
+		JSONObject jsonObject = metadata.toJSONObject();
+		assertEquals(Identifier.toStringList(authzTypes), JSONObjectUtils.getStringList(jsonObject, "authorization_details_types_supported"));
+
+		metadata = OIDCProviderMetadata.parse(metadata.toJSONObject().toJSONString());
+
+		assertEquals(authzTypes, metadata.getAuthorizationDetailsTypes());
 	}
 	
 	

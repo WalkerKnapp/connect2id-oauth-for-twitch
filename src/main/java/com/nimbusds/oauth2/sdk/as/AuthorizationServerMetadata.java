@@ -18,15 +18,6 @@
 package com.nimbusds.oauth2.sdk.as;
 
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
-
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
@@ -44,13 +35,19 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
-import com.nimbusds.oauth2.sdk.util.CollectionUtils;
-import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
-import com.nimbusds.oauth2.sdk.util.MapUtils;
-import com.nimbusds.oauth2.sdk.util.URIUtils;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
+import com.nimbusds.oauth2.sdk.util.*;
 import com.nimbusds.openid.connect.sdk.Prompt;
 import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistrationType;
 import com.nimbusds.openid.connect.sdk.op.EndpointName;
+import net.minidev.json.JSONObject;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.*;
 
 
 /**
@@ -69,12 +66,13 @@ import com.nimbusds.openid.connect.sdk.op.EndpointName;
  *     <li>OAuth 2.0 Authorization Server Issuer Identification (RFC 9207)
  *     <li>Financial-grade API - Part 2: Read and Write API Security Profile
  *     <li>OAuth 2.0 Pushed Authorization Requests (RFC 9126)
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
  *     <li>OAuth 2.0 Device Authorization Grant (RFC 8628)
  *     <li>OpenID Connect Client Initiated Backchannel Authentication Flow -
  * 	   Core 1.0
  *     <li>OAuth 2.0 Incremental Authorization
  *         (draft-ietf-oauth-incremental-authz-04)
- *     <li>Initiating User Registration via OpenID Connect (draft 04)
+ *     <li>Initiating User Registration via OpenID Connect 1.0
  *     <li>OpenID Connect Federation 1.0 (draft 23).
  * </ul>
  */
@@ -117,6 +115,7 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 		p.add("authorization_encryption_alg_values_supported");
 		p.add("authorization_encryption_enc_values_supported");
 		p.add("require_pushed_authorization_requests");
+		p.add("authorization_details_types_supported");
 		p.add("incremental_authz_types_supported");
 		p.add("authorization_response_iss_parameter_supported");
 		p.add("backchannel_token_delivery_modes_supported");
@@ -345,6 +344,12 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	 * If {@code true} PAR is required, else not.
 	 */
 	private boolean requirePAR = false;
+
+
+	/**
+	 * The supported authorisation details types.
+	 */
+	private List<AuthorizationType> authzTypes;
 	
 	
 	/**
@@ -1092,8 +1097,27 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 	public void requiresPushedAuthorizationRequests(final boolean requirePAR) {
 		this.requirePAR = requirePAR;
 	}
-	
-	
+
+
+	@Override
+	public List<AuthorizationType> getAuthorizationDetailsTypes() {
+		return authzTypes;
+	}
+
+
+	/**
+	 * Sets the supported authorisation details types for Rich
+	 * Authorisation Requests (RAR). Corresponds to the
+	 * {@code authorization_details_types_supported} metadata field.
+	 *
+	 * @param authzTypes The supported authorisation types, {@code null} if
+	 *                   not specified.
+	 */
+	public void setAuthorizationDetailsTypes(final List<AuthorizationType> authzTypes) {
+		this.authzTypes = authzTypes;
+	}
+
+
 	@Override
 	public List<ClientType> getIncrementalAuthorizationTypes() {
 		return incrementalAuthzTypes;
@@ -1627,6 +1651,11 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 		if (requirePAR) {
 			o.put("require_pushed_authorization_requests", true);
 		}
+
+		// RAR
+		if (authzTypes != null) {
+			o.put("authorization_details_types_supported", Identifier.toStringList(authzTypes));
+		}
 		
 		// Incremental authz
 		if (CollectionUtils.isNotEmpty(incrementalAuthzTypes)) {
@@ -2056,6 +2085,19 @@ public class AuthorizationServerMetadata extends AuthorizationServerEndpointMeta
 		// PAR
 		if (jsonObject.get("require_pushed_authorization_requests") != null) {
 			as.requiresPushedAuthorizationRequests(JSONObjectUtils.getBoolean(jsonObject, "require_pushed_authorization_requests"));
+		}
+
+		// RAR
+		if (jsonObject.get("authorization_details_types_supported") != null) {
+
+			as.authzTypes = new ArrayList<>();
+
+			for (String v: JSONObjectUtils.getStringArray(jsonObject, "authorization_details_types_supported")) {
+
+				if (StringUtils.isNotBlank(v)) {
+					as.authzTypes.add(new AuthorizationType(v));
+				}
+			}
 		}
 		
 		// Incremental authz

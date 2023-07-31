@@ -22,6 +22,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
+import com.nimbusds.oauth2.sdk.id.Identifier;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
 import org.checkerframework.checker.units.qual.A;
@@ -90,6 +92,7 @@ public class AuthorizationServerMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("authorization_encryption_alg_values_supported"));
 		assertTrue(paramNames.contains("authorization_encryption_enc_values_supported"));
 		assertTrue(paramNames.contains("device_authorization_endpoint"));
+		assertTrue(paramNames.contains("authorization_details_types_supported"));
 		assertTrue(paramNames.contains("incremental_authz_types_supported"));
 		assertTrue(paramNames.contains("pushed_authorization_request_endpoint"));
 		assertTrue(paramNames.contains("backchannel_token_delivery_modes_supported"));
@@ -104,7 +107,7 @@ public class AuthorizationServerMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("request_authentication_methods_supported"));
 		assertTrue(paramNames.contains("request_authentication_signing_alg_values_supported"));
 		assertTrue(paramNames.contains("federation_registration_endpoint"));
-		assertEquals(52, paramNames.size());
+		assertEquals(53, paramNames.size());
 	}
 	
 	
@@ -501,6 +504,62 @@ public class AuthorizationServerMetadataTest extends TestCase {
 		as = AuthorizationServerMetadata.parse(jsonObject.toJSONString());
 		assertEquals(parEndpoint, as.getPushedAuthorizationRequestEndpointURI());
 		assertTrue(as.requiresPushedAuthorizationRequests());
+	}
+
+
+	public void testRAR() throws ParseException {
+
+		AuthorizationServerMetadata as = new AuthorizationServerMetadata(new Issuer("https://c2id.com"));
+
+		assertNull(as.getAuthorizationDetailsTypes());
+
+		as.applyDefaults();
+		assertNull(as.getAuthorizationDetailsTypes());
+
+		List<AuthorizationType> authzTypes = Arrays.asList(new AuthorizationType("payment_initiation"), new AuthorizationType("account_information"));
+		as.setAuthorizationDetailsTypes(authzTypes);
+
+		assertEquals(authzTypes, as.getAuthorizationDetailsTypes());
+
+		JSONObject jsonObject = as.toJSONObject();
+		assertEquals(Identifier.toStringList(authzTypes), JSONObjectUtils.getStringList(jsonObject, "authorization_details_types_supported"));
+
+		as = AuthorizationServerMetadata.parse(as.toJSONObject().toJSONString());
+
+		assertEquals(authzTypes, as.getAuthorizationDetailsTypes());
+	}
+
+
+	public void testRAR_nullItemArray_serialize() throws ParseException {
+
+		AuthorizationServerMetadata as = new AuthorizationServerMetadata(new Issuer("https://c2id.com"));
+
+		assertNull(as.getAuthorizationDetailsTypes());
+
+		as.applyDefaults();
+		assertNull(as.getAuthorizationDetailsTypes());
+
+		List<AuthorizationType> authzTypes = Arrays.asList(new AuthorizationType("payment_initiation"), null, new AuthorizationType("account_information"));
+		as.setAuthorizationDetailsTypes(authzTypes);
+
+		assertEquals(authzTypes, as.getAuthorizationDetailsTypes());
+
+		JSONObject jsonObject = as.toJSONObject();
+		assertEquals(Arrays.asList("payment_initiation", "account_information"), JSONObjectUtils.getStringList(jsonObject, "authorization_details_types_supported"));
+	}
+
+
+	public void testRAR_nullItemArray_parse() throws ParseException {
+
+		AuthorizationServerMetadata as = new AuthorizationServerMetadata(new Issuer("https://c2id.com"));
+		as.applyDefaults();
+		JSONObject jsonObject = as.toJSONObject();
+
+		jsonObject.put("authorization_details_types_supported", Arrays.asList("payment_initiation", null, "account_information", null));
+
+		as = AuthorizationServerMetadata.parse(jsonObject.toJSONString());
+
+		assertEquals(Arrays.asList(new AuthorizationType("payment_initiation"), new AuthorizationType("account_information")), as.getAuthorizationDetailsTypes());
 	}
 	
 	

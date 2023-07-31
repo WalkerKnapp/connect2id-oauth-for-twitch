@@ -61,18 +61,24 @@ import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistratio
  *
  * <ul>
  *     <li>OpenID Connect Discovery 1.0, section 3.
- *     <li>OpenID Connect Session Management 1.0, section 2.1 (draft 28).
- *     <li>OpenID Connect Front-Channel Logout 1.0, section 3 (draft 02).
- *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.1 (draft 07).
+ *     <li>OpenID Connect Session Management 1.0, section 2.1.
+ *     <li>OpenID Connect Front-Channel Logout 1.0, section 3.
+ *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.1.
  *     <li>OpenID Connect for Identity Assurance 1.0 (draft 12).
  *     <li>OpenID Connect Federation 1.0 (draft 23).
+ *     <li>Initiating User Registration via OpenID Connect 1.0
  *     <li>OAuth 2.0 Authorization Server Metadata (RFC 8414)
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
  *         Access Tokens (RFC 8705)
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
  *         OAuth 2.0 (JARM)
  *     <li>OAuth 2.0 Authorization Server Issuer Identification (RFC 9207)
- *     <li>Initiating User Registration via OpenID Connect (draft 04)
+ *     <li>Financial-grade API - Part 2: Read and Write API Security Profile
+ *     <li>OAuth 2.0 Pushed Authorization Requests (RFC 9126)
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
+ *     <li>OAuth 2.0 Device Authorization Grant (RFC 8628)
+ *     <li>OAuth 2.0 Incremental Authorization
+ *         (draft-ietf-oauth-incremental-authz-04)
  * </ul>
  */
 public class OIDCProviderMetadata extends AuthorizationServerMetadata implements ReadOnlyOIDCProviderMetadata {
@@ -1568,6 +1574,9 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 		op.setAuthorizationJWSAlgs(as.getAuthorizationJWSAlgs());
 		op.setAuthorizationJWEAlgs(as.getAuthorizationJWEAlgs());
 		op.setAuthorizationJWEEncs(as.getAuthorizationJWEEncs());
+
+		// RAR
+		op.setAuthorizationDetailsTypes(as.getAuthorizationDetailsTypes());
 		
 		// Incremental authz
 		op.setIncrementalAuthorizationTypes(as.getIncrementalAuthorizationTypes());

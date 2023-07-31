@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import net.minidev.json.JSONObject;
 
 import com.nimbusds.jose.EncryptionMethod;
@@ -59,12 +60,13 @@ import com.nimbusds.openid.connect.sdk.op.EndpointName;
  *     <li>OAuth 2.0 Authorization Server Issuer Identification (RFC 9207)
  *     <li>Financial-grade API - Part 2: Read and Write API Security Profile
  *     <li>OAuth 2.0 Pushed Authorization Requests (RFC 9126)
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
  *     <li>OAuth 2.0 Device Authorization Grant (RFC 8628)
  *     <li>OpenID Connect Client Initiated Backchannel Authentication Flow -
  * 	   Core 1.0
  *     <li>OAuth 2.0 Incremental Authorization
  *         (draft-ietf-oauth-incremental-authz-04)
- *     <li>Initiating User Registration via OpenID Connect (draft 04)
+ *     <li>Initiating User Registration via OpenID Connect 1.0
  *     <li>OpenID Connect Federation 1.0 (draft 22)
  * </ul>
  */
@@ -406,6 +408,17 @@ public interface ReadOnlyAuthorizationServerMetadata extends ReadOnlyAuthorizati
 	 * @return {@code true} if PAR is required, else {@code false}.
 	 */
 	boolean requiresPushedAuthorizationRequests();
+
+
+	/**
+	 * Gets the supported authorisation details types for Rich
+	 * Authorisation Requests (RAR). Corresponds to the
+	 * {@code authorization_details_types_supported} metadata field.
+	 *
+	 * @return The supported authorisation types, {@code null} if not
+	 *         specified.
+	 */
+	List<AuthorizationType> getAuthorizationDetailsTypes();
 	
 	
 	/**
