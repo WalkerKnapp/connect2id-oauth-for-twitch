@@ -18,19 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.util.*;
-
-import com.nimbusds.oauth2.sdk.rar.Action;
-import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
-import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
-import junit.framework.TestCase;
-import net.minidev.json.JSONArray;
-import org.checkerframework.checker.units.qual.A;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -53,6 +40,10 @@ import com.nimbusds.oauth2.sdk.id.*;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallenge;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
+import com.nimbusds.oauth2.sdk.rar.Action;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
+import com.nimbusds.oauth2.sdk.rar.Location;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.*;
 import com.nimbusds.openid.connect.sdk.claims.ACR;
@@ -61,6 +52,14 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatementClaimsSet;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChainTest;
+import junit.framework.TestCase;
+import net.minidev.json.JSONArray;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.util.*;
 
 
 public class AuthorizationRequestTest extends TestCase {
@@ -962,6 +961,31 @@ public class AuthorizationRequestTest extends TestCase {
 		} catch (ParseException e) {
 			assertEquals("Invalid authorization details: Invalid JSON: Unexpected token xxx at position 3.", e.getMessage());
 		}
+	}
+
+
+	public void _testRAR_docExample() {
+
+		// For PKCE
+		CodeVerifier codeVerifier = new CodeVerifier();
+
+		// Compose the authorisation detail
+		AuthorizationDetail authzDetail = new AuthorizationDetail.Builder(new AuthorizationType("message_api_v1"))
+			.locations(Collections.singletonList(new Location(URI.create("https://api.example.com/messages"))))
+			.actions(Arrays.asList(new Action("read"), new Action("get"), new Action("search")))
+			.build();
+
+		// Compose the OAuth 2.0 authorisation request
+		AuthorizationRequest request = new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID("123"))
+			.endpointURI(URI.create("https://demo.c2id.com/login"))
+			.authorizationDetails(Collections.singletonList(authzDetail))
+			.redirectionURI(URI.create("https://client.example.com/cb"))
+			.codeChallenge(codeVerifier, CodeChallengeMethod.S256)
+			.state(new State())
+			.build();
+
+		// Print the request
+		System.out.println(request.toURI());
 	}
 	
 	

@@ -279,6 +279,57 @@ public class AuthorizationDetailTest extends TestCase {
         }
 
 
+        // https://www.rfc-editor.org/rfc/rfc9396.html#figure-2
+        public void testBuild_exampleFigure2()
+                throws ParseException {
+
+                String json =
+                        "{" +
+                        "  \"type\": \"payment_initiation\"," +
+                        "  \"actions\": [" +
+                        "     \"initiate\"," +
+                        "     \"status\"," +
+                        "     \"cancel\"" +
+                        "  ]," +
+                        "  \"locations\": [" +
+                        "     \"https://example.com/payments\"" +
+                        "  ]," +
+                        "  \"instructedAmount\": {" +
+                        "     \"currency\": \"EUR\"," +
+                        "     \"amount\": \"123.50\"" +
+                        "  }," +
+                        "  \"creditorName\": \"Merchant A\"," +
+                        "  \"creditorAccount\": {" +
+                        "     \"iban\": \"DE02100100109307118603\"" +
+                        "  }," +
+                        "  \"remittanceInformationUnstructured\": \"Ref Number Merchant\"" +
+                        "}";
+
+                JSONObject instructedAmount = new JSONObject();
+                instructedAmount.put("currency", "EUR");
+                instructedAmount.put("amount", "123.50");
+
+                JSONObject creditorAccount = new JSONObject();
+                creditorAccount.put("iban", "DE02100100109307118603");
+
+                AuthorizationDetail detail = new AuthorizationDetail.Builder(
+                        new AuthorizationType("payment_initiation"))
+                        .actions(Arrays.asList(
+                                new Action("initiate"),
+                                new Action("status"),
+                                new Action("cancel")))
+                        .locations(
+                                Collections.singletonList(new Location(URI.create("https://example.com/payments"))))
+                        .field("instructedAmount", instructedAmount)
+                        .field("creditorName", "Merchant A")
+                        .field("creditorAccount", creditorAccount)
+                        .field("remittanceInformationUnstructured", "Ref Number Merchant")
+                        .build();
+
+                assertEquals(detail, AuthorizationDetail.parse(JSONObjectUtils.parse(json)));
+        }
+
+
         public void testParse_missingType() {
 
                 try {
