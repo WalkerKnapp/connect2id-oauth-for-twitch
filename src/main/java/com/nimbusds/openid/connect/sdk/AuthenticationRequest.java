@@ -73,7 +73,7 @@ import java.util.*;
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
  *         OAuth 2.0 (JARM)
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
- *         (DPoP) (draft-ietf-oauth-dpop-11).
+ *         (DPoP) (draft-ietf-oauth-dpop-16).
  *     <li>OpenID Connect Federation 1.0, section 10.1.
  *     <li>OpenID Connect for Identity Assurance 1.0, section 8.
  * </ul>

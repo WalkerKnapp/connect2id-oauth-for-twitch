@@ -62,7 +62,7 @@ import com.nimbusds.oauth2.sdk.util.CollectionUtils;
  *
  * <ul>
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
- *         (DPoP) (draft-ietf-oauth-dpop-11), section 7.1.
+ *         (DPoP) (draft-ietf-oauth-dpop-16), section 7.1.
  *     <li>Hypertext Transfer Protocol (HTTP/1.1): Authentication (RFC 7235),
  *         section 4.1.
  * </ul>

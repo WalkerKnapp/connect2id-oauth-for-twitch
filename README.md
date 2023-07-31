@@ -17,7 +17,7 @@ OAuth 2.0 is specified in [RFC 6749](http://tools.ietf.org/html/rfc6749) and
 its companion specifications.
 
 [OAuth 2.1](https://connect2id.com/learn/oauth-2-1) is a [working 
-draft](https://tools.ietf.org/html/draft-ietf-oauth-v2-1-02) that rolls the 
+draft](https://tools.ietf.org/html/draft-ietf-oauth-v2-1-09) that rolls the 
 original OAuth 2.0 RFC and best practises established over the years into a 
 simpler, safer and more streamlined authorisation framework.
 
@@ -52,7 +52,7 @@ This SDK version implements the following standards and drafts:
 
 * The OAuth 2.0 Authorization Framework (RFC 6749)
 
-* The OAuth 2.1 Authorization Framework (draft-ietf-oauth-v2-1-02)
+* The OAuth 2.1 Authorization Framework (draft-ietf-oauth-v2-1-09)
 
 * The OAuth 2.0 Authorization Framework: Bearer Token Usage (RFC 6750)
 
@@ -85,7 +85,7 @@ This SDK version implements the following standards and drafts:
   Tokens (RFC 8705)
 
 * OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
-  (DPoP) (draft-ietf-oauth-dpop-11)
+  (DPoP) (draft-ietf-oauth-dpop-16)
 
 * Resource Indicators for OAuth 2.0 (RFC 8707)
 
