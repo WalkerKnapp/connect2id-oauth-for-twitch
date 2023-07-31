@@ -18,13 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.util.DateUtils;
@@ -32,8 +25,17 @@ import com.nimbusds.oauth2.sdk.auth.X509CertificateConfirmation;
 import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.*;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.token.AccessTokenType;
+import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -43,6 +45,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  *
  * <ul>
  *     <li>OAuth 2.0 Token Introspection (RFC 7662).
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 9.2.
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
  *         Access Tokens (RFC 8705).
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
@@ -91,7 +94,8 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 
 		/**
-		 * Sets the token scope.
+		 * Sets the token scope. Corresponds to the {@code scope}
+		 * parameter.
 		 *
 		 * @param scope The token scope, {@code null} if not specified.
 		 *
@@ -106,7 +110,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 		/**
 		 * Sets the identifier for the OAuth 2.0 client that requested
-		 * the token.
+		 * the token. Corresponds to the {@code client_id} parameter.
 		 *
 		 * @param clientID The client identifier, {@code null} if not
 		 *                 specified.
@@ -122,7 +126,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 		/**
 		 * Sets the username of the resource owner who authorised the
-		 * token.
+		 * token. Corresponds to the {@code username} parameter.
 		 *
 		 * @param username The username, {@code null} if not specified.
 		 *
@@ -136,7 +140,8 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 
 		/**
-		 * Sets the token type.
+		 * Sets the token type. Corresponds to the {@code token_type}
+		 * parameter.
 		 *
 		 * @param tokenType The token type, {@code null} if not
 		 *                  specified.
@@ -151,7 +156,8 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 
 		/**
-		 * Sets the token expiration time.
+		 * Sets the token expiration time. Corresponds to the
+		 * {@code exp} parameter.
 		 *
 		 * @param exp The token expiration time, {@code null} if not
 		 *            specified.
@@ -166,7 +172,8 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 
 		/**
-		 * Sets the token issue time.
+		 * Sets the token issue time. Corresponds to the {@code iat}
+		 * parameter.
 		 *
 		 * @param iat The token issue time, {@code null} if not
 		 *            specified.
@@ -181,7 +188,8 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 
 		/**
-		 * Sets the token not-before time.
+		 * Sets the token not-before time. Corresponds to the
+		 * {@code nbf} parameter.
 		 *
 		 * @param nbf The token not-before time, {@code null} if not
 		 *            specified.
@@ -196,7 +204,8 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 
 		/**
-		 * Sets the token subject.
+		 * Sets the token subject. Corresponds to the {@code sub}
+		 * parameter.
 		 *
 		 * @param sub The token subject, {@code null} if not specified.
 		 *
@@ -210,7 +219,8 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 
 		/**
-		 * Sets the token audience.
+		 * Sets the token audience. Corresponds to the {@code aud}
+		 * parameter.
 		 *
 		 * @param audList The token audience, {@code null} if not
 		 *                specified.
@@ -225,7 +235,8 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 
 		/**
-		 * Sets the token issuer.
+		 * Sets the token issuer. Corresponds to the {@code iss}
+		 * parameter.
 		 *
 		 * @param iss The token issuer, {@code null} if not specified.
 		 *
@@ -239,7 +250,8 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 
 		/**
-		 * Sets the token identifier.
+		 * Sets the token identifier. Corresponds to the {@code jti}
+		 * parameter.
 		 *
 		 * @param jti The token identifier, {@code null} if not
 		 *            specified.
@@ -256,7 +268,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 		/**
 		 * Sets the client X.509 certificate SHA-256 thumbprint, for a
 		 * mutual TLS client certificate bound access token.
-		 * Corresponds to the {@code cnf.x5t#S256} claim.
+		 * Corresponds to the {@code cnf.x5t#S256} parameter.
 		 *
 		 * @param x5t The client X.509 certificate SHA-256 thumbprint,
 		 *            {@code null} if not specified.
@@ -290,7 +302,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 		/**
 		 * Sets the client X.509 certificate confirmation, for a mutual
 		 * TLS client certificate bound access token. Corresponds to
-		 * the {@code cnf.x5t#S256} claim.
+		 * the {@code cnf.x5t#S256} parameter.
 		 *
 		 * @param cnf The client X.509 certificate confirmation,
 		 *            {@code null} if not specified.
@@ -312,7 +324,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 		/**
 		 * Sets the JSON Web Key (JWK) SHA-256 thumbprint confirmation,
 		 * for OAuth 2.0 DPoP. Corresponds to the {@code cnf.jkt}
-		 * claim.
+		 * parameter.
 		 *
 		 * @param cnf The JWK SHA-256 thumbprint confirmation,
 		 *            {@code null} if not specified.
@@ -326,6 +338,30 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 				params.put(param.getKey(), param.getValue());
 			} else {
 				params.remove("cnf");
+			}
+			return this;
+		}
+
+
+		/**
+		 * Sets the Rich Authorisation Request (RAR) details.
+		 * Corresponds to the {@code authorization_details} parameter.
+		 *
+		 * @param authorizationDetails The authorisation details,
+		 *                             {@code null} if not specified.
+		 *
+		 * @return This builder.
+		 */
+		public Builder authorizationDetails(final List<AuthorizationDetail> authorizationDetails) {
+
+			if (authorizationDetails != null) {
+				JSONArray jsonArray = new JSONArray();
+				for (AuthorizationDetail detail: authorizationDetails) {
+					jsonArray.add(detail.toJSONObject());
+				}
+				params.put("authorization_details", jsonArray);
+			} else {
+				params.put("authorization_details", null);
 			}
 			return this;
 		}
@@ -384,7 +420,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 	/**
 	 * Returns the active status for the token. Corresponds to the
-	 * {@code active} claim.
+	 * {@code active} parameter.
 	 *
 	 * @return {@code true} if the token is active, else {@code false}.
 	 */
@@ -400,7 +436,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 	/**
 	 * Returns the scope of the token. Corresponds to the {@code scope}
-	 * claim.
+	 * parameter.
 	 *
 	 * @return The token scope, {@code null} if not specified.
 	 */
@@ -416,7 +452,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 	/**
 	 * Returns the identifier of the OAuth 2.0 client that requested the
-	 * token. Corresponds to the {@code client_id} claim.
+	 * token. Corresponds to the {@code client_id} parameter.
 	 *
 	 * @return The client identifier, {@code null} if not specified.
 	 */
@@ -432,7 +468,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 	/**
 	 * Returns the username of the resource owner who authorised the token.
-	 * Corresponds to the {@code username} claim.
+	 * Corresponds to the {@code username} parameter.
 	 *
 	 * @return The username, {@code null} if not specified.
 	 */
@@ -448,7 +484,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 	/**
 	 * Returns the access token type. Corresponds to the {@code token_type}
-	 * claim.
+	 * parameter.
 	 *
 	 * @return The token type, {@code null} if not specified.
 	 */
@@ -464,7 +500,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 	/**
 	 * Returns the token expiration time. Corresponds to the {@code exp}
-	 * claim.
+	 * parameter.
 	 *
 	 * @return The token expiration time, {@code null} if not specified.
 	 */
@@ -479,7 +515,8 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 
 	/**
-	 * Returns the token issue time. Corresponds to the {@code iat} claim.
+	 * Returns the token issue time. Corresponds to the {@code iat}
+	 * parameter.
 	 *
 	 * @return The token issue time, {@code null} if not specified.
 	 */
@@ -495,7 +532,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 	/**
 	 * Returns the token not-before time. Corresponds to the {@code nbf}
-	 * claim.
+	 * parameter.
 	 *
 	 * @return The token not-before time, {@code null} if not specified.
 	 */
@@ -512,7 +549,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 	/**
 	 * Returns the subject of the token, usually a machine-readable
 	 * identifier of the resource owner who authorised the token.
-	 * Corresponds to the {@code sub} claim.
+	 * Corresponds to the {@code sub} parameter.
 	 *
 	 * @return The token subject, {@code null} if not specified.
 	 */
@@ -528,7 +565,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 	/**
 	 * Returns the intended audience for the token. Corresponds to the
-	 * {@code aud} claim.
+	 * {@code aud} parameter.
 	 *
 	 * @return The token audience, {@code null} if not specified.
 	 */
@@ -547,7 +584,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 
 	/**
-	 * Returns the token issuer. Corresponds to the {@code iss} claim.
+	 * Returns the token issuer. Corresponds to the {@code iss} parameter.
 	 *
 	 * @return The token issuer, {@code null} if not specified.
 	 */
@@ -563,7 +600,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 	/**
 	 * Returns the token identifier. Corresponds to the {@code jti}
-	 * claim.
+	 * parameter.
 	 *
 	 * @return The token identifier, {@code null} if not specified.
 	 */
@@ -580,8 +617,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 	/**
 	 * Returns the client X.509 certificate SHA-256 thumbprint, for a
 	 * mutual TLS client certificate bound access token. Corresponds to the
-	 * {@code cnf.x5t#S256} claim.
-	 *
+	 * {@code cnf.x5t#S256} parameter.
 	 *
 	 * @return The client X.509 certificate SHA-256 thumbprint,
 	 *         {@code null} if not specified.
@@ -609,7 +645,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 	/**
 	 * Returns the client X.509 certificate confirmation, for a mutual TLS
 	 * client certificate bound access token. Corresponds to the
-	 * {@code cnf.x5t#S256} claim.
+	 * {@code cnf.x5t#S256} parameter.
 	 *
 	 * @return The client X.509 certificate confirmation, {@code null} if
 	 *         not specified.
@@ -622,7 +658,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 	
 	/**
 	 * Returns the JSON Web Key (JWK) SHA-256 thumbprint confirmation, for
-	 * OAuth 2.0 DPoP. Corresponds to the {@code cnf.jkt} claim.
+	 * OAuth 2.0 DPoP. Corresponds to the {@code cnf.jkt} parameter.
 	 *
 	 * @return The JWK SHA-256 thumbprint confirmation, {@code null} if not
 	 *         specified.
@@ -630,6 +666,26 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 	public JWKThumbprintConfirmation getJWKThumbprintConfirmation() {
 		
 		return JWKThumbprintConfirmation.parse(params);
+	}
+
+
+	/**
+	 * Returns the Rich Authorisation Request (RAR) details. Corresponds to
+	 * the {@code authorization_details} parameter.
+	 *
+	 * @return The authorisation details, {@code null} if not specified.
+	 */
+	public List<AuthorizationDetail> getAuthorizationDetails() {
+
+		JSONArray jsonArray = getJSONArrayParameter("authorization_details");
+
+		if (jsonArray == null) return null;
+
+		try {
+			return AuthorizationDetail.parseList(JSONArrayUtils.toJSONObjectList(jsonArray));
+		} catch (ParseException e) {
+			return null;
+		}
 	}
 	
 	
@@ -720,6 +776,24 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 			return null;
 		}
 	}
+
+
+	/**
+	 * Returns the JSON array parameter with the specified name.
+	 *
+	 * @param name The parameter name. Must not be {@code null}.
+	 *
+	 * @return The parameter value, {@code null} if not specified or if
+	 *         parsing failed.
+	 */
+	public JSONArray getJSONArrayParameter(final String name) {
+
+		try {
+			return JSONObjectUtils.getJSONArray(params, name, null);
+		} catch (ParseException e) {
+			return null;
+		}
+	}
 	
 	
 	/**
@@ -802,7 +876,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 
 	/**
-	 * Parses an token introspection success response from the specified
+	 * Parses a token introspection success response from the specified
 	 * HTTP response.
 	 *
 	 * @param httpResponse The HTTP response. Must not be {@code null}.

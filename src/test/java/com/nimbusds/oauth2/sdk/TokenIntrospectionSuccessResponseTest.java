@@ -18,12 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.util.Arrays;
-import java.util.Date;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.util.DateUtils;
@@ -31,13 +25,23 @@ import com.nimbusds.oauth2.sdk.auth.X509CertificateConfirmation;
 import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.*;
+import com.nimbusds.oauth2.sdk.rar.Action;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
+import com.nimbusds.oauth2.sdk.rar.Location;
 import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import com.nimbusds.openid.connect.sdk.claims.ACR;
+import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 
-/**
- * Tests the token introspection success response class.
- */
 public class TokenIntrospectionSuccessResponseTest extends TestCase {
 	
 
@@ -117,6 +121,7 @@ public class TokenIntrospectionSuccessResponseTest extends TestCase {
 		assertNull(response.getJWTID());
 		assertNull(response.getX509CertificateSHA256Thumbprint());
 		assertNull(response.getX509CertificateConfirmation());
+		assertNull(response.getAuthorizationDetails());
 
 		JSONObject jsonObject = response.toJSONObject();
 		assertTrue((Boolean) jsonObject.get("active"));
@@ -146,6 +151,7 @@ public class TokenIntrospectionSuccessResponseTest extends TestCase {
 		assertNull(response.getJWTID());
 		assertNull(response.getX509CertificateSHA256Thumbprint());
 		assertNull(response.getX509CertificateConfirmation());
+		assertNull(response.getAuthorizationDetails());
 	}
 
 
@@ -169,6 +175,7 @@ public class TokenIntrospectionSuccessResponseTest extends TestCase {
 		assertNull(response.getJWTID());
 		assertNull(response.getX509CertificateSHA256Thumbprint());
 		assertNull(response.getX509CertificateConfirmation());
+		assertNull(response.getAuthorizationDetails());
 
 		JSONObject jsonObject = response.toJSONObject();
 		assertFalse((Boolean) jsonObject.get("active"));
@@ -209,6 +216,7 @@ public class TokenIntrospectionSuccessResponseTest extends TestCase {
 		assertNull(response.getJWTID());
 		assertNull(response.getX509CertificateSHA256Thumbprint());
 		assertNull(response.getX509CertificateConfirmation());
+		assertNull(response.getAuthorizationDetails());
 	}
 
 
@@ -228,6 +236,7 @@ public class TokenIntrospectionSuccessResponseTest extends TestCase {
 			.issuer(new Issuer("https://c2id.com"))
 			.jwtID(new JWTID("xyz"))
 			.x509CertificateConfirmation(new X509CertificateConfirmation(new Base64URL("abc")))
+			.authorizationDetails(Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build()))
 			.parameter("ip", "10.20.30.40")
 			.build();
 
@@ -244,9 +253,10 @@ public class TokenIntrospectionSuccessResponseTest extends TestCase {
 		assertEquals(new Issuer("https://c2id.com"), response.getIssuer());
 		assertEquals(new JWTID("xyz"), response.getJWTID());
 		assertEquals(new Base64URL("abc"), response.getX509CertificateConfirmation().getValue());
+		assertEquals(Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build()), response.getAuthorizationDetails());
 		assertEquals("10.20.30.40", response.toJSONObject().get("ip"));
 
-		assertEquals(14, response.toJSONObject().size());
+		assertEquals(15, response.toJSONObject().size());
 
 		HTTPResponse httpResponse = response.toHTTPResponse();
 
@@ -268,9 +278,10 @@ public class TokenIntrospectionSuccessResponseTest extends TestCase {
 		assertEquals(new Issuer("https://c2id.com"), response.getIssuer());
 		assertEquals(new JWTID("xyz"), response.getJWTID());
 		assertEquals(new Base64URL("abc"), response.getX509CertificateConfirmation().getValue());
+		assertEquals(Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build()), response.getAuthorizationDetails());
 		assertEquals("10.20.30.40", response.toJSONObject().get("ip"));
 
-		assertEquals(14, response.toJSONObject().size());
+		assertEquals(15, response.toJSONObject().size());
 	}
 
 
@@ -544,5 +555,89 @@ public class TokenIntrospectionSuccessResponseTest extends TestCase {
 		
 		Base64URL jkt = new Base64URL("0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I");
 		assertEquals(jkt, response.getJWKThumbprintConfirmation().getValue());
+	}
+	
+	
+	public void testRAR_example() throws ParseException {
+		
+		String json = "{" +
+			"   \"active\": true," +
+			"   \"sub\": \"24400320\"," +
+			"   \"aud\": \"s6BhdRkqt3\"," +
+			"   \"exp\": 1311281970," +
+			"   \"acr\": \"psd2_sca\"," +
+			"   \"txn\": \"8b4729cc-32e4-4370-8cf0-5796154d1296\"," +
+			"   \"authorization_details\": [" +
+			"      {" +
+			"         \"type\": \"https://scheme.example.com/payment_initiation\"," +
+			"         \"actions\": [" +
+			"            \"initiate\"," +
+			"            \"status\"," +
+			"            \"cancel\"" +
+			"         ]," +
+			"         \"locations\": [" +
+			"            \"https://example.com/payments\"" +
+			"         ]," +
+			"         \"instructedAmount\": {" +
+			"            \"currency\": \"EUR\"," +
+			"            \"amount\": \"123.50\"" +
+			"         }," +
+			"         \"creditorName\": \"Merchant123\"," +
+			"         \"creditorAccount\": {" +
+			"            \"iban\": \"DE02100100109307118603\"" +
+			"         }," +
+			"         \"remittanceInformationUnstructured\": \"Ref Number Merchant\"" +
+			"      }" +
+			"   ]," +
+			"   \"debtorAccount\": {" +
+			"      \"iban\": \"DE40100100103307118608\"," +
+			"      \"user_role\": \"owner\"" +
+			"   }" +
+			"}";
+
+		TokenIntrospectionSuccessResponse response = TokenIntrospectionSuccessResponse.parse(JSONObjectUtils.parse(json));
+
+		assertTrue(response.isActive());
+
+		assertEquals(new Subject("24400320"), response.getSubject());
+		assertEquals(Collections.singletonList(new Audience("s6BhdRkqt3")), response.getAudience());
+		assertEquals(DateUtils.fromSecondsSinceEpoch(1311281970L), response.getExpirationTime());
+		assertEquals(new ACR("psd2_sca").getValue(), response.getStringParameter("acr"));
+		assertEquals("8b4729cc-32e4-4370-8cf0-5796154d1296", response.getStringParameter("txn"));
+
+		List<AuthorizationDetail> authorizationDetails = response.getAuthorizationDetails();
+
+		AuthorizationDetail paymentInitiation = authorizationDetails.get(0);
+
+		assertEquals(new AuthorizationType(URI.create("https://scheme.example.com/payment_initiation")), paymentInitiation.getType());
+
+		assertEquals(
+			Arrays.asList(new Action("initiate"), new Action("status"), new Action("cancel")),
+			paymentInitiation.getActions()
+		);
+		assertEquals(
+			Collections.singletonList(new Location(URI.create("https://example.com/payments"))),
+			paymentInitiation.getLocations()
+		);
+
+		JSONObject instructedAmount = paymentInitiation.getJSONObjectField("instructedAmount");
+		assertEquals("EUR", instructedAmount.get("currency"));
+		assertEquals("123.50", instructedAmount.get("amount"));
+		assertEquals(2, instructedAmount.size());
+
+		assertEquals("Merchant123", paymentInitiation.getStringField("creditorName"));
+
+		JSONObject creditorAccount = paymentInitiation.getJSONObjectField("creditorAccount");
+		assertEquals("DE02100100109307118603", creditorAccount.get("iban"));
+		assertEquals(1, creditorAccount.size());
+
+		assertEquals("Ref Number Merchant", paymentInitiation.getStringField("remittanceInformationUnstructured"));
+
+		assertEquals(1, authorizationDetails.size());
+
+		JSONObject debtorAccount = response.getJSONObjectParameter("debtorAccount");
+		assertEquals("DE40100100103307118608", debtorAccount.get("iban"));
+		assertEquals("owner", debtorAccount.get("user_role"));
+		assertEquals(2, debtorAccount.size());
 	}
 }
