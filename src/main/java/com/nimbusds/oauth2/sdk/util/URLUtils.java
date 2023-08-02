@@ -60,6 +60,57 @@ public final class URLUtils {
 			return null;
 		}
 	}
+
+
+	/**
+	 * Performs {@code application/x-www-form-urlencoded} encoding on the
+	 * specified parameter keys and values.
+	 *
+	 * @param params A map of the parameters. May be empty or {@code null}.
+	 *
+	 * @return The encoded parameters, {@code null} if not specified.
+	 */
+	public static Map<String,List<String>> urlEncodeParameters(final Map<String,List<String>> params) {
+
+		if (MapUtils.isEmpty(params)) {
+			return params;
+		}
+
+		Map<String,List<String>> out = new LinkedHashMap<>(); // preserve order
+
+		for (Map.Entry<String,List<String>> entry: params.entrySet()) {
+
+			try {
+				String newKey = entry.getKey() != null ? URLEncoder.encode(entry.getKey(), CHARSET) : null;
+
+				List<String> newValues;
+
+				if (entry.getValue() != null) {
+
+					newValues = new LinkedList<>();
+
+					for (String value : entry.getValue()) {
+
+						if (value != null) {
+							newValues.add(URLEncoder.encode(value, CHARSET));
+						} else {
+							newValues.add(null); // preserve null values
+						}
+					}
+				} else {
+					newValues = null;
+				}
+
+				out.put(newKey, newValues);
+
+			} catch (UnsupportedEncodingException e) {
+				// UTF-8 must always be supported
+				throw new RuntimeException(e);
+			}
+		}
+
+		return out;
+	}
 	
 	
 	/**
@@ -90,10 +141,12 @@ public final class URLUtils {
 	
 		if (params == null || params.isEmpty())
 			return "";
+
+		Map<String,List<String>> encodedParams = urlEncodeParameters(params);
 		
 		StringBuilder sb = new StringBuilder();
 		
-		for (Map.Entry<String,List<String>> entry: params.entrySet()) {
+		for (Map.Entry<String,List<String>> entry: encodedParams.entrySet()) {
 			
 			if (entry.getKey() == null || entry.getValue() == null)
 				continue;
@@ -104,22 +157,12 @@ public final class URLUtils {
 					value = "";
 				}
 				
-				try {
-					String encodedKey = URLEncoder.encode(entry.getKey(), CHARSET);
-					String encodedValue = URLEncoder.encode(value, CHARSET);
-					
-					if (sb.length() > 0)
-						sb.append('&');
-					
-					sb.append(encodedKey);
-					sb.append('=');
-					sb.append(encodedValue);
-					
-				} catch (UnsupportedEncodingException e) {
-					
-					// UTF-8 should always be supported
-					throw new RuntimeException(e.getMessage(), e);
-				}
+				if (sb.length() > 0)
+					sb.append('&');
+
+				sb.append(entry.getKey());
+				sb.append('=');
+				sb.append(value);
 			}
 		}
 		

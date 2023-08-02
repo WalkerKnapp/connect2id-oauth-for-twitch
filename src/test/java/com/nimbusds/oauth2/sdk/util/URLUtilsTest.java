@@ -18,12 +18,14 @@
 package com.nimbusds.oauth2.sdk.util;
 
 
+import junit.framework.TestCase;
+
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.*;
-
-import junit.framework.TestCase;
 
 
 
@@ -60,6 +62,78 @@ public class URLUtilsTest extends TestCase {
 		
 		assertEquals("abc def", decodedPlus);
 		assertEquals("abc def", decodedPerCent20);
+	}
+
+
+	public void testURLEncodeParameters_nullArg() {
+
+		assertNull(URLUtils.urlEncodeParameters(null));
+	}
+
+
+	public void testURLEncodeParameters_emptyArg() {
+
+		assertTrue(URLUtils.urlEncodeParameters(Collections.<String, List<String>>emptyMap()).isEmpty());
+	}
+
+
+	public void testURLEncodeParameters_multipleEntries() throws UnsupportedEncodingException {
+
+		Map<String,List<String>> params = new LinkedHashMap<>();
+
+		params.put("response_type", Collections.singletonList("code id_token"));
+		params.put("client_id", Collections.singletonList("s6BhdRkqt3"));
+		params.put("redirect_uri", Collections.singletonList("https://client.example.com/cb"));
+		params.put("state", Collections.singletonList("<af0%if&jsldkj>"));
+		params.put("<xxx>", Collections.singletonList("///"));
+
+		Map<String,List<String>> out = URLUtils.urlEncodeParameters(params);
+
+		assertEquals(Collections.singletonList(URLEncoder.encode("code id_token", URLUtils.CHARSET)), out.get("response_type"));
+		assertEquals(Collections.singletonList(URLEncoder.encode("s6BhdRkqt3", URLUtils.CHARSET)), out.get("client_id"));
+		assertEquals(Collections.singletonList(URLEncoder.encode("https://client.example.com/cb", URLUtils.CHARSET)), out.get("redirect_uri"));
+		assertEquals(Collections.singletonList(URLEncoder.encode("<af0%if&jsldkj>", URLUtils.CHARSET)), out.get("state"));
+		assertEquals(Collections.singletonList(URLEncoder.encode("///", URLUtils.CHARSET)), out.get(URLEncoder.encode("<xxx>", URLUtils.CHARSET)));
+
+		assertEquals(Collections.singletonList("code+id_token"), out.get("response_type"));
+		assertEquals(Collections.singletonList("s6BhdRkqt3"), out.get("client_id"));
+		assertEquals(Collections.singletonList("https%3A%2F%2Fclient.example.com%2Fcb"), out.get("redirect_uri"));
+		assertEquals(Collections.singletonList("%3Caf0%25if%26jsldkj%3E"), out.get("state"));
+		assertEquals(Collections.singletonList("%2F%2F%2F"), out.get("%3Cxxx%3E"));
+
+		assertEquals(5, out.size());
+	}
+
+
+	public void testURLEncodeParameters_nullEntry() {
+
+		Map<String,List<String>> params = new LinkedHashMap<>();
+
+		params.put("response_type", Collections.singletonList("code id_token"));
+		params.put("client_id", null);
+
+		Map<String,List<String>> out = URLUtils.urlEncodeParameters(params);
+
+		assertEquals(Collections.singletonList("code+id_token"), out.get("response_type"));
+		assertNull(out.get("client_id"));
+
+		assertEquals(2, out.size());
+	}
+
+
+	public void testURLEncodeParameters_nullListValue() {
+
+		Map<String,List<String>> params = new LinkedHashMap<>();
+
+		params.put("response_type", Collections.singletonList("code id_token"));
+		params.put("client_id", Arrays.asList("123", null));
+
+		Map<String,List<String>> out = URLUtils.urlEncodeParameters(params);
+
+		assertEquals(Collections.singletonList("code+id_token"), out.get("response_type"));
+		assertEquals(Arrays.asList("123", null), out.get("client_id"));
+
+		assertEquals(2, out.size());
 	}
 	
 	

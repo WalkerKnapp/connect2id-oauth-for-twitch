@@ -2239,3 +2239,6 @@ version 10.12 (2023-07-31)
       authorization_details_types_supported (RAR) support.
     * Adds OAuth2Error.INVALID_AUTHORIZATION_DETAILS constant for RAR.
     * Identifier.toStringList(Collection) must omit null items (iss #430).
+
+version 10.13 (2023-08-02)
+    * Adds URLUtils.urlEncodeParameters static method.
