@@ -24,6 +24,8 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
+import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
+import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
 
@@ -238,7 +240,7 @@ public class BearerAccessTokenTest extends TestCase {
 		assertEquals("Bearer", jsonObject.get("token_type"));
 		assertEquals(1500L, jsonObject.get("expires_in"));
 		assertEquals(scope, Scope.parse((String) jsonObject.get("scope")));
-		assertEquals(authorizationDetails, AuthorizationDetail.parseList((String) jsonObject.get("authorization_details")));
+		assertEquals(authorizationDetails, AuthorizationDetail.parseList(JSONArrayUtils.toJSONObjectList(JSONObjectUtils.getJSONArray(jsonObject, "authorization_details"))));
 		assertEquals(TokenTypeURI.ACCESS_TOKEN, TokenTypeURI.parse((String) jsonObject.get("issued_token_type")));
 		assertEquals(6, jsonObject.size());
 
@@ -416,7 +418,7 @@ public class BearerAccessTokenTest extends TestCase {
 			BearerAccessToken.parse(jsonObject);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Invalid authorization details: Invalid authorization detail at position 0: Illegal or missing type", e.getMessage());
+			assertEquals("Unexpected type of JSON object member with key authorization_details", e.getMessage());
 		}
 	}
 

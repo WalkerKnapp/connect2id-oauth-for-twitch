@@ -400,6 +400,23 @@ public class AuthorizationDetail {
 
 
         /**
+         * Returns the JSON array representation of the specified authorisation
+         * details.
+         *
+         * @param details The authorisation details. Must not be {@code null}.
+         *
+         * @return The JSON array.
+         */
+        public static JSONArray toJSONArray(final List<AuthorizationDetail> details) {
+                JSONArray jsonArray = new JSONArray();
+                for (AuthorizationDetail detail : details) {
+                        jsonArray.add(detail.toJSONObject());
+                }
+                return jsonArray;
+        }
+
+
+        /**
          * Returns the JSON array string representation of the specified
          * authorisation details.
          *
@@ -408,11 +425,7 @@ public class AuthorizationDetail {
          * @return The JSON string.
          */
         public static String toJSONString(final List<AuthorizationDetail> details) {
-                JSONArray jsonArray = new JSONArray();
-                for (AuthorizationDetail detail: details) {
-                        jsonArray.add(detail.toJSONObject());
-                }
-                return jsonArray.toJSONString();
+                return toJSONArray(details).toJSONString();
         }
 
 

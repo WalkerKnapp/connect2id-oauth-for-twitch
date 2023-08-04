@@ -388,7 +388,7 @@ public abstract class AccessToken extends Token {
 			o.put("scope", scope.toString());
 
 		if (getAuthorizationDetails() != null)
-			o.put("authorization_details", AuthorizationDetail.toJSONString(getAuthorizationDetails()));
+			o.put("authorization_details", AuthorizationDetail.toJSONArray(getAuthorizationDetails()));
 
 		if (getIssuedTokenType() != null) {
 			o.put("issued_token_type", getIssuedTokenType().getURI().toString());

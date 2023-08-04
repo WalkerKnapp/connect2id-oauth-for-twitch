@@ -99,7 +99,7 @@ public class OIDCTokensTest extends TestCase {
 		assertEquals(accessToken.getValue(), jsonObject.get("access_token"));
 		assertEquals(60L, jsonObject.get("expires_in"));
 		assertEquals("openid email", jsonObject.get("scope"));
-		assertEquals(AuthorizationDetail.toJSONString(accessToken.getAuthorizationDetails()), jsonObject.get("authorization_details"));
+		assertEquals(AuthorizationDetail.toJSONArray(accessToken.getAuthorizationDetails()), jsonObject.get("authorization_details"));
 		assertEquals(accessToken.getIssuedTokenType().getURI().toString(), jsonObject.get("issued_token_type"));
 		assertEquals(refreshToken.getValue(), jsonObject.get("refresh_token"));
 		assertEquals(8, jsonObject.size());
@@ -153,7 +153,7 @@ public class OIDCTokensTest extends TestCase {
 		assertEquals(accessToken.getValue(), jsonObject.get("access_token"));
 		assertEquals(60L, jsonObject.get("expires_in"));
 		assertEquals("openid email", jsonObject.get("scope"));
-		assertEquals(AuthorizationDetail.toJSONString(accessToken.getAuthorizationDetails()), jsonObject.get("authorization_details"));
+		assertEquals(AuthorizationDetail.toJSONArray(accessToken.getAuthorizationDetails()), jsonObject.get("authorization_details"));
 		assertEquals(accessToken.getIssuedTokenType().getURI().toString(), jsonObject.get("issued_token_type"));
 		assertEquals(refreshToken.getValue(), jsonObject.get("refresh_token"));
 		assertEquals(8, jsonObject.size());

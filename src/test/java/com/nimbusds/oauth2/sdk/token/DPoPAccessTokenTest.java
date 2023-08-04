@@ -23,7 +23,10 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
+import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
+import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import junit.framework.TestCase;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import java.net.URL;
@@ -164,7 +167,7 @@ public class DPoPAccessTokenTest extends TestCase {
 		assertEquals("DPoP", jsonObject.get("token_type"));
 		assertEquals(1500L, jsonObject.get("expires_in"));
 		assertEquals(scope.toString(), jsonObject.get("scope"));
-		assertEquals(AuthorizationDetail.toJSONString(authorizationDetails), jsonObject.get("authorization_details"));
+		assertEquals(AuthorizationDetail.toJSONArray(authorizationDetails), JSONObjectUtils.getJSONArray(jsonObject, "authorization_details"));
 		assertEquals(TokenTypeURI.ACCESS_TOKEN, TokenTypeURI.parse((String) jsonObject.get("issued_token_type")));
 		assertEquals(6, jsonObject.size());
 
@@ -324,18 +327,19 @@ public class DPoPAccessTokenTest extends TestCase {
 	}
 
 
-	public void testParseFromJSONObject_invalidAuthorizationDetails() {
+	public void testParseFromJSONObject_invalidAuthorizationDetails()
+		throws ParseException {
 
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("access_token", "abc");
 		jsonObject.put("token_type", "DPoP");
-		jsonObject.put("authorization_details", "[{},{}]");
+		jsonObject.put("authorization_details", JSONArrayUtils.parse("[{},{}]"));
 
 		try {
 			DPoPAccessToken.parse(jsonObject);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Invalid authorization details: Invalid authorization detail at position 0: Illegal or missing type", e.getMessage());
+			assertEquals("Invalid authorization detail at position 0: Illegal or missing type", e.getMessage());
 		}
 	}
 

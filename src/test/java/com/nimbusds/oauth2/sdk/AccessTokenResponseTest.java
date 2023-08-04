@@ -18,17 +18,16 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.util.*;
-
+import com.nimbusds.common.contenttype.ContentType;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
+import com.nimbusds.oauth2.sdk.token.*;
+import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
 
-import com.nimbusds.common.contenttype.ContentType;
-import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import com.nimbusds.oauth2.sdk.token.*;
-import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import java.util.*;
 
 
 /**
@@ -338,7 +337,7 @@ public class AccessTokenResponseTest extends TestCase {
 		o.put("token_type", "bearer");
 
 		List<AuthorizationDetail> authorizationDetails = Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build());
-		o.put("authorization_details", AuthorizationDetail.toJSONString(authorizationDetails));
+		o.put("authorization_details", AuthorizationDetail.toJSONArray(authorizationDetails));
 
 		httpResponse.setContent(o.toString());
 
@@ -365,7 +364,7 @@ public class AccessTokenResponseTest extends TestCase {
 
 		assertEquals(accessTokenString, o.get("access_token"));
 		assertEquals("Bearer", o.get("token_type"));
-		assertEquals(AuthorizationDetail.toJSONString(authorizationDetails), o.get("authorization_details"));
+		assertEquals(AuthorizationDetail.toJSONArray(authorizationDetails), o.get("authorization_details"));
 		assertEquals(3, o.size());
 	}
 	
@@ -416,8 +415,86 @@ public class AccessTokenResponseTest extends TestCase {
 		assertNull(response.getTokens().getAccessToken().getScope());
 	}
 
+
+	// https://www.rfc-editor.org/rfc/rfc9396.html#figure-15
+	public void testParseRAR()
+		throws Exception {
+
+		String jsonString = "{" +
+			"   \"access_token\": \"2YotnFZFEjr1zCsicMWpAA\"," +
+			"   \"token_type\": \"Bearer\"," +
+			"   \"expires_in\": 3600," +
+			"   \"refresh_token\": \"tGzv3JOkF0XG5Qx2TlKWIA\"," +
+			"   \"authorization_details\": [" +
+			"      {" +
+			"         \"type\": \"payment_initiation\"," +
+			"         \"actions\": [" +
+			"            \"initiate\"," +
+			"            \"status\"," +
+			"            \"cancel\"" +
+			"         ]," +
+			"         \"locations\": [" +
+			"            \"https://example.com/payments\"" +
+			"         ]," +
+			"         \"instructedAmount\": {" +
+			"            \"currency\": \"EUR\"," +
+			"            \"amount\": \"123.50\"" +
+			"         }," +
+			"         \"creditorName\": \"Merchant A\"," +
+			"         \"creditorAccount\": {" +
+			"            \"iban\": \"DE02100100109307118603\"" +
+			"         }," +
+			"         \"remittanceInformationUnstructured\": \"Ref Number Merchant\"" +
+			"      }" +
+			"   ]" +
+			"}";
+
+		AccessTokenResponse response = AccessTokenResponse.parse(JSONObjectUtils.parse(jsonString));
+
+		AuthorizationDetail authzDetail = AuthorizationDetail.parse(
+				JSONObjectUtils.parse(
+				"{" +
+				"         \"type\": \"payment_initiation\"," +
+				"         \"actions\": [" +
+				"            \"initiate\"," +
+				"            \"status\"," +
+				"            \"cancel\"" +
+				"         ]," +
+				"         \"locations\": [" +
+				"            \"https://example.com/payments\"" +
+				"         ]," +
+				"         \"instructedAmount\": {" +
+				"            \"currency\": \"EUR\"," +
+				"            \"amount\": \"123.50\"" +
+				"         }," +
+				"         \"creditorName\": \"Merchant A\"," +
+				"         \"creditorAccount\": {" +
+				"            \"iban\": \"DE02100100109307118603\"" +
+				"         }," +
+				"         \"remittanceInformationUnstructured\": \"Ref Number Merchant\"" +
+				"}"));
+
+		assertEquals(
+			new BearerAccessToken(
+				"2YotnFZFEjr1zCsicMWpAA",
+				3600,
+				null,
+				Collections.singletonList(authzDetail),
+				null
+				),
+			response.getTokens().getBearerAccessToken()
+		);
+
+		assertEquals(
+			new RefreshToken("tGzv3JOkF0XG5Qx2TlKWIA"),
+			response.getTokens().getRefreshToken()
+		);
+	}
+
+
 	// https://datatracker.ietf.org/doc/html/rfc8693#section-2.3
-	public void testParseTokenExchangeResponse() throws Exception {
+	public void testParseTokenExchangeResponse()
+		throws Exception {
 		String jsonString = "\n"
 				+ "    {\n"
 				+ "     \"access_token\":\"eyJhbGciOiJFUzI1NiIsImtpZCI6IjllciJ9.eyJhdWQiOiJodHRwczovL2JhY2tlbmQuZXhhbXBsZS5jb20i"

@@ -21,9 +21,11 @@ package com.nimbusds.oauth2.sdk.token;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
+import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import java.util.List;
@@ -128,13 +130,13 @@ class AccessTokenUtils {
 	static List<AuthorizationDetail> parseAuthorizationDetails(final JSONObject params)
 		throws ParseException {
 
-		String json = JSONObjectUtils.getString(params, "authorization_details", null);
+		JSONArray jsonArray = JSONObjectUtils.getJSONArray(params, "authorization_details", null);
 
-		if (json == null) {
+		if (jsonArray == null) {
 			return null;
 		}
 
-		return AuthorizationDetail.parseList(json);
+		return AuthorizationDetail.parseList(JSONArrayUtils.toJSONObjectList(jsonArray));
 	}
 
 	
