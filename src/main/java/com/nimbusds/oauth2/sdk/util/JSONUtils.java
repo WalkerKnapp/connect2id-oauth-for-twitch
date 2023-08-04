@@ -54,6 +54,9 @@ public final class JSONUtils {
 			throw new ParseException("The JSON string must not be null", e);
 		} catch (Exception e) {
 			throw new ParseException("Unexpected exception: " + e.getMessage(), e);
+		} catch (Error e) {
+			// Guard against unexpected java.lang.Error instances
+			throw new ParseException("Unexpected error: " + e.getMessage(), e);
 		}
 	}
 
