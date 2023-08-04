@@ -2244,4 +2244,5 @@ version 10.13 (2023-08-02)
     * Adds URLUtils.urlEncodeParameters static method.
 
 version 10.13.1 (2023-08-04)
-    * Fixes AccessTokenResponse authorization_details data type representation (iss #).
+    * Fixes AccessTokenResponse authorization_details data type representation
+      (iss #431).
