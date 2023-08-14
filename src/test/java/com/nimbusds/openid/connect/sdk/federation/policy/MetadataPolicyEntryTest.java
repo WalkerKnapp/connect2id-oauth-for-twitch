@@ -284,19 +284,19 @@ public class MetadataPolicyEntryTest extends TestCase {
 			"scopes",
 			JSONObjectUtils.parse(
 				"{" +
-					"    \"subset_of\": [" +
-					"      \"openid\"," +
-					"      \"eduperson\"," +
-					"      \"phone\"" +
-					"    ]," +
-					"    \"superset_of\": [" +
-					"      \"openid\"" +
-					"    ]," +
-					"    \"default\": [" +
-					"      \"openid\"," +
-					"      \"eduperson\"" +
-					"    ]" +
-					"  }"
+				"    \"subset_of\": [" +
+				"      \"openid\"," +
+				"      \"eduperson\"," +
+				"      \"phone\"" +
+				"    ]," +
+				"    \"superset_of\": [" +
+				"      \"openid\"" +
+				"    ]," +
+				"    \"default\": [" +
+				"      \"openid\"," +
+				"      \"eduperson\"" +
+				"    ]" +
+				"}"
 			)
 		);
 		
@@ -304,16 +304,16 @@ public class MetadataPolicyEntryTest extends TestCase {
 			"scopes",
 			JSONObjectUtils.parse(
 				"{" +
-					"    \"subset_of\": [" +
-					"      \"openid\"," +
-					"      \"eduperson\"," +
-					"      \"address\"" +
-					"    ]," +
-					"    \"default\": [" +
-					"      \"openid\"," +
-					"      \"eduperson\"" +
-					"    ]" +
-					"  }"
+				"    \"subset_of\": [" +
+				"      \"openid\"," +
+				"      \"eduperson\"," +
+				"      \"address\"" +
+				"    ]," +
+				"    \"default\": [" +
+				"      \"openid\"," +
+				"      \"eduperson\"" +
+				"    ]" +
+				"}"
 			)
 		);
 		
@@ -341,12 +341,12 @@ public class MetadataPolicyEntryTest extends TestCase {
 			"id_token_signed_response_alg",
 			JSONObjectUtils.parse(
 				"{" +
-					"    \"one_of\": [" +
-					"      \"ES256\"," +
-					"      \"ES384\"," +
-					"      \"ES512\"" +
-					"    ]" +
-					"  }"
+				"    \"one_of\": [" +
+				"      \"ES256\"," +
+				"      \"ES384\"," +
+				"      \"ES512\"" +
+				"    ]" +
+				"}"
 			)
 		);
 		
@@ -354,12 +354,12 @@ public class MetadataPolicyEntryTest extends TestCase {
 			"id_token_signed_response_alg",
 			JSONObjectUtils.parse(
 				"{" +
-					"    \"one_of\": [" +
-					"      \"ES256\"," +
-					"      \"ES384\"" +
-					"    ]," +
-					"    \"default\": \"ES256\"" +
-					"  }"
+				"    \"one_of\": [" +
+				"      \"ES256\"," +
+				"      \"ES384\"" +
+				"    ]," +
+				"    \"default\": \"ES256\"" +
+				"}"
 			)
 		);
 		
@@ -384,17 +384,17 @@ public class MetadataPolicyEntryTest extends TestCase {
 			"contacts",
 			JSONObjectUtils.parse(
 				"{" +
-					"    \"add\": \"helpdesk@federation.example.org\"" +
-					"  }"
+				"    \"add\": \"helpdesk@federation.example.org\"" +
+				"}"
 			)
 		);
 		
 		MetadataPolicyEntry other = MetadataPolicyEntry.parse(
 			"contacts",
 			JSONObjectUtils.parse(
-				"{\n" +
-					"    \"add\": \"helpdesk@org.example.org\"\n" +
-					"  }"
+				"{" +
+				"    \"add\": \"helpdesk@org.example.org\"" +
+				"}"
 			)
 		);
 		
