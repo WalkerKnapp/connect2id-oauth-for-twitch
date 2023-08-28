@@ -285,6 +285,25 @@ public class URIUtilsTest extends TestCase {
 			assertEquals("The URI scheme data is prohibited", e.getMessage());
 		}
 	}
+
+
+	public void testEnsureQueryIsNotProhibited() {
+
+		URIUtils.ensureQueryIsNotProhibited(null, null);
+		URIUtils.ensureQueryIsNotProhibited(null, new HashSet<String>());
+		URIUtils.ensureQueryIsNotProhibited(URI.create("https://rp.example.com/cb"), null);
+		URIUtils.ensureQueryIsNotProhibited(URI.create("https://rp.example.com/cb"), new HashSet<String>());
+
+		URIUtils.ensureQueryIsNotProhibited(URI.create("https://rp.example.com/cb"), Collections.singleton("code"));
+		URIUtils.ensureQueryIsNotProhibited(URI.create("https://rp.example.com/cb?app"), new HashSet<>(Arrays.asList("code", "state")));
+
+		try {
+			URIUtils.ensureQueryIsNotProhibited(URI.create("https://rp.example.com/cb?state"), new HashSet<>(Arrays.asList("code", "state")));
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("The query parameter state is prohibited", e.getMessage());
+		}
+	}
 	
 	
 	public void testToStringList() {

@@ -281,6 +281,35 @@ public final class URIUtils {
 			throw new IllegalArgumentException("The URI scheme " + uri.getScheme() + " is prohibited");
 		}
 	}
+
+
+	/**
+	 * Ensures the query of the specified URI is not prohibited.
+	 *
+	 * @param uri                       The URI to check, {@code null} if
+	 *                                  not specified.
+	 * @param prohibitedQueryParamNames The prohibited query parameter
+	 *                                  names, empty or {@code null} if not
+	 *                                  specified.
+	 *
+	 * @throws IllegalArgumentException If the URI is specified and
+	 *                                  includes prohibited query parameter
+	 *                                  names.
+	 */
+	public static void ensureQueryIsNotProhibited(final URI uri, final Set<String> prohibitedQueryParamNames) {
+
+		if (uri == null || uri.getQuery() == null || uri.getQuery().isEmpty() || prohibitedQueryParamNames == null || prohibitedQueryParamNames.isEmpty()) {
+			return;
+		}
+
+		Map<String, List<String>> params = URLUtils.parseParameters(uri.getQuery());
+
+		for (String paramName: params.keySet()) {
+			if (prohibitedQueryParamNames.contains(paramName)) {
+				throw new IllegalArgumentException("The query parameter " + paramName + " is prohibited");
+			}
+		}
+	}
 	
 	
 	/**
