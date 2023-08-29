@@ -2271,3 +2271,4 @@ version 10.14 (2023-08-29)
 
 version 10.14.1 (2023-08-29)
     * Updates JSON Smart to 2.4.11
+    * Updates Tink 1.10.0
