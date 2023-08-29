@@ -33,7 +33,7 @@ public final class RedirectURIValidator {
 
 
         /**
-         * Prohibited URI schemes in redirection URIs. See
+         * Prohibited {@code redirect_uri} schemes. See
          * https://security.lauritz-holtmann.de/post/sso-security-redirect-uri/.
          */
         public static final Set<String> PROHIBITED_REDIRECT_URI_SCHEMES =
@@ -56,11 +56,9 @@ public final class RedirectURIValidator {
          *
          * <ul>
          *     <li>Must not contain fragment;
-         *     <li>Must not have a {@link
-         *         ClientMetadata#PROHIBITED_REDIRECT_URI_SCHEMES prohibited
-         *         URI scheme};
-         *     <li>Must not have a {@link
-         *         RedirectURIValidator#PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES
+         *     <li>Must not have a {@link #PROHIBITED_REDIRECT_URI_SCHEMES
+         *         prohibited URI scheme};
+         *     <li>Must not have a {@link #PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES
          *         prohibited query parameter}.
          * </ul>
          *
