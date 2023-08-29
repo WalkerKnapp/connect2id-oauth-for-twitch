@@ -2251,5 +2251,13 @@ version 10.13.2 (2023-08-04)
     * JSONUtils.parseJSON receives a catch clause to guard against any
       unexpected java.land.Error thrown instances.
 
-version 10.14 (2023-08-28)
+version 10.14 (2023-08-29)
+    * Adds ClientMetadata.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES listing
+      "redirect_uri" query parameters that clients must not be allowed to set:
+      "code", "state" and "response". See "OAuth 2.0 Redirect URI Validation
+      Falls Short, Literally", by Tommaso Innocenti, Matteo Golinelli, Kaan
+      Onarlioglu, Bruno Crispo, Engin Kirda. Presented at OAuth Security
+      Workshop 2023.
+    * Updates ClientMetadata to reject "redirect_uris" with query parameters
+      "code", "state" or "response".
     * Adds URIUtils.ensureSchemeIsNotProhibited method.

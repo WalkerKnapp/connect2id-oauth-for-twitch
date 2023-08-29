@@ -93,7 +93,18 @@ public class ClientMetadata {
 	 * Prohibited URI schemes in redirection URIs. See
 	 * https://security.lauritz-holtmann.de/post/sso-security-redirect-uri/.
 	 */
-	public static final Set<String> PROHIBITED_REDIRECT_URI_SCHEMES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("data", "javascript", "vbscript")));
+	public static final Set<String> PROHIBITED_REDIRECT_URI_SCHEMES =
+		Collections.unmodifiableSet(new HashSet<>(Arrays.asList("data", "javascript", "vbscript")));
+
+
+	/**
+	 * Prohibited {@code redirect_uri} query parameters. See "OAuth 2.0
+	 * Redirect URI Validation Falls Short, Literally", by Tommaso
+	 * Innocenti, Matteo Golinelli, Kaan Onarlioglu, Bruno Crispo, Engin
+	 * Kirda. Presented at OAuth Security Workshop 2023.
+	 */
+	public static final Set<String> PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES =
+		Collections.unmodifiableSet(new HashSet<>(Arrays.asList("code", "state", "response")));
 
 
 	static {
@@ -557,6 +568,8 @@ public class ClientMetadata {
 					throw new IllegalArgumentException("The redirect_uri must not contain fragment");
 				}
 				URIUtils.ensureSchemeIsNotProhibited(uri, PROHIBITED_REDIRECT_URI_SCHEMES);
+
+				URIUtils.ensureQueryIsNotProhibited(uri, PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES);
 			}
 			this.redirectURIs = Collections.unmodifiableSet(redirectURIs);
 		} else {

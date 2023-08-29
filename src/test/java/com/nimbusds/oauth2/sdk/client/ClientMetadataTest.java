@@ -111,6 +111,15 @@ public class ClientMetadataTest extends TestCase {
 		assertTrue(ClientMetadata.PROHIBITED_REDIRECT_URI_SCHEMES.contains("vbscript"));
 		assertEquals(3, ClientMetadata.PROHIBITED_REDIRECT_URI_SCHEMES.size());
 	}
+
+
+	public void testProhibitedRedirectURIQueryParamNames() {
+
+		assertTrue(ClientMetadata.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES.contains("code"));
+		assertTrue(ClientMetadata.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES.contains("state"));
+		assertTrue(ClientMetadata.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES.contains("response"));
+		assertEquals(3, ClientMetadata.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES.size());
+	}
 	
 	
 	public void testSerializeAndParse()
@@ -1227,6 +1236,62 @@ public class ClientMetadataTest extends TestCase {
 				assertEquals("Invalid redirect_uris parameter: The URI scheme " + scheme + " is prohibited", e.getMessage());
 				assertEquals(RegistrationError.INVALID_REDIRECT_URI.getCode(), e.getErrorObject().getCode());
 				assertEquals("Invalid redirection URI(s): The URI scheme " + scheme + " is prohibited", e.getErrorObject().getDescription());
+			}
+		}
+	}
+
+
+	public void testRedirectURIWithQueryParams() throws ParseException {
+
+		URI redirectURI = URI.create("https://rp.example.com/cb?iss=123");
+
+		ClientMetadata clientMetadata = new ClientMetadata();
+		assertNull(clientMetadata.getRedirectionURI());
+		clientMetadata.setRedirectionURI(redirectURI);
+		assertEquals(redirectURI, clientMetadata.getRedirectionURI());
+
+		JSONObject jsonObject = clientMetadata.toJSONObject();
+
+		clientMetadata = ClientMetadata.parse(jsonObject);
+		assertEquals(redirectURI, clientMetadata.getRedirectionURI());
+	}
+
+
+	public void testRejectProhibitedQueryParamsInRedirectURI() {
+
+		for (String queryParamName: ClientMetadata.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES) {
+
+			URI illegalRedirectURI = URI.create("https://rp.example.com/cb?" + queryParamName + "=some_value");
+
+			ClientMetadata metadata = new ClientMetadata();
+
+			// single setter
+			try {
+				metadata.setRedirectionURI(illegalRedirectURI);
+				fail();
+			} catch (IllegalArgumentException e) {
+				assertEquals("The query parameter " + queryParamName + " is prohibited", e.getMessage());
+			}
+
+			// collection setter
+			try {
+				metadata.setRedirectionURIs(Collections.singleton(illegalRedirectURI));
+				fail();
+			} catch (IllegalArgumentException e) {
+				assertEquals("The query parameter " + queryParamName + " is prohibited", e.getMessage());
+			}
+
+			// static parse method
+			JSONObject o = new JSONObject();
+			o.put("redirect_uris", Collections.singletonList(illegalRedirectURI.toString()));
+
+			try {
+				ClientMetadata.parse(o);
+				fail();
+			} catch (ParseException e) {
+				assertEquals("Invalid redirect_uris parameter: The query parameter " + queryParamName + " is prohibited", e.getMessage());
+				assertEquals(RegistrationError.INVALID_REDIRECT_URI.getCode(), e.getErrorObject().getCode());
+				assertEquals("Invalid redirection URI(s): The query parameter " + queryParamName + " is prohibited", e.getErrorObject().getDescription());
 			}
 		}
 	}
