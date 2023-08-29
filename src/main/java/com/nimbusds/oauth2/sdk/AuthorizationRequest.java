@@ -1091,8 +1091,8 @@ public class AuthorizationRequest extends AbstractRequest {
 	 *                             be used.
 	 * @param rt                   The response type. Corresponds to the
 	 *                             {@code response_type} parameter. Must
-	 *                             not be {@code null}, unless a request a
-	 *                             request object or URI is specified.
+	 *                             not be {@code null}, unless a request
+	 *                             object or URI is specified.
 	 * @param rm                   The response mode. Corresponds to the
 	 *                             optional {@code response_mode}
 	 *                             parameter. Use of this parameter is not
