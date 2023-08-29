@@ -23,6 +23,7 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
 import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -1175,8 +1176,10 @@ public class AuthorizationRequest extends AbstractRequest {
 
 		this.clientID = clientID;
 
+		RedirectURIValidator.ensureLegal(redirectURI);
 
 		this.redirectURI = redirectURI;
+
 		this.scope = scope;
 		this.state = state;
 
@@ -1763,7 +1766,10 @@ public class AuthorizationRequest extends AbstractRequest {
 		if (StringUtils.isNotBlank(v)) {
 			try {
 				redirectURI = new URI(v);
-			} catch (URISyntaxException e) {
+
+				RedirectURIValidator.ensureLegal(redirectURI);
+
+			} catch (URISyntaxException | IllegalArgumentException e) {
 				// No automatic redirection https://tools.ietf.org/html/rfc6749#section-4.1.2.1
 				String msg = "Invalid redirect_uri parameter: " + e.getMessage();
 				throw new ParseException(msg, OAuth2Error.INVALID_REQUEST.appendDescription(": " + msg));

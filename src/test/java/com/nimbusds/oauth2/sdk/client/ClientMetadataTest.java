@@ -115,10 +115,10 @@ public class ClientMetadataTest extends TestCase {
 
 	public void testProhibitedRedirectURIQueryParamNames() {
 
-		assertTrue(ClientMetadata.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES.contains("code"));
-		assertTrue(ClientMetadata.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES.contains("state"));
-		assertTrue(ClientMetadata.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES.contains("response"));
-		assertEquals(3, ClientMetadata.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES.size());
+		assertTrue(RedirectURIValidator.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES.contains("code"));
+		assertTrue(RedirectURIValidator.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES.contains("state"));
+		assertTrue(RedirectURIValidator.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES.contains("response"));
+		assertEquals(3, RedirectURIValidator.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES.size());
 	}
 	
 	
@@ -1259,7 +1259,7 @@ public class ClientMetadataTest extends TestCase {
 
 	public void testRejectProhibitedQueryParamsInRedirectURI() {
 
-		for (String queryParamName: ClientMetadata.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES) {
+		for (String queryParamName: RedirectURIValidator.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES) {
 
 			URI illegalRedirectURI = URI.create("https://rp.example.com/cb?" + queryParamName + "=some_value");
 

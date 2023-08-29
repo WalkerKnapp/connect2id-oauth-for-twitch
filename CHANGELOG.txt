@@ -2252,12 +2252,19 @@ version 10.13.2 (2023-08-04)
       unexpected java.land.Error thrown instances.
 
 version 10.14 (2023-08-29)
-    * Adds ClientMetadata.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES listing
-      "redirect_uri" query parameters that clients must not be allowed to set:
-      "code", "state" and "response". See "OAuth 2.0 Redirect URI Validation
-      Falls Short, Literally", by Tommaso Innocenti, Matteo Golinelli, Kaan
-      Onarlioglu, Bruno Crispo, Engin Kirda. Presented at OAuth Security
-      Workshop 2023.
+    * Adds RedirectURIValidator class.
+    * Adds RedirectURIValidator.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES
+      with "redirect_uri" query parameters that clients must not be allowed to
+      set: "code", "state" and "response". See "OAuth 2.0 Redirect URI
+      Validation Falls Short, Literally", by Tommaso Innocenti, Matteo
+      Golinelli, Kaan Onarlioglu, Bruno Crispo, Engin Kirda. Presented at OAuth
+      Security Workshop 2023.
     * Updates ClientMetadata to reject "redirect_uris" with query parameters
       "code", "state" or "response".
+    * Updates AuthorizationRequest to reject "redirect_uri" with query
+      parameters "code", "state" or "response".
+    * Updates AuthorizationRequest to reject "redirect_uri" with schemes
+      "data", "javascript" or "vbscript".
     * Adds URIUtils.ensureSchemeIsNotProhibited method.
+    * Deprecates ClientMetadata.PROHIBITED_REDIRECT_URI_SCHEMES, use
+      RedirectURIValidator.PROHIBITED_REDIRECT_URI_SCHEMES instead.

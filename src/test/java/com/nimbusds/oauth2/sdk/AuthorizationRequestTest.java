@@ -34,6 +34,7 @@ import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagException;
+import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
 import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.*;
@@ -2042,5 +2043,105 @@ public class AuthorizationRequestTest extends TestCase {
 			.build();
 		
 		assertEquals(authRequest.toParameters(), copy.toParameters());
+	}
+
+
+	public void testIllegalRedirectURI_constructor_fragment() {
+
+		try {
+			new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID("123"))
+				.redirectionURI(URI.create("https://example.com/cb#fragment"))
+				.build();
+			fail();
+		} catch (IllegalStateException e) {
+			assertEquals("The redirect_uri must not contain fragment", e.getMessage());
+		}
+	}
+
+
+	public void testIllegalRedirectURI_parse_fragment() {
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID("123"))
+			.build();
+
+		Map<String, List<String>> parameters = request.toParameters();
+		parameters.put("redirect_uri", Collections.singletonList("https://example.com/cb#fragment"));
+
+		try {
+			AuthorizationRequest.parse(parameters);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Invalid redirect_uri parameter: The redirect_uri must not contain fragment", e.getMessage());
+		}
+	}
+
+
+	public void testIllegalRedirectURI_constructor_prohibitedScheme() {
+
+		for (String scheme: RedirectURIValidator.PROHIBITED_REDIRECT_URI_SCHEMES) {
+			try {
+				new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID("123"))
+					.redirectionURI(URI.create(scheme  + "://example.com"))
+					.build();
+				fail();
+			} catch (IllegalStateException e) {
+				assertEquals("The URI scheme " + scheme + " is prohibited", e.getMessage());
+			}
+		}
+	}
+
+
+	public void testIllegalRedirectURI_parse_prohibitedScheme() {
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID("123"))
+			.build();
+
+		for (String scheme: RedirectURIValidator.PROHIBITED_REDIRECT_URI_SCHEMES) {
+
+			Map<String, List<String>> parameters = request.toParameters();
+			parameters.put("redirect_uri", Collections.singletonList(scheme  + "://example.com"));
+
+			try {
+				AuthorizationRequest.parse(parameters);
+				fail();
+			} catch (ParseException e) {
+				assertEquals("Invalid redirect_uri parameter: The URI scheme " + scheme + " is prohibited", e.getMessage());
+			}
+		}
+	}
+
+
+	public void testIllegalRedirectURI_constructor_prohibitedQueryParam() {
+
+		for (String queryParam: RedirectURIValidator.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES) {
+			try {
+				new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID("123"))
+					.redirectionURI(URI.create("https://example.com/cb?" + queryParam  + "=123"))
+					.build();
+				fail();
+			} catch (IllegalStateException e) {
+				assertEquals("The query parameter " + queryParam + " is prohibited", e.getMessage());
+			}
+		}
+	}
+
+
+	public void testIllegalRedirectURI_parse_prohibitedQueryParam() {
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID("123"))
+			.build();
+
+		for (String queryParam: RedirectURIValidator.PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES) {
+
+			Map<String, List<String>> parameters = request.toParameters();
+			parameters.put("redirect_uri", Collections.singletonList("https://example.com/cb?" + queryParam  + "=123"));
+
+			try {
+				AuthorizationRequest.parse(parameters);
+				fail();
+			} catch (ParseException e) {
+				assertEquals("Invalid redirect_uri parameter: The query parameter " + queryParam + " is prohibited", e.getMessage());
+			}
+		}
 	}
 }
