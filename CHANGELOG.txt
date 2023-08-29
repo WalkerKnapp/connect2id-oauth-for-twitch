@@ -2268,3 +2268,6 @@ version 10.14 (2023-08-29)
     * Adds URIUtils.ensureSchemeIsNotProhibited method.
     * Deprecates ClientMetadata.PROHIBITED_REDIRECT_URI_SCHEMES, use
       RedirectURIValidator.PROHIBITED_REDIRECT_URI_SCHEMES instead.
+
+version 10.14.1 (2023-08-29)
+    * Updates JSON Smart to 2.4.11
