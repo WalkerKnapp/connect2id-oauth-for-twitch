@@ -496,8 +496,8 @@ public class ErrorObject implements Serializable {
 	
 	
 	/**
-	 * Parses an error object from the specified parameters representation.
-	 * Suitable for URL-encoded error responses.
+	 * Parses an error object from the specified parameters'
+	 * representation. Suitable for URL-encoded error responses.
 	 *
 	 * @param params The parameters. Must not be {@code null}.
 	 *
