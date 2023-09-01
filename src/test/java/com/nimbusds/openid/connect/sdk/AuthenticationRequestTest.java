@@ -1892,6 +1892,31 @@ public class AuthenticationRequestTest extends TestCase {
 		assertEquals(Collections.singletonList("MS-GLOBAL01"), r.getCustomParameter("context")); // custom
 		assertEquals(Collections.singletonList("zh"), r.getCustomParameter("language")); // custom
 	}
+
+
+	public void testParseIllegalClaimsCase() {
+
+		AuthenticationRequest authRequest = new AuthenticationRequest.Builder(
+			ResponseType.CODE,
+			new Scope("openid"),
+			new ClientID("123"),
+			URI.create("https://rp.example.com/cb"))
+			.state(new State())
+			.build();
+
+		Map<String, List<String>> authRequestParams = authRequest.toParameters();
+
+		String queryString = URLUtils.serializeParameters(authRequestParams) + "&claims=id_token%22";
+
+		try {
+			AuthenticationRequest.parse(queryString);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Invalid claims parameter: Invalid JSON", e.getMessage());
+			assertEquals(OAuth2Error.INVALID_REQUEST.getCode(), e.getErrorObject().getCode());
+			assertEquals("Invalid request: Invalid claims parameter: Invalid JSON", e.getErrorObject().getDescription());
+		}
+	}
 	
 	
 	public void testSignedAuthRequest()

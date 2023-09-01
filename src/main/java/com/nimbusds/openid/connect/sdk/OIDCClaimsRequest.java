@@ -873,7 +873,13 @@ public class OIDCClaimsRequest implements JSONAware {
 	 */
 	public static OIDCClaimsRequest parse(final String json)
 		throws ParseException {
-		
-		return parse(JSONObjectUtils.parse(json));
+
+		JSONObject jsonObject;
+		try {
+			jsonObject = JSONObjectUtils.parse(json);
+		} catch (ParseException e) {
+			throw new ParseException("Invalid JSON");
+		}
+		return parse(jsonObject);
 	}
 }

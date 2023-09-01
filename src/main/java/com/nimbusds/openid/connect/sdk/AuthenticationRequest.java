@@ -2278,6 +2278,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 				claims = OIDCClaimsRequest.parse(v);
 			} catch (ParseException e) {
 				String msg = "Invalid claims parameter: " + e.getMessage();
+				System.out.println(msg);
 				throw new ParseException(msg, OAuth2Error.INVALID_REQUEST.appendDescription(": " + msg),
 					                 ar.getClientID(), ar.getRedirectionURI(), ar.impliedResponseMode(), ar.getState(), e);
 			}
