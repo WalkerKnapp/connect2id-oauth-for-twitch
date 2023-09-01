@@ -49,10 +49,11 @@ public final class RedirectURIValidator {
         public static final Set<String> PROHIBITED_REDIRECT_URI_QUERY_PARAMETER_NAMES =
                 Collections.unmodifiableSet(new HashSet<>(Arrays.asList("code", "state", "response")));
 
+
         /**
          * Ensures the specified redirection URI is legal.
          *
-         * <p>Checks:
+         * <p>The URI:
          *
          * <ul>
          *     <li>Must not contain fragment;
