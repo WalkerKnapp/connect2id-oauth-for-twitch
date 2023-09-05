@@ -2276,3 +2276,8 @@ version 10.14.1 (2023-08-29)
 version 10.14.2 (2023-09-01)
     * OIDCClaimsRequest.parse(String) should include a minimal exception
       message when the JSON is invalid (iss #435).
+
+version 10.15 (2023-09-xx)
+    * Deprecates DefaultRPMetadataPolicyFactory, explicit client registration
+      in OpenID Connect Federation 1.0 no longer uses metadata policies in the
+      explicit client registration response.

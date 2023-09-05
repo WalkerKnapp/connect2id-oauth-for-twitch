@@ -33,8 +33,12 @@ import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
 
 /**
  * The default OpenID relying party metadata policy factory.
+ *
+ * @deprecated Explicit client registration in OpenID Connect Federation 1.0 no
+ * longer uses metadata policies in the explicit client registration response.
  */
 @ThreadSafe
+@Deprecated
 public class DefaultRPMetadataPolicyFactory implements RPMetadataPolicyFactory {
 	
 	
