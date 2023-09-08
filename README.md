@@ -85,7 +85,7 @@ This SDK version implements the following standards and drafts:
   Tokens (RFC 8705)
 
 * OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
-  (DPoP) (draft-ietf-oauth-dpop-16)
+  (DPoP) (RFC 9449)
 
 * Resource Indicators for OAuth 2.0 (RFC 8707)
 

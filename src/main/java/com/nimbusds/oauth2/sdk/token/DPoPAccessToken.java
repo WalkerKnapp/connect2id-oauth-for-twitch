@@ -54,7 +54,7 @@ import java.util.Map;
  * <ul>
  *     <li>OAuth 2.0 (RFC 6749), sections 1.4 and 5.1.
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
- *         (DPoP) (draft-ietf-oauth-dpop-16)
+ *         (DPoP) (RFC 9449)
  *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 7.
  *     <li>OAuth 2.0 Token Exchange (RFC 8693), section 3.
  * </ul>
