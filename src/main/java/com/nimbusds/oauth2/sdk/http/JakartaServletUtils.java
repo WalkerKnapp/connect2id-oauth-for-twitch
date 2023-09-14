@@ -324,8 +324,8 @@ public class JakartaServletUtils {
 	 */
 	public static X509Certificate extractClientX509Certificate(final ServletRequest servletRequest) {
 		
-		X509Certificate[] certs = (X509Certificate[]) servletRequest.getAttribute("javax.servlet.request.X509Certificate");
-		
+		X509Certificate[] certs = (X509Certificate[]) servletRequest.getAttribute("jakarta.servlet.request.X509Certificate");
+
 		if (certs == null || certs.length == 0) {
 			return null;
 		}

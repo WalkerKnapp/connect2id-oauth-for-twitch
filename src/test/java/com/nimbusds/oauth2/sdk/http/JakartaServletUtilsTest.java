@@ -158,7 +158,7 @@ public class JakartaServletUtilsTest extends TestCase {
 		servletRequest.setQueryString(null);
 		String entityBody = "{\"grant_types\":[\"code\"]}";
 		servletRequest.setEntityBody(entityBody);
-		servletRequest.setAttribute("javax.servlet.request.X509Certificate", new X509Certificate[]{cert});
+		servletRequest.setAttribute("jakarta.servlet.request.X509Certificate", new X509Certificate[]{cert});
 		
 
 		HTTPRequest httpRequest = JakartaServletUtils.createHTTPRequest(servletRequest);
@@ -195,7 +195,7 @@ public class JakartaServletUtilsTest extends TestCase {
 		servletRequest.setQueryString(null);
 		String entityBody = "{\"grant_types\":[\"code\"]}";
 		servletRequest.setEntityBody(entityBody);
-		servletRequest.setAttribute("javax.servlet.request.X509Certificate", new X509Certificate[]{cert});
+		servletRequest.setAttribute("jakarta.servlet.request.X509Certificate", new X509Certificate[]{cert});
 		
 
 		HTTPRequest httpRequest = JakartaServletUtils.createHTTPRequest(servletRequest);
@@ -381,7 +381,7 @@ public class JakartaServletUtilsTest extends TestCase {
 	public void testExtractClientCertificate_emptyArray() {
 		
 		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
-		servletRequest.setAttribute("javax.servlet.request.X509Certificate", new X509Certificate[]{});
+		servletRequest.setAttribute("jakarta.servlet.request.X509Certificate", new X509Certificate[]{});
 		
 		assertNull(JakartaServletUtils.extractClientX509Certificate(servletRequest));
 	}
@@ -395,7 +395,7 @@ public class JakartaServletUtilsTest extends TestCase {
 		X509Certificate[] certArray = new X509Certificate[]{cert};
 		
 		MockJakartaServletRequest servletRequest = new MockJakartaServletRequest();
-		servletRequest.setAttribute("javax.servlet.request.X509Certificate", certArray);
+		servletRequest.setAttribute("jakarta.servlet.request.X509Certificate", certArray);
 		
 		assertEquals(cert, JakartaServletUtils.extractClientX509Certificate(servletRequest));
 	}
