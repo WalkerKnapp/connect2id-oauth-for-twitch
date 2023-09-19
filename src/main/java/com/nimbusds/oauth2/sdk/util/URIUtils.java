@@ -88,7 +88,7 @@ public final class URIUtils {
 				joinedPath,
 				uri.getQuery(), uri.getFragment());
 		} catch (URISyntaxException e) {
-			// should never happen when starting from legal URI
+			// should never happen when starting from a legal URI
 			return null;
 		}
 	}
