@@ -19,10 +19,7 @@ package com.nimbusds.oauth2.sdk.util;
 
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.net.*;
 import java.util.*;
 
 
@@ -58,6 +55,72 @@ public final class URLUtils {
 		} catch (MalformedURLException e) {
 		
 			return null;
+		}
+	}
+
+
+	/**
+	 * Sets the encoded query of the specified URL.
+	 *
+	 * @param url   The URL. May be {@code null}.
+	 * @param query The encoded query, {@code null} if not specified.
+	 *
+	 * @return The new URL.
+	 */
+	public static URL setEncodedQuery(final URL url, final String query) {
+
+		if (url == null) {
+			return null;
+		}
+
+		try {
+			URI uri = url.toURI();
+			StringBuilder sb = new StringBuilder(URIUtils.getBaseURI(uri).toString());
+			if (query != null && ! query.isEmpty()) {
+				sb.append('?');
+				sb.append(query);
+			}
+			if (uri.getRawFragment() != null) {
+				sb.append('#');
+				sb.append(uri.getRawFragment());
+
+			}
+			return new URL(sb.toString());
+		} catch (MalformedURLException | URISyntaxException e) {
+			throw new IllegalArgumentException(e);
+		}
+        }
+
+
+	/**
+	 * Sets the encoded fragment of the specified URL.
+	 *
+	 * @param url      The URL. May be {@code null}.
+	 * @param fragment The encoded fragment, {@code null} if not specified.
+	 *
+	 * @return The new URL.
+	 */
+	public static URL setEncodedFragment(final URL url, final String fragment) {
+
+		if (url == null) {
+			return null;
+		}
+
+		try {
+			URI uri = url.toURI();
+			StringBuilder sb = new StringBuilder(URIUtils.getBaseURI(uri).toString());
+			if (uri.getRawQuery() != null) {
+				sb.append('?');
+				sb.append(uri.getRawQuery());
+			}
+			if (fragment != null && ! fragment.isEmpty()) {
+				sb.append('#');
+				sb.append(fragment);
+
+			}
+			return new URL(sb.toString());
+		} catch (MalformedURLException | URISyntaxException e) {
+			throw new IllegalArgumentException(e);
 		}
 	}
 

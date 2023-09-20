@@ -21,10 +21,7 @@ package com.nimbusds.oauth2.sdk.util;
 import junit.framework.TestCase;
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.net.*;
 import java.util.*;
 
 
@@ -51,6 +48,150 @@ public class URLUtilsTest extends TestCase {
 		URL baseURL = URLUtils.getBaseURL(url);
 		
 		assertEquals("http://client.example.com:8080/endpoints/openid/connect/cb", baseURL.toString());
+	}
+
+
+	public void testSetQuery()
+		throws MalformedURLException, URISyntaxException {
+
+		URL in = new URL("https://localhost:8080/path%20to%20foo/abc/?query#fragment%20space");
+
+		URL out = URLUtils.setEncodedQuery(in, "new_query");
+		assertEquals("https://localhost:8080/path%20to%20foo/abc/?new_query#fragment%20space", out.toString());
+
+		assertEquals("https", out.toURI().getScheme());
+		assertEquals("localhost", out.toURI().getHost());
+		assertEquals(8080, out.toURI().getPort());
+		assertEquals("/path to foo/abc/", out.toURI().getPath());
+		assertEquals("new_query", out.toURI().getQuery());
+		assertEquals("fragment space", out.toURI().getFragment());
+	}
+
+
+	public void testSetQuery_encodedQuery()
+		throws MalformedURLException, URISyntaxException {
+
+		URL in = new URL("https://localhost:8080/path/abc/?query#fragment");
+
+		Map<String,List<String>> params = new HashMap<>();
+		params.put("iss", Collections.singletonList("https://op.example.com/cb"));
+
+		String newQuery = URLUtils.serializeParameters(params);
+		URL out = URLUtils.setEncodedQuery(in, newQuery);
+		assertEquals("https://localhost:8080/path/abc/?iss=https%3A%2F%2Fop.example.com%2Fcb#fragment", out.toString());
+
+		assertEquals(params, URLUtils.parseParameters(out.getQuery()));
+
+		assertEquals("https", out.toURI().getScheme());
+		assertEquals("localhost", out.toURI().getHost());
+		assertEquals(8080, out.toURI().getPort());
+		assertEquals("/path/abc/", out.toURI().getPath());
+		assertEquals("iss=https://op.example.com/cb", out.toURI().getQuery());
+		assertEquals("fragment", out.toURI().getFragment());
+	}
+
+
+	public void testSetQuery_encodedQuery_twoParams()
+		throws MalformedURLException, URISyntaxException {
+
+		URL in = new URL("https://localhost:8080/path/abc/?query#fragment");
+
+		Map<String,List<String>> params = new LinkedHashMap<>();
+		params.put("iss", Collections.singletonList("https://op.example.com/cb"));
+		params.put("state", Collections.singletonList("<123>"));
+
+		String newQuery = URLUtils.serializeParameters(params);
+		URL out = URLUtils.setEncodedQuery(in, newQuery);
+		assertEquals("https://localhost:8080/path/abc/?iss=https%3A%2F%2Fop.example.com%2Fcb&state=%3C123%3E#fragment", out.toString());
+
+		assertEquals(params, URLUtils.parseParameters(out.getQuery()));
+
+		assertEquals("https", out.toURI().getScheme());
+		assertEquals("localhost", out.toURI().getHost());
+		assertEquals(8080, out.toURI().getPort());
+		assertEquals("/path/abc/", out.toURI().getPath());
+		assertEquals("iss=https://op.example.com/cb&state=<123>", out.toURI().getQuery());
+		assertEquals("fragment", out.toURI().getFragment());
+	}
+
+
+	public void testSetQuery_nullQuery()
+		throws MalformedURLException, URISyntaxException {
+
+		URL in = new URL("https://localhost:8080/path/abc/?query#fragment");
+
+		URL out = URLUtils.setEncodedQuery(in, null);
+		assertEquals("https://localhost:8080/path/abc/#fragment", out.toString());
+
+		assertEquals("https", out.toURI().getScheme());
+		assertEquals("localhost", out.toURI().getHost());
+		assertEquals(8080, out.toURI().getPort());
+		assertEquals("/path/abc/", out.toURI().getPath());
+		assertNull(out.toURI().getQuery());
+		assertEquals("fragment", out.toURI().getFragment());
+	}
+
+
+	public void testSetQuery_nullURL() {
+
+		assertNull(URLUtils.setEncodedQuery(null, "new_query"));
+	}
+
+
+	public void testSetFragment()
+		throws MalformedURLException, URISyntaxException {
+
+		URL in = new URL("https://localhost:8080/some%20path/abc/?query#fragment");
+
+		URL out = URLUtils.setEncodedFragment(in, "new-fragment");
+		assertEquals("https://localhost:8080/some%20path/abc/?query#new-fragment", out.toString());
+
+		assertEquals("https", out.toURI().getScheme());
+		assertEquals("localhost", out.toURI().getHost());
+		assertEquals(8080, out.toURI().getPort());
+		assertEquals("/some path/abc/", out.toURI().getPath());
+		assertEquals("query", out.toURI().getQuery());
+		assertEquals("new-fragment", out.toURI().getFragment());
+	}
+
+
+	public void testSetFragment_encodedFragment()
+		throws MalformedURLException, URISyntaxException {
+
+		URL in = new URL("https://localhost:8080/path/abc/?query#fragment%20old");
+
+		URL out = URLUtils.setEncodedFragment(in, "fragment%20new");
+		assertEquals("https://localhost:8080/path/abc/?query#fragment%20new", out.toString());
+
+		assertEquals("https", out.toURI().getScheme());
+		assertEquals("localhost", out.toURI().getHost());
+		assertEquals(8080, out.toURI().getPort());
+		assertEquals("/path/abc/", out.toURI().getPath());
+		assertEquals("query", out.toURI().getQuery());
+		assertEquals("fragment new", out.toURI().getFragment());
+	}
+
+
+	public void testSetFragment_nullFragment()
+		throws MalformedURLException, URISyntaxException {
+
+		URL in = new URL("https://localhost:8080/path/abc/?query#fragment");
+
+		URL out = URLUtils.setEncodedFragment(in, null);
+		assertEquals("https://localhost:8080/path/abc/?query", out.toString());
+
+		assertEquals("https", out.toURI().getScheme());
+		assertEquals("localhost", out.toURI().getHost());
+		assertEquals(8080, out.toURI().getPort());
+		assertEquals("/path/abc/", out.toURI().getPath());
+		assertEquals("query", out.toURI().getQuery());
+		assertNull(out.toURI().getFragment());
+	}
+
+
+	public void testSetFragment_nullURL() {
+
+		assertNull(URLUtils.setEncodedFragment(null, "new-fragment"));
 	}
 	
 	

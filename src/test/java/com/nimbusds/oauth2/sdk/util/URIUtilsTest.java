@@ -41,6 +41,17 @@ public class URIUtilsTest extends TestCase {
 	}
 
 
+	public void testGetBaseURISame_encodedPath()
+		throws URISyntaxException {
+
+		URI uri = new URI("http://client.example.com:8080/endpoints/openid/connect/some%20cb");
+
+		URI baseURI = URIUtils.getBaseURI(uri);
+
+		assertEquals("http://client.example.com:8080/endpoints/openid/connect/some%20cb", baseURI.toString());
+	}
+
+
 	public void testGetBaseURITrim()
 		throws URISyntaxException {
 
