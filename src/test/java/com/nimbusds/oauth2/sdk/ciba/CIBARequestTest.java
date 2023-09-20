@@ -1,16 +1,6 @@
 package com.nimbusds.oauth2.sdk.ciba;
 
 
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-
-import junit.framework.TestCase;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -42,6 +32,15 @@ import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.OIDCClaimsRequest;
 import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.claims.ClaimsSetRequest;
+import junit.framework.TestCase;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 
 public class CIBARequestTest extends TestCase {
@@ -251,7 +250,7 @@ public class CIBARequestTest extends TestCase {
 			
 			assertEquals(2, httpRequest.getHeaderMap().size());
 			
-			assertEquals(request.toParameters(), httpRequest.getQueryParameters());
+			assertEquals(request.toParameters(), httpRequest.getBodyAsFormParameters());
 			
 			request = CIBARequest.parse(httpRequest);
 			
@@ -431,7 +430,7 @@ public class CIBARequestTest extends TestCase {
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(((ClientSecretBasic)CLIENT_AUTH).toHTTPAuthorizationHeader(), httpRequest.getAuthorization());
 		assertEquals(ContentType.APPLICATION_URLENCODED, httpRequest.getEntityContentType());
-		Map<String, List<String>> params = httpRequest.getQueryParameters();
+		Map<String, List<String>> params = httpRequest.getBodyAsFormParameters();
 		assertEquals(Collections.singletonList(requestJWT.serialize()), params.get("request"));
 		assertEquals(1, params.size());
 		
@@ -801,7 +800,7 @@ public class CIBARequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = request.toHTTPRequest();
 		
-		Map<String,List<String>> formParams = httpRequest.getQueryParameters();
+		Map<String,List<String>> formParams = httpRequest.getBodyAsFormParameters();
 		assertNotNull(formParams.get("client_assertion_type"));
 		assertNotNull(formParams.get("client_assertion"));
 		assertNotNull(formParams.get("scope"));

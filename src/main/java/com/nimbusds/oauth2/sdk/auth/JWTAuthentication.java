@@ -18,8 +18,6 @@
 package com.nimbusds.oauth2.sdk.auth;
 
 
-import java.util.*;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSObject;
@@ -30,6 +28,8 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+
+import java.util.*;
 
 
 /**
@@ -217,14 +217,16 @@ public abstract class JWTAuthentication extends ClientAuthentication {
 		
 		if (! ct.matches(ContentType.APPLICATION_URLENCODED))
 			throw new SerializeException("The HTTP Content-Type header must be " + ContentType.APPLICATION_URLENCODED);
-		
-		Map<String,List<String>> params = httpRequest.getQueryParameters();
-		
+
+		Map<String, List<String>> params;
+		try {
+			params = new LinkedHashMap<>(httpRequest.getBodyAsFormParameters());
+		} catch (ParseException e) {
+			throw new SerializeException(e.getMessage(), e);
+		}
 		params.putAll(toParameters());
 		
-		String queryString = URLUtils.serializeParameters(params);
-		
-		httpRequest.setBody(queryString);
+		httpRequest.setBody(URLUtils.serializeParameters(params));
 	}
 	
 	

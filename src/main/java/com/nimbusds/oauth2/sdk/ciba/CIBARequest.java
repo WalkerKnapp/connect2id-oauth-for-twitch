@@ -18,11 +18,6 @@
 package com.nimbusds.oauth2.sdk.ciba;
 
 
-import java.net.URI;
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jwt.JWT;
@@ -44,6 +39,10 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.*;
 import com.nimbusds.openid.connect.sdk.OIDCClaimsRequest;
 import com.nimbusds.openid.connect.sdk.claims.ACR;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.*;
 
 
 /**
@@ -1301,7 +1300,12 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 
 		getClientAuthentication().applyTo(httpRequest);
 
-		Map<String, List<String>> params = httpRequest.getQueryParameters();
+		Map<String, List<String>> params;
+		try {
+			params = new LinkedHashMap<>(httpRequest.getBodyAsFormParameters());
+		} catch (ParseException e) {
+			throw new SerializeException(e.getMessage(), e);
+		}
 		params.putAll(toParameters());
 		httpRequest.setBody(URLUtils.serializeParameters(params));
 		

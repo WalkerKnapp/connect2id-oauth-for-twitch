@@ -18,18 +18,16 @@
 package com.nimbusds.oauth2.sdk.auth;
 
 
-import java.security.cert.X509Certificate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.net.ssl.SSLSocketFactory;
-
 import com.nimbusds.common.contenttype.ContentType;
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.security.cert.X509Certificate;
+import java.util.*;
 
 
 /**
@@ -146,11 +144,15 @@ public abstract class TLSClientAuthentication extends ClientAuthentication {
 		} else if (ct.matches(ContentType.APPLICATION_URLENCODED)) {
 			
 			// Token or similar request
-			Map<String,List<String>> params = httpRequest.getQueryParameters();
+			Map<String, List<String>> params = new LinkedHashMap<>();
+			try {
+				params.putAll(httpRequest.getBodyAsFormParameters());
+			} catch (ParseException e) {
+				throw new SerializeException(e.getMessage(), e);
+			}
 			params.put("client_id", Collections.singletonList(getClientID().getValue()));
-			String queryString = URLUtils.serializeParameters(params);
-			httpRequest.setBody(queryString);
-			
+			httpRequest.setBody(URLUtils.serializeParameters(params));
+
 		} else {
 			throw new SerializeException("The HTTP Content-Type header must be " + ContentType.APPLICATION_URLENCODED);
 		}

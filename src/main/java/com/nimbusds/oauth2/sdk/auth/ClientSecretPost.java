@@ -18,10 +18,6 @@
 package com.nimbusds.oauth2.sdk.auth;
 
 
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SerializeException;
@@ -29,6 +25,9 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+import net.jcip.annotations.Immutable;
+
+import java.util.*;
 
 
 /**
@@ -102,9 +101,13 @@ public final class ClientSecretPost extends PlainClientSecret {
 		
 		if (! ct.matches(ContentType.APPLICATION_URLENCODED))
 			throw new SerializeException("The HTTP Content-Type header must be " + ContentType.APPLICATION_URLENCODED);
-		
-		Map<String,List<String>> params = httpRequest.getQueryParameters();
-		
+
+		Map<String, List<String>> params = new LinkedHashMap<>();
+		try {
+			params.putAll(httpRequest.getBodyAsFormParameters());
+		} catch (ParseException e) {
+			throw new SerializeException(e.getMessage(), e);
+		}
 		params.putAll(toParameters());
 		
 		String queryString = URLUtils.serializeParameters(params);
@@ -189,6 +192,6 @@ public final class ClientSecretPost extends PlainClientSecret {
 		httpRequest.ensureMethod(HTTPRequest.Method.POST);
 		httpRequest.ensureEntityContentType(ContentType.APPLICATION_URLENCODED);
 		
-		return parse(httpRequest.getQueryParameters());
+		return parse(httpRequest.getBodyAsFormParameters());
 	}
 }

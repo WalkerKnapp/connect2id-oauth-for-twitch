@@ -17,13 +17,6 @@
 
 package com.nimbusds.oauth2.sdk.device;
 
-import java.net.URI;
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -34,8 +27,14 @@ import com.nimbusds.oauth2.sdk.auth.ClientSecretPost;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
-
 import junit.framework.TestCase;
+
+import java.net.URI;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DeviceAuthorizationRequestTest extends TestCase {
 
@@ -64,7 +63,7 @@ public class DeviceAuthorizationRequestTest extends TestCase {
 		assertTrue(req.getCustomParameters().isEmpty());
 
 		HTTPRequest httpReq = req.toHTTPRequest();
-		Map<String, List<String>> params = httpReq.getQueryParameters();
+		Map<String, List<String>> params = httpReq.getBodyAsFormParameters();
 		assertEquals(HTTPRequest.Method.POST, httpReq.getMethod());
 		assertEquals(uri, httpReq.getURL().toURI());
 		assertEquals(params.size(), 1);
@@ -100,7 +99,7 @@ public class DeviceAuthorizationRequestTest extends TestCase {
 		assertEquals(scope, req.getScope());
 
 		HTTPRequest httpReq = req.toHTTPRequest();
-		Map<String, List<String>> params = httpReq.getQueryParameters();
+		Map<String, List<String>> params = httpReq.getBodyAsFormParameters();
 		assertEquals(HTTPRequest.Method.POST, httpReq.getMethod());
 		assertEquals(5, params.size());
 
@@ -140,7 +139,7 @@ public class DeviceAuthorizationRequestTest extends TestCase {
 		assertEquals(scope, req.getScope());
 
 		HTTPRequest httpReq = req.toHTTPRequest();
-		Map<String, List<String>> params = httpReq.getQueryParameters();
+		Map<String, List<String>> params = httpReq.getBodyAsFormParameters();
 		assertEquals(HTTPRequest.Method.POST, httpReq.getMethod());
 		assertEquals(3, params.size());
 

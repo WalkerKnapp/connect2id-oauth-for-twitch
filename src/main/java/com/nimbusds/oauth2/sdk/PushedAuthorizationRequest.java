@@ -18,13 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
@@ -34,6 +27,13 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.op.AuthenticationRequestDetector;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -145,7 +145,12 @@ public class PushedAuthorizationRequest extends AbstractOptionallyAuthenticatedR
 			getClientAuthentication().applyTo(httpRequest);
 		}
 		
-		Map<String, List<String>> params = httpRequest.getQueryParameters();
+		Map<String, List<String>> params;
+		try {
+			params = new LinkedHashMap<>(httpRequest.getBodyAsFormParameters());
+		} catch (ParseException e) {
+			throw new SerializeException(e.getMessage(), e);
+		}
 		params.putAll(authzRequest.toParameters());
 		httpRequest.setBody(URLUtils.serializeParameters(params));
 		
@@ -181,7 +186,7 @@ public class PushedAuthorizationRequest extends AbstractOptionallyAuthenticatedR
 		}
 		
 		// No fragment! May use query component!
-		Map<String,List<String>> params = httpRequest.getQueryParameters();
+		Map<String,List<String>> params = httpRequest.getBodyAsFormParameters();
 		
 		// Multiple conflicting client auth methods (issue #203)?
 		if (clientAuth instanceof ClientSecretBasic) {

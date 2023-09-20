@@ -192,7 +192,7 @@ public class FetchEntityStatementRequest extends FederationAPIRequest {
 		throws ParseException {
 		
 		httpRequest.ensureMethod(HTTPRequest.Method.GET);
-		FetchEntityStatementRequest request = parse(httpRequest.getQueryParameters());
+		FetchEntityStatementRequest request = parse(httpRequest.getQueryStringParameters());
 		return new FetchEntityStatementRequest(
 			URIUtils.getBaseURI(httpRequest.getURI()),
 			request.getIssuer(),

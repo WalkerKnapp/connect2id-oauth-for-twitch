@@ -527,7 +527,7 @@ public abstract class AccessToken extends Token {
 		
 		// Try alternative token locations, form and query string are
 		// parameters are not differentiated here
-		Map<String, List<String>> params = request.getQueryParameters();
+		Map<String, List<String>> params = request.getQueryParameters(); // TODO switch to non-deprecated method
 		return new TypelessAccessToken(AccessTokenUtils.parseValueFromQueryParameters(params));
 	}
 }

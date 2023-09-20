@@ -18,11 +18,6 @@
 package com.nimbusds.openid.connect.sdk.federation.api;
 
 
-import java.net.URI;
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.util.DateUtils;
@@ -34,6 +29,10 @@ import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.*;
 
 
 /**
@@ -279,7 +278,7 @@ public class TrustMarkStatusRequest extends FederationAPIRequest {
 		httpRequest.ensureMethod(HTTPRequest.Method.POST);
 		httpRequest.ensureEntityContentType(ContentType.APPLICATION_URLENCODED);
 		
-		TrustMarkStatusRequest request = TrustMarkStatusRequest.parse(httpRequest.getQueryParameters());
+		TrustMarkStatusRequest request = TrustMarkStatusRequest.parse(httpRequest.getBodyAsFormParameters());
 		
 		if (request.getTrustMark() != null) {
 			return new TrustMarkStatusRequest(

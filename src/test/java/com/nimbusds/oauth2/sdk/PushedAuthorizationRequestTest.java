@@ -62,10 +62,10 @@ public class PushedAuthorizationRequestTest extends TestCase {
 		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
 		assertEquals(clientID, ClientSecretBasic.parse(httpRequest).getClientID());
 		assertEquals(clientSecret, ClientSecretBasic.parse(httpRequest).getClientSecret());
-		assertEquals(Collections.singletonList("code"), httpRequest.getQueryParameters().get("response_type"));
-		assertEquals(Collections.singletonList(clientID.getValue()), httpRequest.getQueryParameters().get("client_id"));
-		assertEquals(Collections.singletonList("read write"), httpRequest.getQueryParameters().get("scope"));
-		assertEquals(3, httpRequest.getQueryParameters().size());
+		assertEquals(Collections.singletonList("code"), httpRequest.getBodyAsFormParameters().get("response_type"));
+		assertEquals(Collections.singletonList(clientID.getValue()), httpRequest.getBodyAsFormParameters().get("client_id"));
+		assertEquals(Collections.singletonList("read write"), httpRequest.getBodyAsFormParameters().get("scope"));
+		assertEquals(3, httpRequest.getBodyAsFormParameters().size());
 		
 		par = PushedAuthorizationRequest.parse(httpRequest);
 		assertEquals(endpoint, par.getEndpointURI());
@@ -95,11 +95,11 @@ public class PushedAuthorizationRequestTest extends TestCase {
 		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
 		assertEquals(clientID, ClientSecretBasic.parse(httpRequest).getClientID());
 		assertEquals(clientSecret, ClientSecretBasic.parse(httpRequest).getClientSecret());
-		assertEquals(Collections.singletonList("code"), httpRequest.getQueryParameters().get("response_type"));
-		assertEquals(Collections.singletonList(clientID.getValue()), httpRequest.getQueryParameters().get("client_id"));
-		assertEquals(Collections.singletonList("openid"), httpRequest.getQueryParameters().get("scope"));
-		assertEquals(Collections.singletonList("https://example.com/cb"), httpRequest.getQueryParameters().get("redirect_uri"));
-		assertEquals(4, httpRequest.getQueryParameters().size());
+		assertEquals(Collections.singletonList("code"), httpRequest.getBodyAsFormParameters().get("response_type"));
+		assertEquals(Collections.singletonList(clientID.getValue()), httpRequest.getBodyAsFormParameters().get("client_id"));
+		assertEquals(Collections.singletonList("openid"), httpRequest.getBodyAsFormParameters().get("scope"));
+		assertEquals(Collections.singletonList("https://example.com/cb"), httpRequest.getBodyAsFormParameters().get("redirect_uri"));
+		assertEquals(4, httpRequest.getBodyAsFormParameters().size());
 		
 		par = PushedAuthorizationRequest.parse(httpRequest);
 		assertEquals(endpoint, par.getEndpointURI());
@@ -127,10 +127,10 @@ public class PushedAuthorizationRequestTest extends TestCase {
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
 		assertNull(httpRequest.getAuthorization());
-		assertEquals(Collections.singletonList("code"), httpRequest.getQueryParameters().get("response_type"));
-		assertEquals(Collections.singletonList(clientID.getValue()), httpRequest.getQueryParameters().get("client_id"));
-		assertEquals(Collections.singletonList("read write"), httpRequest.getQueryParameters().get("scope"));
-		assertEquals(3, httpRequest.getQueryParameters().size());
+		assertEquals(Collections.singletonList("code"), httpRequest.getBodyAsFormParameters().get("response_type"));
+		assertEquals(Collections.singletonList(clientID.getValue()), httpRequest.getBodyAsFormParameters().get("client_id"));
+		assertEquals(Collections.singletonList("read write"), httpRequest.getBodyAsFormParameters().get("scope"));
+		assertEquals(3, httpRequest.getBodyAsFormParameters().size());
 		
 		par = PushedAuthorizationRequest.parse(httpRequest);
 		assertEquals(endpoint, par.getEndpointURI());
@@ -271,7 +271,7 @@ public class PushedAuthorizationRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = par.toHTTPRequest();
 		
-		Map<String, List<String>> params = httpRequest.getQueryParameters();
+		Map<String, List<String>> params = httpRequest.getBodyAsFormParameters();
 		params.remove("client_id"); // remove from body
 		
 		HTTPRequest modifiedHTTPRequest = new HTTPRequest(httpRequest.getMethod(), httpRequest.getURL());

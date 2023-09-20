@@ -199,7 +199,7 @@ public class ResolveRequest extends FederationAPIRequest {
 		
 		httpRequest.ensureMethod(HTTPRequest.Method.GET);
 		
-		ResolveRequest request = ResolveRequest.parse(httpRequest.getQueryParameters());
+		ResolveRequest request = ResolveRequest.parse(httpRequest.getQueryStringParameters());
 		
 		return new ResolveRequest(
 			URIUtils.getBaseURI(httpRequest.getURI()),

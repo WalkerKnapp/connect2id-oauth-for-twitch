@@ -18,17 +18,17 @@
 package com.nimbusds.oauth2.sdk.auth;
 
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.security.auth.x500.X500Principal;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+
+import javax.security.auth.x500.X500Principal;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -143,7 +143,7 @@ public abstract class ClientAuthentication {
 			return null; // no auth
 		}
 		
-		Map<String,List<String>> params = httpRequest.getQueryParameters();
+		Map<String,List<String>> params = httpRequest.getBodyAsFormParameters();
 		
 		// We have client secret post
 		if (StringUtils.isNotBlank(MultivaluedMapUtils.getFirstValue(params, "client_id")) && StringUtils.isNotBlank(MultivaluedMapUtils.getFirstValue(params, "client_secret"))) {

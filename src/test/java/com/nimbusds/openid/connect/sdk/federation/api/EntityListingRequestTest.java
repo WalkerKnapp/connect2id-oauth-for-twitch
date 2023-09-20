@@ -18,18 +18,17 @@
 package com.nimbusds.openid.connect.sdk.federation.api;
 
 
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
+import junit.framework.TestCase;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.TestCase;
-
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.http.HTTPRequest;
-import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 
 
 public class EntityListingRequestTest extends TestCase {
@@ -46,7 +45,7 @@ public class EntityListingRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = request.toHTTPRequest();
 		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
-		assertTrue(httpRequest.getQueryParameters().isEmpty());
+		assertTrue(httpRequest.getQueryStringParameters().isEmpty());
 		
 		request = EntityListingRequest.parse(httpRequest);
 		assertEquals(endpoint, request.getEndpointURI());

@@ -18,14 +18,6 @@
 package com.nimbusds.openid.connect.sdk.federation.api;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import junit.framework.TestCase;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -42,6 +34,13 @@ import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
 import com.nimbusds.openid.connect.sdk.federation.trust.marks.TrustMarkClaimsSet;
+import junit.framework.TestCase;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 public class TrustMarkStatusRequestTest extends TestCase {
@@ -92,7 +91,7 @@ public class TrustMarkStatusRequestTest extends TestCase {
 		assertEquals(ENDPOINT, httpRequest.getURI());
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_URLENCODED, httpRequest.getEntityContentType());
-		params = httpRequest.getQueryParameters();
+		params = httpRequest.getBodyAsFormParameters();
 		assertEquals(Collections.singletonList(SUBJECT.getValue()), params.get("sub"));
 		assertEquals(Collections.singletonList(ID.getValue()), params.get("id"));
 		assertEquals(2, params.size());
@@ -127,7 +126,7 @@ public class TrustMarkStatusRequestTest extends TestCase {
 		assertEquals(ENDPOINT, httpRequest.getURI());
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_URLENCODED, httpRequest.getEntityContentType());
-		params = httpRequest.getQueryParameters();
+		params = httpRequest.getBodyAsFormParameters();
 		assertEquals(Collections.singletonList(SUBJECT.getValue()), params.get("sub"));
 		assertEquals(Collections.singletonList(ID.getValue()), params.get("id"));
 		assertEquals(Collections.singletonList(DateUtils.toSecondsSinceEpoch(IAT) + ""), params.get("iat"));
@@ -159,7 +158,7 @@ public class TrustMarkStatusRequestTest extends TestCase {
 		assertEquals(ENDPOINT, httpRequest.getURI());
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_URLENCODED, httpRequest.getEntityContentType());
-		params = httpRequest.getQueryParameters();
+		params = httpRequest.getBodyAsFormParameters();
 		assertEquals(Collections.singletonList(TRUST_MARK.serialize()), params.get("trust_mark"));
 		assertEquals(1, params.size());
 		

@@ -131,9 +131,9 @@ public class TokenIntrospectionRequestTest extends TestCase {
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
 		assertEquals("Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW", httpRequest.getAuthorization());
-		assertEquals(Collections.singletonList("mF_9.B5f-4.1JqM"), httpRequest.getQueryParameters().get("token"));
-		assertEquals(Collections.singletonList("access_token"), httpRequest.getQueryParameters().get("token_type_hint"));
-		assertEquals(2, httpRequest.getQueryParameters().size());
+		assertEquals(Collections.singletonList("mF_9.B5f-4.1JqM"), httpRequest.getBodyAsFormParameters().get("token"));
+		assertEquals(Collections.singletonList("access_token"), httpRequest.getBodyAsFormParameters().get("token_type_hint"));
+		assertEquals(2, httpRequest.getBodyAsFormParameters().size());
 
 		// Parse from HTTP request
 		request = TokenIntrospectionRequest.parse(httpRequest);
@@ -167,9 +167,9 @@ public class TokenIntrospectionRequestTest extends TestCase {
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
 		assertNull(httpRequest.getAuthorization());
-		assertEquals(Collections.singletonList(accessToken.getValue()), httpRequest.getQueryParameters().get("token"));
-		assertEquals(Collections.singletonList("access_token"), httpRequest.getQueryParameters().get("token_type_hint"));
-		assertEquals(2, httpRequest.getQueryParameters().size());
+		assertEquals(Collections.singletonList(accessToken.getValue()), httpRequest.getBodyAsFormParameters().get("token"));
+		assertEquals(Collections.singletonList("access_token"), httpRequest.getBodyAsFormParameters().get("token_type_hint"));
+		assertEquals(2, httpRequest.getBodyAsFormParameters().size());
 
 		request = TokenIntrospectionRequest.parse(httpRequest);
 
@@ -203,10 +203,10 @@ public class TokenIntrospectionRequestTest extends TestCase {
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
 		assertNull(httpRequest.getAuthorization());
-		assertEquals(Collections.singletonList(accessToken.getValue()), httpRequest.getQueryParameters().get("token"));
-		assertEquals(Collections.singletonList("access_token"), httpRequest.getQueryParameters().get("token_type_hint"));
-		assertEquals(Collections.singletonList("10.20.30.40"), httpRequest.getQueryParameters().get("ip"));
-		assertEquals(3, httpRequest.getQueryParameters().size());
+		assertEquals(Collections.singletonList(accessToken.getValue()), httpRequest.getBodyAsFormParameters().get("token"));
+		assertEquals(Collections.singletonList("access_token"), httpRequest.getBodyAsFormParameters().get("token_type_hint"));
+		assertEquals(Collections.singletonList("10.20.30.40"), httpRequest.getBodyAsFormParameters().get("ip"));
+		assertEquals(3, httpRequest.getBodyAsFormParameters().size());
 
 		request = TokenIntrospectionRequest.parse(httpRequest);
 
@@ -243,10 +243,10 @@ public class TokenIntrospectionRequestTest extends TestCase {
 		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
 		assertEquals(new ClientID("123"), ClientSecretBasic.parse(httpRequest.getAuthorization()).getClientID());
 		assertEquals(new Secret("secret"), ClientSecretBasic.parse(httpRequest.getAuthorization()).getClientSecret());
-		assertEquals(Collections.singletonList(accessToken.getValue()), httpRequest.getQueryParameters().get("token"));
-		assertEquals(Collections.singletonList("access_token"), httpRequest.getQueryParameters().get("token_type_hint"));
-		assertEquals(Collections.singletonList("10.20.30.40"), httpRequest.getQueryParameters().get("ip"));
-		assertEquals(3, httpRequest.getQueryParameters().size());
+		assertEquals(Collections.singletonList(accessToken.getValue()), httpRequest.getBodyAsFormParameters().get("token"));
+		assertEquals(Collections.singletonList("access_token"), httpRequest.getBodyAsFormParameters().get("token_type_hint"));
+		assertEquals(Collections.singletonList("10.20.30.40"), httpRequest.getBodyAsFormParameters().get("ip"));
+		assertEquals(3, httpRequest.getBodyAsFormParameters().size());
 
 		request = TokenIntrospectionRequest.parse(httpRequest);
 
@@ -283,10 +283,10 @@ public class TokenIntrospectionRequestTest extends TestCase {
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
 		assertEquals(clientAuthz.toAuthorizationHeader(), httpRequest.getAuthorization());
-		assertEquals(Collections.singletonList(accessToken.getValue()), httpRequest.getQueryParameters().get("token"));
-		assertEquals(Collections.singletonList("access_token"), httpRequest.getQueryParameters().get("token_type_hint"));
-		assertEquals(Collections.singletonList("10.20.30.40"), httpRequest.getQueryParameters().get("ip"));
-		assertEquals(3, httpRequest.getQueryParameters().size());
+		assertEquals(Collections.singletonList(accessToken.getValue()), httpRequest.getBodyAsFormParameters().get("token"));
+		assertEquals(Collections.singletonList("access_token"), httpRequest.getBodyAsFormParameters().get("token_type_hint"));
+		assertEquals(Collections.singletonList("10.20.30.40"), httpRequest.getBodyAsFormParameters().get("ip"));
+		assertEquals(3, httpRequest.getBodyAsFormParameters().size());
 
 		request = TokenIntrospectionRequest.parse(httpRequest);
 

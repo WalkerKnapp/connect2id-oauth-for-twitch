@@ -18,6 +18,14 @@
 package com.nimbusds.oauth2.sdk.http;
 
 
+import com.nimbusds.common.contenttype.ContentType;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.Subject;
+import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import com.nimbusds.oauth2.sdk.util.X509CertificateUtilsTest;
+import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
+
 import java.io.IOException;
 import java.net.URI;
 import java.security.cert.X509Certificate;
@@ -25,15 +33,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONObject;
-
-import com.nimbusds.common.contenttype.ContentType;
-import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.id.Subject;
-import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
-import com.nimbusds.oauth2.sdk.util.X509CertificateUtilsTest;
 
 
 /**
@@ -63,8 +62,8 @@ public class JakartaServletUtilsTest extends TestCase {
 		assertEquals(ContentType.APPLICATION_JSON.toString(), httpRequest.getAccept());
 		assertEquals("Bearer yoto9reech8AhP2eibieg1uix2ahg5Ve", httpRequest.getAuthorization());
 		assertNull(httpRequest.getClientIPAddress());
-		assertEquals(entityBody, httpRequest.getQuery());
-		JSONObject jsonObject = httpRequest.getQueryAsJSONObject();
+		assertEquals(entityBody, httpRequest.getBody());
+		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
 		assertEquals("code", JSONObjectUtils.getStringArray(jsonObject, "grant_types")[0]);
 		assertEquals(1, jsonObject.size());
 	}
@@ -92,8 +91,8 @@ public class JakartaServletUtilsTest extends TestCase {
 		assertNull(httpRequest.getAuthorization());
 		assertNull(httpRequest.getClientIPAddress());
 		assertEquals(Arrays.asList("A", "B", "C"), httpRequest.getHeaderValues("Multivalued-Header"));
-		assertEquals(entityBody, httpRequest.getQuery());
-		JSONObject jsonObject = httpRequest.getQueryAsJSONObject();
+		assertEquals(entityBody, httpRequest.getBody());
+		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
 		assertEquals("code", JSONObjectUtils.getStringArray(jsonObject, "grant_types")[0]);
 		assertEquals(1, jsonObject.size());
 	}
@@ -116,7 +115,7 @@ public class JakartaServletUtilsTest extends TestCase {
 		assertNull(httpRequest.getEntityContentType());
 		assertNull(httpRequest.getAccept());
 		assertNull(httpRequest.getAuthorization());
-		assertNull(httpRequest.getQuery());
+		assertNull(httpRequest.getBody());
 		assertEquals("192.168.0.1", httpRequest.getClientIPAddress());
 	}
 
@@ -140,7 +139,7 @@ public class JakartaServletUtilsTest extends TestCase {
 		assertNull(httpRequest.getEntityContentType());
 		assertNull(httpRequest.getAccept());
 		assertNull(httpRequest.getAuthorization());
-		assertNull(httpRequest.getQuery());
+		assertNull(httpRequest.getURL().getQuery());
 	}
 
 
@@ -166,8 +165,8 @@ public class JakartaServletUtilsTest extends TestCase {
 		assertEquals(ContentType.APPLICATION_JSON.toString(), httpRequest.getEntityContentType().toString());
 		assertNull(httpRequest.getAccept());
 		assertNull(httpRequest.getAuthorization());
-		assertEquals(entityBody, httpRequest.getQuery());
-		JSONObject jsonObject = httpRequest.getQueryAsJSONObject();
+		assertEquals(entityBody, httpRequest.getBody());
+		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
 		assertEquals("code", JSONObjectUtils.getStringArray(jsonObject, "grant_types")[0]);
 		assertEquals(1, jsonObject.size());
 		assertEquals(cert, httpRequest.getClientX509Certificate());
@@ -203,8 +202,8 @@ public class JakartaServletUtilsTest extends TestCase {
 		assertEquals(ContentType.APPLICATION_JSON.toString(), httpRequest.getEntityContentType().toString());
 		assertNull(httpRequest.getAccept());
 		assertNull(httpRequest.getAuthorization());
-		assertEquals(entityBody, httpRequest.getQuery());
-		JSONObject jsonObject = httpRequest.getQueryAsJSONObject();
+		assertEquals(entityBody, httpRequest.getBody());
+		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
 		assertEquals("code", JSONObjectUtils.getStringArray(jsonObject, "grant_types")[0]);
 		assertEquals(1, jsonObject.size());
 		assertEquals(cert, httpRequest.getClientX509Certificate());
@@ -232,7 +231,7 @@ public class JakartaServletUtilsTest extends TestCase {
 		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
 		assertNull(httpRequest.getAccept());
 		assertNull(httpRequest.getAuthorization());
-		Map<String, List<String>> queryParams = httpRequest.getQueryParameters();
+		Map<String, List<String>> queryParams = httpRequest.getBodyAsFormParameters();
 		assertEquals(Collections.singletonList("abc"), queryParams.get("token"));
 		assertEquals(Collections.singletonList("bearer"), queryParams.get("type"));
 		assertEquals(2, queryParams.size());
@@ -254,7 +253,7 @@ public class JakartaServletUtilsTest extends TestCase {
 		assertNull(httpRequest.getEntityContentType());
 		assertNull(httpRequest.getAccept());
 		assertNull(httpRequest.getAuthorization());
-		Map<String,List<String>> queryParams = httpRequest.getQueryParameters();
+		Map<String,List<String>> queryParams = httpRequest.getQueryStringParameters();
 		assertEquals(Collections.singletonList("abc"), queryParams.get("token"));
 		assertEquals(Collections.singletonList("bearer"), queryParams.get("type"));
 		assertEquals(2, queryParams.size());
@@ -331,7 +330,7 @@ public class JakartaServletUtilsTest extends TestCase {
 		response.setEntityContentType(ContentType.APPLICATION_JSON);
 		response.setCacheControl("no-cache");
 		response.setPragma("no-cache");
-		response.setContent("{\"apples\":\"123\"}");
+		response.setBody("{\"apples\":\"123\"}");
 
 		MockJakartaServletResponse servletResponse = new MockJakartaServletResponse();
 
@@ -365,8 +364,8 @@ public class JakartaServletUtilsTest extends TestCase {
 		assertEquals(ContentType.APPLICATION_JSON.toString(), httpRequest.getEntityContentType().toString());
 		assertNull(httpRequest.getAccept());
 		assertNull(httpRequest.getAuthorization());
-		assertEquals(entityBody, httpRequest.getQuery());
-		JSONObject jsonObject = httpRequest.getQueryAsJSONObject();
+		assertEquals(entityBody, httpRequest.getBody());
+		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
 		assertEquals("code", JSONObjectUtils.getStringArray(jsonObject, "grant_types")[0]);
 		assertEquals(1, jsonObject.size());
 	}

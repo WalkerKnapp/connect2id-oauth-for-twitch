@@ -18,6 +18,15 @@
 package com.nimbusds.oauth2.sdk.http;
 
 
+import com.nimbusds.common.contenttype.ContentType;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.util.URLUtils;
+import com.nimbusds.oauth2.sdk.util.X509CertificateUtils;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import net.jcip.annotations.ThreadSafe;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,16 +37,6 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import net.jcip.annotations.ThreadSafe;
-
-import com.nimbusds.common.contenttype.ContentType;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.util.URLUtils;
-import com.nimbusds.oauth2.sdk.util.X509CertificateUtils;
 
 
 /**
@@ -214,7 +213,7 @@ public class JakartaServletUtils {
 
 		if (method.equals(HTTPRequest.Method.GET) || method.equals(HTTPRequest.Method.DELETE)) {
 
-			request.setQuery(sr.getQueryString());
+			request.appendQueryString(sr.getQueryString());
 
 		} else if (method.equals(HTTPRequest.Method.POST) || method.equals(HTTPRequest.Method.PUT)) {
 
@@ -226,7 +225,7 @@ public class JakartaServletUtils {
 			if (ContentType.APPLICATION_URLENCODED.matches(request.getEntityContentType())) {
 
 				// Recreate the content based on parameters
-				request.setQuery(URLUtils.serializeParametersAlt(sr.getParameterMap()));
+				request.setBody(URLUtils.serializeParametersAlt(sr.getParameterMap()));
 			} else {
 				// read body
 				StringBuilder body = new StringBuilder(256);
@@ -248,7 +247,7 @@ public class JakartaServletUtils {
 				}
 
 				reader.close();
-				request.setQuery(body.toString());
+				request.setBody(body.toString());
 			}
 		}
 		
@@ -302,11 +301,9 @@ public class JakartaServletUtils {
 
 
 		// Write out the content
-
-		if (httpResponse.getContent() != null) {
-
+		if (httpResponse.getBody() != null) {
 			PrintWriter writer = servletResponse.getWriter();
-			writer.print(httpResponse.getContent());
+			writer.print(httpResponse.getBody());
 			writer.close();
 		}
 	}

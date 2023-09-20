@@ -18,11 +18,6 @@
 package com.nimbusds.oauth2.sdk.auth;
 
 
-import java.net.URI;
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -34,6 +29,10 @@ import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.*;
 
 
 /**
@@ -249,6 +248,6 @@ public final class ClientSecretJWT extends JWTAuthentication {
 		httpRequest.ensureMethod(HTTPRequest.Method.POST);
 		httpRequest.ensureEntityContentType(ContentType.APPLICATION_URLENCODED);
 		
-		return parse(httpRequest.getQueryParameters());
+		return parse(httpRequest.getBodyAsFormParameters());
 	}
 }

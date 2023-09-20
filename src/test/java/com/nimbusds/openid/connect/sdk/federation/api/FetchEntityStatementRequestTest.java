@@ -51,7 +51,7 @@ public class FetchEntityStatementRequestTest extends TestCase {
 		HTTPRequest httpRequest = request.toHTTPRequest();
 		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
 		assertEquals(endpoint, httpRequest.getURI());
-		assertTrue(httpRequest.getQueryParameters().isEmpty());
+		assertTrue(httpRequest.getQueryStringParameters().isEmpty());
 		
 		request = FetchEntityStatementRequest.parse(httpRequest);
 		assertEquals(endpoint, request.getEndpointURI());

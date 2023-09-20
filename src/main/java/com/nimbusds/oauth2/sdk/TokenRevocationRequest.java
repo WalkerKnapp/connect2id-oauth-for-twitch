@@ -18,12 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
@@ -35,6 +29,11 @@ import com.nimbusds.oauth2.sdk.token.TypelessAccessToken;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.*;
 
 
 /**
@@ -200,7 +199,7 @@ public final class TokenRevocationRequest extends AbstractOptionallyIdentifiedRe
 		httpRequest.ensureMethod(HTTPRequest.Method.POST);
 		httpRequest.ensureEntityContentType(ContentType.APPLICATION_URLENCODED);
 
-		Map<String,List<String>> params = httpRequest.getQueryParameters();
+		Map<String,List<String>> params = httpRequest.getBodyAsFormParameters();
 
 		final String tokenValue = MultivaluedMapUtils.getFirstValue(params,"token");
 

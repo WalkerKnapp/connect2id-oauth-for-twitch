@@ -518,8 +518,12 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 			getClientAuthentication().applyTo(httpRequest);
 		}
 
-		Map<String,List<String>> params = httpRequest.getQueryParameters();
-
+		Map<String, List<String>> params;
+		try {
+			params = new LinkedHashMap<>(httpRequest.getBodyAsFormParameters());
+		} catch (ParseException e) {
+			throw new SerializeException(e.getMessage(), e);
+		}
 		params.putAll(authzGrant.toParameters());
 
 		if (scope != null && ! scope.isEmpty()) {
@@ -586,7 +590,7 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 		}
 
 		// No fragment! May use query component!
-		Map<String,List<String>> params = httpRequest.getQueryParameters();
+		Map<String,List<String>> params = httpRequest.getBodyAsFormParameters();
 		
 		Set<String> repeatParams = MultivaluedMapUtils.getKeysWithMoreThanOneValue(params, ALLOWED_REPEATED_PARAMS);
 		if (! repeatParams.isEmpty()) {

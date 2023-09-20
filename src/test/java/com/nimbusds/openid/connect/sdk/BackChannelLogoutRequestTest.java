@@ -18,18 +18,6 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.*;
-
-import junit.framework.TestCase;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -48,6 +36,17 @@ import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.openid.connect.sdk.claims.LogoutTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.SessionID;
+import junit.framework.TestCase;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.*;
 
 
 public class BackChannelLogoutRequestTest extends TestCase {
@@ -135,7 +134,7 @@ public class BackChannelLogoutRequestTest extends TestCase {
 		
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
-		params = httpRequest.getQueryParameters();
+		params = httpRequest.getBodyAsFormParameters();
 		assertEquals(Collections.singletonList(logoutToken.serialize()), params.get("logout_token"));
 		assertEquals(1, params.size());
 		

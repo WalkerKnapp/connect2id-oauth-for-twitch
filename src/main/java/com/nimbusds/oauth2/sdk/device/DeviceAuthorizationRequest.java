@@ -18,11 +18,6 @@
 package com.nimbusds.oauth2.sdk.device;
 
 
-import java.net.URI;
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
@@ -32,6 +27,10 @@ import com.nimbusds.oauth2.sdk.util.MapUtils;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.*;
 
 
 /**
@@ -418,7 +417,12 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 			getClientAuthentication().applyTo(httpRequest);
 		}
 
-		Map<String, List<String>> params = httpRequest.getQueryParameters();
+		Map<String, List<String>> params;
+		try {
+			params = new LinkedHashMap<>(httpRequest.getBodyAsFormParameters());
+		} catch (ParseException e) {
+			throw new SerializeException(e.getMessage(), e);
+		}
 
 		if (scope != null && !scope.isEmpty()) {
 			params.put("scope", Collections.singletonList(scope.toString()));
@@ -474,8 +478,7 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 			                OAuth2Error.INVALID_REQUEST.appendDescription(": " + e.getMessage()));
 		}
 
-		// No fragment! May use query component!
-		Map<String, List<String>> params = httpRequest.getQueryParameters();
+		Map<String, List<String>> params = httpRequest.getBodyAsFormParameters();
 
 		ClientID clientID;
 		String v;

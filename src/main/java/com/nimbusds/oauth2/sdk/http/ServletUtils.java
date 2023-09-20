@@ -18,6 +18,15 @@
 package com.nimbusds.oauth2.sdk.http;
 
 
+import com.nimbusds.common.contenttype.ContentType;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.util.URLUtils;
+import com.nimbusds.oauth2.sdk.util.X509CertificateUtils;
+import net.jcip.annotations.ThreadSafe;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,16 +37,6 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.jcip.annotations.ThreadSafe;
-
-import com.nimbusds.common.contenttype.ContentType;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.util.URLUtils;
-import com.nimbusds.oauth2.sdk.util.X509CertificateUtils;
 
 
 /**
@@ -130,8 +129,8 @@ public class ServletUtils {
 	 *
 	 * @return The HTTP request.
 	 *
-	 * @throws IllegalArgumentException The the servlet request method is
-	 *                                  not GET, POST, PUT or DELETE or the
+	 * @throws IllegalArgumentException The servlet request method is not
+	 *                                  GET, POST, PUT or DELETE or the
 	 *                                  content type header value couldn't
 	 *                                  be parsed.
 	 * @throws IOException              For a POST or PUT body that
@@ -161,8 +160,8 @@ public class ServletUtils {
 	 *
 	 * @return The HTTP request.
 	 *
-	 * @throws IllegalArgumentException The the servlet request method is
-	 *                                  not GET, POST, PUT or DELETE or the
+	 * @throws IllegalArgumentException The servlet request method is not
+	 *                                  GET, POST, PUT or DELETE or the
 	 *                                  content type header value couldn't
 	 *                                  be parsed.
 	 * @throws IOException              For a POST or PUT body that
@@ -214,7 +213,7 @@ public class ServletUtils {
 
 		if (method.equals(HTTPRequest.Method.GET) || method.equals(HTTPRequest.Method.DELETE)) {
 
-			request.setQuery(sr.getQueryString());
+			request.appendQueryString(sr.getQueryString());
 
 		} else if (method.equals(HTTPRequest.Method.POST) || method.equals(HTTPRequest.Method.PUT)) {
 
@@ -226,7 +225,7 @@ public class ServletUtils {
 			if (ContentType.APPLICATION_URLENCODED.matches(request.getEntityContentType())) {
 
 				// Recreate the content based on parameters
-				request.setQuery(URLUtils.serializeParametersAlt(sr.getParameterMap()));
+				request.setBody(URLUtils.serializeParametersAlt(sr.getParameterMap()));
 			} else {
 				// read body
 				StringBuilder body = new StringBuilder(256);
@@ -248,7 +247,7 @@ public class ServletUtils {
 				}
 
 				reader.close();
-				request.setQuery(body.toString());
+				request.setBody(body.toString());
 			}
 		}
 		
@@ -289,7 +288,6 @@ public class ServletUtils {
 		// Set the status code
 		servletResponse.setStatus(httpResponse.getStatusCode());
 
-
 		// Set the headers, but only if explicitly specified
 		for (Map.Entry<String,List<String>> header : httpResponse.getHeaderMap().entrySet()) {
 			for (String headerValue: header.getValue()) {
@@ -300,13 +298,10 @@ public class ServletUtils {
 		if (httpResponse.getEntityContentType() != null)
 			servletResponse.setContentType(httpResponse.getEntityContentType().toString());
 
-
 		// Write out the content
-
-		if (httpResponse.getContent() != null) {
-
+		if (httpResponse.getBody() != null) {
 			PrintWriter writer = servletResponse.getWriter();
-			writer.print(httpResponse.getContent());
+			writer.print(httpResponse.getBody());
 			writer.close();
 		}
 	}
