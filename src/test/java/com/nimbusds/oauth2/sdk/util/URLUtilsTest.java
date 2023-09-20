@@ -354,6 +354,22 @@ public class URLUtilsTest extends TestCase {
 	}
 
 
+	public void testParseParameters_paramWithNoValue() {
+
+		String query = "response_type=code" +
+				"&client_id=s6BhdRkqt3" +
+				"&redirect_uri=" +
+				"&scope=read";
+
+		Map<String,List<String>> params = URLUtils.parseParameters(query);
+
+		assertEquals(Collections.singletonList("code"), params.get("response_type"));
+		assertEquals(Collections.singletonList("s6BhdRkqt3"), params.get("client_id"));
+		assertEquals(Collections.singletonList(""), params.get("redirect_uri"));
+		assertEquals(Collections.singletonList("read"), params.get("scope"));
+	}
+
+
 	public void testParseParametersNull() {
 	
 		assertTrue(URLUtils.parseParameters(null).isEmpty());
