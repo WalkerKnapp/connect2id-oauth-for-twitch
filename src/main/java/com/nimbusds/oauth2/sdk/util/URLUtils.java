@@ -242,6 +242,9 @@ public final class URLUtils {
 	 * parameter keys and values are
 	 * {@code application/x-www-form-urlencoded} encoded.
 	 *
+	 * <p>Parameters with {@code null} keys or values are ignored and not
+	 * serialised.
+	 *
 	 * <p>Note that the '?' character preceding the query string in GET
 	 * requests is not included in the returned string.
 	 *
