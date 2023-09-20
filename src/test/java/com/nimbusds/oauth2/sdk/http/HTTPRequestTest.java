@@ -27,6 +27,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.dpop.DefaultDPoPProofFactory;
 import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -471,6 +472,78 @@ public class HTTPRequestTest {
 			// ok
 			assertEquals("Missing or empty HTTP query string / entity body", e.getMessage());
 		}
+	}
+
+
+	@Test
+	public void testSendWithHTTPRequestSenderInterface_minimal()
+		throws IOException {
+
+		final HTTPRequest.Method method = HTTPRequest.Method.GET;
+		final URL url = new URL("http://localhost:8080/path?query");
+
+		HTTPRequest httpRequest = new HTTPRequest(method, url);
+
+		HTTPResponse httpResponse = httpRequest.send(new HTTPRequestSender() {
+			@Override
+			public ReadOnlyHTTPResponse send(ReadOnlyHTTPRequest httpRequest) {
+
+				assertEquals(method, httpRequest.getMethod());
+				assertEquals(url, httpRequest.getURL());
+				assertTrue(httpRequest.getHeaderMap().isEmpty());
+				assertNull(httpRequest.getBody());
+				return new HTTPResponse(204);
+			}
+		});
+
+		assertEquals(204, httpResponse.getStatusCode());
+		assertNull(httpResponse.getStatusMessage());
+		assertTrue(httpResponse.getHeaderMap().isEmpty());
+		assertNull(httpResponse.getBody());
+	}
+
+
+	@Test
+	public void testSendWithHTTPRequestSenderInterface_allSet()
+		throws IOException {
+
+		final HTTPRequest.Method method = HTTPRequest.Method.POST;
+		final URL url = new URL("http://localhost:8080/path?query");
+		final ContentType contentType = ContentType.APPLICATION_JSON;
+		final String authoriztion = new BearerAccessToken().toAuthorizationHeader();
+		final String body = "{'\"apples\":10}";
+
+		HTTPRequest httpRequest = new HTTPRequest(method, url);
+		httpRequest.setEntityContentType(contentType);
+		httpRequest.setAuthorization(authoriztion);
+		httpRequest.setBody(body);
+
+		HTTPResponse httpResponse = httpRequest.send(new HTTPRequestSender() {
+			@Override
+			public ReadOnlyHTTPResponse send(ReadOnlyHTTPRequest httpRequest) {
+
+				assertEquals(method, httpRequest.getMethod());
+				assertEquals(url, httpRequest.getURL());
+				assertEquals(Collections.singletonList(contentType.toString()), httpRequest.getHeaderMap().get("Content-Type"));
+				assertEquals(Collections.singletonList(authoriztion), httpRequest.getHeaderMap().get("Authorization"));
+				assertEquals(2, httpRequest.getHeaderMap().size());
+				assertEquals(body, httpRequest.getBody());
+
+				HTTPResponse out = new HTTPResponse(204);
+				out.setStatusMessage("No Content");
+				out.setEntityContentType(contentType);
+				out.setHeader("X-Header", "Value-1", "Value-2");
+				out.setBody("[1]");
+				return out;
+			}
+		});
+
+		assertEquals(204, httpResponse.getStatusCode());
+		assertEquals("No Content", httpResponse.getStatusMessage());
+		assertEquals(Collections.singletonList(contentType.toString()), httpResponse.getHeaderMap().get("Content-Type"));
+		assertEquals(Arrays.asList("Value-1", "Value-2"), httpResponse.getHeaderMap().get("X-Header"));
+		assertEquals(2, httpResponse.getHeaderMap().size());
+		assertEquals("[1]", httpResponse.getBody());
 	}
 
 

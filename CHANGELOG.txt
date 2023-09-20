@@ -2290,6 +2290,10 @@ version 11.0 (2023-09-20)
       setQuery(String), appendQueryString(String),
       appendQueryParameters(Map<String, List<String>) or setFragment(String)
       is called.
+    * Adds HTTPRequestSender interface for implementing custom HTTPRequest
+      dispatching via a new HTTPRequest.send(HTTPRequestSender) method.
+    * Adds ReadOnlyHTTPMessage, ReadOnlyHTTPRequest and ReadOnlyHTTPResponse
+      interfaces for the new HTTPRequestSender.
     * Adds HTTPRequest.appendQueryString(String) and
       appendQueryParameters(Map<String, List<String>) methods.
     * Adds HTTPMessage.getBody() and setBody(String) methods.

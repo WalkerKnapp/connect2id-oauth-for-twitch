@@ -32,7 +32,7 @@ import java.util.*;
 /**
  * The base abstract class for HTTP requests and responses.
  */
-abstract class HTTPMessage {
+abstract class HTTPMessage implements ReadOnlyHTTPMessage {
 
 
 	/**
@@ -187,22 +187,14 @@ abstract class HTTPMessage {
 	}
 
 
-	/**
-	 * Returns the HTTP headers.
-	 *
-	 * @return The HTTP headers.
-	 */
+	@Override
 	public Map<String,List<String>> getHeaderMap() {
 
 		return headers;
 	}
 
 
-	/**
-	 * Get the HTTP message body.
-	 *
-	 * @return The HTTP message body, {@code null} if not specified.
-	 */
+	@Override
 	public String getBody() {
 
 		return body;

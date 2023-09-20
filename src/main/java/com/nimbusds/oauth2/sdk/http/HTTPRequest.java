@@ -72,7 +72,7 @@ import java.util.Map;
  * <p>HTTP 3xx redirection: follow (default) / don't follow
  */
 @ThreadSafe
-public class HTTPRequest extends HTTPMessage {
+public class HTTPRequest extends HTTPMessage implements ReadOnlyHTTPRequest {
 
 
 	/**
@@ -235,6 +235,7 @@ public class HTTPRequest extends HTTPMessage {
 	 *
 	 * @return The request method.
 	 */
+	@Override
 	public Method getMethod() {
 	
 		return method;
@@ -246,6 +247,7 @@ public class HTTPRequest extends HTTPMessage {
 	 *
 	 * @return The request URL.
 	 */
+	@Override
 	public URL getURL() {
 
 		return url;
@@ -253,10 +255,11 @@ public class HTTPRequest extends HTTPMessage {
 
 
 	/**
-	 * Gets the (base) request URL as URI.
+	 * Gets the request URL as URI.
 	 *
-	 * @return The (base) request URL as URI.
+	 * @return The request URL as URI.
 	 */
+	@Override
 	public URI getURI() {
 		
 		try {
@@ -1053,12 +1056,12 @@ public class HTTPRequest extends HTTPMessage {
 
 
 	/**
-	 * Sends this HTTP request to the request URL and retrieves the
-	 * resulting HTTP response.
+	 * Sends this HTTP request to the {@link #getURL() URL} and retrieves
+	 * the resulting HTTP response.
 	 *
 	 * @return The resulting HTTP response.
 	 *
-	 * @throws IOException If the HTTP request couldn't be made, due to a
+	 * @throws IOException If the HTTP request couldn't be sent, due to a
 	 *                     network or another error.
 	 */
 	public HTTPResponse send()
@@ -1136,6 +1139,35 @@ public class HTTPRequest extends HTTPMessage {
 		if (! bodyContent.isEmpty())
 			response.setBody(bodyContent);
 
+		return response;
+	}
+
+
+	/**
+	 * Sends this HTTP request to the {@link #getURL() URL} and retrieves
+	 * the resulting HTTP response.
+	 *
+	 * @param httpRequestSender The HTTP request sender. Must not be
+	 *                          {@code null}.
+	 *
+	 * @return The resulting HTTP response.
+	 *
+	 * @throws IOException If the HTTP request couldn't be sent, due to a
+	 *                     network or another error.
+	 */
+	public HTTPResponse send(final HTTPRequestSender httpRequestSender)
+		throws IOException {
+
+		ReadOnlyHTTPResponse roResponse = httpRequestSender.send(this);
+
+		HTTPResponse response = new HTTPResponse(roResponse.getStatusCode());
+		response.setStatusMessage(roResponse.getStatusMessage());
+		for (Map.Entry<String, List<String>> en: roResponse.getHeaderMap().entrySet()) {
+			if (en.getKey() != null && en.getValue() != null && ! en.getValue().isEmpty()) {
+				response.setHeader(en.getKey(), en.getValue().toArray(new String[0]));
+			}
+		}
+		response.setBody(roResponse.getBody());
 		return response;
 	}
 

@@ -59,7 +59,7 @@ import java.util.Arrays;
  * </ul>
  */
 @ThreadSafe
-public class HTTPResponse extends HTTPMessage {
+public class HTTPResponse extends HTTPMessage implements ReadOnlyHTTPResponse {
 
 	
 	/**
@@ -206,11 +206,7 @@ public class HTTPResponse extends HTTPMessage {
 	}
 	
 	
-	/**
-	 * Gets the HTTP status message.
-	 *
-	 * @return The HTTP status message, {@code null} if not specified.
-	 */
+	@Override
 	public String getStatusMessage() {
 		
 		return statusMessage;
