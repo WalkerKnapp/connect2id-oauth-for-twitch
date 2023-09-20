@@ -189,10 +189,10 @@ public final class RequestObjectPOSTRequest extends AbstractOptionallyAuthentica
 		
 		if (getRequestObject() != null) {
 			httpRequest.setEntityContentType(ContentType.APPLICATION_JWT);
-			httpRequest.setQuery(getRequestObject().serialize());
+			httpRequest.setBody(getRequestObject().serialize());
 		} else if (getRequestJSONObject() != null) {
 			httpRequest.setEntityContentType(ContentType.APPLICATION_JSON);
-			httpRequest.setQuery(getRequestJSONObject().toJSONString());
+			httpRequest.setBody(getRequestJSONObject().toJSONString());
 			getTLSClientAuthentication().applyTo(httpRequest);
 		}
 		

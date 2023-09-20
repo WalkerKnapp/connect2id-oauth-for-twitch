@@ -1581,7 +1581,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	/**
 	 * Returns the URI query string for this authorisation request.
 	 *
-	 * <p>Note that the '?' character preceding the query string in an URI
+	 * <p>Note that the '?' character preceding the query string in a URI
 	 * is not included in the returned string.
 	 *
 	 * <p>Example URI query string:
@@ -1662,7 +1662,7 @@ public class AuthorizationRequest extends AbstractRequest {
 			throw new IllegalArgumentException("The HTTP request method must be GET or POST");
 		}
 		
-		httpRequest.setQuery(toQueryString());
+		httpRequest.appendQueryParameters(toParameters());
 		
 		return httpRequest;
 	}

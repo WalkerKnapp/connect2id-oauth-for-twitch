@@ -115,7 +115,7 @@ public class CIBAErrorDeliveryTest  extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, ENDPOINT);
 		httpRequest.setAuthorization(CLIENT_NOTIFICATION_TOKEN.toAuthorizationHeader());
 		httpRequest.setEntityContentType(ContentType.APPLICATION_JSON);
-		httpRequest.setQuery(CIBAError.EXPIRED_TOKEN.toJSONObject().toJSONString());
+		httpRequest.setBody(CIBAError.EXPIRED_TOKEN.toJSONObject().toJSONString());
 		
 		try {
 			CIBAErrorDelivery.parse(httpRequest);

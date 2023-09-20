@@ -68,7 +68,7 @@ public class EntityListingRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = request.toHTTPRequest();
 		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
-		params = httpRequest.getQueryParameters();
+		params = httpRequest.getQueryStringParameters();
 		assertEquals(Collections.singletonList(entityType.getValue()), params.get("entity_type"));
 		assertEquals(1, params.size());
 		

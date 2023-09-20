@@ -87,7 +87,7 @@ public class ExplicitClientRegistrationRequest extends AbstractRequest {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, getEndpointURI());
 		httpRequest.setEntityContentType(ContentType.APPLICATION_JOSE);
-		httpRequest.setQuery(getEntityStatement().getSignedStatement().serialize());
+		httpRequest.setBody(getEntityStatement().getSignedStatement().serialize());
 		return httpRequest;
 	}
 	

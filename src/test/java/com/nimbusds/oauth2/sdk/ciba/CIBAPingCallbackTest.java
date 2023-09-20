@@ -149,7 +149,7 @@ public class CIBAPingCallbackTest extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, ENDPOINT.toURL());
 		httpRequest.setEntityContentType(ContentType.APPLICATION_JSON);
 		httpRequest.setAuthorization(ACCESS_TOKEN.toAuthorizationHeader());
-		httpRequest.setQuery("{}");
+		httpRequest.setBody("{}");
 		
 		try {
 			CIBAPingCallback.parse(httpRequest);

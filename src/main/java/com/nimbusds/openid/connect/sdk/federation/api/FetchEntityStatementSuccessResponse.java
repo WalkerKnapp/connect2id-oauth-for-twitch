@@ -18,11 +18,10 @@
 package com.nimbusds.openid.connect.sdk.federation.api;
 
 
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
+import net.jcip.annotations.Immutable;
 
 
 /**
@@ -100,6 +99,6 @@ public class FetchEntityStatementSuccessResponse extends FetchEntityStatementRes
 		
 		httpResponse.ensureStatusCode(HTTPResponse.SC_OK);
 		httpResponse.ensureEntityContentType(EntityStatement.CONTENT_TYPE);
-		return new FetchEntityStatementSuccessResponse(EntityStatement.parse(httpResponse.getContent()));
+		return new FetchEntityStatementSuccessResponse(EntityStatement.parse(httpResponse.getBody()));
 	}
 }

@@ -18,16 +18,20 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.net.URI;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ProtectedResourceRequest;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.util.URLUtils;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -137,7 +141,9 @@ public class UserInfoRequest extends ProtectedResourceRequest {
 				
 			case POST:
 				httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-				httpRequest.setQuery("access_token=" + getAccessToken().getValue());
+				Map<String, List<String>> params = new HashMap<>();
+				params.put("access_token", Collections.singletonList(getAccessToken().getValue()));
+				httpRequest.setBody(URLUtils.serializeParameters(params));
 				break;
 			
 			default:

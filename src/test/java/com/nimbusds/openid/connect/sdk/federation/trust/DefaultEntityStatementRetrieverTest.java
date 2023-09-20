@@ -18,19 +18,6 @@
 package com.nimbusds.openid.connect.sdk.federation.trust;
 
 
-import java.net.URI;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static net.jadler.Jadler.*;
-import static org.junit.Assert.*;
-
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
@@ -48,6 +35,18 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatementClaimsSet;
 import com.nimbusds.openid.connect.sdk.federation.entities.FederationEntityMetadata;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.net.URI;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static net.jadler.Jadler.*;
+import static org.junit.Assert.*;
 
 
 public class DefaultEntityStatementRetrieverTest {
@@ -386,9 +385,8 @@ public class DefaultEntityStatementRetrieverTest {
 		assertEquals(intermediateStatementAboutOP.getClaimsSet().toJWTClaimsSet().getClaims(), out.getClaimsSet().toJWTClaimsSet().getClaims());
 	
 		URI fetchedURI = retriever.getRecordedRequests().get(0);
-		
+
 		assertTrue(fetchedURI.toString().startsWith("http://localhost:" + port() + "/federation?"));
-		
 		Map<String,List<String>> queryParams = URLUtils.parseParameters(fetchedURI.getQuery());
 		assertEquals(Collections.singletonList(issuer.getValue()), queryParams.get("iss"));
 		assertEquals(Collections.singletonList(opIssuer.getValue()), queryParams.get("sub"));

@@ -227,13 +227,13 @@ public class AuthorizationSuccessResponseTest extends TestCase {
 		HTTPRequest httpRequest = resp.toHTTPRequest();
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
-		assertEquals(ABS_REDIRECT_URI, httpRequest.getURL().toURI());
+		assertTrue(httpRequest.getURL().toString().startsWith(ABS_REDIRECT_URI.toString()));
 
-		assertEquals(Collections.singletonList("Bearer"), httpRequest.getQueryParameters().get("token_type"));
-		assertEquals(Collections.singletonList(TOKEN.getLifetime() + ""), httpRequest.getQueryParameters().get("expires_in"));
-		assertEquals(Collections.singletonList(TOKEN.getValue()), httpRequest.getQueryParameters().get("access_token"));
-		assertEquals(Collections.singletonList(STATE.getValue()), httpRequest.getQueryParameters().get("state"));
-		assertEquals(4, httpRequest.getQueryParameters().size());
+		assertEquals(Collections.singletonList("Bearer"), httpRequest.getQueryStringParameters().get("token_type"));
+		assertEquals(Collections.singletonList(TOKEN.getLifetime() + ""), httpRequest.getQueryStringParameters().get("expires_in"));
+		assertEquals(Collections.singletonList(TOKEN.getValue()), httpRequest.getQueryStringParameters().get("access_token"));
+		assertEquals(Collections.singletonList(STATE.getValue()), httpRequest.getQueryStringParameters().get("state"));
+		assertEquals(4, httpRequest.getQueryStringParameters().size());
 	}
 
 	
@@ -284,10 +284,10 @@ public class AuthorizationSuccessResponseTest extends TestCase {
 		HTTPRequest httpRequest = resp.toHTTPRequest();
 		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
 		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
-		assertEquals(ABS_REDIRECT_URI, httpRequest.getURL().toURI());
+		assertTrue(httpRequest.getURL().toString().startsWith(ABS_REDIRECT_URI.toString()));
 
-		assertEquals(Collections.singletonList(jwt.serialize()), httpRequest.getQueryParameters().get("response"));
-		assertEquals(1, httpRequest.getQueryParameters().size());
+		assertEquals(Collections.singletonList(jwt.serialize()), httpRequest.getQueryStringParameters().get("response"));
+		assertEquals(1, httpRequest.getQueryStringParameters().size());
 	}
 
 

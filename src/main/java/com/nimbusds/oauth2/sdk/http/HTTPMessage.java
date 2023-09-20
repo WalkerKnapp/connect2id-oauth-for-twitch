@@ -18,15 +18,21 @@
 package com.nimbusds.oauth2.sdk.http;
 
 
+import com.nimbusds.common.contenttype.ContentType;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.util.ContentTypeUtils;
+import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
+import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import com.nimbusds.common.contenttype.ContentType;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.util.ContentTypeUtils;
-import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 
 
 /**
@@ -39,6 +45,12 @@ abstract class HTTPMessage {
 	 * The HTTP request / response headers.
 	 */
 	private final Map<String,List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+
+	/**
+	 * The HTTP message body.
+	 */
+	private String body;
 	
 	
 	/**
@@ -189,6 +201,110 @@ abstract class HTTPMessage {
 	public Map<String,List<String>> getHeaderMap() {
 
 		return headers;
+	}
+
+
+	/**
+	 * Get the HTTP message body.
+	 *
+	 * @return The HTTP message body, {@code null} if not specified.
+	 */
+	public String getBody() {
+
+		return body;
+	}
+
+
+	/**
+	 * Sets the HTTP message body.
+	 *
+	 * @param body The HTTP message body, {@code null} if not specified.
+	 */
+	public void setBody(final String body) {
+
+		this.body = body;
+	}
+
+
+	/**
+	 * Ensures this HTTP response has a specified body.
+	 *
+	 * @throws ParseException If the body is missing or empty.
+	 */
+	private void ensureBody()
+		throws ParseException {
+
+		if (getBody() == null || getBody().isEmpty())
+			throw new ParseException("Missing or empty HTTP message body");
+	}
+
+
+	/**
+	 * Gets the response body as a JSON object.
+	 *
+	 * @return The response body as a JSON object.
+	 *
+	 * @throws ParseException If the Content-Type header isn't
+	 *                        {@code application/json}, the response
+	 *                        body is {@code null}, empty or couldn't be
+	 *                        parsed to a valid JSON object.
+	 */
+	public JSONObject getBodyAsJSONObject()
+		throws ParseException {
+
+		ensureEntityContentType(ContentType.APPLICATION_JSON);
+
+		ensureBody();
+
+		return JSONObjectUtils.parse(getBody());
+	}
+
+
+	/**
+	 * Gets the response content as a JSON array.
+	 *
+	 * @return The response content as a JSON array.
+	 *
+	 * @throws ParseException If the Content-Type header isn't
+	 *                        {@code application/json}, the response
+	 *                        content is {@code null}, empty or couldn't be
+	 *                        parsed to a valid JSON array.
+	 */
+	public JSONArray getBodyAsJSONArray()
+		throws ParseException {
+
+		ensureEntityContentType(ContentType.APPLICATION_JSON);
+
+		ensureBody();
+
+		return JSONArrayUtils.parse(getBody());
+	}
+
+
+	/**
+	 * Gets the response body as a JSON Web Token (JWT).
+	 *
+	 * @return The response body as a JSON Web Token (JWT).
+	 *
+	 * @throws ParseException If the Content-Type header isn't
+	 *                        {@code application/jwt}, the response content
+	 *                        is {@code null}, empty or couldn't be parsed
+	 *                        to a valid JSON Web Token (JWT).
+	 */
+	public JWT getBodyAsJWT()
+		throws ParseException {
+
+		ensureEntityContentType(ContentType.APPLICATION_JWT);
+
+		ensureBody();
+
+		try {
+			return JWTParser.parse(getBody());
+
+		} catch (java.text.ParseException e) {
+
+			throw new ParseException(e.getMessage(), e);
+		}
 	}
 	
 	

@@ -2284,3 +2284,24 @@ version 10.15 (2023-09-14)
     * The JakartaServletUtils.extractClientX509Certificate must use the
       "jakarta.servlet.request.X509Certificate" servlet attribute to obtain the
       client X509Certificate chain (iss #437).
+
+version 11.0 (2023-09-20)
+    * Breaking change: HTTPRequest.getURL and getURI returns a modified URL if
+      setQuery(String), appendQueryString(String),
+      appendQueryParameters(Map<String, List<String>) or setFragment(String)
+      is called.
+    * Adds HTTPRequest.appendQueryString(String) and
+      appendQueryParameters(Map<String, List<String>) methods.
+    * Adds HTTPMessage.getBody() and setBody(String) methods.
+    * Adds HTTPMessage.getBodyAsJSONObject(), getBodyAsJSONArray() and
+      getBodyAsJWT() helper methods.
+    * Deprecates HTTPRequest.getQuery() and setQuery(String). Use
+      HTTPRequest.getURL().getQuery() and appendQueryString(String) instead.
+    * Deprecates HTTPResponse.getContent(), getContentAsJSONObject.(),
+      getContentAsJSONArray(), getContentAsJWT() and setContent(String).
+    * Adds URLUtils.setEncodedQuery(String) and setEncodedFragment(String)
+      methods.
+    * URLUtils.parseParameters(String) switches to LinkedHashMap.
+    * The TokenIntrospectionRequest.parse must use only the form parameters
+      found in the request body, URL query string parameters must be ignored
+      (iss #432).

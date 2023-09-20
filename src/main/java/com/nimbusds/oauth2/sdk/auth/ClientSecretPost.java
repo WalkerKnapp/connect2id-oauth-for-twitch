@@ -109,7 +109,7 @@ public final class ClientSecretPost extends PlainClientSecret {
 		
 		String queryString = URLUtils.serializeParameters(params);
 		
-		httpRequest.setQuery(queryString);
+		httpRequest.setBody(queryString);
 	}
 	
 	

@@ -18,18 +18,17 @@
 package com.nimbusds.oauth2.sdk.http;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.Nonce;
+import junit.framework.TestCase;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 
 public class HTTPResponseTest extends TestCase {
@@ -98,25 +97,113 @@ public class HTTPResponseTest extends TestCase {
 		assertEquals(new Nonce("waeHieMa4dan"), response.getDPoPNonce());
 		
 
+		assertNull(response.getBody());
+
+		try {
+			response.getBodyAsJSONObject();
+			fail();
+		} catch (ParseException e) {
+			assertEquals("The HTTP Content-Type header must be application/json, received application/x-www-form-urlencoded", e.getMessage());
+		}
+
+		try {
+			response.getBodyAsJWT();
+			fail();
+		} catch (ParseException e) {
+			assertEquals("The HTTP Content-Type header must be application/jwt, received application/x-www-form-urlencoded", e.getMessage());
+		}
+
+		response.setEntityContentType(ContentType.APPLICATION_JSON);
+		response.setBody("{\"apples\":\"123\"}");
+		assertEquals("{\"apples\":\"123\"}", response.getBody());
+
+		JSONObject jsonObject = response.getBodyAsJSONObject();
+		assertEquals("123", (String)jsonObject.get("apples"));
+
+		// From http://tools.ietf.org/html/draft-ietf-oauth-json-web-token-13#section-3.1
+		String exampleJWTString = "eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9" +
+			"." +
+			"eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFt" +
+			"cGxlLmNvbS9pc19yb290Ijp0cnVlfQ" +
+			"." +
+			"dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
+
+		response.setEntityContentType(ContentType.APPLICATION_JWT);
+		response.setBody(exampleJWTString);
+
+		JWT jwt = response.getBodyAsJWT();
+		assertEquals(JWSAlgorithm.HS256, jwt.getHeader().getAlgorithm());
+	}
+
+
+	public void testConstructorAndAccessors_deprecated()
+		throws Exception {
+
+		HTTPResponse response = new HTTPResponse(200);
+
+		assertTrue(response.indicatesSuccess());
+		assertEquals(200, response.getStatusCode());
+
+		response.ensureStatusCode(200);
+		response.ensureStatusCode(200, 201);
+
+		try {
+			response.ensureStatusCode(302);
+			fail();
+		} catch (ParseException e) {
+			// ok
+			assertEquals("Unexpected HTTP status code 200, must be [302]", e.getMessage());
+		}
+
+		assertNull(response.getStatusMessage());
+		response.setStatusMessage("OK");
+		assertEquals("OK", response.getStatusMessage());
+
+		assertNull(response.getEntityContentType());
+		response.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), response.getEntityContentType().toString());
+
+		assertNull(response.getLocation());
+		URI location = new URI("https://client.com/cb");
+		response.setLocation(location);
+		assertEquals(location, response.getLocation());
+
+		assertNull(response.getCacheControl());
+		response.setCacheControl("no-cache");
+		assertEquals("no-cache", response.getCacheControl());
+
+		assertNull(response.getPragma());
+		response.setPragma("no-cache");
+		assertEquals("no-cache", response.getPragma());
+
+		assertNull(response.getWWWAuthenticate());
+		response.setWWWAuthenticate("Basic");
+		assertEquals("Basic", response.getWWWAuthenticate());
+
+		assertNull(response.getDPoPNonce());
+		response.setDPoPNonce(new Nonce("waeHieMa4dan"));
+		assertEquals(new Nonce("waeHieMa4dan"), response.getDPoPNonce());
+
+
 		assertNull(response.getContent());
 
 		try {
 			response.getContentAsJSONObject();
 			fail();
 		} catch (ParseException e) {
-			// ok
+			assertEquals("The HTTP Content-Type header must be application/json, received application/x-www-form-urlencoded", e.getMessage());
 		}
 
 		try {
 			response.getContentAsJWT();
 			fail();
 		} catch (ParseException e) {
-			// ok
+			assertEquals("The HTTP Content-Type header must be application/jwt, received application/x-www-form-urlencoded", e.getMessage());
 		}
 
 		response.setEntityContentType(ContentType.APPLICATION_JSON);
 		response.setContent("{\"apples\":\"123\"}");
-		assertEquals("{\"apples\":\"123\"}", response.getContent());
+		assertEquals("{\"apples\":\"123\"}", response.getBody());
 
 		JSONObject jsonObject = response.getContentAsJSONObject();
 		assertEquals("123", (String)jsonObject.get("apples"));
@@ -137,7 +224,21 @@ public class HTTPResponseTest extends TestCase {
 	}
 
 
-	public void testGetContentAsJSONArray()
+	public void testGetBodyAsJSONArray()
+		throws Exception {
+
+		HTTPResponse response = new HTTPResponse(200);
+		response.setEntityContentType(ContentType.APPLICATION_JSON);
+		response.setBody("[\"apples\",\"pears\"]");
+
+		JSONArray array = response.getBodyAsJSONArray();
+		assertEquals("apples", array.get(0));
+		assertEquals("pears", array.get(1));
+		assertEquals(2, array.size());
+	}
+
+
+	public void testGetContentAsJSONArray_deprecated()
 		throws Exception {
 
 		HTTPResponse response = new HTTPResponse(200);

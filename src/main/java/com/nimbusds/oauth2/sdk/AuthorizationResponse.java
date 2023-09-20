@@ -18,11 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Map;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -36,6 +31,11 @@ import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -337,7 +337,7 @@ public abstract class AuthorizationResponse implements Response {
 		// Use HTTP POST
 		HTTPRequest request = new HTTPRequest(HTTPRequest.Method.POST, getRedirectionURI());
 		request.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		request.setQuery(URLUtils.serializeParameters(toParameters()));
+		request.appendQueryParameters(toParameters());
 		return request;
 	}
 	

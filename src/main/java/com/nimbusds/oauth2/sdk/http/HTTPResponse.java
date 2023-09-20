@@ -18,21 +18,16 @@
 package com.nimbusds.oauth2.sdk.http;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.openid.connect.sdk.Nonce;
 import net.jcip.annotations.ThreadSafe;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
-import com.nimbusds.common.contenttype.ContentType;
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTParser;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
-import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
-import com.nimbusds.openid.connect.sdk.Nonce;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
 
 
 /**
@@ -60,6 +55,7 @@ import com.nimbusds.openid.connect.sdk.Nonce;
  *     <li>Pragma
  *     <li>Www-Authenticate
  *     <li>DPoP-Nonce
+ *     <li>Etc.
  * </ul>
  */
 @ThreadSafe
@@ -134,12 +130,6 @@ public class HTTPResponse extends HTTPMessage {
 	 * The HTTP status message, {@code null} if not specified.
 	 */
 	private String statusMessage;
-	
-	
-	/**
-	 * The raw response content.
-	 */
-	private String content = null;
 	
 	
 	/**
@@ -377,52 +367,43 @@ public class HTTPResponse extends HTTPMessage {
 	
 	
 	/**
-	 * Ensures this HTTP response has a specified content body.
-	 *
-	 * @throws ParseException If the content body is missing or empty.
-	 */
-	private void ensureContent()
-		throws ParseException {
-		
-		if (content == null || content.isEmpty())
-			throw new ParseException("Missing or empty HTTP response body");
-	}
-	
-	
-	/**
 	 * Gets the raw response content.
+	 *
+	 * @deprecated Use {@link #getBody()}.
 	 *
 	 * @return The raw response content, {@code null} if none.
 	 */
+	@Deprecated
 	public String getContent() {
 	
-		return content;
+		return getBody();
 	}
-	
-	
+
+
 	/**
 	 * Gets the response content as a JSON object.
 	 *
+	 * @deprecated Use {@link #getBodyAsJSONObject()}.
+	 *
 	 * @return The response content as a JSON object.
 	 *
-	 * @throws ParseException If the Content-Type header isn't 
+	 * @throws ParseException If the Content-Type header isn't
 	 *                        {@code application/json}, the response
 	 *                        content is {@code null}, empty or couldn't be
 	 *                        parsed to a valid JSON object.
 	 */
+	@Deprecated
 	public JSONObject getContentAsJSONObject()
 		throws ParseException {
-		
-		ensureEntityContentType(ContentType.APPLICATION_JSON);
-		
-		ensureContent();
-		
-		return JSONObjectUtils.parse(content);
+
+		return getBodyAsJSONObject();
 	}
 
 
 	/**
 	 * Gets the response content as a JSON array.
+	 *
+	 * @deprecated Use {@link #getBodyAsJSONArray()}.
 	 *
 	 * @return The response content as a JSON array.
 	 *
@@ -431,51 +412,44 @@ public class HTTPResponse extends HTTPMessage {
 	 *                        content is {@code null}, empty or couldn't be
 	 *                        parsed to a valid JSON array.
 	 */
+	@Deprecated
 	public JSONArray getContentAsJSONArray()
 		throws ParseException {
 
-		ensureEntityContentType(ContentType.APPLICATION_JSON);
-
-		ensureContent();
-
-		return JSONArrayUtils.parse(content);
+		return getBodyAsJSONArray();
 	}
-	
-	
+
+
 	/**
 	 * Gets the response content as a JSON Web Token (JWT).
+	 *
+	 * @deprecated Use {@link #getBodyAsJWT()}.
 	 *
 	 * @return The response content as a JSON Web Token (JWT).
 	 *
 	 * @throws ParseException If the Content-Type header isn't
-	 *                        {@code application/jwt}, the response content 
+	 *                        {@code application/jwt}, the response content
 	 *                        is {@code null}, empty or couldn't be parsed
 	 *                        to a valid JSON Web Token (JWT).
 	 */
+	@Deprecated
 	public JWT getContentAsJWT()
 		throws ParseException {
-		
-		ensureEntityContentType(ContentType.APPLICATION_JWT);
-		
-		ensureContent();
-		
-		try {
-			return JWTParser.parse(content);
-			
-		} catch (java.text.ParseException e) {
-		
-			throw new ParseException(e.getMessage(), e);
-		}
+
+		return getBodyAsJWT();
 	}
 	
 	
 	/**
 	 * Sets the raw response content.
 	 *
+	 * @deprecated Use {@link #setBody(String)}.
+	 *
 	 * @param content The raw response content, {@code null} if none.
 	 */
+	@Deprecated
 	public void setContent(final String content) {
 	
-		this.content = content;
+		setBody(content);
 	}
 }

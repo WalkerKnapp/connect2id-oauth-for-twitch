@@ -202,7 +202,7 @@ public class TrustMarkStatusRequest extends FederationAPIRequest {
 	public HTTPRequest toHTTPRequest() {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, getEndpointURI());
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery(URLUtils.serializeParameters(toParameters()));
+		httpRequest.setBody(URLUtils.serializeParameters(toParameters()));
 		return httpRequest;
 	}
 	

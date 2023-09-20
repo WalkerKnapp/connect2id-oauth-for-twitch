@@ -147,7 +147,7 @@ public class PushedAuthorizationRequest extends AbstractOptionallyAuthenticatedR
 		
 		Map<String, List<String>> params = httpRequest.getQueryParameters();
 		params.putAll(authzRequest.toParameters());
-		httpRequest.setQuery(URLUtils.serializeParameters(params));
+		httpRequest.setBody(URLUtils.serializeParameters(params));
 		
 		return httpRequest;
 	}

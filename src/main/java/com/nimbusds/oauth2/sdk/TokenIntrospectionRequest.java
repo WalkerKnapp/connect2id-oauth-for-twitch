@@ -299,7 +299,7 @@ public class TokenIntrospectionRequest extends AbstractOptionallyAuthenticatedRe
 
 		params.putAll(customParams);
 
-		httpRequest.setQuery(URLUtils.serializeParameters(params));
+		httpRequest.setBody(URLUtils.serializeParameters(params));
 
 		if (getClientAuthentication() != null)
 			getClientAuthentication().applyTo(httpRequest);

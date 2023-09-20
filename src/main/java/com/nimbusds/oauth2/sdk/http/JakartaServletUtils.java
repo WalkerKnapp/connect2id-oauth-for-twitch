@@ -43,7 +43,7 @@ import com.nimbusds.oauth2.sdk.util.X509CertificateUtils;
 /**
  * HTTP Jakarta Servlet utilities.
  *
- * <p>Requires the optional jakarta.servlet dependency (or newer):
+ * <p>Requires the optional {@code jakarta.servlet} dependency (or newer):
  *
  * <pre>
  * jakarta.servlet:jakarta.servlet-api:5.0.0

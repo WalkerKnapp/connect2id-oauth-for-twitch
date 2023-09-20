@@ -126,14 +126,14 @@ public class OIDCClientRegistrationRequestTest extends TestCase {
 			+ "   \"userinfo_encrypted_response_enc\": \"A128CBC-HS256\","
 			+ "   \"contacts\": [\"ve7jtb@example.org\", \"mary@example.org\"],"
 			+ "   \"request_uris\":[\"https://client.example.org/rf.txt#qpXaRLh_n93TTR9F252ValdatUQvQiJi5BDub2BeznA\"]"
-			+ "  }";
+			+ "}";
 		
 		System.out.println(json);
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, uri.toURL());
 		httpRequest.setAuthorization("Bearer eyJhbGciOiJSUzI1NiJ9.eyJ");
 		httpRequest.setEntityContentType(ContentType.APPLICATION_JSON);
-		httpRequest.setQuery(json);
+		httpRequest.setBody(json);
 		
 		OIDCClientRegistrationRequest req = OIDCClientRegistrationRequest.parse(httpRequest);
 		
@@ -402,7 +402,7 @@ public class OIDCClientRegistrationRequestTest extends TestCase {
 		clientMetadata.setJWKSet(new JWKSet());
 		JSONObject jsonObject = clientMetadata.toJSONObject(true);
 		jsonObject.put("jwks", new JSONObject());
-		httpRequest.setQuery(jsonObject.toJSONString());
+		httpRequest.setBody(jsonObject.toJSONString());
 
 		try {
 			OIDCClientRegistrationRequest.parse(httpRequest);

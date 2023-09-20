@@ -552,7 +552,7 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 			params.putAll(getCustomParameters());
 		}
 
-		httpRequest.setQuery(URLUtils.serializeParameters(params));
+		httpRequest.setBody(URLUtils.serializeParameters(params));
 
 		return httpRequest;
 	}

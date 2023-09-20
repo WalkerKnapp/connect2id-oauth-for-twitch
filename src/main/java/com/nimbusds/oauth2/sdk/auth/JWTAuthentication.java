@@ -224,7 +224,7 @@ public abstract class JWTAuthentication extends ClientAuthentication {
 		
 		String queryString = URLUtils.serializeParameters(params);
 		
-		httpRequest.setQuery(queryString);
+		httpRequest.setBody(queryString);
 	}
 	
 	

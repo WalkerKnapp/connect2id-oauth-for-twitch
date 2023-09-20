@@ -18,14 +18,6 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.langtag.LangTag;
@@ -41,6 +33,13 @@ import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+import net.jcip.annotations.Immutable;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.*;
 
 
 /**
@@ -374,10 +373,8 @@ public class LogoutRequest extends AbstractRequest {
 		if (getEndpointURI() == null)
 			throw new SerializeException("The endpoint URI is not specified");
 		
-		Map<String, List<String>> mergedQueryParams = new HashMap<>(URLUtils.parseParameters(getEndpointURI().getQuery()));
+		Map<String, List<String>> mergedQueryParams = new LinkedHashMap<>(URLUtils.parseParameters(getEndpointURI().getQuery()));
 		mergedQueryParams.putAll(toParameters());
-		
-		HTTPRequest httpRequest;
 
 		URL baseURL;
 		try {
@@ -385,9 +382,10 @@ public class LogoutRequest extends AbstractRequest {
 		} catch (MalformedURLException e) {
 			throw new SerializeException(e.getMessage(), e);
 		}
-		
+
+		HTTPRequest httpRequest;
 		httpRequest = new HTTPRequest(HTTPRequest.Method.GET, baseURL);
-		httpRequest.setQuery(URLUtils.serializeParameters(mergedQueryParams));
+		httpRequest.appendQueryParameters(mergedQueryParams);
 		return httpRequest;
 	}
 

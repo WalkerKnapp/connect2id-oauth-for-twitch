@@ -183,7 +183,7 @@ public class ClientUpdateRequest extends ProtectedResourceRequest {
 		if (secret != null)
 			jsonObject.put("client_secret", secret.getValue());
 
-		httpRequest.setQuery(jsonObject.toString());
+		httpRequest.setBody(jsonObject.toString());
 
 		return httpRequest;
 	}
@@ -206,7 +206,7 @@ public class ClientUpdateRequest extends ProtectedResourceRequest {
 		
 		BearerAccessToken accessToken = BearerAccessToken.parse(httpRequest.getAuthorization());
 		
-		JSONObject jsonObject = httpRequest.getQueryAsJSONObject();
+		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
 		
 		ClientID id = new ClientID(JSONObjectUtils.getString(jsonObject, "client_id"));
 

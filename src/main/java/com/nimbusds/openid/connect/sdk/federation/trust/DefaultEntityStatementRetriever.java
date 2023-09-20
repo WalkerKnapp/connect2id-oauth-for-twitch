@@ -18,12 +18,6 @@
 package com.nimbusds.openid.connect.sdk.federation.trust;
 
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.WellKnownPathComposeStrategy;
@@ -36,6 +30,11 @@ import com.nimbusds.openid.connect.sdk.federation.config.FederationEntityConfigu
 import com.nimbusds.openid.connect.sdk.federation.config.FederationEntityConfigurationResponse;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.LinkedList;
+import java.util.List;
 
 
 /**
@@ -220,18 +219,7 @@ public class DefaultEntityStatementRetriever implements EntityStatementRetriever
 	
 	private void record(final HTTPRequest httpRequest) {
 		
-		URI uri = null;
-		if (httpRequest.getQuery() == null) {
-			uri = httpRequest.getURI();
-		} else {
-			try {
-				uri = new URI(httpRequest.getURL() + "?" + httpRequest.getQuery());
-			} catch (URISyntaxException e) {
-				// ignore
-			}
-		}
-		
-		recordedRequests.add(uri);
+		recordedRequests.add(httpRequest.getURI());
 	}
 	
 	

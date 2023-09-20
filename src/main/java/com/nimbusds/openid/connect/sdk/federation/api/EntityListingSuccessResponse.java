@@ -18,17 +18,16 @@
 package com.nimbusds.openid.connect.sdk.federation.api;
 
 
-import java.util.LinkedList;
-import java.util.List;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONArray;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONArray;
+
+import java.util.LinkedList;
+import java.util.List;
 
 
 /**
@@ -126,6 +125,6 @@ public class EntityListingSuccessResponse extends EntityListingResponse {
 		throws ParseException {
 		
 		httpResponse.ensureStatusCode(HTTPResponse.SC_OK);
-		return EntityListingSuccessResponse.parse(httpResponse.getContentAsJSONArray());
+		return EntityListingSuccessResponse.parse(httpResponse.getBodyAsJSONArray());
 	}
 }

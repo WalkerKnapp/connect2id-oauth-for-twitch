@@ -162,7 +162,7 @@ public class PKITLSClientAuthenticationTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("a=b");
+		httpRequest.setBody("a=b");
 		
 		try {
 			PKITLSClientAuthentication.parse(httpRequest);
@@ -178,7 +178,7 @@ public class PKITLSClientAuthenticationTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("client_id=");
+		httpRequest.setBody("client_id=");
 		
 		try {
 			PKITLSClientAuthentication.parse(httpRequest);
@@ -194,7 +194,7 @@ public class PKITLSClientAuthenticationTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("client_id=123");
+		httpRequest.setBody("client_id=123");
 		
 		try {
 			PKITLSClientAuthentication.parse(httpRequest);
@@ -210,7 +210,7 @@ public class PKITLSClientAuthenticationTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("client_id=123");
+		httpRequest.setBody("client_id=123");
 		httpRequest.setClientX509Certificate(X509CertificateGenerator.generateSelfSignedNotSelfIssuedCertificate(
 				"issuer", "client-123"));
 		httpRequest.setClientX509CertificateSubjectDN("cn=client-123");

@@ -130,7 +130,7 @@ public class CIBAErrorDelivery extends CIBAPushCallback {
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("auth_req_id", getAuthRequestID().getValue());
 		jsonObject.putAll(getErrorObject().toJSONObject());
-		httpRequest.setQuery(jsonObject.toJSONString());
+		httpRequest.setBody(jsonObject.toJSONString());
 		return httpRequest;
 	}
 	

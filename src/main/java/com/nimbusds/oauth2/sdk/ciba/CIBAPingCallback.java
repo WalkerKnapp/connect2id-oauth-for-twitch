@@ -103,7 +103,7 @@ public class CIBAPingCallback extends ProtectedResourceRequest {
 		httpRequest.setEntityContentType(ContentType.APPLICATION_JSON);
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("auth_req_id", getAuthRequestID().getValue());
-		httpRequest.setQuery(jsonObject.toJSONString());
+		httpRequest.setBody(jsonObject.toJSONString());
 		return httpRequest;
 	}
 	

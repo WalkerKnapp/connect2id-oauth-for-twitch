@@ -61,7 +61,7 @@ public abstract class FederationAPIRequest extends AbstractRequest {
 	@Override
 	public HTTPRequest toHTTPRequest() {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, getEndpointURI());
-		httpRequest.setQuery(URLUtils.serializeParameters(toParameters()));
+		httpRequest.appendQueryParameters(toParameters());
 		return httpRequest;
 	}
 }

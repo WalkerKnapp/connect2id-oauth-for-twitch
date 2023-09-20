@@ -18,21 +18,20 @@
 package com.nimbusds.openid.connect.sdk.federation.api;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
-import com.nimbusds.oauth2.sdk.util.URLUtils;
+import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -103,7 +102,7 @@ public class EntityListingRequest extends FederationAPIRequest {
 	public HTTPRequest toHTTPRequest() {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, getEndpointURI());
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery(URLUtils.serializeParameters(toParameters()));
+		httpRequest.appendQueryParameters(toParameters());
 		return httpRequest;
 	}
 	
@@ -123,11 +122,11 @@ public class EntityListingRequest extends FederationAPIRequest {
 		httpRequest.ensureMethod(HTTPRequest.Method.GET);
 		
 		EntityType entityType = null;
-		Map<String, List<String>> params = httpRequest.getQueryParameters();
+		Map<String, List<String>> params = httpRequest.getQueryStringParameters();
 		String value = MultivaluedMapUtils.getFirstValue(params, "entity_type");
 		if (StringUtils.isNotBlank(value)) {
 			entityType = new EntityType(value);
 		}
-		return new EntityListingRequest(httpRequest.getURI(), entityType);
+		return new EntityListingRequest(URIUtils.getBaseURI(httpRequest.getURI()), entityType);
 	}
 }

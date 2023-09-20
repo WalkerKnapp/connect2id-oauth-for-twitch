@@ -172,7 +172,7 @@ public final class TokenRevocationRequest extends AbstractOptionallyIdentifiedRe
 			params.put("token_type_hint", Collections.singletonList("refresh_token"));
 		}
 
-		httpRequest.setQuery(URLUtils.serializeParameters(params));
+		httpRequest.setBody(URLUtils.serializeParameters(params));
 
 		if (getClientAuthentication() != null) {
 			// confidential client

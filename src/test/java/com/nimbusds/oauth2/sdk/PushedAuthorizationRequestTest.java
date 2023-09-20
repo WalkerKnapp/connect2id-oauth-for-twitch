@@ -277,7 +277,7 @@ public class PushedAuthorizationRequestTest extends TestCase {
 		HTTPRequest modifiedHTTPRequest = new HTTPRequest(httpRequest.getMethod(), httpRequest.getURL());
 		modifiedHTTPRequest.setEntityContentType(httpRequest.getEntityContentType());
 		modifiedHTTPRequest.setAuthorization(httpRequest.getAuthorization());
-		modifiedHTTPRequest.setQuery(URLUtils.serializeParameters(params));
+		modifiedHTTPRequest.setBody(URLUtils.serializeParameters(params));
 		
 		par = PushedAuthorizationRequest.parse(modifiedHTTPRequest);
 		assertEquals(endpoint, par.getEndpointURI());
@@ -328,7 +328,7 @@ public class PushedAuthorizationRequestTest extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, endpoint.toURL());
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
 		clientAuth.applyTo(httpRequest);
-		httpRequest.setQuery(authzRequest.toQueryString());
+		httpRequest.setBody(authzRequest.toQueryString());
 		
 		try {
 			PushedAuthorizationRequest.parse(httpRequest);

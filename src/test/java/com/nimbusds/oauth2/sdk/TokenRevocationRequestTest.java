@@ -190,7 +190,7 @@ public class TokenRevocationRequestTest extends TestCase {
 		Map<String,List<String>> queryParams = new HashMap<>();
 		queryParams.put("token", Collections.singletonList("abc"));
 		queryParams.put("client_id", Collections.singletonList("123"));
-		httpRequest.setQuery(URLUtils.serializeParameters(queryParams));
+		httpRequest.setBody(URLUtils.serializeParameters(queryParams));
 
 		TokenRevocationRequest request = TokenRevocationRequest.parse(httpRequest);
 		assertEquals("abc", request.getToken().getValue());
@@ -210,7 +210,7 @@ public class TokenRevocationRequestTest extends TestCase {
 
 		Map<String,List<String>> queryParams = new HashMap<>();
 		queryParams.put("token", Collections.singletonList("abc"));
-		httpRequest.setQuery(URLUtils.serializeParameters(queryParams));
+		httpRequest.setBody(URLUtils.serializeParameters(queryParams));
 
 		TokenRevocationRequest request = TokenRevocationRequest.parse(httpRequest);
 		assertEquals("abc", request.getToken().getValue());
@@ -252,7 +252,7 @@ public class TokenRevocationRequestTest extends TestCase {
 
 		Map<String,List<String>> queryParams = new HashMap<>();
 		queryParams.put("token", Collections.singletonList("abc"));
-		httpRequest.setQuery(URLUtils.serializeParameters(queryParams));
+		httpRequest.setBody(URLUtils.serializeParameters(queryParams));
 
 		try {
 			TokenRevocationRequest.parse(httpRequest);

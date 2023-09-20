@@ -149,7 +149,7 @@ public abstract class TLSClientAuthentication extends ClientAuthentication {
 			Map<String,List<String>> params = httpRequest.getQueryParameters();
 			params.put("client_id", Collections.singletonList(getClientID().getValue()));
 			String queryString = URLUtils.serializeParameters(params);
-			httpRequest.setQuery(queryString);
+			httpRequest.setBody(queryString);
 			
 		} else {
 			throw new SerializeException("The HTTP Content-Type header must be " + ContentType.APPLICATION_URLENCODED);

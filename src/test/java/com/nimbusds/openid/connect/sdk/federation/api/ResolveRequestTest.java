@@ -65,8 +65,8 @@ public class ResolveRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = request.toHTTPRequest();
 		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
-		assertEquals(endpoint.toURL(), httpRequest.getURL());
-		assertEquals(params, httpRequest.getQueryParameters());
+		assertTrue(httpRequest.getURL().toString().startsWith(endpoint.toURL().toString()));
+		assertEquals(params, httpRequest.getQueryStringParameters());
 		
 		request = ResolveRequest.parse(httpRequest);
 		assertEquals(endpoint, request.getEndpointURI());
@@ -110,8 +110,8 @@ public class ResolveRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = request.toHTTPRequest();
 		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
-		assertEquals(endpoint.toURL(), httpRequest.getURL());
-		assertEquals(params, httpRequest.getQueryParameters());
+		assertTrue(httpRequest.getURL().toString().startsWith(endpoint.toURL().toString()));
+		assertEquals(params, httpRequest.getQueryStringParameters());
 		
 		request = ResolveRequest.parse(httpRequest);
 		assertEquals(endpoint, request.getEndpointURI());
@@ -143,7 +143,7 @@ public class ResolveRequestTest extends TestCase {
 	public void testParse_missingSubject() throws Exception {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, new URL("https://openid.sunet.se/resolve"));
-		httpRequest.setQuery("anchor=https%3A%2F%2Fswamid.se&type=openid_provider");
+		httpRequest.appendQueryString("anchor=https%3A%2F%2Fswamid.se&type=openid_provider");
 		
 		try {
 			ResolveRequest.parse(httpRequest);
@@ -157,7 +157,7 @@ public class ResolveRequestTest extends TestCase {
 	public void testParse_missingAnchor() throws Exception {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, new URL("https://openid.sunet.se/federation_api_endpoint"));
-		httpRequest.setQuery("sub=https%3A%2F%2Fidp.umu.se%2Fopenid&type=openid_provider");
+		httpRequest.appendQueryString("sub=https%3A%2F%2Fidp.umu.se%2Fopenid&type=openid_provider");
 		
 		try {
 			ResolveRequest.parse(httpRequest);

@@ -23,6 +23,8 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import com.nimbusds.oauth2.sdk.util.MapUtils;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import net.jcip.annotations.ThreadSafe;
 import net.minidev.json.JSONObject;
@@ -110,21 +112,9 @@ public class HTTPRequest extends HTTPMessage {
 
 
 	/**
-	 * The request URL.
+	 * The request URL (mutable).
 	 */
-	private final URL url;
-	
-	
-	/**
-	 * The query string / post body.
-	 */
-	private String query = null;
-
-
-	/**
-	 * The fragment.
-	 */
-	private String fragment = null;
+	private URL url;
 
 
 	/**
@@ -223,7 +213,7 @@ public class HTTPRequest extends HTTPMessage {
 	 * Creates a new minimally specified HTTP request.
 	 *
 	 * @param method The HTTP request method. Must not be {@code null}.
-	 * @param uri    The HTTP request URI. Must be an URL and not
+	 * @param uri    The HTTP request URI. Must be a URL and not
 	 *               {@code null}.
 	 */
 	public HTTPRequest(final Method method, final URI uri) {
@@ -263,9 +253,9 @@ public class HTTPRequest extends HTTPMessage {
 
 
 	/**
-	 * Gets the request URL as URI.
+	 * Gets the (base) request URL as URI.
 	 *
-	 * @return The request URL as URI.
+	 * @return The (base) request URL as URI.
 	 */
 	public URI getURI() {
 		
@@ -395,10 +385,78 @@ public class HTTPRequest extends HTTPMessage {
 
 		setHeader("Accept", accept);
 	}
+
+
+	/**
+	 * Appends the specified query parameters to the current HTTP request
+	 * {@link #getURL() URL} query.
+	 *
+	 * <p>If the current URL has a query string the new query is appended
+	 * with `&` in front.
+	 *
+	 * @param queryParams The query parameters to append, empty or
+	 *                    {@code null} if nothing to append.
+	 *
+	 * @throws IllegalArgumentException If the URL composition failed.
+	 */
+	public void appendQueryParameters(final Map<String,List<String>> queryParams) {
+
+		if (MapUtils.isEmpty(queryParams)) {
+			// Nothing to append
+			return;
+		}
+
+		appendQueryString(URLUtils.serializeParameters(queryParams));
+	}
 	
 	
 	/**
-	 * Gets the raw (undecoded) query string if the request is HTTP GET or
+	 * Appends the specified raw (encoded) query string to the current HTTP
+	 * request {@link #getURL() URL} query.
+	 *
+	 * <p>If the current URL has a query string the new query is appended
+	 * with `&` in front.
+	 *
+	 * <p>The '?' character preceding the query string must not be
+	 * included.
+	 *
+	 * <p>Example query string to append:
+	 *
+	 * <pre>
+	 * client_id=123&amp;logout_hint=eepaeph8siot&amp;state=shah2key
+	 * </pre>
+	 *
+	 * @param queryString The query string to append, blank or {@code null}
+	 *                    if nothing to append.
+	 *
+	 * @throws IllegalArgumentException If the URL composition failed.
+	 */
+	public void appendQueryString(final String queryString) {
+
+		if (StringUtils.isBlank(queryString)) {
+			// Nothing to append
+			return;
+		}
+
+		if (StringUtils.isNotBlank(queryString) && queryString.startsWith("?")) {
+			throw new IllegalArgumentException("The query string must not start with ?");
+		}
+
+		// Append query string to the URL
+		StringBuilder sb = new StringBuilder();
+
+		if (StringUtils.isNotBlank(url.getQuery())) {
+			sb.append(url.getQuery());
+			sb.append('&');
+		}
+		sb.append(queryString);
+
+		url = URLUtils.setEncodedQuery(url, sb.toString());
+	}
+
+
+	/**
+	 * Gets the raw (encoded) query string if the request is HTTP GET or
 	 * the entity body if the request is HTTP POST.
 	 *
 	 * <p>Note that the '?' character preceding the query string in GET
@@ -413,17 +471,21 @@ public class HTTPRequest extends HTTPMessage {
 	 * &amp;redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
 	 * </pre>
 	 *
-	 * @return For HTTP GET requests the URL query string, for HTTP POST 
+	 * @deprecated Use {@link #getURL()}.
+	 *
+	 * @return For HTTP GET requests the URL query string, for HTTP POST
 	 *         requests the body. {@code null} if not specified.
 	 */
+	@Deprecated
 	public String getQuery() {
-	
-		return query;
+
+		// Heuristics for deprecated API
+		return Method.POST.equals(getMethod()) ? getBody() : getURL().getQuery();
 	}
-	
-	
+
+
 	/**
-	 * Sets the raw (undecoded) query string if the request is HTTP GET or
+	 * Sets the raw (encoded) query string if the request is HTTP GET or
 	 * the entity body if the request is HTTP POST.
 	 *
 	 * <p>Note that the '?' character preceding the query string in GET
@@ -438,12 +500,19 @@ public class HTTPRequest extends HTTPMessage {
 	 * &amp;redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
 	 * </pre>
 	 *
-	 * @param query For HTTP GET requests the URL query string, for HTTP 
+	 * @deprecated Use {@link #appendQueryString(String)}.
+	 *
+	 * @param query For HTTP GET requests the URL query string, for HTTP
 	 *              POST requests the body. {@code null} if not specified.
 	 */
+	@Deprecated
 	public void setQuery(final String query) {
-	
-		this.query = query;
+
+		if (Method.POST.equals(getMethod())) {
+			setBody(query);
+		} else {
+			appendQueryString(query);
+		}
 	}
 
 
@@ -457,26 +526,44 @@ public class HTTPRequest extends HTTPMessage {
 	private void ensureQuery()
 		throws ParseException {
 		
-		if (query == null || query.trim().isEmpty())
+		if (getQuery() == null || getQuery().trim().isEmpty())
 			throw new ParseException("Missing or empty HTTP query string / entity body");
 	}
 	
 	
 	/**
-	 * Gets the request query as a parameter map. The parameters are 
+	 * Gets the query string as a parameter map. The parameters are decoded
+	 * according to {@code application/x-www-form-urlencoded}.
+	 *
+	 * @return The query string parameters to, decoded. If none the map
+	 *         will be empty.
+	 */
+	public Map<String,List<String>> getQueryStringParameters() {
+	
+		return URLUtils.parseParameters(url.getQuery());
+	}
+
+
+	/**
+	 * Gets the request query as a parameter map. The parameters are
 	 * decoded according to {@code application/x-www-form-urlencoded}.
+	 *
+	 * @deprecated Use {@link #getQueryStringParameters()}.
 	 *
 	 * @return The request query parameters, decoded. If none the map will
 	 *         be empty.
 	 */
+	@Deprecated
 	public Map<String,List<String>> getQueryParameters() {
-	
-		return URLUtils.parseParameters(query);
+
+		return URLUtils.parseParameters(getQuery());
 	}
 
 
 	/**
 	 * Gets the request query or entity body as a JSON Object.
+	 *
+	 * @deprecated Use {@link #getBodyAsJSONObject()}.
 	 *
 	 * @return The request query or entity body as a JSON object.
 	 *
@@ -485,6 +572,7 @@ public class HTTPRequest extends HTTPMessage {
 	 *                        or entity body is {@code null}, empty or 
 	 *                        couldn't be parsed to a valid JSON object.
 	 */
+	@Deprecated
 	public JSONObject getQueryAsJSONObject()
 		throws ParseException {
 
@@ -492,29 +580,32 @@ public class HTTPRequest extends HTTPMessage {
 
 		ensureQuery();
 
-		return JSONObjectUtils.parse(query);
+		return JSONObjectUtils.parse(getQuery());
 	}
 
 
 	/**
-	 * Gets the raw (undecoded) request fragment.
+	 * Gets the raw (encoded) fragment of the URL.
 	 *
-	 * @return The request fragment, {@code null} if not specified.
+	 * @deprecated Use {@link #getURL()}.
+	 *
+	 * @return The fragment, {@code null} if not specified.
 	 */
+	@Deprecated
 	public String getFragment() {
 
-		return fragment;
+		return url.getRef();
 	}
 
 
 	/**
-	 * Sets the raw (undecoded) request fragment.
+	 * Sets the raw (encoded) fragment of the URL.
 	 *
-	 * @param fragment The request fragment, {@code null} if not specified.
+	 * @param fragment The fragment, {@code null} if not specified.
 	 */
 	public void setFragment(final String fragment) {
 
-		this.fragment = fragment;
+		url = URLUtils.setEncodedFragment(url, fragment);
 	}
 
 
@@ -623,7 +714,8 @@ public class HTTPRequest extends HTTPMessage {
 	 * Sets whether HTTP redirects (requests with response code 3xx) should
 	 * be automatically followed.
 	 *
-	 * @param follow Whether or not to follow HTTP redirects.
+	 * @param follow {@code true} if HTTP redirects are automatically
+	 *               followed, else {@code false}.
 	 */
 	public void setFollowRedirects(final boolean follow) {
 
@@ -874,39 +966,7 @@ public class HTTPRequest extends HTTPMessage {
 	public HttpURLConnection toHttpURLConnection()
 		throws IOException {
 
-		URL finalURL = url;
-
-		if (query != null && (method.equals(HTTPRequest.Method.GET) || method.equals(Method.DELETE))) {
-
-			// Append query string
-			StringBuilder sb = new StringBuilder(url.toString());
-			sb.append('?');
-			sb.append(query);
-
-			try {
-				finalURL = new URL(sb.toString());
-
-			} catch (MalformedURLException e) {
-
-				throw new IOException("Couldn't append query string: " + e.getMessage(), e);
-			}
-		}
-
-		if (fragment != null) {
-
-			// Append raw fragment
-			StringBuilder sb = new StringBuilder(finalURL.toString());
-			sb.append('#');
-			sb.append(fragment);
-
-			try {
-				finalURL = new URL(sb.toString());
-
-			} catch (MalformedURLException e) {
-
-				throw new IOException("Couldn't append raw fragment: " + e.getMessage(), e);
-			}
-		}
+		final URL finalURL = getURL();
 
 		HttpURLConnection conn = (HttpURLConnection) (proxy == null ? finalURL.openConnection() : finalURL.openConnection(proxy));
 
@@ -934,10 +994,10 @@ public class HTTPRequest extends HTTPMessage {
 			if (getEntityContentType() != null)
 				conn.setRequestProperty("Content-Type", getEntityContentType().toString());
 
-			if (query != null) {
+			if (getBody() != null) {
 				try {
 					OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
-					writer.write(query);
+					writer.write(getBody());
 					writer.close();
 				} catch (IOException e) {
 					closeStreams(conn);
@@ -999,7 +1059,7 @@ public class HTTPRequest extends HTTPMessage {
 	 * @return The resulting HTTP response.
 	 *
 	 * @throws IOException If the HTTP request couldn't be made, due to a
-	 *                     network or other error.
+	 *                     network or another error.
 	 */
 	public HTTPResponse send()
 		throws IOException {
@@ -1074,7 +1134,7 @@ public class HTTPRequest extends HTTPMessage {
 
 		final String bodyContent = body.toString();
 		if (! bodyContent.isEmpty())
-			response.setContent(bodyContent);
+			response.setBody(bodyContent);
 
 		return response;
 	}

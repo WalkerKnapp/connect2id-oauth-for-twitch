@@ -241,7 +241,7 @@ public class ClientRegistrationRequestTest extends TestCase {
 			+ "   }";
 		
 		
-		httpRequest.setQuery(json);
+		httpRequest.setBody(json);
 		
 		ClientRegistrationRequest request = ClientRegistrationRequest.parse(httpRequest);
 		
@@ -370,7 +370,7 @@ public class ClientRegistrationRequestTest extends TestCase {
 		httpRequest.setAuthorization("Bearer ooyeph4wij2eyuagax4een8Eeshohpha");
 		httpRequest.setContentType("application/json");
 		httpRequest.setAccept("application/json");
-		httpRequest.setQuery("{\n" +
+		httpRequest.setBody("{\n" +
 			" \"redirect_uris\": [\n" +
 			"   \"https://client.example.org/callback\",\n" +
 			"   \"https://client.example.org/callback2\"],\n" +

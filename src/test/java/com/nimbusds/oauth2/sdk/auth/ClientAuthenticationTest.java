@@ -46,7 +46,7 @@ public class ClientAuthenticationTest extends TestCase {
 
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://googleapis.com/oauth2/v3/token"));
 		httpRequest.setContentType("application/x-www-form-urlencoded");
-		httpRequest.setQuery("code=4%2FiLoSjco7cxQJSnXBxaxaKCFGG0Au6Rm4H0ZrFV2-5jg&redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&client_id=407408718192.apps.googleusercontent.com&client_secret=&scope=&grant_type=authorization_code");
+		httpRequest.setBody("code=4%2FiLoSjco7cxQJSnXBxaxaKCFGG0Au6Rm4H0ZrFV2-5jg&redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&client_id=407408718192.apps.googleusercontent.com&client_secret=&scope=&grant_type=authorization_code");
 
 		ClientAuthentication auth = ClientAuthentication.parse(httpRequest);
 		assertNull(auth);
@@ -58,7 +58,7 @@ public class ClientAuthenticationTest extends TestCase {
 
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://googleapis.com/oauth2/v3/token"));
 		httpRequest.setContentType("application/x-www-form-urlencoded");
-		httpRequest.setQuery("code=4%2FiLoSjco7cxQJSnXBxaxaKCFGG0Au6Rm4H0ZrFV2-5jg&redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&client_assertion_type=&client_assertion=&scope=&grant_type=authorization_code");
+		httpRequest.setBody("code=4%2FiLoSjco7cxQJSnXBxaxaKCFGG0Au6Rm4H0ZrFV2-5jg&redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&client_assertion_type=&client_assertion=&scope=&grant_type=authorization_code");
 
 		ClientAuthentication auth = ClientAuthentication.parse(httpRequest);
 		assertNull(auth);
@@ -72,7 +72,7 @@ public class ClientAuthenticationTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("client_id=123");
+		httpRequest.setBody("client_id=123");
 		httpRequest.setClientX509Certificate(clientCert);
 		
 		SelfSignedTLSClientAuthentication clientAuth = (SelfSignedTLSClientAuthentication) ClientAuthentication.parse(httpRequest);
@@ -89,7 +89,7 @@ public class ClientAuthenticationTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("client_id=123");
+		httpRequest.setBody("client_id=123");
 		httpRequest.setClientX509Certificate(clientCert);
 		httpRequest.setClientX509CertificateRootDN(clientCert.getIssuerX500Principal().getName());
 		httpRequest.setClientX509CertificateSubjectDN(clientCert.getSubjectX500Principal().getName());
@@ -108,7 +108,7 @@ public class ClientAuthenticationTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("client_id=123");
+		httpRequest.setBody("client_id=123");
 		httpRequest.setClientX509Certificate(clientCert);
 		httpRequest.setClientX509CertificateRootDN("cn=invalidIssuer");
 		httpRequest.setClientX509CertificateSubjectDN(clientCert.getSubjectX500Principal().getName());
@@ -129,7 +129,7 @@ public class ClientAuthenticationTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("client_id=123");
+		httpRequest.setBody("client_id=123");
 		httpRequest.setClientX509Certificate(clientCert);
 		httpRequest.setClientX509CertificateRootDN(clientCert.getIssuerX500Principal().getName());
 		httpRequest.setClientX509CertificateSubjectDN("cn=invalidSubject");
@@ -150,7 +150,7 @@ public class ClientAuthenticationTest extends TestCase {
 
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("client_id=123");
+		httpRequest.setBody("client_id=123");
 		httpRequest.setClientX509Certificate(clientCert);
 		httpRequest.setClientX509CertificateSubjectDN(clientCert.getSubjectDN().getName());
 		
@@ -166,7 +166,7 @@ public class ClientAuthenticationTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("client_id=123");
+		httpRequest.setBody("client_id=123");
 		
 		assertNull(ClientAuthentication.parse(httpRequest));
 	}

@@ -128,7 +128,7 @@ public class OIDCClientUpdateRequest extends ClientUpdateRequest {
 		
 		BearerAccessToken accessToken = BearerAccessToken.parse(httpRequest.getAuthorization());
 		
-		JSONObject jsonObject = httpRequest.getQueryAsJSONObject();
+		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
 		
 		ClientID id = new ClientID(JSONObjectUtils.getString(jsonObject, "client_id"));
 

@@ -223,7 +223,7 @@ public class ClientRegistrationRequest extends ProtectedResourceRequest {
 			content.put("software_statement", softwareStatement.serialize());
 		}
 
-		httpRequest.setQuery(content.toString());
+		httpRequest.setBody(content.toString());
 
 		return httpRequest;
 	}

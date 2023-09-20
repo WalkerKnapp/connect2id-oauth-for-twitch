@@ -684,7 +684,7 @@ public class CIBARequestTest extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, ENDPOINT_URL);
 		CLIENT_AUTH.applyTo(httpRequest);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("scope=openid&id_token_hint=cheTh0ae");
+		httpRequest.setBody("scope=openid&id_token_hint=cheTh0ae");
 		
 		try {
 			CIBARequest.parse(httpRequest);
@@ -700,7 +700,7 @@ public class CIBARequestTest extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, ENDPOINT_URL);
 		CLIENT_AUTH.applyTo(httpRequest);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("scope=openid&requested_expiry=abc");
+		httpRequest.setBody("scope=openid&requested_expiry=abc");
 		
 		try {
 			CIBARequest.parse(httpRequest);
@@ -717,7 +717,7 @@ public class CIBARequestTest extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, ENDPOINT_URL);
 		CLIENT_AUTH.applyTo(httpRequest);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("scope=openid&login_hint=" + URLEncoder.encode(LOGIN_HINT, StandardCharsets.UTF_8.name()) + "&requested_expiry=-1");
+		httpRequest.setBody("scope=openid&login_hint=" + URLEncoder.encode(LOGIN_HINT, StandardCharsets.UTF_8.name()) + "&requested_expiry=-1");
 		
 		try {
 			CIBARequest.parse(httpRequest);
@@ -734,7 +734,7 @@ public class CIBARequestTest extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, ENDPOINT_URL);
 		CLIENT_AUTH.applyTo(httpRequest);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("scope=openid&login_hint=" + URLEncoder.encode(LOGIN_HINT, StandardCharsets.UTF_8.name()) + "&requested_expiry=-1");
+		httpRequest.setBody("scope=openid&login_hint=" + URLEncoder.encode(LOGIN_HINT, StandardCharsets.UTF_8.name()) + "&requested_expiry=-1");
 		
 		try {
 			CIBARequest.parse(httpRequest);
@@ -750,7 +750,7 @@ public class CIBARequestTest extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, ENDPOINT_URL);
 		CLIENT_AUTH.applyTo(httpRequest);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("scope=openid&client_notification_token=" + generateExcessiveClientNotificationToken().getValue());
+		httpRequest.setBody("scope=openid&client_notification_token=" + generateExcessiveClientNotificationToken().getValue());
 		
 		try {
 			CIBARequest.parse(httpRequest);
@@ -765,7 +765,7 @@ public class CIBARequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, ENDPOINT_URL);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("scope=openid");
+		httpRequest.setBody("scope=openid");
 		
 		try {
 			CIBARequest.parse(httpRequest);
@@ -1042,7 +1042,7 @@ public class CIBARequestTest extends TestCase {
 		// Illegal resource
 		Map<String,List<String>> params = request.toParameters();
 		params.put("resource", Collections.singletonList("/api/v1"));
-		httpRequest.setQuery(URLUtils.serializeParameters(params));
+		httpRequest.setBody(URLUtils.serializeParameters(params));
 		
 		try {
 			CIBARequest.parse(httpRequest);

@@ -141,7 +141,7 @@ public class ExplicitClientRegistrationRequestTest extends TestCase {
 		URI endpoint = URI.create("https://c2id.com/federation/clients");
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, endpoint.toURL());
-		httpRequest.setQuery(entityStatement.getSignedStatement().serialize());
+		httpRequest.setBody(entityStatement.getSignedStatement().serialize());
 		
 		try {
 			ExplicitClientRegistrationRequest.parse(httpRequest);
@@ -162,7 +162,7 @@ public class ExplicitClientRegistrationRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, endpoint.toURL());
 		httpRequest.setEntityContentType(ContentType.APPLICATION_JWT);
-		httpRequest.setQuery(entityStatement.getSignedStatement().serialize());
+		httpRequest.setBody(entityStatement.getSignedStatement().serialize());
 		
 		try {
 			ExplicitClientRegistrationRequest.parse(httpRequest);
@@ -180,7 +180,7 @@ public class ExplicitClientRegistrationRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, endpoint.toURL());
 		httpRequest.setEntityContentType(ContentType.APPLICATION_JOSE);
-		httpRequest.setQuery("not-a-jwt");
+		httpRequest.setBody("not-a-jwt");
 		
 		try {
 			ExplicitClientRegistrationRequest.parse(httpRequest);

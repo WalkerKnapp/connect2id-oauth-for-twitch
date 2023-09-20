@@ -174,7 +174,7 @@ public class BackChannelLogoutRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, LOGOUT_ENDPOINT_URL);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("logout_token=ey...");
+		httpRequest.setBody("logout_token=ey...");
 		
 		try {
 			BackChannelLogoutRequest.parse(httpRequest);
@@ -206,7 +206,7 @@ public class BackChannelLogoutRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, LOGOUT_ENDPOINT_URL);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("logout_token=" + jwt.serialize());
+		httpRequest.setBody("logout_token=" + jwt.serialize());
 		
 		try {
 			BackChannelLogoutRequest.parse(httpRequest);
@@ -221,7 +221,7 @@ public class BackChannelLogoutRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, LOGOUT_ENDPOINT_URL);
 		JWT logoutToken = createSignedLogoutToken();
-		httpRequest.setQuery("logout_token=" + logoutToken.serialize());
+		httpRequest.appendQueryString("logout_token=" + logoutToken.serialize());
 		
 		try {
 			BackChannelLogoutRequest.parse(httpRequest);
@@ -237,7 +237,7 @@ public class BackChannelLogoutRequestTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, LOGOUT_ENDPOINT_URL);
 		JWT logoutToken = createSignedLogoutToken();
-		httpRequest.setQuery("logout_token=" + logoutToken.serialize());
+		httpRequest.setBody("logout_token=" + logoutToken.serialize());
 		
 		BackChannelLogoutRequest request = BackChannelLogoutRequest.parse(httpRequest);
 		assertEquals(LOGOUT_ENDPOINT_URI, request.getEndpointURI());
@@ -251,7 +251,7 @@ public class BackChannelLogoutRequestTest extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, LOGOUT_ENDPOINT_URL);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_JSON);
 		JWT logoutToken = createSignedLogoutToken();
-		httpRequest.setQuery("logout_token=" + logoutToken.serialize());
+		httpRequest.setBody("logout_token=" + logoutToken.serialize());
 		
 		BackChannelLogoutRequest request = BackChannelLogoutRequest.parse(httpRequest);
 		assertEquals(LOGOUT_ENDPOINT_URI, request.getEndpointURI());

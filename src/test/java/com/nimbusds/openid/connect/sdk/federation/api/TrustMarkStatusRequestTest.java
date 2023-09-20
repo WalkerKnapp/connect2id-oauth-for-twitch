@@ -228,7 +228,7 @@ public class TrustMarkStatusRequestTest extends TestCase {
 	public void testParse_invalidContentType() {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, ENDPOINT);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_JSON);
-		httpRequest.setQuery("{}");
+		httpRequest.setBody("{}");
 		try {
 			TrustMarkStatusRequest.parse(httpRequest);
 			fail();
@@ -257,7 +257,7 @@ public class TrustMarkStatusRequestTest extends TestCase {
 		HTTPRequest httpRequest = request.toHTTPRequest();
 		Map<String, List<String>> params = request.toParameters();
 		params.remove("id");
-		httpRequest.setQuery(URLUtils.serializeParameters(params));
+		httpRequest.setBody(URLUtils.serializeParameters(params));
 		
 		try {
 			TrustMarkStatusRequest.parse(httpRequest);

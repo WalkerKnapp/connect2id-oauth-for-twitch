@@ -129,8 +129,8 @@ public class AuthorizationRequestTest extends TestCase {
 
 		HTTPRequest httpReq = req.toHTTPRequest();
 		assertEquals(HTTPRequest.Method.GET, httpReq.getMethod());
-		assertEquals(uri, httpReq.getURL().toURI());
-		assertEquals(query, httpReq.getQuery());
+		assertTrue(httpReq.getURL().toString().startsWith(uri.toString()));
+		assertEquals(params, httpReq.getQueryStringParameters());
 
 		req = AuthorizationRequest.parse(uri, query);
 
@@ -299,7 +299,7 @@ public class AuthorizationRequestTest extends TestCase {
 
 		HTTPRequest httpReq = req.toHTTPRequest();
 		assertEquals(HTTPRequest.Method.GET, httpReq.getMethod());
-		assertEquals(query, httpReq.getQuery());
+		assertEquals(params, httpReq.getQueryStringParameters());
 
 		req = AuthorizationRequest.parse(uri, query);
 

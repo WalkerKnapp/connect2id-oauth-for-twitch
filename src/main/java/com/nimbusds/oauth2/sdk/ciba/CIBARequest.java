@@ -1303,7 +1303,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 
 		Map<String, List<String>> params = httpRequest.getQueryParameters();
 		params.putAll(toParameters());
-		httpRequest.setQuery(URLUtils.serializeParameters(params));
+		httpRequest.setBody(URLUtils.serializeParameters(params));
 		
 		return httpRequest;
 	}

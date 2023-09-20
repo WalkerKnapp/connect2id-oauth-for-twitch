@@ -18,16 +18,15 @@
 package com.nimbusds.openid.connect.sdk.federation.api;
 
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONArray;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
+import junit.framework.TestCase;
+import net.minidev.json.JSONArray;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 
 public class EntityListingSuccessResponseTest extends TestCase {
@@ -49,7 +48,7 @@ public class EntityListingSuccessResponseTest extends TestCase {
 		HTTPResponse httpResponse = response.toHTTPResponse();
 		assertEquals(200, httpResponse.getStatusCode());
 		assertEquals("application/json; charset=UTF-8", httpResponse.getEntityContentType().toString());
-		JSONArray jsonArray = httpResponse.getContentAsJSONArray();
+		JSONArray jsonArray = httpResponse.getBodyAsJSONArray();
 		assertEquals(ENTITY_IDS.get(0).getValue(), jsonArray.get(0));
 		assertEquals(ENTITY_IDS.get(1).getValue(), jsonArray.get(1));
 		assertEquals(ENTITY_IDS.get(2).getValue(), jsonArray.get(2));
@@ -70,7 +69,7 @@ public class EntityListingSuccessResponseTest extends TestCase {
 		HTTPResponse httpResponse = response.toHTTPResponse();
 		assertEquals(200, httpResponse.getStatusCode());
 		assertEquals("application/json; charset=UTF-8", httpResponse.getEntityContentType().toString());
-		assertTrue(httpResponse.getContentAsJSONArray().isEmpty());
+		assertTrue(httpResponse.getBodyAsJSONArray().isEmpty());
 		
 		response = EntityListingSuccessResponse.parse(httpResponse);
 		assertTrue(response.getEntityListing().isEmpty());

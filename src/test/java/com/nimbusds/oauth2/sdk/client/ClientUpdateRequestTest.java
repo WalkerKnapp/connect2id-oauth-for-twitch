@@ -63,7 +63,7 @@ public class ClientUpdateRequestTest extends TestCase {
 			+ "    \"logo_uri#fr\":\"https://client.example.org/fr/newlogo.png\""
 			+ "   }";
 
-		httpRequest.setQuery(json);
+		httpRequest.setBody(json);
 		
 		ClientUpdateRequest request = ClientUpdateRequest.parse(httpRequest);
 		
@@ -129,7 +129,7 @@ public class ClientUpdateRequestTest extends TestCase {
 			+ "    \"logo_uri#fr\":\"https://client.example.org/fr/newlogo.png\""
 			+ "   }";
 
-		httpRequest.setQuery(json);
+		httpRequest.setBody(json);
 
 		try {
 			ClientUpdateRequest.parse(httpRequest);

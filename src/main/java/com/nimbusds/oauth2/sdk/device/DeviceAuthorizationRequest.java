@@ -432,7 +432,7 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 			params.putAll(getCustomParameters());
 		}
 
-		httpRequest.setQuery(URLUtils.serializeParameters(params));
+		httpRequest.setBody(URLUtils.serializeParameters(params));
 		return httpRequest;
 	}
 

@@ -485,7 +485,7 @@ public class TokenRequestTest extends TestCase {
 			"&code=SplxlOBeZQQYbYS6WxSbIA" +
 			"&redirect_uri=https%3A%2F%2Fclient.example.com%2Fcb";
 		
-		httpRequest.setQuery(postBody);
+		httpRequest.setBody(postBody);
 		
 		TokenRequest tr = TokenRequest.parse(httpRequest);
 		
@@ -557,7 +557,7 @@ public class TokenRequestTest extends TestCase {
 			"&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk" +
 			"&client_id=123";
 
-		httpRequest.setQuery(postBody);
+		httpRequest.setBody(postBody);
 
 		TokenRequest tr = TokenRequest.parse(httpRequest);
 		
@@ -598,7 +598,7 @@ public class TokenRequestTest extends TestCase {
 			"&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjX%40" +
 			"&client_id=123";
 
-		httpRequest.setQuery(postBody);
+		httpRequest.setBody(postBody);
 
 		try {
 			TokenRequest.parse(httpRequest);
@@ -622,7 +622,7 @@ public class TokenRequestTest extends TestCase {
 			"grant_type=refresh_token" +
 			"&refresh_token=tGzv3JOkF0XG5Qx2TlKWIA";
 		
-		httpRequest.setQuery(postBody);
+		httpRequest.setBody(postBody);
 		
 		TokenRequest tr = TokenRequest.parse(httpRequest);
 		
@@ -654,7 +654,7 @@ public class TokenRequestTest extends TestCase {
 
 		final String postBody = "grant_type=password&username=johndoe&password=A3ddj3w";
 
-		httpRequest.setQuery(postBody);
+		httpRequest.setBody(postBody);
 
 		TokenRequest tr = TokenRequest.parse(httpRequest);
 		
@@ -693,7 +693,7 @@ public class TokenRequestTest extends TestCase {
 
 		final String postBody = "grant_type=password&username=johndoe&password=A3ddj3w";
 
-		httpRequest.setQuery(postBody);
+		httpRequest.setBody(postBody);
 
 		TokenRequest tr = TokenRequest.parse(httpRequest);
 		
@@ -734,7 +734,7 @@ public class TokenRequestTest extends TestCase {
 
 		final String postBody = "grant_type=client_credentials";
 
-		httpRequest.setQuery(postBody);
+		httpRequest.setBody(postBody);
 
 		TokenRequest tr = TokenRequest.parse(httpRequest);
 		
@@ -766,7 +766,7 @@ public class TokenRequestTest extends TestCase {
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
 		final String postBody = "grant_type=client_credentials";
 
-		httpRequest.setQuery(postBody);
+		httpRequest.setBody(postBody);
 
 		try {
 			TokenRequest.parse(httpRequest);
@@ -804,7 +804,7 @@ public class TokenRequestTest extends TestCase {
 
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://googleapis.com/oauth2/v3/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("code=0a2b49a9-985d-47cb-b36f-be9ed4927b4c&redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&client_id=google&client_secret=&scope=&grant_type=authorization_code");
+		httpRequest.setBody("code=0a2b49a9-985d-47cb-b36f-be9ed4927b4c&redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&client_id=google&client_secret=&scope=&grant_type=authorization_code");
 
 		TokenRequest tokenRequest = TokenRequest.parse(httpRequest);
 
@@ -923,7 +923,7 @@ public class TokenRequestTest extends TestCase {
 
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery(URLUtils.serializeParameters(codeGrant.toParameters()));
+		httpRequest.setBody(URLUtils.serializeParameters(codeGrant.toParameters()));
 
 		try {
 			TokenRequest.parse(httpRequest);
@@ -1143,7 +1143,7 @@ public class TokenRequestTest extends TestCase {
 
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery(URLUtils.serializeParameters(grant.toParameters()));
+		httpRequest.setBody(URLUtils.serializeParameters(grant.toParameters()));
 
 		try {
 			TokenRequest.parse(httpRequest);
@@ -1169,7 +1169,7 @@ public class TokenRequestTest extends TestCase {
 
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery(URLUtils.serializeParameters(grant.toParameters()));
+		httpRequest.setBody(URLUtils.serializeParameters(grant.toParameters()));
 
 		try {
 			TokenRequest.parse(httpRequest);
@@ -1569,7 +1569,7 @@ public class TokenRequestTest extends TestCase {
 				"&code=SplxlOBeZQQYbYS6WxSbIA" +
 				"&redirect_uri=https%3A%2F%2Fclient.example.com%2Fcb";
 		
-		httpRequest.setQuery(postBody);
+		httpRequest.setBody(postBody);
 		
 		try {
 			TokenRequest.parse(httpRequest);
@@ -1604,7 +1604,7 @@ public class TokenRequestTest extends TestCase {
 		bodyParams.putAll(grant.toParameters());
 		bodyParams.putAll(clientSecretJWT.toParameters());
 		
-		httpRequest.setQuery(URLUtils.serializeParameters(bodyParams));
+		httpRequest.setBody(URLUtils.serializeParameters(bodyParams));
 		
 		try {
 			TokenRequest.parse(httpRequest);
@@ -1625,7 +1625,7 @@ public class TokenRequestTest extends TestCase {
 		httpRequest.setAuthorization("Basic KVQdqB25zeFg4duoJf7ZYo4wDMXtQjqlpxWdgFm06vc");
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
 		httpRequest.setHeader("Cache-Control", "no-cache");
-		httpRequest.setQuery("grant_type=authorization_code" +
+		httpRequest.setBody("grant_type=authorization_code" +
 			"&code=a0x3DwU3vE9Ad1CbWdy1LQ.KaPahOgJJjODKWE47-DXzg" +
 			"&redirect_uri=dufryred%3A%2F%2Foauth.callback" +
 			"&code_verifier=VjdnvRw3_nTdhoWLcwYBjVt2wQnklP-gcXRmFXvQcM6OhMqDQOXWhXQvqHeCbgOlJHsu8xDVyRU0vRaMzuEKbQ" +
@@ -1645,7 +1645,7 @@ public class TokenRequestTest extends TestCase {
 
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URI("https://demo.c2id.com/token"));
 		httpRequest.setContentType("application/x-www-form-urlencoded");
-		httpRequest.setQuery(
+		httpRequest.setBody(
 			"client_id=123" +
 			"&grant_type=authorization_code" +
 			"&code=Neak8Aig4es4NooS" +
@@ -1676,7 +1676,7 @@ public class TokenRequestTest extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://authorization-server.example.com/as/token.oauth2"));
 		httpRequest.setAuthorization("Basic czZCaGRSa3F0Mzpoc3FFelFsVW9IQUU5cHg0RlNyNHlJ");
 		httpRequest.setContentType("application/x-www-form-urlencoded");
-		httpRequest.setQuery("grant_type=refresh_token&refresh_token=4LTC8lb0acc6Oy4esc1Nk9BWC0imAwH&resource=https%3A%2F%2Frs.example.com%2F");
+		httpRequest.setBody("grant_type=refresh_token&refresh_token=4LTC8lb0acc6Oy4esc1Nk9BWC0imAwH&resource=https%3A%2F%2Frs.example.com%2F");
 		
 		TokenRequest tokenRequest = TokenRequest.parse(httpRequest);
 		
@@ -1697,7 +1697,7 @@ public class TokenRequestTest extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://authorization-server.example.com/as/token.oauth2"));
 		httpRequest.setAuthorization("Basic czZCaGRSa3F0Mzpoc3FFelFsVW9IQUU5cHg0RlNyNHlJ");
 		httpRequest.setContentType("application/x-www-form-urlencoded");
-		httpRequest.setQuery("grant_type=refresh_token&refresh_token=4LTC8lb0acc6Oy4esc1Nk9BWC0imAwH&resource=/api/v1");
+		httpRequest.setBody("grant_type=refresh_token&refresh_token=4LTC8lb0acc6Oy4esc1Nk9BWC0imAwH&resource=/api/v1");
 		
 		try {
 			TokenRequest.parse(httpRequest);
@@ -1715,7 +1715,7 @@ public class TokenRequestTest extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://authorization-server.example.com/as/token.oauth2"));
 		httpRequest.setAuthorization("Basic czZCaGRSa3F0Mzpoc3FFelFsVW9IQUU5cHg0RlNyNHlJ");
 		httpRequest.setContentType("application/x-www-form-urlencoded");
-		httpRequest.setQuery("grant_type=refresh_token&refresh_token=4LTC8lb0acc6Oy4esc1Nk9BWC0imAwH&resource=https%3A%2F%2Frs.example.com%2F#fragment");
+		httpRequest.setBody("grant_type=refresh_token&refresh_token=4LTC8lb0acc6Oy4esc1Nk9BWC0imAwH&resource=https%3A%2F%2Frs.example.com%2F#fragment");
 		
 		try {
 			TokenRequest.parse(httpRequest);
@@ -1734,7 +1734,7 @@ public class TokenRequestTest extends TestCase {
 		URL endpoint = new URL("https://server.example.com/token");
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, endpoint);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("grant_type=urn%3Aopenid%3Aparams%3Agrant-type%3Aciba&" +
+		httpRequest.setBody("grant_type=urn%3Aopenid%3Aparams%3Agrant-type%3Aciba&" +
 			"auth_req_id=1c266114-a1be-4252-8ad1-04986c5b9ac1&" +
 			"client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&" +
 			"client_assertion=eyJraWQiOiJsdGFjZXNidyIsImFsZyI6IkVTMjU2In0.ey" +
@@ -1779,7 +1779,7 @@ public class TokenRequestTest extends TestCase {
 			Map<String, List<String>> paramsCopy = new HashMap<>(params);
 			String value = MultivaluedMapUtils.getFirstValue(params, paramName);
 			paramsCopy.put(paramName, Arrays.asList("injected", value));
-			httpRequest.setQuery(URLUtils.serializeParameters(paramsCopy));
+			httpRequest.setBody(URLUtils.serializeParameters(paramsCopy));
 			
 			try {
 				TokenRequest.parse(httpRequest);
@@ -1855,7 +1855,7 @@ public class TokenRequestTest extends TestCase {
 		URL endpoint = new URL("https://server.example.com/token");
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, endpoint);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange&"
+		httpRequest.setBody("grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange&"
 				+ "audience=urn%3Aexample%3Acooperation-context&"
 				+ "subject_token=eyJhbGciOiJFUzI1NiIsImtpZCI6IjE2In0.eyJhdWQiOiJodHRwczovL2FzLmV4YW1wbGUuY29tIiwiaXNzIjoiaHR0c"
 				+ "HM6Ly9vcmlnaW5hbC1pc3N1ZXIuZXhhbXBsZS5uZXQiLCJleHAiOjE0NDE5MTA2MDAsIm5iZiI6MTQ0MTkwOTAwMCwic3ViIjoiYmRjQGV4"
@@ -1889,7 +1889,7 @@ public class TokenRequestTest extends TestCase {
 		URL endpoint = new URL("https://server.example.com/token");
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, endpoint);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange&"
+		httpRequest.setBody("grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange&"
 				+ "audience=urn%3Aexample%3Acooperation-context1&audience=urn%3Aexample%3Acooperation-context2&"
 				+ "resource=https%3A%2F%2Fbackend.example.com%2Fapi&"
 				+ "subject_token=subjectToken&subject_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Aaccess_token");
@@ -1972,7 +1972,7 @@ public class TokenRequestTest extends TestCase {
 		URL endpoint = new URL("https://server.example.com/token");
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, endpoint);
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery(
+		httpRequest.setBody(
 			"grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange&" +
 			"subject_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Aaccess_token"
 		);

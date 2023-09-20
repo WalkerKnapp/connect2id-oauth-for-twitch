@@ -18,20 +18,20 @@
 package com.nimbusds.openid.connect.sdk.federation.api;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -194,7 +194,7 @@ public class FetchEntityStatementRequest extends FederationAPIRequest {
 		httpRequest.ensureMethod(HTTPRequest.Method.GET);
 		FetchEntityStatementRequest request = parse(httpRequest.getQueryParameters());
 		return new FetchEntityStatementRequest(
-			httpRequest.getURI(),
+			URIUtils.getBaseURI(httpRequest.getURI()),
 			request.getIssuer(),
 			request.getSubject());
 	}

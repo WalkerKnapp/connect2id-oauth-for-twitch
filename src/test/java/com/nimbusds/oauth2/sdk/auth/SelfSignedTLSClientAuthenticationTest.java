@@ -139,7 +139,7 @@ public class SelfSignedTLSClientAuthenticationTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("a=b");
+		httpRequest.setBody("a=b");
 		
 		try {
 			SelfSignedTLSClientAuthentication.parse(httpRequest);
@@ -155,7 +155,7 @@ public class SelfSignedTLSClientAuthenticationTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("client_id=");
+		httpRequest.setBody("client_id=");
 		
 		try {
 			SelfSignedTLSClientAuthentication.parse(httpRequest);
@@ -171,7 +171,7 @@ public class SelfSignedTLSClientAuthenticationTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("client_id=123");
+		httpRequest.setBody("client_id=123");
 		
 		try {
 			SelfSignedTLSClientAuthentication.parse(httpRequest);
@@ -189,7 +189,7 @@ public class SelfSignedTLSClientAuthenticationTest extends TestCase {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
-		httpRequest.setQuery("client_id=123");
+		httpRequest.setBody("client_id=123");
 		httpRequest.setClientX509Certificate(clientCert);
 		
 		SelfSignedTLSClientAuthentication clientAuth = SelfSignedTLSClientAuthentication.parse(httpRequest);

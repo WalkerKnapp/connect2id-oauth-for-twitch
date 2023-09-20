@@ -167,7 +167,7 @@ public class CIBATokenDeliveryTest extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, ENDPOINT);
 		httpRequest.setAuthorization(CLIENT_NOTIFICATION_TOKEN.toAuthorizationHeader());
 		httpRequest.setEntityContentType(ContentType.APPLICATION_JSON);
-		httpRequest.setQuery(new Tokens(ACCESS_TOKEN, null).toJSONObject().toJSONString());
+		httpRequest.setBody(new Tokens(ACCESS_TOKEN, null).toJSONObject().toJSONString());
 		
 		try {
 			CIBAErrorDelivery.parse(httpRequest);
