@@ -310,7 +310,7 @@ public final class URLUtils {
 	 */
 	public static Map<String,List<String>> parseParameters(final String query) {
 		
-		Map<String,List<String>> params = new HashMap<>();
+		Map<String,List<String>> params = new LinkedHashMap<>();
 		
 		if (StringUtils.isBlank(query)) {
 			return params; // empty map
