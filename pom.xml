@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -10,8 +12,8 @@
 
 	<name>OAuth 2.0 SDK with OpenID Connect extensions</name>
 	<description>
-		OAuth 2.0 SDK with OpenID Connection extensions for developing
-		client and server applications.
+		OAuth 2.0 SDK with OpenID Connection extensions for developing client
+		and server applications.
 	</description>
 
 	<url>https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions</url>
@@ -80,7 +82,7 @@
 		<dependency>
 			<groupId>com.nimbusds</groupId>
 			<artifactId>nimbus-jose-jwt</artifactId>
-			<version>9.30.2</version>
+			<version>9.35</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.crypto.tink</groupId>

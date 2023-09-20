@@ -2312,3 +2312,6 @@ version 11.0 (2023-09-20)
     * Switches LogoutRequest.toHTTPRequest() from HTTP GET to POST to prevent
       the optional id_token_hint parameter from getting exposed in access logs
       (iss #439).
+
+version 11.1 (2023-09-20)
+    * Updates Nimbus JOSE+JWT to 9.35
