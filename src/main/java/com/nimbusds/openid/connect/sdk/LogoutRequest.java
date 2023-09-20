@@ -18,6 +18,7 @@
 package com.nimbusds.openid.connect.sdk;
 
 
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.langtag.LangTag;
@@ -43,9 +44,23 @@ import java.util.*;
 
 
 /**
- * Logout request initiated by an OpenID relying party (RP).
+ * Logout request initiated by an OpenID relying party (RP). Supports HTTP GET
+ * and POST. HTTP POST is the recommended method to protect the optional ID
+ * token hint parameter from potentially getting recorded in access logs.
  *
- * <p>Example HTTP request:
+ * <p>Example HTTP POST request:
+ *
+ * <pre>
+ * POST /op/logout HTTP/1.1
+ * Host: server.example.com
+ * Content-Type: application/x-www-form-urlencoded
+ *
+ * id_token_hint=eyJhbGciOiJSUzI1NiJ9.eyJpc3Mi...
+ * &amp;post_logout_redirect_uri=https%3A%2F%2Fclient.example.org%2Fpost-logout
+ * &amp;state=af0ifjsldkj
+ * </pre>
+ *
+ * <p>Example URL for an HTTP GET request:
  *
  * <pre>
  * https://server.example.com/op/logout?
@@ -57,7 +72,7 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect RP-Initiated Logout 1.0 (draft 2), section 2.
+ *     <li>OpenID Connect RP-Initiated Logout 1.0, section 2.
  * </ul>
  */
 @Immutable
@@ -233,7 +248,6 @@ public class LogoutRequest extends AbstractRequest {
 	 *         specified.
 	 */
 	public URI getPostLogoutRedirectionURI() {
-
 		return postLogoutRedirectURI;
 	}
 
@@ -262,7 +276,7 @@ public class LogoutRequest extends AbstractRequest {
 	
 	
 	/**
-	 * Returns the URI query parameters for this logout request.
+	 * Returns the parameters for this logout request.
 	 *
 	 * <p>Example parameters:
 	 *
@@ -313,7 +327,7 @@ public class LogoutRequest extends AbstractRequest {
 	/**
 	 * Returns the URI query string for this logout request.
 	 *
-	 * <p>Note that the '?' character preceding the query string in an URI
+	 * <p>Note that the '?' character preceding the query string in a URI
 	 * is not included in the returned string.
 	 *
 	 * <p>Example URI query string:
@@ -327,7 +341,6 @@ public class LogoutRequest extends AbstractRequest {
 	 * @return The URI query string.
 	 */
 	public String toQueryString() {
-
 		return URLUtils.serializeParameters(toParameters());
 	}
 
@@ -384,14 +397,15 @@ public class LogoutRequest extends AbstractRequest {
 		}
 
 		HTTPRequest httpRequest;
-		httpRequest = new HTTPRequest(HTTPRequest.Method.GET, baseURL);
-		httpRequest.appendQueryParameters(mergedQueryParams);
+		httpRequest = new HTTPRequest(HTTPRequest.Method.POST, baseURL);
+		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+		httpRequest.setBody(URLUtils.serializeParameters(mergedQueryParams));
 		return httpRequest;
 	}
 
 
 	/**
-	 * Parses a logout request from the specified URI query parameters.
+	 * Parses a logout request from the specified parameters.
 	 *
 	 * <p>Example parameters:
 	 *
@@ -575,14 +589,17 @@ public class LogoutRequest extends AbstractRequest {
 
 
 	/**
-	 * Parses a logout request from the specified HTTP request.
+	 * Parses a logout request from the specified HTTP GET or POST request.
 	 *
-	 * <p>Example HTTP request (GET):
+	 * <p>Example HTTP POST request:
 	 *
 	 * <pre>
-	 * https://server.example.com/logout?
-	 * id_token_hint = eyJhbGciOiJSUzI1NiJ9.eyJpc3Mi...
-	 * &amp;post_logout_redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fpost-logout
+	 * POST /op/logout HTTP/1.1
+	 * Host: server.example.com
+	 * Content-Type: application/x-www-form-urlencoded
+	 *
+	 * id_token_hint=eyJhbGciOiJSUzI1NiJ9.eyJpc3Mi...
+	 * &amp;post_logout_redirect_uri=https%3A%2F%2Fclient.example.org%2Fpost-logout
 	 * &amp;state=af0ifjsldkj
 	 * </pre>
 	 *
@@ -596,11 +613,15 @@ public class LogoutRequest extends AbstractRequest {
 	public static LogoutRequest parse(final HTTPRequest httpRequest)
 		throws ParseException {
 
-		String query = httpRequest.getQuery();
+		if (HTTPRequest.Method.POST.equals(httpRequest.getMethod())) {
+			httpRequest.ensureEntityContentType(ContentType.APPLICATION_URLENCODED);
+			return LogoutRequest.parse(httpRequest.getURI(), httpRequest.getBodyAsFormParameters());
+		}
 
-		if (query == null)
-			throw new ParseException("Missing URI query string");
+		if (HTTPRequest.Method.GET.equals(httpRequest.getMethod())) {
+			return LogoutRequest.parse(httpRequest.getURI());
+		}
 
-		return parse(URIUtils.getBaseURI(httpRequest.getURI()), query);
+		throw new ParseException("The HTTP request method must be POST or GET");
 	}
 }

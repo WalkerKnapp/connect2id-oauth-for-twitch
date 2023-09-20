@@ -22,17 +22,11 @@ import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.util.ContentTypeUtils;
-import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
-import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
-import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+import com.nimbusds.oauth2.sdk.util.*;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 
 /**
@@ -236,6 +230,29 @@ abstract class HTTPMessage {
 
 		if (getBody() == null || getBody().isEmpty())
 			throw new ParseException("Missing or empty HTTP message body");
+	}
+
+
+	/**
+	 * Gets the response body as a form parameters map.
+	 *
+	 * @return The form parameters as a map.
+	 *
+	 * @throws ParseException If the Content-Type header isn't
+	 *                        {@code application/x-www-form-urlencoded} or
+	 *                        the response couldn't be parsed to a valid
+	 *                        form.
+	 */
+	public Map<String,List<String>> getBodyAsFormParameters()
+		throws ParseException {
+
+		ensureEntityContentType(ContentType.APPLICATION_URLENCODED);
+
+		if (StringUtils.isBlank(getBody())) {
+			return Collections.emptyMap();
+		}
+
+		return URLUtils.parseParameters(getBody());
 	}
 
 

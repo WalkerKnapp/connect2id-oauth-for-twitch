@@ -2293,8 +2293,8 @@ version 11.0 (2023-09-20)
     * Adds HTTPRequest.appendQueryString(String) and
       appendQueryParameters(Map<String, List<String>) methods.
     * Adds HTTPMessage.getBody() and setBody(String) methods.
-    * Adds HTTPMessage.getBodyAsJSONObject(), getBodyAsJSONArray() and
-      getBodyAsJWT() helper methods.
+    * Adds HTTPMessage.getBodyAsFormParameters(), getBodyAsJSONObject(),
+      getBodyAsJSONArray() and getBodyAsJWT() helper methods.
     * Deprecates HTTPRequest.getQuery() and setQuery(String). Use
       HTTPRequest.getURL().getQuery() and appendQueryString(String) instead.
     * Deprecates HTTPResponse.getContent(), getContentAsJSONObject.(),
@@ -2305,3 +2305,6 @@ version 11.0 (2023-09-20)
     * The TokenIntrospectionRequest.parse must use only the form parameters
       found in the request body, URL query string parameters must be ignored
       (iss #432).
+    * Switches LogoutRequest.toHTTPRequest() from HTTP GET to POST to prevent
+      the optional id_token_hint parameter from getting exposed in access logs
+      (iss #439).

@@ -29,6 +29,9 @@ import net.minidev.json.JSONObject;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 
 public class HTTPResponseTest extends TestCase {
@@ -221,6 +224,79 @@ public class HTTPResponseTest extends TestCase {
 
 		JWT jwt = response.getContentAsJWT();
 		assertEquals(JWSAlgorithm.HS256, jwt.getHeader().getAlgorithm());
+	}
+
+
+	public void testGetBodyAsFormParameters()
+		throws Exception {
+
+		HTTPResponse response = new HTTPResponse(200);
+		response.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+		response.setBody("apples=10&pears=20");
+
+		Map<String, List<String>> params = response.getBodyAsFormParameters();
+		assertEquals(Collections.singletonList("10"), params.get("apples"));
+		assertEquals(Collections.singletonList("20"), params.get("pears"));
+		assertEquals(2, params.size());
+	}
+
+
+	public void testGetBodyAsFormParameters_noBody()
+		throws Exception {
+
+		HTTPResponse response = new HTTPResponse(200);
+		response.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+
+		assertTrue(response.getBodyAsFormParameters().isEmpty());
+	}
+
+
+	public void testGetBodyAsFormParameters_emptyBody()
+		throws Exception {
+
+		HTTPResponse response = new HTTPResponse(200);
+		response.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+		response.setBody("");
+
+		assertTrue(response.getBodyAsFormParameters().isEmpty());
+	}
+
+
+	public void testGetBodyAsFormParameters_blankBody()
+		throws Exception {
+
+		HTTPResponse response = new HTTPResponse(200);
+		response.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+		response.setBody(" ");
+
+		assertTrue(response.getBodyAsFormParameters().isEmpty());
+	}
+
+
+	public void testGetBodyAsFormParameters_missingContentType() {
+
+		HTTPResponse response = new HTTPResponse(200);
+
+		try {
+			response.getBodyAsFormParameters();
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Missing HTTP Content-Type header", e.getMessage());
+		}
+	}
+
+
+	public void testGetBodyAsFormParameters_illegalContentType() {
+
+		HTTPResponse response = new HTTPResponse(200);
+		response.setEntityContentType(ContentType.APPLICATION_JWT);
+
+		try {
+			response.getBodyAsFormParameters();
+			fail();
+		} catch (ParseException e) {
+			assertEquals("The HTTP Content-Type header must be application/x-www-form-urlencoded, received application/jwt", e.getMessage());
+		}
 	}
 
 

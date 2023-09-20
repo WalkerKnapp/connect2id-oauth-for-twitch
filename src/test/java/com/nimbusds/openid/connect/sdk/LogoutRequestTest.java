@@ -18,6 +18,7 @@
 package com.nimbusds.openid.connect.sdk;
 
 
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -37,7 +38,9 @@ import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import junit.framework.TestCase;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -106,7 +109,8 @@ public class LogoutRequestTest extends TestCase {
 		assertEquals(endpoint + "?id_token_hint=" + idToken.serialize(), request.toURI().toString());
 
 		HTTPRequest httpRequest = request.toHTTPRequest();
-		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
+		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
+		assertEquals(ContentType.APPLICATION_URLENCODED, httpRequest.getEntityContentType());
 
 		request = LogoutRequest.parse(httpRequest);
 
@@ -272,6 +276,99 @@ public class LogoutRequestTest extends TestCase {
 			assertEquals("Invalid ui_locales parameter: Either the primary language or the extended language subtags, or both must be defined", e.getMessage());
 		}
 	}
+
+
+	public void testParse_httpGET()
+		throws MalformedURLException, ParseException {
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, new URL("http://localhost/logout"));
+
+		JWT idTokenHint = createIDTokenHint();
+
+		Map<String, List<String>> params = new LinkedHashMap<>();
+		params.put("id_token_hint", Collections.singletonList(idTokenHint.serialize()));
+		httpRequest.appendQueryParameters(params);
+
+		LogoutRequest logoutRequest = LogoutRequest.parse(httpRequest);
+		assertEquals(idTokenHint.serialize(), logoutRequest.getIDTokenHint().serialize());
+		assertEquals(1, logoutRequest.toParameters().size());
+	}
+
+
+	public void testParse_httpGET_noParams()
+		throws MalformedURLException, ParseException {
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, new URL("http://localhost/logout"));
+
+		LogoutRequest logoutRequest = LogoutRequest.parse(httpRequest);
+		assertTrue(logoutRequest.toParameters().isEmpty());
+	}
+
+
+	public void testParse_httpPOST_noParams()
+		throws MalformedURLException, ParseException {
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("http://localhost/logout"));
+		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+
+		LogoutRequest logoutRequest = LogoutRequest.parse(httpRequest);
+		assertTrue(logoutRequest.toParameters().isEmpty());
+	}
+
+
+	public void testParse_httpPOST_blankBody()
+		throws MalformedURLException, ParseException {
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("http://localhost/logout"));
+		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+		httpRequest.setBody(" ");
+
+		LogoutRequest logoutRequest = LogoutRequest.parse(httpRequest);
+		assertTrue(logoutRequest.toParameters().isEmpty());
+	}
+
+
+	public void testParse_httpPOST_missingContentTypeHeader()
+		throws MalformedURLException, ParseException {
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("http://localhost/logout"));
+
+		try {
+			LogoutRequest.parse(httpRequest);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Missing HTTP Content-Type header", e.getMessage());
+		}
+	}
+
+
+	public void testParse_httpPOST_illegalContentTypeHeader()
+		throws MalformedURLException, ParseException {
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("http://localhost/logout"));
+		httpRequest.setEntityContentType(ContentType.APPLICATION_JSON);
+
+		try {
+			LogoutRequest.parse(httpRequest);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("The HTTP Content-Type header must be application/x-www-form-urlencoded, received application/json", e.getMessage());
+		}
+	}
+
+
+	public void testParse_unsupportedHTTPMethod()
+		throws MalformedURLException {
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.PUT, new URL("http://localhost/logout"));
+
+		try {
+			LogoutRequest.parse(httpRequest);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("The HTTP request method must be POST or GET", e.getMessage());
+		}
+	}
 	
 	
 	public void testNullParseNullQueryString()
@@ -299,9 +396,9 @@ public class LogoutRequestTest extends TestCase {
 		
 		assertTrue(logoutRequest.toParameters().isEmpty());
 		
-		HTTPRequest httpRequest = logoutRequest.toHTTPRequest();
-		assertEquals(URIUtils.getBaseURI(endpoint), URIUtils.getBaseURI(httpRequest.getURI()));
-		Map<String,List<String>> queryParams = httpRequest.getQueryStringParameters();
+		URI finalURI = logoutRequest.toURI();
+		assertEquals(URIUtils.getBaseURI(endpoint), URIUtils.getBaseURI(finalURI));
+		Map<String,List<String>> queryParams = URLUtils.parseParameters(finalURI.getRawQuery());
 		
 		assertEquals(Collections.singletonList("my-id"), queryParams.get("client_id"));
 		assertEquals(Collections.singletonList("com.myclientapp://myclient/logout"), queryParams.get("logout_uri"));
@@ -321,10 +418,10 @@ public class LogoutRequestTest extends TestCase {
 		LogoutRequest logoutRequest = new LogoutRequest(endpoint, idToken, postLogoutRedirectURI, state);
 		
 		assertEquals(3, logoutRequest.toParameters().size());
-		
-		HTTPRequest httpRequest = logoutRequest.toHTTPRequest();
-		assertEquals(URIUtils.getBaseURI(endpoint), URIUtils.getBaseURI(httpRequest.getURI()));
-		Map<String,List<String>> queryParams = httpRequest.getQueryStringParameters();
+
+		URI finalURI = logoutRequest.toURI();
+		assertEquals(URIUtils.getBaseURI(endpoint), URIUtils.getBaseURI(finalURI));
+		Map<String,List<String>> queryParams = URLUtils.parseParameters(finalURI.getRawQuery());
 		
 		assertEquals(Collections.singletonList("my-id"), queryParams.get("client_id"));
 		assertEquals(Collections.singletonList("com.myclientapp://myclient/logout"), queryParams.get("logout_uri"));
