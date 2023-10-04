@@ -263,14 +263,18 @@ public abstract class AccessToken extends Token {
 	/**
 	 * Creates a new access token with the specified value.
 	 *
-	 * @param type            The access token type. Must not be
-	 *                        {@code null}.
-	 * @param value           The access token value. Must not be
-	 *                        {@code null} or empty string.
-	 * @param lifetime        The lifetime in seconds, 0 if not specified.
-	 * @param scope           The scope, {@code null} if not specified.
-	 * @param issuedTokenType The token type URI, {@code null} if not
-	 *                        specified.
+	 * @param type                 The access token type. Must not be
+	 *                             {@code null}.
+	 * @param value                The access token value. Must not be
+	 *                             {@code null} or empty string.
+	 * @param lifetime             The lifetime in seconds, 0 if not
+	 *                             specified.
+	 * @param scope                The scope, {@code null} if not
+	 *                             specified.
+	 * @param authorizationDetails The authorisation details, {@code null}
+	 *                             if not specified.
+	 * @param issuedTokenType      The token type URI, {@code null} if not
+	 *                             specified.
 	 */
 	public AccessToken(final AccessTokenType type,
 			   final String value,

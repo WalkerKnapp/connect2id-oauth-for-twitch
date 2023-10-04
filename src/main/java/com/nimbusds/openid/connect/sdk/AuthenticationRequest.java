@@ -1714,7 +1714,8 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 *                             {@code null} if not specified.
 	 * @param codeChallengeMethod  The code challenge method for PKCE,
 	 *                             {@code null} if not specified.
-	 * @param authorizationDetails
+	 * @param authorizationDetails The authorisation details,
+	 *                             {@code null} if not specified.
 	 * @param resources            The resource URI(s), {@code null} if not
 	 *                             specified.
 	 * @param includeGrantedScopes {@code true} to request incremental

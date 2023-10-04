@@ -84,6 +84,8 @@ public abstract class AbstractConfirmation {
 	 *   "cnf" : { "x5t#S256" : "bwcK0esc3ACC3DB2Y5_lESsXE8o9ltc05O89jdN-dg2" }
 	 * }
 	 * </pre>
+	 *
+	 * @param jsonObject The JSON object. Must not be {@code null}.
 	 */
 	public void mergeInto(final JSONObject jsonObject) {
 		

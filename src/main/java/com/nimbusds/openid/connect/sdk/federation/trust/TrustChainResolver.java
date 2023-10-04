@@ -122,6 +122,8 @@ public class TrustChainResolver {
 	 *
 	 * @param trustAnchors       The trust anchors with their public JWK
 	 *                           sets. Must contain at least one anchor.
+	 * @param constraints        The constraints to apply during retrieval.
+	 *                           Must not be {@code null}.
 	 * @param statementRetriever The entity statement retriever to use.
 	 *                           Must not be {@code null}.
 	 */

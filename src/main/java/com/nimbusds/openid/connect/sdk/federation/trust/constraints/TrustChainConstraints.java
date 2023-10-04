@@ -113,13 +113,15 @@ public final class TrustChainConstraints implements JSONAware {
 	/**
 	 * Creates a new trust chain constraints instance.
 	 *
-	 * @param maxPathLength      The maximum number of entities between
-	 *                           this and the leaf entity in the chain, -1
-	 *                           if not specified.
-	 * @param permittedEntityIDs The permitted entity IDs, {@code null} if
-	 *                           not specified.
-	 * @param excludedEntityIDs  The excluded entities, {@code null} if not
-	 *                           specified.
+	 * @param maxPathLength            The maximum number of entities
+	 *                                 between this and the leaf entity in
+	 *                                 the chain, -1 if not specified.
+	 * @param permittedEntityIDs       The permitted entity IDs,
+	 *                                 {@code null} if not specified.
+	 * @param excludedEntityIDs        The excluded entities, {@code null}
+	 *                                 if not specified.
+	 * @param leafEntityTypeConstraint The leaf entity type constraint,
+	 *                                 {@code null} if not specified.
 	 */
 	public TrustChainConstraints(final int maxPathLength,
 				     final List<EntityIDConstraint> permittedEntityIDs,

@@ -103,8 +103,11 @@ public class OIDCProviderEndpointMetadata extends AuthorizationServerEndpointMet
 	
 	
 	/**
-	 * Converts an authorization server endpoint metadata to an OpenID
+	 * Converts an authorisation server endpoint metadata to an OpenID
 	 * Connect provider endpoint metadata instance.
+	 *
+	 * @param endpointMetadata The authorisation server endpoint metadata.
+	 *                         Must not be {@code null}.
 	 */
 	public OIDCProviderEndpointMetadata(final AuthorizationServerEndpointMetadata endpointMetadata) {
 

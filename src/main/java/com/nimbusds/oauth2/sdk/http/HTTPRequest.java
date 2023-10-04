@@ -395,7 +395,7 @@ public class HTTPRequest extends HTTPMessage implements ReadOnlyHTTPRequest {
 	 * {@link #getURL() URL} query.
 	 *
 	 * <p>If the current URL has a query string the new query is appended
-	 * with `&` in front.
+	 * with `&amp;` in front.
 	 *
 	 * @param queryParams The query parameters to append, empty or
 	 *                    {@code null} if nothing to append.
@@ -418,7 +418,7 @@ public class HTTPRequest extends HTTPMessage implements ReadOnlyHTTPRequest {
 	 * request {@link #getURL() URL} query.
 	 *
 	 * <p>If the current URL has a query string the new query is appended
-	 * with `&` in front.
+	 * with `&amp;` in front.
 	 *
 	 * <p>The '?' character preceding the query string must not be
 	 * included.

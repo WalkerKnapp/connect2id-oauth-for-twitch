@@ -97,6 +97,11 @@ public final class UserCode extends Identifier {
 	/**
 	 * Creates a new user code with a randomly generated value from the
 	 * specified charset and length. A dash is added every 4 characters.
+	 *
+	 * @param charset The character set used by the identifier. The
+	 *                identifier will contain characters from this set.
+	 *                Must not be {@code null} or empty string.
+	 * @param length  The length of the value to generate.
 	 */
 	public UserCode(final String charset, final int length) {
 
@@ -109,7 +114,7 @@ public final class UserCode extends Identifier {
 	 * specified charset and length. A dash is added every 4 characters.
 	 * 
 	 * @param charset The character set used by the identifier. The
-	 *                identifier can only contain characters from this set.
+	 *                identifier will contain characters from this set.
 	 *                Must not be {@code null} or empty string.
 	 * @param length  The length of the value to generate.
 	 */

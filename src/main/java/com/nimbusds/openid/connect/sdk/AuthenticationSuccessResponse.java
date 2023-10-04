@@ -136,6 +136,7 @@ public class AuthenticationSuccessResponse
 	 * @param state        The state, {@code null} if not requested.
 	 * @param sessionState The session state, {@code null} if session
 	 *                     management is not supported.
+	 * @param issuer       The issuer, {@code null} if not specified.
 	 * @param rm           The response mode, {@code null} if not
 	 *                     specified.
 	 */
