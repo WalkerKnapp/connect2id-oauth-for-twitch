@@ -2313,6 +2313,8 @@ version 11.0 (2023-09-20)
       the optional id_token_hint parameter from getting exposed in access logs
       (iss #439).
 
-version 11.1 (2023-09-28)
-    * Updates AuthorizationResponse.parseResponseParameters(HTTPRequest) to use new HTTPRequest methods.
+version 11.1 (2023-10-05)
+    * Updates AuthorizationResponse.parseResponseParameters(HTTPRequest) to use
+      the new HTTPRequest methods.
+    * Removes System.out.println in AuthenticationRequest.parse method.
     * Updates Nimbus JOSE+JWT to 9.35
