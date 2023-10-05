@@ -370,6 +370,21 @@ public class OIDCClientMetadataTest extends TestCase {
 	}
 
 
+	public void testNativeAppWithLocalhostLoopBackRedirectionURI()
+		throws Exception {
+
+		OIDCClientMetadata meta = new OIDCClientMetadata();
+		meta.setApplicationType(ApplicationType.NATIVE);
+		URI redirectURI = URI.create("http://127.0.0.1:8080");
+		meta.setRedirectionURI(redirectURI);
+		meta.applyDefaults();
+
+		JSONObject jsonObject = meta.toJSONObject(true);
+
+		assertEquals(meta.toJSONObject(true), OIDCClientMetadata.parse(jsonObject).toJSONObject(true));
+	}
+
+
 	public void testCustomFields()
 		throws Exception {
 
