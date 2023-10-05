@@ -236,7 +236,7 @@ public abstract class AuthorizationResponse implements Response {
 	 * <p>Example URI:
 	 *
 	 * <pre>
-	 * http://example.com/cb#access_token=2YotnFZFEjr1zCsicMWpAA
+	 * https://example.com/cb#access_token=2YotnFZFEjr1zCsicMWpAA
 	 * &amp;state=xyz
 	 * &amp;token_type=example
 	 * &amp;expires_in=3600
@@ -681,15 +681,17 @@ public abstract class AuthorizationResponse implements Response {
 	 */
 	public static Map<String,List<String>> parseResponseParameters(final HTTPRequest httpRequest)
 		throws ParseException {
-		
-		if (httpRequest.getQueryStringParameters() != null) {
-			// For query string and form_post response mode
+
+		Map<String, List<String>> queryStringParams = httpRequest.getQueryStringParameters();
+
+		if (! queryStringParams.isEmpty()) {
+			// response_mode=query
 			return httpRequest.getQueryStringParameters();
 		} else if (StringUtils.isNotBlank(httpRequest.getBody()) && httpRequest.getBodyAsFormParameters() != null) {
-			// For form_post response mode
+			// response_mode=form_post;
 			return httpRequest.getBodyAsFormParameters();
 		} else if (httpRequest.getURL().getRef() != null) {
-			// For fragment response mode (never available in actual HTTP request from browser)
+			// response_mode=fragment (never available in actual HTTP request from browser)
 			return URLUtils.parseParameters(httpRequest.getURL().getRef());
 		} else {
 			throw new ParseException("Missing URI fragment, query string or post body");
