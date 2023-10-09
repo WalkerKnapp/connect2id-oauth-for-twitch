@@ -19,8 +19,10 @@ package com.nimbusds.oauth2.sdk.http;
 
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 import net.jcip.annotations.ThreadSafe;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -104,11 +106,13 @@ public class HTTPClientTest {
                                 httpResponse.setHeader(header.getName(), header.getValue());
                         }
 
-                        if (response.getEntity() != null && response.getEntity().getContentLength() > 0) {
-                               String body = EntityUtils.toString(response.getEntity());
-                               httpResponse.setBody(body);
+                        HttpEntity httpEntity = response.getEntity();
+                        if (httpEntity != null) {
+                                String body = EntityUtils.toString(httpEntity);
+                                if (StringUtils.isNotBlank(body)) {
+                                        httpResponse.setBody(body);
+                                }
                         }
-
                         return httpResponse;
                 }
         }
