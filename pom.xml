@@ -159,7 +159,7 @@
 			<!-- Transitive dep of OpenSAML, bump to more secure -->
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
-			<version>1.13</version>
+			<version>1.15</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
