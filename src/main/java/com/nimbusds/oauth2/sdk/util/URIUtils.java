@@ -359,6 +359,27 @@ public final class URIUtils {
 
 
 	/**
+	 * Returns {@code true} if the specified URI is for a localhost,
+	 * {@code 127.0.0.1} IPv4 or {@code ::1} / {@code 0:0:0:0:0:0:0:1}
+	 * address.
+	 *
+	 * @param uri The URI. Must not be {@code null}.
+	 *
+	 * @return {@code true} if the URI is for a localhost, else
+	 *         {@code false}.
+	 */
+	public static boolean isLocalHost(final URI uri) {
+
+		String host = uri.getHost();
+
+		return "localhost".equals(host)
+			|| "127.0.0.1".equals(host)
+			|| "[::1]".equals(host)
+			|| "[0:0:0:0:0:0:0:1]".equals(host);
+	}
+
+
+	/**
 	 * Prevents public instantiation.
 	 */
 	private URIUtils() {}

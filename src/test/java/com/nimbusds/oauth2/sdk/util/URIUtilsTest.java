@@ -370,4 +370,32 @@ public class URIUtilsTest extends TestCase {
 			)
 		);
 	}
+
+
+	public void testIsLocalhost() {
+
+		assertFalse(URIUtils.isLocalHost(URI.create("https:///path")));
+		assertFalse(URIUtils.isLocalHost(URI.create("https://c2id.com/path")));
+		assertFalse(URIUtils.isLocalHost(URI.create("https://192.168.0.1/path")));
+
+		assertTrue(URIUtils.isLocalHost(URI.create("http://localhost")));
+		assertTrue(URIUtils.isLocalHost(URI.create("http://localhost:0")));
+		assertTrue(URIUtils.isLocalHost(URI.create("http://localhost:8888")));
+		assertTrue(URIUtils.isLocalHost(URI.create("http://localhost/path")));
+
+		assertTrue(URIUtils.isLocalHost(URI.create("http://127.0.0.1")));
+		assertTrue(URIUtils.isLocalHost(URI.create("http://127.0.0.1:0")));
+		assertTrue(URIUtils.isLocalHost(URI.create("http://127.0.0.1:8888")));
+		assertTrue(URIUtils.isLocalHost(URI.create("http://127.0.0.1/path")));
+
+		assertTrue(URIUtils.isLocalHost(URI.create("http://[::1]")));
+		assertTrue(URIUtils.isLocalHost(URI.create("http://[::1]:0")));
+		assertTrue(URIUtils.isLocalHost(URI.create("http://[::1]:8888")));
+		assertTrue(URIUtils.isLocalHost(URI.create("http://[::1]/path")));
+
+		assertTrue(URIUtils.isLocalHost(URI.create("http://[0:0:0:0:0:0:0:1]")));
+		assertTrue(URIUtils.isLocalHost(URI.create("http://[0:0:0:0:0:0:0:1]:0")));
+		assertTrue(URIUtils.isLocalHost(URI.create("http://[0:0:0:0:0:0:0:1]:8888")));
+		assertTrue(URIUtils.isLocalHost(URI.create("http://[0:0:0:0:0:0:0:1]/path")));
+	}
 }

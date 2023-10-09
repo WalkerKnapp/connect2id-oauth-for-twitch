@@ -2318,3 +2318,6 @@ version 11.1 (2023-10-05)
       the new HTTPRequest methods.
     * Removes System.out.println in AuthenticationRequest.parse method.
     * Updates Nimbus JOSE+JWT to 9.35
+
+version 11.2 (2023-10-09)
+    * Adds static URIUtils.isLocalHost method.
