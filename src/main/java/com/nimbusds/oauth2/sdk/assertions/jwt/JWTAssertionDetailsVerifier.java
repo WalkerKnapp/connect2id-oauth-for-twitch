@@ -20,6 +20,7 @@ package com.nimbusds.oauth2.sdk.assertions.jwt;
 
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.oauth2.sdk.id.Audience;
+import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import net.jcip.annotations.Immutable;
 
@@ -69,7 +70,7 @@ public class JWTAssertionDetailsVerifier extends DefaultJWTClaimsVerifier {
 	public JWTAssertionDetailsVerifier(final Set<Audience> expectedAudience) {
 
 		super(
-                        new HashSet<>(Audience.toStringList(expectedAudience)),
+                        new HashSet<>(Identifier.toStringList(expectedAudience)),
 			null,
                         new HashSet<>(Arrays.asList("aud", "exp", "sub", "iss")),
 			null);
