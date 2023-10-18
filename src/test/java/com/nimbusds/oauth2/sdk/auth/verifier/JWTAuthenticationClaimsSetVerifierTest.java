@@ -19,6 +19,7 @@ package com.nimbusds.oauth2.sdk.auth.verifier;
 
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -124,7 +125,7 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
 			.expirationTime(before5min)
-			.audience("https://c2id.com")
+			.audience(Arrays.asList("https://c2id.com", "https://c2id.com/token"))
 			.issuer("123")
 			.subject("123")
 			.build();
@@ -136,12 +137,12 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 	public void testMissingExpiration() {
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-			.audience("https://c2id.com")
+			.audience(Arrays.asList("https://c2id.com", "https://c2id.com/token"))
 			.issuer("123")
 			.subject("123")
 			.build();
 
-		ensureRejected(claimsSet, "Missing JWT expiration claim");
+		ensureRejected(claimsSet, "JWT missing required claims: [exp]");
 	}
 
 
@@ -156,7 +157,7 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 			.subject("123")
 			.build();
 
-		ensureRejected(claimsSet, "Missing JWT audience claim");
+		ensureRejected(claimsSet, "JWT missing required audience");
 	}
 
 
@@ -176,14 +177,14 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 			createForAS().verify(claimsSet, null);
 			fail();
 		} catch (BadJWTException e) {
-			assertEquals("Invalid JWT audience claim, expected [https://c2id.com/token]", e.getMessage());
+			assertEquals("JWT audience rejected: [c2id.com]", e.getMessage());
 		}
 
 		try {
 			createForOP().verify(claimsSet, null);
 			fail();
 		} catch (BadJWTException e) {
-			assertEquals("Invalid JWT audience claim, expected [https://c2id.com/token, https://c2id.com]", e.getMessage());
+			assertEquals("JWT audience rejected: [c2id.com]", e.getMessage());
 		}
 	}
 
@@ -195,11 +196,11 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
 			.expirationTime(in5min)
-			.audience("https://c2id.com/token")
+			.audience(Arrays.asList("https://c2id.com", "https://c2id.com/token"))
 			.subject("123")
 			.build();
 
-		ensureRejected(claimsSet, "Missing JWT issuer claim");
+		ensureRejected(claimsSet, "JWT missing required claims: [iss]");
 	}
 
 
@@ -210,11 +211,11 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
 			.expirationTime(in5min)
-			.audience("https://c2id.com/token")
+			.audience(Arrays.asList("https://c2id.com", "https://c2id.com/token"))
 			.issuer("123")
 			.build();
 
-		ensureRejected(claimsSet, "Missing JWT subject claim");
+		ensureRejected(claimsSet, "JWT missing required claims: [sub]");
 	}
 
 
@@ -225,7 +226,7 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
 			.expirationTime(in5min)
-			.audience("https://c2id.com/token")
+			.audience(Arrays.asList("https://c2id.com", "https://c2id.com/token"))
 			.issuer("123")
 			.subject("456")
 			.build();

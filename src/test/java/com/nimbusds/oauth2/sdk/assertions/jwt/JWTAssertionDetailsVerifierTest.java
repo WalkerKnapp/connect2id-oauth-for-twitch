@@ -106,6 +106,43 @@ public class JWTAssertionDetailsVerifierTest extends TestCase {
 	}
 
 
+	public void testSuccess_oneGoodAudienceIsSufficient()
+		throws Exception {
+
+		Issuer issuer = new Issuer("https://c2id.com");
+		URI tokenEndpoint = URI.create("https://c2id.com/token");
+
+		JWTAssertionDetailsVerifier verifier = new JWTAssertionDetailsVerifier(
+			new HashSet<>(Arrays.asList(
+				new Audience(issuer),
+				new Audience(tokenEndpoint)
+			))
+		);
+
+		assertTrue(verifier.getExpectedAudience().contains(new Audience(issuer)));
+		assertTrue(verifier.getExpectedAudience().contains(new Audience(tokenEndpoint)));
+		assertEquals(2, verifier.getExpectedAudience().size());
+
+		verifier.verify(
+			new JWTClaimsSet.Builder()
+				.issuer("123")
+				.subject("alice")
+				.audience(Arrays.asList(issuer.getValue(), "https://op.c2id.com"))
+				.expirationTime(new Date(new Date().getTime() + 60 * 1000L))
+				.build(),
+			null);
+
+		verifier.verify(
+			new JWTClaimsSet.Builder()
+				.issuer("123")
+				.subject("alice")
+				.audience(Arrays.asList(issuer.getValue(), tokenEndpoint.toString(), "https://op.c2id.com"))
+				.expirationTime(new Date(new Date().getTime() + 60 * 1000L))
+				.build(),
+			null);
+	}
+
+
 	public void testConstructor_twoAudiences() {
 
 		Issuer issuer = new Issuer("https://c2id.com");

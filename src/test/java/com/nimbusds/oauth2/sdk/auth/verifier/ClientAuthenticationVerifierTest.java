@@ -407,7 +407,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 		try {
 			createBasicVerifier().verify(clientAuthentication, null, null);
 		} catch (InvalidClientException e) {
-			assertEquals("Bad / expired JWT claims: Invalid JWT audience claim, expected [https://c2id.com/token, https://c2id.com]", e.getMessage());
+			assertEquals("Bad / expired JWT claims: JWT audience rejected: [https://other.com/token]", e.getMessage());
 		}
 	}
 
@@ -416,7 +416,8 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 		throws JOSEException {
 
 		ClientAuthentication clientAuthentication = new PrivateKeyJWT(
-			VALID_CLIENT_ID, URI.create("https://other.com/token"),
+			VALID_CLIENT_ID,
+			URI.create("https://other.com/token"),
 			JWSAlgorithm.RS256,
 			INVALID_RSA_KEY_PAIR.toRSAPrivateKey(),
 			null,
@@ -425,7 +426,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 		try {
 			createBasicVerifier().verify(clientAuthentication, null, null);
 		} catch (InvalidClientException e) {
-			assertEquals("Bad / expired JWT claims: Invalid JWT audience claim, expected [https://c2id.com/token, https://c2id.com]", e.getMessage());
+			assertEquals("Bad / expired JWT claims: JWT audience rejected: [https://other.com/token]", e.getMessage());
 		}
 	}
 
