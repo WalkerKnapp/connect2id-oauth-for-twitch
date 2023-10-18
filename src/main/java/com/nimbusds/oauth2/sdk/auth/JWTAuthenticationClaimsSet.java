@@ -41,9 +41,9 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  *
  * <pre>
  * {
- *   "iss" : "http://client.example.com",
- *   "sub" : "http://client.example.com",
- *   "aud" : [ "http://idp.example.com/token" ],
+ *   "iss" : "https://client.example.com",
+ *   "sub" : "https://client.example.com",
+ *   "aud" : [ "https://idp.example.com/token" ],
  *   "jti" : "d396036d-c4d9-40d8-8e98-f7e8327002d9",
  *   "exp" : 1311281970,
  *   "iat" : 1311280970
@@ -54,9 +54,9 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  *
  * <pre>
  * {
- *   "iss" : "http://sts.example.com",
- *   "sub" : "http://client.example.com",
- *   "aud" : [ "http://idp.example.com/token" ],
+ *   "iss" : "https://sts.example.com",
+ *   "sub" : "https://client.example.com",
+ *   "aud" : [ "https://idp.example.com/token" ],
  *   "jti" : "d396036d-c4d9-40d8-8e98-f7e8327002d9",
  *   "exp" : 1311281970,
  *   "iat" : 1311280970
@@ -66,7 +66,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section-3.2.1.
+ *     <li>OAuth 2.0 (RFC 6749), section 3.2.1.
  *     <li>JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and
  *         Authorization Grants (RFC 7523).
  * </ul>
