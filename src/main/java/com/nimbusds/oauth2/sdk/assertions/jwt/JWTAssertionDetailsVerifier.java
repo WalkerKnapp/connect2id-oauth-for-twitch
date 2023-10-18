@@ -18,15 +18,14 @@
 package com.nimbusds.oauth2.sdk.assertions.jwt;
 
 
-import java.util.Set;
-
-import com.nimbusds.jose.proc.SecurityContext;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import net.jcip.annotations.Immutable;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -52,37 +51,6 @@ import net.jcip.annotations.Immutable;
 public class JWTAssertionDetailsVerifier extends DefaultJWTClaimsVerifier {
 
 
-	// Cache JWT exceptions for quick processing of bad claims sets
-
-
-	/**
-	 * Missing JWT expiration claim.
-	 */
-	private static final BadJWTException MISSING_EXP_CLAIM_EXCEPTION =
-		new BadJWTException("Missing JWT expiration claim");
-
-
-	/**
-	 * Missing JWT audience claim.
-	 */
-	private static final BadJWTException MISSING_AUD_CLAIM_EXCEPTION =
-		new BadJWTException("Missing JWT audience claim");
-
-
-	/**
-	 * Missing JWT subject claim.
-	 */
-	private static final BadJWTException MISSING_SUB_CLAIM_EXCEPTION =
-		new BadJWTException("Missing JWT subject claim");
-
-
-	/**
-	 * Missing JWT issuer claim.
-	 */
-	private static final BadJWTException MISSING_ISS_CLAIM_EXCEPTION =
-		new BadJWTException("Missing JWT issuer claim");
-
-
 	/**
 	 * The expected audience.
 	 */
@@ -100,6 +68,12 @@ public class JWTAssertionDetailsVerifier extends DefaultJWTClaimsVerifier {
 	 */
 	public JWTAssertionDetailsVerifier(final Set<Audience> expectedAudience) {
 
+		super(
+                        new HashSet<>(Audience.toStringList(expectedAudience)),
+			null,
+                        new HashSet<>(Arrays.asList("aud", "exp", "sub", "iss")),
+			null);
+
 		if (CollectionUtils.isEmpty(expectedAudience)) {
 			throw new IllegalArgumentException("The expected audience set must not be null or empty");
 		}
@@ -116,46 +90,5 @@ public class JWTAssertionDetailsVerifier extends DefaultJWTClaimsVerifier {
 	public Set<Audience> getExpectedAudience() {
 
 		return expectedAudience;
-	}
-	
-	
-	@Override
-	public void verify(final JWTClaimsSet claimsSet, final SecurityContext securityContext)
-		throws BadJWTException {
-
-		super.verify(claimsSet, null);
-
-		if (claimsSet.getExpirationTime() == null) {
-			throw MISSING_EXP_CLAIM_EXCEPTION;
-		}
-
-		if (claimsSet.getAudience() == null || claimsSet.getAudience().isEmpty()) {
-			throw MISSING_AUD_CLAIM_EXCEPTION;
-		}
-
-		boolean audMatch = false;
-
-		for (String aud: claimsSet.getAudience()) {
-
-			if (aud == null || aud.isEmpty()) {
-				continue; // skip
-			}
-
-			if (expectedAudience.contains(new Audience(aud))) {
-				audMatch = true;
-			}
-		}
-
-		if (! audMatch) {
-			throw new BadJWTException("Invalid JWT audience claim, expected " + expectedAudience);
-		}
-
-		if (claimsSet.getIssuer() == null) {
-			throw MISSING_ISS_CLAIM_EXCEPTION;
-		}
-
-		if (claimsSet.getSubject() == null) {
-			throw MISSING_SUB_CLAIM_EXCEPTION;
-		}
 	}
 }
