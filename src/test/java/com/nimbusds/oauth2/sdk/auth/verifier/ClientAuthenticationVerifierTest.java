@@ -26,6 +26,9 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.utils.ConstantTimeUtils;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.util.DateUtils;
+import com.nimbusds.oauth2.sdk.assertions.jwt.JWTAssertionDetails;
+import com.nimbusds.oauth2.sdk.assertions.jwt.JWTAssertionFactory;
 import com.nimbusds.oauth2.sdk.auth.*;
 import com.nimbusds.oauth2.sdk.client.ClientMetadata;
 import com.nimbusds.oauth2.sdk.http.X509CertificateGenerator;
@@ -441,6 +444,34 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 		assertEquals(VALID_CLIENT_ID, clientIDCaptor.getValue());
 		assertEquals(ClientAuthenticationMethod.CLIENT_SECRET_JWT, methodCaptor.getValue());
 		assertNull(contextCaptor.getValue());
+	}
+
+
+	public void testClientSecretJWT_cannotPreventReuseWithoutJTI()
+		throws Exception {
+
+		Date now = new Date();
+
+		ClientSecretJWT clientAuthentication = new ClientSecretJWT(
+			JWTAssertionFactory.create(
+				new JWTAssertionDetails(
+					new Issuer(VALID_CLIENT_ID.getValue()),
+					new Subject(VALID_CLIENT_ID.getValue()),
+					new Audience(URI.create("https://c2id.com/token")).toSingleAudienceList(),
+					new Date(now.getTime() + 60_000),
+					null,
+					null,
+					null,
+					null),
+				JWSAlgorithm.HS256,
+				VALID_CLIENT_SECRET));
+
+		ExpendedJTIChecker<ClientMetadata> jtiChecker = mock(ExpendedJTIChecker.class);
+
+		ClientAuthenticationVerifier<ClientMetadata> verifier = createBasicVerifierWithReusePrevention(jtiChecker);
+
+		verifier.verify(clientAuthentication, null, null);
+		verifier.verify(clientAuthentication, null, null);
 	}
 
 
