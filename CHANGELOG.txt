@@ -2322,3 +2322,11 @@ version 11.1 (2023-10-05)
 version 11.2 (2023-10-09)
     * Adds static URIUtils.isLocalHost method.
     * Updates to commons-codec:commons-codec:1.15
+
+version 11.3 (2023-10-18)
+    * Updates the ClientAuthenticationVerifier to enable support of JWT ID
+      reuse prevention for the "client_secret_jwt" and the "private_key_jwt"
+      authentication methods.
+    * Adds ExpendedJTIChecker interface for use by the
+      ClientAuthenticationVerifier to enable JWT ID (jti) claim reuse
+      prevention.

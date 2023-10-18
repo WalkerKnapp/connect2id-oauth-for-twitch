@@ -18,14 +18,6 @@
 package com.nimbusds.oauth2.sdk.auth.verifier;
 
 
-import java.security.PublicKey;
-import java.security.cert.X509Certificate;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import net.jcip.annotations.ThreadSafe;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -35,9 +27,18 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.oauth2.sdk.auth.*;
 import com.nimbusds.oauth2.sdk.id.Audience;
+import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.nimbusds.oauth2.sdk.util.ListUtils;
 import com.nimbusds.oauth2.sdk.util.X509CertificateUtils;
+import net.jcip.annotations.ThreadSafe;
+
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -87,6 +88,12 @@ public class ClientAuthenticationVerifier<T> {
 
 
 	/**
+	 * Optional expended JWT ID (jti) checker.
+	 */
+	private final ExpendedJTIChecker<T> expendedJTIChecker;
+
+
+	/**
 	 * JWS verifier factory for private_key_jwt authentication.
 	 */
 	private final JWSVerifierFactory jwsVerifierFactory = new DefaultJWSVerifierFactory();
@@ -108,6 +115,7 @@ public class ClientAuthenticationVerifier<T> {
 	 *                                  contain the token endpoint URI and
 	 *                                  for OpenID provider it may also
 	 *                                  include the issuer URI.
+	 *
 	 * @deprecated Use the constructor with {@link PKIClientX509CertificateBindingVerifier}
 	 */
 	@Deprecated
@@ -125,6 +133,8 @@ public class ClientAuthenticationVerifier<T> {
 		this.pkiCertBindingVerifier = null;
 
 		this.clientCredentialsSelector = clientCredentialsSelector;
+
+		this.expendedJTIChecker = null;
 	}
 
 	
@@ -145,16 +155,43 @@ public class ClientAuthenticationVerifier<T> {
 	public ClientAuthenticationVerifier(final ClientCredentialsSelector<T> clientCredentialsSelector,
 					    final Set<Audience> expectedAudience) {
 
+		this(clientCredentialsSelector, expectedAudience, null);
+	}
+
+
+	/**
+	 * Creates a new client authentication verifier without support for
+	 * {@code tls_client_auth}.
+	 *
+	 * @param clientCredentialsSelector The client credentials selector.
+	 *                                  Must not be {@code null}.
+	 * @param expectedAudience          The permitted audience (aud) claim
+	 *                                  values in JWT authentication
+	 *                                  assertions. Must not be empty or
+	 *                                  {@code null}. Should typically
+	 *                                  contain the token endpoint URI and
+	 *                                  for OpenID provider it may also
+	 *                                  include the issuer URI.
+	 * @param expendedJTIChecker        Optional expended JWT ID (jti)
+	 *                                  claim checker to prevent JWT
+	 *                                  replay, {@code null} if none.
+	 */
+	public ClientAuthenticationVerifier(final ClientCredentialsSelector<T> clientCredentialsSelector,
+					    final Set<Audience> expectedAudience,
+					    final ExpendedJTIChecker<T> expendedJTIChecker) {
+
 		claimsSetVerifier = new JWTAuthenticationClaimsSetVerifier(expectedAudience);
 
 		if (clientCredentialsSelector == null) {
 			throw new IllegalArgumentException("The client credentials selector must not be null");
 		}
-		
+
 		this.certBindingVerifier = null;
 		this.pkiCertBindingVerifier = null;
 
 		this.clientCredentialsSelector = clientCredentialsSelector;
+
+		this.expendedJTIChecker = expendedJTIChecker;
 	}
 	
 
@@ -179,16 +216,47 @@ public class ClientAuthenticationVerifier<T> {
 					    final PKIClientX509CertificateBindingVerifier<T> pkiCertBindingVerifier,
 					    final Set<Audience> expectedAudience) {
 
+		this(clientCredentialsSelector, pkiCertBindingVerifier, expectedAudience, null);
+	}
+
+
+	/**
+	 * Creates a new client authentication verifier.
+	 *
+	 * @param clientCredentialsSelector The client credentials selector.
+	 *                                  Must not be {@code null}.
+	 * @param pkiCertBindingVerifier    Optional client X.509 certificate
+	 *                                  binding verifier for
+	 *                                  {@code tls_client_auth},
+	 *                                  {@code null} if not supported.
+	 * @param expectedAudience          The permitted audience (aud) claim
+	 *                                  values in JWT authentication
+	 *                                  assertions. Must not be empty or
+	 *                                  {@code null}. Should typically
+	 *                                  contain the token endpoint URI and
+	 *                                  for OpenID provider it may also
+	 *                                  include the issuer URI.
+	 * @param expendedJTIChecker        Optional expended JWT ID (jti)
+	 *                                  claim checker to prevent JWT
+	 *                                  replay, {@code null} if none.
+	 */
+	public ClientAuthenticationVerifier(final ClientCredentialsSelector<T> clientCredentialsSelector,
+					    final PKIClientX509CertificateBindingVerifier<T> pkiCertBindingVerifier,
+					    final Set<Audience> expectedAudience,
+					    final ExpendedJTIChecker<T> expendedJTIChecker) {
+
 		claimsSetVerifier = new JWTAuthenticationClaimsSetVerifier(expectedAudience);
 
 		if (clientCredentialsSelector == null) {
 			throw new IllegalArgumentException("The client credentials selector must not be null");
 		}
-		
+
 		this.certBindingVerifier = null;
 		this.pkiCertBindingVerifier = pkiCertBindingVerifier;
 
 		this.clientCredentialsSelector = clientCredentialsSelector;
+
+		this.expendedJTIChecker = expendedJTIChecker;
 	}
 
 
@@ -241,8 +309,21 @@ public class ClientAuthenticationVerifier<T> {
 
 		return claimsSetVerifier.getExpectedAudience();
 	}
-	
-	
+
+
+	/**
+	 * Returns the optional expended JWT ID (jti) claim checker to prevent
+	 * JWT replay.
+	 *
+	 * @return The expended JWT ID (jti) claim checker, {@code null} if
+	 *         none.
+	 */
+	public ExpendedJTIChecker<T> getExpendedJTIChecker() {
+
+		return expendedJTIChecker;
+	}
+
+
 	private static List<Secret> removeNullOrErased(final List<Secret> secrets) {
 		List<Secret> allSet = ListUtils.removeNullItems(secrets);
 		if (allSet == null) {
@@ -255,6 +336,29 @@ public class ClientAuthenticationVerifier<T> {
 			}
 		}
 		return out;
+	}
+
+
+	private void preventJWTReplay(final JWTID jti, final Context<T> context)
+		throws InvalidClientException {
+
+		if (jti == null || getExpendedJTIChecker() == null) {
+			return;
+		}
+
+		if (getExpendedJTIChecker().isExpended(jti, context)) {
+			throw new InvalidClientException("Detected JWT ID replay");
+		}
+	}
+
+
+	private void markExpended(final JWTID jti, final Date exp, final Context<T> context) {
+
+		if (jti == null || getExpendedJTIChecker() == null) {
+			return;
+		}
+
+		getExpendedJTIChecker().markExpended(jti, exp, context);
 	}
 
 
@@ -309,8 +413,12 @@ public class ClientAuthenticationVerifier<T> {
 			ClientSecretJWT jwtAuth = (ClientSecretJWT) clientAuth;
 
 			// Check claims first before requesting secret from backend
+			JWTAuthenticationClaimsSet jwtAuthClaims = jwtAuth.getJWTAuthenticationClaimsSet();
+
+			preventJWTReplay(jwtAuthClaims.getJWTID(), context);
+
 			try {
-				claimsSetVerifier.verify(jwtAuth.getJWTAuthenticationClaimsSet().toJWTClaimsSet(), null);
+				claimsSetVerifier.verify(jwtAuthClaims.toJWTClaimsSet(), null);
 			} catch (BadJWTException e) {
 				throw new InvalidClientException("Bad / expired JWT claims: " + e.getMessage());
 			}
@@ -334,6 +442,9 @@ public class ClientAuthenticationVerifier<T> {
 				boolean valid = assertion.verify(new MACVerifier(candidate.getValueBytes()));
 
 				if (valid) {
+
+					markExpended(jwtAuthClaims.getJWTID(), jwtAuthClaims.getExpirationTime(), context);
+
 					return; // success
 				}
 			}
@@ -345,8 +456,12 @@ public class ClientAuthenticationVerifier<T> {
 			PrivateKeyJWT jwtAuth = (PrivateKeyJWT) clientAuth;
 			
 			// Check claims first before requesting / retrieving public keys
+			JWTAuthenticationClaimsSet jwtAuthClaims = jwtAuth.getJWTAuthenticationClaimsSet();
+
+			preventJWTReplay(jwtAuthClaims.getJWTID(), context);
+
 			try {
-				claimsSetVerifier.verify(jwtAuth.getJWTAuthenticationClaimsSet().toJWTClaimsSet(), null);
+				claimsSetVerifier.verify(jwtAuthClaims.toJWTClaimsSet(), null);
 			} catch (BadJWTException e) {
 				throw new InvalidClientException("Bad / expired JWT claims: " + e.getMessage());
 			}
@@ -377,6 +492,7 @@ public class ClientAuthenticationVerifier<T> {
 				boolean valid = assertion.verify(jwsVerifier);
 				
 				if (valid) {
+					markExpended(jwtAuthClaims.getJWTID(), jwtAuthClaims.getExpirationTime(), context);
 					return; // success
 				}
 			}
@@ -410,6 +526,7 @@ public class ClientAuthenticationVerifier<T> {
 					boolean valid = assertion.verify(jwsVerifier);
 					
 					if (valid) {
+						markExpended(jwtAuthClaims.getJWTID(), jwtAuthClaims.getExpirationTime(), context);
 						return; // success
 					}
 				}
