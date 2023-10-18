@@ -46,9 +46,9 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  *
  * <pre>
  * {
- *   "iss" : "http://client.example.com",
- *   "sub" : "http://client.example.com",
- *   "aud" : [ "http://idp.example.com/token" ],
+ *   "iss" : "https://client.example.com",
+ *   "sub" : "https://client.example.com",
+ *   "aud" : [ "https://idp.example.com/token" ],
  *   "jti" : "d396036d-c4d9-40d8-8e98-f7e8327002d9",
  *   "exp" : 1311281970,
  *   "iat" : 1311280970
