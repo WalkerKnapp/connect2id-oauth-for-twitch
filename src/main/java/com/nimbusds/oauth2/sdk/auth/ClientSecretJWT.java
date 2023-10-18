@@ -73,7 +73,7 @@ public final class ClientSecretJWT extends JWTAuthentication {
 
 	/**
 	 * Creates a new client secret JWT authentication. The expiration
-	 * time (exp) is set to five minutes from the current system time.
+	 * time (exp) is set to 1 minute from the current system time.
 	 * Generates a default identifier (jti) for the JWT. The issued-at
 	 * (iat) and not-before (nbf) claims are not set.
 	 *
@@ -103,7 +103,7 @@ public final class ClientSecretJWT extends JWTAuthentication {
 
 	/**
 	 * Creates a new client secret JWT authentication. The expiration
-	 * time (exp) is set to five minutes from the current system time.
+	 * time (exp) is set to 1 minute from the current system time.
 	 * Generates a default identifier (jti) for the JWT. The issued-at
 	 * (iat) and not-before (nbf) claims are not set.
 	 *

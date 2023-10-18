@@ -35,73 +35,121 @@ import java.util.HashSet;
 public class JWTAssertionDetailsVerifierTest extends TestCase {
 
 
+	public void testMinConstructor() {
+
+		Issuer issuer = new Issuer("https://c2id.com");
+
+		JWTAssertionDetailsVerifier verifier = new JWTAssertionDetailsVerifier(
+			Collections.singleton(new Audience(issuer))
+		);
+
+		assertEquals(Collections.singleton(new Audience(issuer)), verifier.getExpectedAudience());
+		assertEquals(-1L, verifier.getExpirationTimeMaxAhead());
+	}
+
+
 	public void testSuccess()
 		throws Exception {
 
 		Issuer issuer = new Issuer("https://c2id.com");
 		URI tokenEndpoint = URI.create("https://c2id.com/token");
 
+		for (long expMaxAhead: Arrays.asList(-1L, 0L, 60L)) {
+
+			JWTAssertionDetailsVerifier verifier = new JWTAssertionDetailsVerifier(
+				new HashSet<>(Arrays.asList(
+					new Audience(issuer),
+					new Audience(tokenEndpoint)
+				)),
+				expMaxAhead
+			);
+
+			assertEquals(expMaxAhead, verifier.getExpirationTimeMaxAhead());
+
+			assertTrue(verifier.getExpectedAudience().contains(new Audience(issuer)));
+			assertTrue(verifier.getExpectedAudience().contains(new Audience(tokenEndpoint)));
+			assertEquals(2, verifier.getExpectedAudience().size());
+
+			// good claims - aud = OP / AS issuer, token endpoint
+			for (String aud : Arrays.asList(issuer.getValue(), tokenEndpoint.toString())) {
+				verifier.verify(
+					new JWTClaimsSet.Builder()
+						.issuer("123")
+						.subject("alice")
+						.audience(aud)
+						.expirationTime(new Date(new Date().getTime() + 50_000L))
+						.build(),
+					null);
+			}
+
+			// with "jti" claim
+			for (String aud : Arrays.asList(issuer.getValue(), tokenEndpoint.toString())) {
+				verifier.verify(
+					new JWTClaimsSet.Builder()
+						.issuer("123")
+						.subject("alice")
+						.audience(aud)
+						.expirationTime(new Date(new Date().getTime() + 50_000L))
+						.jwtID(new JWTID().getValue())
+						.build(),
+					null);
+			}
+
+			// with "iat" claim
+			for (String aud : Arrays.asList(issuer.getValue(), tokenEndpoint.toString())) {
+				verifier.verify(
+					new JWTClaimsSet.Builder()
+						.issuer("123")
+						.subject("alice")
+						.audience(aud)
+						.expirationTime(new Date(new Date().getTime() + 50_000L))
+						.issueTime(new Date())
+						.build(),
+					null);
+			}
+
+			// with "iat" + "jti" claims
+			for (String aud : Arrays.asList(issuer.getValue(), tokenEndpoint.toString())) {
+				verifier.verify(
+					new JWTClaimsSet.Builder()
+						.issuer("123")
+						.subject("alice")
+						.audience(aud)
+						.expirationTime(new Date(new Date().getTime() + 50_000L))
+						.issueTime(new Date())
+						.jwtID(new JWTID().getValue())
+						.build(),
+					null);
+			}
+		}
+	}
+
+
+	public void testSuccess_expTooFarAhead() {
+
+		Issuer issuer = new Issuer("https://c2id.com");
+		URI tokenEndpoint = URI.create("https://c2id.com/token");
+		long expMaxAhead = 60L; // seconds
+
 		JWTAssertionDetailsVerifier verifier = new JWTAssertionDetailsVerifier(
 			new HashSet<>(Arrays.asList(
 				new Audience(issuer),
 				new Audience(tokenEndpoint)
-			))
+			)),
+			expMaxAhead
 		);
 
-		assertTrue(verifier.getExpectedAudience().contains(new Audience(issuer)));
-		assertTrue(verifier.getExpectedAudience().contains(new Audience(tokenEndpoint)));
-		assertEquals(2, verifier.getExpectedAudience().size());
-
-		// good claims - aud = OP / AS issuer, token endpoint
-		for (String aud: Arrays.asList(issuer.getValue(), tokenEndpoint.toString())) {
+		try {
 			verifier.verify(
 				new JWTClaimsSet.Builder()
 					.issuer("123")
 					.subject("alice")
-					.audience(aud)
-					.expirationTime(new Date(new Date().getTime() + 60 * 1000L))
+					.audience(issuer.getValue())
+					.expirationTime(new Date(new Date().getTime() + (expMaxAhead + 1) * 1000L))
 					.build(),
 				null);
-		}
-
-		// with "jti" claim
-		for (String aud: Arrays.asList(issuer.getValue(), tokenEndpoint.toString())) {
-			verifier.verify(
-				new JWTClaimsSet.Builder()
-					.issuer("123")
-					.subject("alice")
-					.audience(aud)
-					.expirationTime(new Date(new Date().getTime() + 60 * 1000L))
-					.jwtID(new JWTID().getValue())
-					.build(),
-				null);
-		}
-
-		// with "iat" claim
-		for (String aud: Arrays.asList(issuer.getValue(), tokenEndpoint.toString())) {
-			verifier.verify(
-				new JWTClaimsSet.Builder()
-					.issuer("123")
-					.subject("alice")
-					.audience(aud)
-					.expirationTime(new Date(new Date().getTime() + 60 * 1000L))
-					.issueTime(new Date())
-					.build(),
-				null);
-		}
-
-		// with "iat" + "jti" claims
-		for (String aud: Arrays.asList(issuer.getValue(), tokenEndpoint.toString())) {
-			verifier.verify(
-				new JWTClaimsSet.Builder()
-					.issuer("123")
-					.subject("alice")
-					.audience(aud)
-					.expirationTime(new Date(new Date().getTime() + 60 * 1000L))
-					.issueTime(new Date())
-					.jwtID(new JWTID().getValue())
-					.build(),
-				null);
+		} catch (BadJWTException e) {
+			assertEquals("JWT expiration too far ahead", e.getMessage());
 		}
 	}
 

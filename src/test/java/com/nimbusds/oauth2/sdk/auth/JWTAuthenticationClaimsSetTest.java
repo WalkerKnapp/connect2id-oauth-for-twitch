@@ -18,14 +18,6 @@
 package com.nimbusds.oauth2.sdk.auth;
 
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.Audience;
@@ -33,6 +25,13 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -69,12 +68,12 @@ public class JWTAuthenticationClaimsSetTest extends TestCase {
 		assertEquals(clientID.getValue(), claimsSet.getSubject().getValue());
 		assertEquals(aud, claimsSet.getAudience().get(0));
 
-		// 4 min < exp < 6 min
+		// 55s < exp < 65s
 		final long now = new Date().getTime();
-		final Date fourMinutesFromNow = new Date(now + 4*60* 1000L);
-		final Date sixMinutesFromNow = new Date(now + 6*60* 1000L);
-		assertTrue(claimsSet.getExpirationTime().after(fourMinutesFromNow));
-		assertTrue(claimsSet.getExpirationTime().before(sixMinutesFromNow));
+		final Date minFromNow = new Date(now + 55_000L);
+		final Date maxFromNow = new Date(now + 65_000L);
+		assertTrue(claimsSet.getExpirationTime().after(minFromNow));
+		assertTrue(claimsSet.getExpirationTime().before(maxFromNow));
 
 		assertNull(claimsSet.getIssueTime());
 		assertNull(claimsSet.getNotBeforeTime());
@@ -134,12 +133,12 @@ public class JWTAuthenticationClaimsSetTest extends TestCase {
 		assertEquals(clientID.getValue(), claimsSet.getSubject().getValue());
 		assertEquals(aud, claimsSet.getAudience().get(0));
 
-		// 4 min < exp < 6 min
+		// 55s < exp < 65s
 		final long now = new Date().getTime();
-		final Date fourMinutesFromNow = new Date(now + 4*60* 1000L);
-		final Date sixMinutesFromNow = new Date(now + 6*60* 1000L);
-		assertTrue(claimsSet.getExpirationTime().after(fourMinutesFromNow));
-		assertTrue(claimsSet.getExpirationTime().before(sixMinutesFromNow));
+		final Date minFromNow = new Date(now + 55_000L);
+		final Date maxFromNow = new Date(now + 65_000L);
+		assertTrue(claimsSet.getExpirationTime().after(minFromNow));
+		assertTrue(claimsSet.getExpirationTime().before(maxFromNow));
 
 		assertNull(claimsSet.getIssueTime());
 		assertNull(claimsSet.getNotBeforeTime());

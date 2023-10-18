@@ -18,13 +18,18 @@
 package com.nimbusds.oauth2.sdk.assertions.jwt;
 
 
+import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
+import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import net.jcip.annotations.Immutable;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,7 +42,8 @@ import java.util.Set;
  * <ul>
  *     <li>Audience check
  *     <li>Expiration time check
- *     <li>Not-before time check (is set)
+ *     <li>Expiration time too far ahead check (optional)
+ *     <li>Not-before time check (if set)
  *     <li>Subject and issuer presence check
  * </ul>
  *
@@ -59,6 +65,13 @@ public class JWTAssertionDetailsVerifier extends DefaultJWTClaimsVerifier {
 
 
 	/**
+	 * The maximum number of seconds the expiration time can be ahead of
+	 * the current time.
+	 */
+	private final long expMaxAhead;
+
+
+	/**
 	 * Creates a new JWT bearer assertion details (claims set) verifier.
 	 *
 	 * @param expectedAudience The expected audience (aud) claim values.
@@ -68,6 +81,26 @@ public class JWTAssertionDetailsVerifier extends DefaultJWTClaimsVerifier {
 	 *                         issuer URI.
 	 */
 	public JWTAssertionDetailsVerifier(final Set<Audience> expectedAudience) {
+
+		this(expectedAudience, -1L);
+	}
+
+
+	/**
+	 * Creates a new JWT bearer assertion details (claims set) verifier.
+	 *
+	 * @param expectedAudience The expected audience (aud) claim values.
+	 *                         Must not be empty or {@code null}. Should
+	 *                         typically contain the token endpoint URI and
+	 *                         for OpenID provider it may also include the
+	 *                         issuer URI.
+	 * @param expMaxAhead      The maximum number of seconds the expiration
+	 *                         time (exp) claim can be ahead of the current
+	 *                         time, if zero or negative this check is
+	 *                         disabled.
+	 */
+	public JWTAssertionDetailsVerifier(final Set<Audience> expectedAudience,
+					   final long expMaxAhead) {
 
 		super(
                         new HashSet<>(Identifier.toStringList(expectedAudience)),
@@ -80,6 +113,8 @@ public class JWTAssertionDetailsVerifier extends DefaultJWTClaimsVerifier {
 		}
 
 		this.expectedAudience = expectedAudience;
+
+		this.expMaxAhead = expMaxAhead;
 	}
 
 
@@ -88,8 +123,38 @@ public class JWTAssertionDetailsVerifier extends DefaultJWTClaimsVerifier {
 	 *
 	 * @return The expected audience (aud) claim values.
 	 */
+	@Deprecated
 	public Set<Audience> getExpectedAudience() {
 
 		return expectedAudience;
+	}
+
+
+	/**
+	 * Returns the maximum number of seconds the expiration time (exp)
+	 * claim can be ahead of the current time.
+	 *
+	 * @return The maximum number of seconds, if zero or negative this
+	 *         check is disabled.
+	 */
+	public long getExpirationTimeMaxAhead() {
+
+		return expMaxAhead;
+	}
+
+
+	@Override
+	public void verify(JWTClaimsSet claimsSet, SecurityContext context)
+		throws BadJWTException {
+
+		super.verify(claimsSet, context);
+
+		if (expMaxAhead > 0) {
+			long now = DateUtils.toSecondsSinceEpoch(new Date());
+			long exp = DateUtils.toSecondsSinceEpoch(claimsSet.getExpirationTime());
+			if (now + expMaxAhead < exp) {
+				throw new BadJWTException("JWT expiration too far ahead");
+			}
+		}
 	}
 }

@@ -82,6 +82,12 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 	}
 
 
+	public void testDefaultExpMaxAhead() {
+
+		assertEquals(-1, createForAS().getExpirationTimeMaxAhead());
+	}
+
+
 	public void testAudForAS() {
 
 		JWTAuthenticationClaimsSetVerifier verifier = createForAS();
@@ -115,6 +121,33 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 		createForAS().verify(claimsSet, null);
 		createForOP().verify(claimsSet, null);
+	}
+
+
+	public void testExpirationTooFarAhead() {
+
+		URI tokenEndpoint = URI.create("https://c2id.com/token");
+		Set<Audience> expectedAud = new LinkedHashSet<>();
+		expectedAud.add(new Audience(tokenEndpoint.toString()));
+
+		JWTAuthenticationClaimsSetVerifier verifier = new JWTAuthenticationClaimsSetVerifier(expectedAud, 60L);
+
+		Date now = new Date();
+		Date in5min = new Date(now.getTime() + 61_000L);
+
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+			.expirationTime(in5min)
+			.audience(tokenEndpoint.toString())
+			.issuer("123")
+			.subject("123")
+			.build();
+
+		try {
+			verifier.verify(claimsSet, null);
+			fail();
+		} catch (BadJWTException e) {
+			assertEquals("JWT expiration too far ahead", e.getMessage());
+		}
 	}
 
 

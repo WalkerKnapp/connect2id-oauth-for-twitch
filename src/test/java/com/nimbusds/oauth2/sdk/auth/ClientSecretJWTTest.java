@@ -153,12 +153,12 @@ public class ClientSecretJWTTest extends TestCase {
 			assertEquals(clientID.getValue(), clientSecretJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
 			assertEquals(tokenEndpoint.toString(), clientSecretJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
 			
-			// 4 min < exp < 6 min
+			// 55s < exp < 65s
 			final long now = new Date().getTime();
-			final Date fourMinutesFromNow = new Date(now + 4 * 60 * 1000L);
-			final Date sixMinutesFromNow = new Date(now + 6 * 60 * 1000L);
-			assertTrue(clientSecretJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(fourMinutesFromNow));
-			assertTrue(clientSecretJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(sixMinutesFromNow));
+			final Date minFromNow = new Date(now + 55_000L);
+			final Date maxFromNow = new Date(now + 65_000L);
+			assertTrue(clientSecretJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(minFromNow));
+			assertTrue(clientSecretJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(maxFromNow));
 			assertNotNull(clientSecretJWT.getJWTAuthenticationClaimsSet().getJWTID());
 			assertNull(clientSecretJWT.getJWTAuthenticationClaimsSet().getIssueTime());
 			assertNull(clientSecretJWT.getJWTAuthenticationClaimsSet().getNotBeforeTime());

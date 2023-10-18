@@ -18,6 +18,22 @@
 package com.nimbusds.oauth2.sdk.auth;
 
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.crypto.ECDSAVerifier;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jose.util.Base64;
+import com.nimbusds.jose.util.Base64URL;
+import com.nimbusds.jose.util.X509CertUtils;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.Subject;
+import com.nimbusds.oauth2.sdk.util.X509CertificateUtils;
+import junit.framework.TestCase;
+
 import java.net.URI;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -25,27 +41,8 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.*;
-
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import com.nimbusds.jose.util.Base64;
-import com.nimbusds.jose.util.Base64URL;
-import com.nimbusds.jose.util.X509CertUtils;
-import com.nimbusds.oauth2.sdk.ParseException;
-import junit.framework.TestCase;
-
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.crypto.ECDSAVerifier;
-import com.nimbusds.jose.crypto.RSASSAVerifier;
-
-import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.id.Subject;
-import com.nimbusds.oauth2.sdk.util.X509CertificateUtils;
 
 
 public class PrivateKeyJWTTest extends TestCase {
@@ -109,13 +106,13 @@ public class PrivateKeyJWTTest extends TestCase {
 				}
 				assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
 				assertEquals(tokenEndpoint.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
-				
-				// 4 min < exp < 6 min
+
+				// 55s < exp < 65s
 				final long now = new Date().getTime();
-				final Date fourMinutesFromNow = new Date(now + 4 * 60 * 1000L);
-				final Date sixMinutesFromNow = new Date(now + 6 * 60 * 1000L);
-				assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(fourMinutesFromNow));
-				assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(sixMinutesFromNow));
+				final Date minFromNow = new Date(now + 55_000L);
+				final Date maxFromNow = new Date(now + 65_000L);
+				assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(minFromNow));
+				assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(maxFromNow));
 				assertNotNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getJWTID());
 				assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getIssueTime());
 				assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getNotBeforeTime());
@@ -190,11 +187,11 @@ public class PrivateKeyJWTTest extends TestCase {
 			assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
 			assertEquals(tokenEndpoint.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
 			
-			// 4 min < exp < 6 min
-			final Date fourMinutesFromNow = new Date(now.getTime() + 4 * 60 * 1000L);
-			final Date sixMinutesFromNow = new Date(now.getTime() + 6 * 60 * 1000L);
-			assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(fourMinutesFromNow));
-			assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(sixMinutesFromNow));
+			// 55s < exp < 65s
+			final Date minFromNow = new Date(now.getTime() + 55_000L);
+			final Date maxFromNow = new Date(now.getTime() + 65_000L);
+			assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(minFromNow));
+			assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(maxFromNow));
 			assertNotNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getJWTID());
 			assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getIssueTime());
 			assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getNotBeforeTime());
@@ -261,12 +258,12 @@ public class PrivateKeyJWTTest extends TestCase {
 		assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
 		assertEquals(tokenEndpoint.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
 
-		// 4 min < exp < 6 min
+		// 55s < exp < 65s
 		final long now = new Date().getTime();
-		final Date fourMinutesFromNow = new Date(now + 4*60*1000L);
-		final Date sixMinutesFromNow = new Date(now + 6*60*1000L);
-		assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(fourMinutesFromNow));
-		assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(sixMinutesFromNow));
+		final Date minFromNow = new Date(now + 55_000L);
+		final Date maxFromNow = new Date(now + 65_000L);
+		assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(minFromNow));
+		assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(maxFromNow));
 		assertNotNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getJWTID());
 		assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getIssueTime());
 		assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getNotBeforeTime());
@@ -298,12 +295,12 @@ public class PrivateKeyJWTTest extends TestCase {
 		assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
 		assertEquals(tokenEndpoint.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
 
-		// 4 min < exp < 6 min
+		// 55s < exp < 65s
 		final long now = new Date().getTime();
-		final Date fourMinutesFromNow = new Date(now + 4*60*1000L);
-		final Date sixMinutesFromNow = new Date(now + 6*60*1000L);
-		assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(fourMinutesFromNow));
-		assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(sixMinutesFromNow));
+		final Date minFromNow = new Date(now + 55_000L);
+		final Date maxFromNow = new Date(now + 65_000L);
+		assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().after(minFromNow));
+		assertTrue(privateKeyJWT.getJWTAuthenticationClaimsSet().getExpirationTime().before(maxFromNow));
 		assertNotNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getJWTID());
 		assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getIssueTime());
 		assertNull(privateKeyJWT.getJWTAuthenticationClaimsSet().getNotBeforeTime());

@@ -76,7 +76,7 @@ public class JWTAuthenticationClaimsSet extends JWTAssertionDetails {
 
 	/**
 	 * Creates a new JWT client authentication claims set. The expiration
-	 * time (exp) is set to five minutes from the current system time.
+	 * time (exp) is set to 1 minute from the current system time.
 	 * Generates a default identifier (jti) for the JWT. The issued-at
 	 * (iat) and not-before (nbf) claims are not set.
 	 *
@@ -89,13 +89,13 @@ public class JWTAuthenticationClaimsSet extends JWTAssertionDetails {
 	public JWTAuthenticationClaimsSet(final ClientID clientID,
 					  final Audience aud) {
 
-		this(clientID, aud.toSingleAudienceList(), new Date(new Date().getTime() + 5*60* 1000L), null, null, new JWTID());
+		this(clientID, aud.toSingleAudienceList(), new Date(new Date().getTime() + 60_000L), null, null, new JWTID());
 	}
 
 
 	/**
 	 * Creates a new JWT client authentication claims set. The expiration
-	 * time (exp) is set to five minutes from the current system time.
+	 * time (exp) is set to 1 minute from the current system time.
 	 * Generates a default identifier (jti) for the JWT. The issued-at
 	 * (iat) and not-before (nbf) claims are not set.
 	 *
@@ -112,7 +112,7 @@ public class JWTAuthenticationClaimsSet extends JWTAssertionDetails {
 					  final ClientID clientID,
 					  final Audience aud) {
 
-		this(iss, clientID, aud.toSingleAudienceList(), new Date(new Date().getTime() + 5*60* 1000L), null, null, new JWTID());
+		this(iss, clientID, aud.toSingleAudienceList(), new Date(new Date().getTime() + 60_000L), null, null, new JWTID());
 	}
 
 	

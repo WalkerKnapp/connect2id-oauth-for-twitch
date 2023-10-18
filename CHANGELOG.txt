@@ -2330,3 +2330,12 @@ version 11.3 (2023-10-18)
     * Adds ExpendedJTIChecker interface for use by the
       ClientAuthenticationVerifier to enable JWT ID (jti) claim reuse
       prevention.
+
+version 11.4 (2023-10-18)
+    * JWTAssertionDetailsVerifier, JWTAuthenticationClaimsSetVerifier and
+      ClientAuthenticationVerifier can be configured with an optional check to
+      prevent expiration time (exp) JWT claims that are too far ahead of the
+      current time. Intended to prevent DoS attacks against JWT assertion
+      consumers that utilise a store to prevent JWT replay.
+    * The default expiration time (exp) claim in JWTAuthenticationClaimsSet the
+      constructor is reduced from 5 to 1 minute from the current system time.

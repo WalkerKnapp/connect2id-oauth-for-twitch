@@ -217,7 +217,7 @@ public class ClientAuthenticationVerifier<T> {
 					    final PKIClientX509CertificateBindingVerifier<T> pkiCertBindingVerifier,
 					    final Set<Audience> expectedAudience) {
 
-		this(clientCredentialsSelector, pkiCertBindingVerifier, expectedAudience, null);
+		this(clientCredentialsSelector, pkiCertBindingVerifier, expectedAudience, null, -1L);
 	}
 
 
@@ -240,13 +240,18 @@ public class ClientAuthenticationVerifier<T> {
 	 * @param expendedJTIChecker        Optional expended JWT ID (jti)
 	 *                                  claim checker to prevent JWT
 	 *                                  replay, {@code null} if none.
+	 * @param expMaxAhead               The maximum number of seconds the
+	 *                                  expiration time (exp) claim can be
+	 *                                  ahead of the current time, if zero
+	 *                                  or negative this check is disabled.
 	 */
 	public ClientAuthenticationVerifier(final ClientCredentialsSelector<T> clientCredentialsSelector,
 					    final PKIClientX509CertificateBindingVerifier<T> pkiCertBindingVerifier,
 					    final Set<Audience> expectedAudience,
-					    final ExpendedJTIChecker<T> expendedJTIChecker) {
+					    final ExpendedJTIChecker<T> expendedJTIChecker,
+					    final long expMaxAhead) {
 
-		claimsSetVerifier = new JWTAuthenticationClaimsSetVerifier(expectedAudience);
+		claimsSetVerifier = new JWTAuthenticationClaimsSetVerifier(expectedAudience, expMaxAhead);
 
 		if (clientCredentialsSelector == null) {
 			throw new IllegalArgumentException("The client credentials selector must not be null");
@@ -254,9 +259,7 @@ public class ClientAuthenticationVerifier<T> {
 
 		this.certBindingVerifier = null;
 		this.pkiCertBindingVerifier = pkiCertBindingVerifier;
-
 		this.clientCredentialsSelector = clientCredentialsSelector;
-
 		this.expendedJTIChecker = expendedJTIChecker;
 	}
 

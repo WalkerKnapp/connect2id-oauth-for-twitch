@@ -26,7 +26,6 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.utils.ConstantTimeUtils;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.assertions.jwt.JWTAssertionDetails;
 import com.nimbusds.oauth2.sdk.assertions.jwt.JWTAssertionFactory;
 import com.nimbusds.oauth2.sdk.auth.*;
@@ -292,6 +291,51 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 			VALID_CLIENT_SECRET);
 
 		createBasicVerifier().verify(clientAuthentication, null, null);
+	}
+
+
+	public void testHappyClientSecretJWT_expTooFarAhead_reject()
+		throws Exception {
+
+		ClientAuthentication clientAuthentication = new ClientSecretJWT(
+			VALID_CLIENT_ID,
+			URI.create("https://c2id.com/token"),
+			JWSAlgorithm.HS256,
+			VALID_CLIENT_SECRET);
+
+		ClientAuthenticationVerifier<ClientMetadata> verifier = new ClientAuthenticationVerifier<>(
+			CLIENT_CREDENTIALS_SELECTOR,
+			null,
+			EXPECTED_JWT_AUDIENCE,
+			null,
+			1L);
+
+		try {
+			verifier.verify(clientAuthentication, null, null);
+			fail();
+		} catch (InvalidClientException e) {
+			assertEquals("Bad / expired JWT claims: JWT expiration too far ahead", e.getMessage());
+		}
+	}
+
+
+	public void testHappyClientSecretJWT_expTooFarAhead_pass()
+		throws Exception {
+
+		ClientAuthentication clientAuthentication = new ClientSecretJWT(
+			VALID_CLIENT_ID,
+			URI.create("https://c2id.com/token"),
+			JWSAlgorithm.HS256,
+			VALID_CLIENT_SECRET);
+
+		ClientAuthenticationVerifier<ClientMetadata> verifier = new ClientAuthenticationVerifier<>(
+			CLIENT_CREDENTIALS_SELECTOR,
+			null,
+			EXPECTED_JWT_AUDIENCE,
+			null,
+			60_000L + 1_000L);
+
+		verifier.verify(clientAuthentication, null, null);
 	}
 
 

@@ -62,8 +62,26 @@ class JWTAuthenticationClaimsSetVerifier extends JWTAssertionDetailsVerifier {
 	 *                         issuer URI.
 	 */
 	public JWTAuthenticationClaimsSetVerifier(final Set<Audience> expectedAudience) {
+		this(expectedAudience, -1L);
+	}
 
-		super(expectedAudience);
+
+	/**
+	 * Creates a new JWT client authentication claims set verifier.
+	 *
+	 * @param expectedAudience The permitted audience (aud) claim values.
+	 *                         Must not be empty or {@code null}. Should
+	 *                         typically contain the token endpoint URI and
+	 *                         for OpenID provider it may also include the
+	 *                         issuer URI.
+	 * @param expMaxAhead      The maximum number of seconds the expiration
+	 *                         time (exp) claim can be ahead of the current
+	 *                         time, if zero or negative this check is
+	 *                         disabled.
+	 */
+	public JWTAuthenticationClaimsSetVerifier(final Set<Audience> expectedAudience,
+						  final long expMaxAhead) {
+		super(expectedAudience, expMaxAhead);
 	}
 
 

@@ -104,7 +104,7 @@ public final class PrivateKeyJWT extends JWTAuthentication {
 
 	/**
 	 * Creates a new private key JWT authentication. The expiration
-	 * time (exp) is set to five minutes from the current system time.
+	 * time (exp) is set to 1 minute from the current system time.
 	 * Generates a default identifier (jti) for the JWT. The issued-at
 	 * (iat) and not-before (nbf) claims are not set.
 	 *
@@ -146,7 +146,7 @@ public final class PrivateKeyJWT extends JWTAuthentication {
 
 	/**
 	 * Creates a new private key JWT authentication. The expiration
-	 * time (exp) is set to five minutes from the current system time.
+	 * time (exp) is set to 1 minute from the current system time.
 	 * Generates a default identifier (jti) for the JWT. The issued-at
 	 * (iat) and not-before (nbf) claims are not set.
 	 *
@@ -191,7 +191,7 @@ public final class PrivateKeyJWT extends JWTAuthentication {
 
 	/**
 	 * Creates a new private key JWT authentication. The expiration
-	 * time (exp) is set to five minutes from the current system time.
+	 * time (exp) is set to 1 minute from the current system time.
 	 * Generates a default identifier (jti) for the JWT. The issued-at
 	 * (iat) and not-before (nbf) claims are not set.
 	 *
@@ -239,7 +239,7 @@ public final class PrivateKeyJWT extends JWTAuthentication {
 
 	/**
 	 * Creates a new private key JWT authentication. The expiration
-	 * time (exp) is set to five minutes from the current system time.
+	 * time (exp) is set to 1 minute from the current system time.
 	 * Generates a default identifier (jti) for the JWT. The issued-at
 	 * (iat) and not-before (nbf) claims are not set.
 	 *
@@ -358,7 +358,7 @@ public final class PrivateKeyJWT extends JWTAuthentication {
 
 	/**
 	 * Creates a new RSA private key JWT authentication. The expiration
-	 * time (exp) is set to five minutes from the current system time.
+	 * time (exp) is set to 1 minute from the current system time.
 	 * Generates a default identifier (jti) for the JWT. The issued-at
 	 * (iat) and not-before (nbf) claims are not set.
 	 *
@@ -430,7 +430,7 @@ public final class PrivateKeyJWT extends JWTAuthentication {
 
 	/**
 	 * Creates a new EC private key JWT authentication. The expiration
-	 * time (exp) is set to five minutes from the current system time.
+	 * time (exp) is set to 1 minute from the current system time.
 	 * Generates a default identifier (jti) for the JWT. The issued-at
 	 * (iat) and not-before (nbf) claims are not set.
 	 *
