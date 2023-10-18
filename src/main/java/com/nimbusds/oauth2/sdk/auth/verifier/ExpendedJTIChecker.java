@@ -25,7 +25,7 @@ import java.util.Date;
 
 
 /**
- * Expended JWT ID {@code jti} claim checker.
+ * Expended client authentication JWT ID {@code jti} claim checker.
  */
 public interface ExpendedJTIChecker<T> {
 

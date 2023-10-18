@@ -18,18 +18,6 @@
 package com.nimbusds.oauth2.sdk.auth.verifier;
 
 
-import java.net.URI;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PublicKey;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.*;
-import javax.net.ssl.SSLSocketFactory;
-
-import junit.framework.TestCase;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -43,6 +31,21 @@ import com.nimbusds.oauth2.sdk.client.ClientMetadata;
 import com.nimbusds.oauth2.sdk.http.X509CertificateGenerator;
 import com.nimbusds.oauth2.sdk.id.*;
 import com.nimbusds.oauth2.sdk.util.X509CertificateUtils;
+import junit.framework.TestCase;
+import org.mockito.ArgumentCaptor;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.net.URI;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.*;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 /**
@@ -176,7 +179,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 	public void testGetters() {
 
-		ClientCredentialsSelector selector = new ClientCredentialsSelector() {
+		ClientCredentialsSelector<?> selector = new ClientCredentialsSelector() {
 			@Override
 			public List<Secret> selectClientSecrets(ClientID claimedClientID, ClientAuthenticationMethod authMethod, Context context) throws InvalidClientException {
 				return null;
@@ -192,7 +195,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 		Set<Audience> audienceSet = new HashSet<>();
 		audienceSet.add(new Audience("https://c2id.com/token"));
 
-		ClientAuthenticationVerifier verifier = new ClientAuthenticationVerifier(selector, audienceSet);
+		ClientAuthenticationVerifier<?> verifier = new ClientAuthenticationVerifier<>(selector, audienceSet);
 
 		assertEquals(selector, verifier.getClientCredentialsSelector());
 		assertNull(verifier.getClientX509CertificateBindingVerifier());
@@ -203,6 +206,12 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 	private static ClientAuthenticationVerifier<ClientMetadata> createBasicVerifier() {
 
 		return new ClientAuthenticationVerifier<>(CLIENT_CREDENTIALS_SELECTOR, EXPECTED_JWT_AUDIENCE);
+	}
+
+
+	private static ClientAuthenticationVerifier<ClientMetadata> createBasicVerifierWithReusePrevention(final ExpendedJTIChecker<ClientMetadata> jtiChecker) {
+
+		return new ClientAuthenticationVerifier<>(CLIENT_CREDENTIALS_SELECTOR, EXPECTED_JWT_AUDIENCE, jtiChecker);
 	}
 	
 	
@@ -281,6 +290,32 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		createBasicVerifier().verify(clientAuthentication, null, null);
 	}
+
+
+	public void testHappyClientSecretJWT_withReusePrevention()
+		throws Exception {
+
+		ClientSecretJWT clientAuthentication = new ClientSecretJWT(
+			VALID_CLIENT_ID,
+			URI.create("https://c2id.com/token"),
+			JWSAlgorithm.HS256,
+			VALID_CLIENT_SECRET);
+
+		ExpendedJTIChecker<ClientMetadata> jtiChecker = mock(ExpendedJTIChecker.class);
+		ArgumentCaptor<JWTID> jtiCaptor = ArgumentCaptor.forClass(JWTID.class);
+		ArgumentCaptor<ClientID> clientIDCaptor = ArgumentCaptor.forClass(ClientID.class);
+		ArgumentCaptor<ClientAuthenticationMethod> methodCaptor = ArgumentCaptor.forClass(ClientAuthenticationMethod.class);
+		ArgumentCaptor<Context<ClientMetadata>> contextCaptor = ArgumentCaptor.forClass(Context.class);
+
+		when(jtiChecker.isExpended(jtiCaptor.capture(), clientIDCaptor.capture(), methodCaptor.capture(), contextCaptor.capture())).thenReturn(false);
+
+		createBasicVerifierWithReusePrevention(jtiChecker).verify(clientAuthentication, null, null);
+
+		assertEquals(clientAuthentication.getJWTAuthenticationClaimsSet().getJWTID(), jtiCaptor.getValue());
+		assertEquals(VALID_CLIENT_ID, clientIDCaptor.getValue());
+		assertEquals(ClientAuthenticationMethod.CLIENT_SECRET_JWT, methodCaptor.getValue());
+		assertNull(contextCaptor.getValue());
+	}
 	
 
 	public void testClientSecretJWT_erasedStoredSecretValue()
@@ -324,13 +359,167 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 		throws Exception {
 
 		ClientAuthentication clientAuthentication = new PrivateKeyJWT(
-			VALID_CLIENT_ID, URI.create("https://c2id.com/token"),
+			VALID_CLIENT_ID,
+			URI.create("https://c2id.com/token"),
 			JWSAlgorithm.RS256,
 			VALID_RSA_KEY_PAIR_1.toRSAPrivateKey(),
 			null,
 			null);
 
 		createBasicVerifier().verify(clientAuthentication, null, null);
+	}
+
+
+	public void testHappyPrivateKeyJWT_withReusePrevention()
+		throws Exception {
+
+		PrivateKeyJWT clientAuthentication = new PrivateKeyJWT(
+			VALID_CLIENT_ID,
+			URI.create("https://c2id.com/token"),
+			JWSAlgorithm.RS256,
+			VALID_RSA_KEY_PAIR_1.toRSAPrivateKey(),
+			null,
+			null);
+
+		ExpendedJTIChecker<ClientMetadata> jtiChecker = mock(ExpendedJTIChecker.class);
+		ArgumentCaptor<JWTID> jtiCaptor = ArgumentCaptor.forClass(JWTID.class);
+		ArgumentCaptor<ClientID> clientIDCaptor = ArgumentCaptor.forClass(ClientID.class);
+		ArgumentCaptor<ClientAuthenticationMethod> methodCaptor = ArgumentCaptor.forClass(ClientAuthenticationMethod.class);
+		ArgumentCaptor<Context<ClientMetadata>> contextCaptor = ArgumentCaptor.forClass(Context.class);
+
+		when(jtiChecker.isExpended(jtiCaptor.capture(), clientIDCaptor.capture(), methodCaptor.capture(), contextCaptor.capture())).thenReturn(false);
+
+		createBasicVerifierWithReusePrevention(jtiChecker).verify(clientAuthentication, null, null);
+
+		assertEquals(clientAuthentication.getJWTAuthenticationClaimsSet().getJWTID(), jtiCaptor.getValue());
+		assertEquals(VALID_CLIENT_ID, clientIDCaptor.getValue());
+		assertEquals(ClientAuthenticationMethod.PRIVATE_KEY_JWT, methodCaptor.getValue());
+		assertNull(contextCaptor.getValue());
+	}
+
+
+	public void testHappyPrivateKeyJWT_withReusePrevention_realImpl()
+		throws Exception {
+
+		PrivateKeyJWT clientAuthentication = new PrivateKeyJWT(
+			VALID_CLIENT_ID,
+			URI.create("https://c2id.com/token"),
+			JWSAlgorithm.RS256,
+			VALID_RSA_KEY_PAIR_1.toRSAPrivateKey(),
+			null,
+			null);
+
+		createBasicVerifierWithReusePrevention(new SampleExpendedJTIChecker()).verify(clientAuthentication, null, null);
+	}
+
+
+	public void testClientSecretJWT_preventReuse()
+		throws Exception {
+
+		ClientSecretJWT clientAuthentication = new ClientSecretJWT(
+			VALID_CLIENT_ID,
+			URI.create("https://c2id.com/token"),
+			JWSAlgorithm.HS256,
+			VALID_CLIENT_SECRET);
+
+		ExpendedJTIChecker<ClientMetadata> jtiChecker = mock(ExpendedJTIChecker.class);
+		ArgumentCaptor<JWTID> jtiCaptor = ArgumentCaptor.forClass(JWTID.class);
+		ArgumentCaptor<ClientID> clientIDCaptor = ArgumentCaptor.forClass(ClientID.class);
+		ArgumentCaptor<ClientAuthenticationMethod> methodCaptor = ArgumentCaptor.forClass(ClientAuthenticationMethod.class);
+		ArgumentCaptor<Context<ClientMetadata>> contextCaptor = ArgumentCaptor.forClass(Context.class);
+
+		when(jtiChecker.isExpended(jtiCaptor.capture(), clientIDCaptor.capture(), methodCaptor.capture(), contextCaptor.capture())).thenReturn(true);
+
+		try {
+			createBasicVerifierWithReusePrevention(jtiChecker).verify(clientAuthentication, null, null);
+			fail();
+		} catch (InvalidClientException e) {
+			assertEquals("Detected JWT ID replay", e.getMessage());
+		}
+
+		assertEquals(clientAuthentication.getJWTAuthenticationClaimsSet().getJWTID(), jtiCaptor.getValue());
+		assertEquals(VALID_CLIENT_ID, clientIDCaptor.getValue());
+		assertEquals(ClientAuthenticationMethod.CLIENT_SECRET_JWT, methodCaptor.getValue());
+		assertNull(contextCaptor.getValue());
+	}
+
+
+	public void testPrivateKeyJWT_preventReuse()
+		throws Exception {
+
+		PrivateKeyJWT clientAuthentication = new PrivateKeyJWT(
+			VALID_CLIENT_ID,
+			URI.create("https://c2id.com/token"),
+			JWSAlgorithm.RS256,
+			VALID_RSA_KEY_PAIR_1.toRSAPrivateKey(),
+			null,
+			null);
+
+		ExpendedJTIChecker<ClientMetadata> jtiChecker = mock(ExpendedJTIChecker.class);
+		ArgumentCaptor<JWTID> jtiCaptor = ArgumentCaptor.forClass(JWTID.class);
+		ArgumentCaptor<ClientID> clientIDCaptor = ArgumentCaptor.forClass(ClientID.class);
+		ArgumentCaptor<ClientAuthenticationMethod> methodCaptor = ArgumentCaptor.forClass(ClientAuthenticationMethod.class);
+		ArgumentCaptor<Context<ClientMetadata>> contextCaptor = ArgumentCaptor.forClass(Context.class);
+
+		when(jtiChecker.isExpended(jtiCaptor.capture(), clientIDCaptor.capture(), methodCaptor.capture(), contextCaptor.capture())).thenReturn(true);
+
+		try {
+			createBasicVerifierWithReusePrevention(jtiChecker).verify(clientAuthentication, null, null);
+			fail();
+		} catch (InvalidClientException e) {
+			assertEquals("Detected JWT ID replay", e.getMessage());
+		}
+
+		assertEquals(clientAuthentication.getJWTAuthenticationClaimsSet().getJWTID(), jtiCaptor.getValue());
+		assertEquals(VALID_CLIENT_ID, clientIDCaptor.getValue());
+		assertEquals(ClientAuthenticationMethod.PRIVATE_KEY_JWT, methodCaptor.getValue());
+		assertNull(contextCaptor.getValue());
+	}
+
+
+	public void testClientSecretJWT_preventReuse_realImpl()
+		throws Exception {
+
+		ClientAuthentication clientAuthentication = new ClientSecretJWT(
+			VALID_CLIENT_ID,
+			URI.create("https://c2id.com/token"),
+			JWSAlgorithm.HS256,
+			VALID_CLIENT_SECRET);
+
+		ClientAuthenticationVerifier<ClientMetadata> verifier = createBasicVerifierWithReusePrevention(new SampleExpendedJTIChecker());
+
+		verifier.verify(clientAuthentication, null, null);
+
+		try {
+			verifier.verify(clientAuthentication, null, null);
+			fail();
+		} catch (InvalidClientException e) {
+			assertEquals("Detected JWT ID replay", e.getMessage());
+		}
+	}
+
+
+	public void testPrivateKeyJWT_preventReuse_realImpl()
+		throws Exception {
+
+		ClientAuthentication clientAuthentication = new PrivateKeyJWT(
+			VALID_CLIENT_ID,
+			URI.create("https://c2id.com/token"),
+			JWSAlgorithm.RS256,
+			VALID_RSA_KEY_PAIR_1.toRSAPrivateKey(),
+			null,
+			null);
+
+		ClientAuthenticationVerifier<ClientMetadata> verifier = createBasicVerifierWithReusePrevention(new SampleExpendedJTIChecker());
+
+		verifier.verify(clientAuthentication, null, null);
+
+		try {
+			verifier.verify(clientAuthentication, null, null);
+			fail();
+		} catch (InvalidClientException e) {
+			assertEquals("Detected JWT ID replay", e.getMessage());
+		}
 	}
 
 
@@ -496,6 +685,29 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 			null);
 
 		createBasicVerifier().verify(clientAuthentication, Collections.singleton(Hint.CLIENT_HAS_REMOTE_JWK_SET), null);
+	}
+
+
+	public void testReloadRemoteJWKSet_preventReuse()
+		throws Exception {
+
+		ClientAuthentication clientAuthentication = new PrivateKeyJWT(
+			VALID_CLIENT_ID, URI.create("https://c2id.com/token"),
+			JWSAlgorithm.RS256,
+			VALID_RSA_KEY_PAIR_2.toRSAPrivateKey(),
+			null,
+			null);
+
+		ClientAuthenticationVerifier<?> verifier = createBasicVerifierWithReusePrevention(new SampleExpendedJTIChecker());
+
+		verifier.verify(clientAuthentication, Collections.singleton(Hint.CLIENT_HAS_REMOTE_JWK_SET), null);
+
+		try {
+			verifier.verify(clientAuthentication, Collections.singleton(Hint.CLIENT_HAS_REMOTE_JWK_SET), null);
+			fail();
+		} catch (InvalidClientException e) {
+			assertEquals("Detected JWT ID replay", e.getMessage());
+		}
 	}
 
 
