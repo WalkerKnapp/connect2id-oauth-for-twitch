@@ -17,6 +17,8 @@
 
 package com.nimbusds.oauth2.sdk.auth.verifier;
 
+import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 
 import java.util.Date;
@@ -31,23 +33,36 @@ public interface ExpendedJTIChecker<T> {
         /**
          * Checks if the specified JWT ID (@code jti) is expended.
          *
-         * @param jti     The JWT ID. Must not be {@code null}.
-         * @param context Additional context to be passed to the client
-         *                credentials selector. May be {@code null}.
+         * @param jti      The JWT ID. Must not be {@code null}.
+         * @param clientID The client ID. Must not be {@code null}.
+         * @param method   The client authentication method. Must not be
+         *                 {@code null}.
+         * @param context  Additional context to be passed to the client
+         *                 credentials selector. May be {@code null}.
          *
          * @return {@code true} if the JWT ID is expended, {@code false} if
          *         not.
          */
-        boolean isExpended(final JWTID jti, final Context<T> context);
+        boolean isExpended(final JWTID jti,
+                           final ClientID clientID,
+                           final ClientAuthenticationMethod method,
+                           final Context<T> context);
 
 
         /**
          * Marks the specified JWT ID (@code jti) as expended.
          *
-         * @param jti     The JWT ID. Must not be {@code null}.
-         * @param exp     The JWT expiration time. Must not be {@code null}.
-         * @param context Additional context to be passed to the client
-         *                credentials selector. May be {@code null}.
+         * @param jti      The JWT ID. Must not be {@code null}.
+         * @param exp      The JWT expiration time. Must not be {@code null}.
+         * @param clientID The client ID. Must not be {@code null}.
+         * @param method   The client authentication method. Must not be
+         *                 {@code null}.
+         * @param context  Additional context to be passed to the client
+         *                 credentials selector. May be {@code null}.
          */
-        void markExpended(final JWTID jti, final Date exp, final Context<T> context);
+        void markExpended(final JWTID jti,
+                          final Date exp,
+                          final ClientID clientID,
+                          final ClientAuthenticationMethod method,
+                          final Context<T> context);
 }

@@ -27,6 +27,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.oauth2.sdk.auth.*;
 import com.nimbusds.oauth2.sdk.id.Audience;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.nimbusds.oauth2.sdk.util.ListUtils;
@@ -339,26 +340,33 @@ public class ClientAuthenticationVerifier<T> {
 	}
 
 
-	private void preventJWTReplay(final JWTID jti, final Context<T> context)
+	private void preventJWTReplay(final JWTID jti,
+				      final ClientID clientID,
+				      final ClientAuthenticationMethod method,
+				      final Context<T> context)
 		throws InvalidClientException {
 
 		if (jti == null || getExpendedJTIChecker() == null) {
 			return;
 		}
 
-		if (getExpendedJTIChecker().isExpended(jti, context)) {
+		if (getExpendedJTIChecker().isExpended(jti, clientID, method, context)) {
 			throw new InvalidClientException("Detected JWT ID replay");
 		}
 	}
 
 
-	private void markExpended(final JWTID jti, final Date exp, final Context<T> context) {
+	private void markExpended(final JWTID jti,
+				  final Date exp,
+				  final ClientID clientID,
+				  final ClientAuthenticationMethod method,
+				  final Context<T> context) {
 
 		if (jti == null || getExpendedJTIChecker() == null) {
 			return;
 		}
 
-		getExpendedJTIChecker().markExpended(jti, exp, context);
+		getExpendedJTIChecker().markExpended(jti, exp, clientID, method, context);
 	}
 
 
@@ -415,7 +423,7 @@ public class ClientAuthenticationVerifier<T> {
 			// Check claims first before requesting secret from backend
 			JWTAuthenticationClaimsSet jwtAuthClaims = jwtAuth.getJWTAuthenticationClaimsSet();
 
-			preventJWTReplay(jwtAuthClaims.getJWTID(), context);
+			preventJWTReplay(jwtAuthClaims.getJWTID(), clientAuth.getClientID(), ClientAuthenticationMethod.CLIENT_SECRET_JWT, context);
 
 			try {
 				claimsSetVerifier.verify(jwtAuthClaims.toJWTClaimsSet(), null);
@@ -442,9 +450,7 @@ public class ClientAuthenticationVerifier<T> {
 				boolean valid = assertion.verify(new MACVerifier(candidate.getValueBytes()));
 
 				if (valid) {
-
-					markExpended(jwtAuthClaims.getJWTID(), jwtAuthClaims.getExpirationTime(), context);
-
+					markExpended(jwtAuthClaims.getJWTID(), jwtAuthClaims.getExpirationTime(), clientAuth.getClientID(), ClientAuthenticationMethod.CLIENT_SECRET_JWT, context);
 					return; // success
 				}
 			}
@@ -458,7 +464,7 @@ public class ClientAuthenticationVerifier<T> {
 			// Check claims first before requesting / retrieving public keys
 			JWTAuthenticationClaimsSet jwtAuthClaims = jwtAuth.getJWTAuthenticationClaimsSet();
 
-			preventJWTReplay(jwtAuthClaims.getJWTID(), context);
+			preventJWTReplay(jwtAuthClaims.getJWTID(), clientAuth.getClientID(), ClientAuthenticationMethod.PRIVATE_KEY_JWT, context);
 
 			try {
 				claimsSetVerifier.verify(jwtAuthClaims.toJWTClaimsSet(), null);
@@ -492,7 +498,7 @@ public class ClientAuthenticationVerifier<T> {
 				boolean valid = assertion.verify(jwsVerifier);
 				
 				if (valid) {
-					markExpended(jwtAuthClaims.getJWTID(), jwtAuthClaims.getExpirationTime(), context);
+					markExpended(jwtAuthClaims.getJWTID(), jwtAuthClaims.getExpirationTime(), clientAuth.getClientID(), ClientAuthenticationMethod.PRIVATE_KEY_JWT, context);
 					return; // success
 				}
 			}
@@ -526,7 +532,7 @@ public class ClientAuthenticationVerifier<T> {
 					boolean valid = assertion.verify(jwsVerifier);
 					
 					if (valid) {
-						markExpended(jwtAuthClaims.getJWTID(), jwtAuthClaims.getExpirationTime(), context);
+						markExpended(jwtAuthClaims.getJWTID(), jwtAuthClaims.getExpirationTime(), clientAuth.getClientID(), ClientAuthenticationMethod.PRIVATE_KEY_JWT, context);
 						return; // success
 					}
 				}
