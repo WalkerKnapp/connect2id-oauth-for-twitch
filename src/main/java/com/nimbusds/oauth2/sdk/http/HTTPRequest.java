@@ -612,12 +612,7 @@ public class HTTPRequest extends HTTPMessage implements ReadOnlyHTTPRequest {
 	}
 
 
-	/**
-	 * Gets the HTTP connect timeout.
-	 *
-	 * @return The HTTP connect timeout, in milliseconds. Zero implies no
-	 *         timeout.
-	 */
+	@Override
 	public int getConnectTimeout() {
 
 		return connectTimeout;
@@ -640,12 +635,7 @@ public class HTTPRequest extends HTTPMessage implements ReadOnlyHTTPRequest {
 	}
 
 
-	/**
-	 * Gets the HTTP response read timeout.
-	 *
-	 * @return The HTTP response read timeout, in milliseconds. Zero
-	 *         implies no timeout.
-	 */
+	@Override
 	public int getReadTimeout() {
 
 		return readTimeout;

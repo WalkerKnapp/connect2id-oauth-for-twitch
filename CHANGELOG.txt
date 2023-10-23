@@ -2339,3 +2339,7 @@ version 11.4 (2023-10-18)
       consumers that utilise a store to prevent JWT replay.
     * The default expiration time (exp) claim in JWTAuthenticationClaimsSet the
       constructor is reduced from 5 to 1 minute from the current system time.
+
+version 11.5 (2023-10-23)
+    * Moves the HTTPRequest.getConnectTimeout and getReadTimeout methods to the
+      ReadOnlyHTTPRequest interface.

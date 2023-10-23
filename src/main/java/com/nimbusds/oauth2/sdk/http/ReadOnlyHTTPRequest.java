@@ -49,4 +49,22 @@ public interface ReadOnlyHTTPRequest extends ReadOnlyHTTPMessage {
          * @return The request URL as URI.
          */
         URI getURI();
+
+
+        /**
+         * Gets the HTTP connect timeout.
+         *
+         * @return The HTTP connect timeout, in milliseconds. Zero implies no
+         *         timeout.
+         */
+        int getConnectTimeout();
+
+
+        /**
+         * Gets the HTTP response read timeout.
+         *
+         * @return The HTTP response read timeout, in milliseconds. Zero
+         *         implies no timeout.
+         */
+        int getReadTimeout();
 }
