@@ -18,29 +18,19 @@
 package com.nimbusds.openid.connect.sdk.federation.trust;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
-
-import junit.framework.TestCase;
-
-import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import com.nimbusds.jwt.util.DateUtils;
-import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.http.ApacheHTTPClient;
 import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.id.Subject;
-import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
-import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatementClaimsSet;
-import com.nimbusds.openid.connect.sdk.federation.entities.FederationEntityMetadata;
 import com.nimbusds.openid.connect.sdk.federation.trust.constraints.TrustChainConstraints;
-import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
+import junit.framework.TestCase;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.Map;
 
 
 public class TrustChainResolver_constructorTest extends TestCase {
@@ -126,5 +116,19 @@ public class TrustChainResolver_constructorTest extends TestCase {
 		TrustChainResolver resolver = new TrustChainResolver(anchors, TrustChainConstraints.NO_CONSTRAINTS, statementRetriever);
 		assertEquals(anchors, resolver.getTrustAnchors());
 		assertEquals(statementRetriever, resolver.getEntityStatementRetriever());
+	}
+
+
+	public void testConstructorWithApacheHTTPClient() {
+
+		Map<EntityID,JWKSet> anchors = Collections.singletonMap(new EntityID(ANCHOR_ISSUER), ANCHOR_JWK_SET);
+
+		TrustChainResolver resolver = new TrustChainResolver(
+			anchors,
+			TrustChainConstraints.NO_CONSTRAINTS,
+			new DefaultEntityStatementRetriever(new ApacheHTTPClient()));
+
+		assertEquals(anchors, resolver.getTrustAnchors());
+		assertTrue(resolver.getEntityStatementRetriever() instanceof DefaultEntityStatementRetriever);
 	}
 }

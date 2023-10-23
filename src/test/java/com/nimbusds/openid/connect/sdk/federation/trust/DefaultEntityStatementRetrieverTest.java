@@ -24,6 +24,7 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.util.DateUtils;
+import com.nimbusds.oauth2.sdk.http.ApacheHTTPClient;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
@@ -172,6 +173,47 @@ public class DefaultEntityStatementRetrieverTest {
 		assertEquals(entityStatement.getClaimsSet().toJWTClaimsSet().getClaims(), out.getClaimsSet().toJWTClaimsSet().getClaims());
 		
 		assertEquals(Collections.singletonList(URI.create(issuer + "/.well-known/openid-federation")), retriever.getRecordedRequests());
+	}
+
+
+	@Test
+	public void testFetchSelfIssuedEntityStatement_withCustomHTTPClient()
+		throws Exception {
+
+		Issuer issuer = new Issuer("http://localhost:" + port());
+
+		EntityStatementClaimsSet claimsSet = createOPStatementClaimsSet(issuer, issuer);
+		EntityStatement entityStatement = EntityStatement.sign(claimsSet, OP_JWK);
+
+		onRequest()
+			.havingMethodEqualTo("GET")
+			.havingPathEqualTo(FederationEntityConfigurationRequest.OPENID_FEDERATION_ENTITY_WELL_KNOWN_PATH)
+			.respond()
+			.withStatus(200)
+			.withContentType(EntityStatement.CONTENT_TYPE.toString())
+			.withBody(entityStatement.getSignedStatement().serialize());
+
+		DefaultEntityStatementRetriever retriever = new DefaultEntityStatementRetriever(new ApacheHTTPClient());
+
+		EntityStatement out = retriever.fetchEntityConfiguration(new EntityID(issuer.getValue()));
+
+		out.verifySignatureOfSelfStatement();
+
+		assertEquals(entityStatement.getClaimsSet().toJWTClaimsSet().getClaims(), out.getClaimsSet().toJWTClaimsSet().getClaims());
+
+		assertEquals(Collections.singletonList(URI.create(issuer + "/.well-known/openid-federation")), retriever.getRecordedRequests());
+	}
+
+
+	@Test
+	public void testFetchSelfIssuedEntityStatement_withCustomHTTPClient_rejectNull() {
+
+		try {
+			new DefaultEntityStatementRetriever(null);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("The HTTP request sender must not be null", e.getMessage());
+		}
 	}
 	
 	

@@ -22,6 +22,7 @@ import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.WellKnownPathComposeStrategy;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.http.HTTPRequestSender;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.openid.connect.sdk.federation.api.FetchEntityStatementRequest;
@@ -70,6 +71,9 @@ public class DefaultEntityStatementRetriever implements EntityStatementRetriever
 	public static final int DEFAULT_HTTP_READ_TIMEOUT_MS = 1000;
 	
 	
+	private final HTTPRequestSender httpRequestSender;
+	
+	
 	/**
 	 * Running list of the recorded HTTP requests.
 	 */
@@ -99,6 +103,24 @@ public class DefaultEntityStatementRetriever implements EntityStatementRetriever
 					       final int httpReadTimeoutMs) {
 		this.httpConnectTimeoutMs = httpConnectTimeoutMs;
 		this.httpReadTimeoutMs = httpReadTimeoutMs;
+		httpRequestSender = null;
+	}
+
+
+	/**
+	 * Creates a new entity statement retriever.
+	 *
+	 * @param httpRequestSender The HTTP request sender to use. Must not be
+	 *                          {@code null}.
+	 */
+	public DefaultEntityStatementRetriever(final HTTPRequestSender httpRequestSender) {
+
+		if (httpRequestSender == null) {
+			throw new IllegalArgumentException("The HTTP request sender must not be null");
+		}
+		this.httpRequestSender = httpRequestSender;
+		httpConnectTimeoutMs = 0;
+		httpReadTimeoutMs = 0;
 	}
 	
 	
@@ -142,7 +164,11 @@ public class DefaultEntityStatementRetriever implements EntityStatementRetriever
 		
 		HTTPResponse httpResponse;
 		try {
-			httpResponse = httpRequest.send();
+			if (httpRequestSender != null) {
+				httpResponse = httpRequest.send(httpRequestSender);
+			} else {
+				httpResponse = httpRequest.send();
+			}
 		} catch (IOException e) {
 			throw new ResolveException("Couldn't retrieve entity configuration for " + httpRequest.getURL() + ": " + e.getMessage(), e);
 		}
