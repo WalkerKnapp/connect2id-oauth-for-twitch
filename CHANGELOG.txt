@@ -2348,3 +2348,8 @@ version 11.5 (2023-10-23)
 
 version 11.6 (2023-11-05)
     * Removes deprecated comma separator support in Scope.parse (iss #445).
+    * Upgrades to com.nimbusds:content-type:2.3
+    * Updates com.nimbusds:nimbus-jose-jwt:9.37
+    * Updates to BouncyCastle 1.76 (1.8 on).
+    * Updates to optional SAML dep org.apache.santuario:xmlsec:2.3.4
+    * Updates to optional SAML dep com.google.guava:guava:32.0.1-jre
