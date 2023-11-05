@@ -154,13 +154,11 @@ public class ScopeTest extends TestCase {
 	}
 
 
-	public void testParseCommaDelimited() {
+	public void testParseCommaDelimitedNoLongerSupported() {
 
 		Scope scope = Scope.parse("read,write,admin");
 
-		assertTrue(scope.contains("read"));
-		assertTrue(scope.contains("write"));
-		assertTrue(scope.contains("admin"));
-		assertEquals(3, scope.size());
+		assertTrue(scope.contains("read,write,admin"));
+		assertEquals(1, scope.size());
 	}
 }

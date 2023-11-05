@@ -2345,3 +2345,6 @@ version 11.5 (2023-10-23)
       HTTPRequestSender instances.
     * Moves the HTTPRequest.getConnectTimeout and getReadTimeout methods to the
       ReadOnlyHTTPRequest interface.
+
+version 11.6 (2023-11-05)
+    * Removes deprecated comma separator support in Scope.parse (iss #445).
