@@ -2352,6 +2352,7 @@ version 11.6 (2023-11-05)
     * Adds ContentTypeUtils.ensureContentType method with sub-type suffix
       support.
     * Removes deprecated comma separator support in Scope.parse (iss #445).
+    * Deprecates RPMetadataPolicyFactory.
     * Upgrades to com.nimbusds:content-type:2.3
     * Updates com.nimbusds:nimbus-jose-jwt:9.37
     * Updates to BouncyCastle 1.76 (1.8 on).

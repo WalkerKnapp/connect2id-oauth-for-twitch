@@ -26,6 +26,7 @@ import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
 /**
  * OpenID relying party metadata policy factory.
  */
+@Deprecated
 public interface RPMetadataPolicyFactory {
 	
 	
