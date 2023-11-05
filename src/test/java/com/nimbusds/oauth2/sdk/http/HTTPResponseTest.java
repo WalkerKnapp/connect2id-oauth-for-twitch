@@ -106,14 +106,14 @@ public class HTTPResponseTest extends TestCase {
 			response.getBodyAsJSONObject();
 			fail();
 		} catch (ParseException e) {
-			assertEquals("The HTTP Content-Type header must be application/json, received application/x-www-form-urlencoded", e.getMessage());
+			assertEquals("The HTTP Content-Type header must be application/json or have the +json suffix, received application/x-www-form-urlencoded", e.getMessage());
 		}
 
 		try {
 			response.getBodyAsJWT();
 			fail();
 		} catch (ParseException e) {
-			assertEquals("The HTTP Content-Type header must be application/jwt, received application/x-www-form-urlencoded", e.getMessage());
+			assertEquals("The HTTP Content-Type header must be application/jwt or have the +jwt suffix, received application/x-www-form-urlencoded", e.getMessage());
 		}
 
 		response.setEntityContentType(ContentType.APPLICATION_JSON);
@@ -194,14 +194,14 @@ public class HTTPResponseTest extends TestCase {
 			response.getContentAsJSONObject();
 			fail();
 		} catch (ParseException e) {
-			assertEquals("The HTTP Content-Type header must be application/json, received application/x-www-form-urlencoded", e.getMessage());
+			assertEquals("The HTTP Content-Type header must be application/json or have the +json suffix, received application/x-www-form-urlencoded", e.getMessage());
 		}
 
 		try {
 			response.getContentAsJWT();
 			fail();
 		} catch (ParseException e) {
-			assertEquals("The HTTP Content-Type header must be application/jwt, received application/x-www-form-urlencoded", e.getMessage());
+			assertEquals("The HTTP Content-Type header must be application/jwt or have the +jwt suffix, received application/x-www-form-urlencoded", e.getMessage());
 		}
 
 		response.setEntityContentType(ContentType.APPLICATION_JSON);
@@ -300,11 +300,91 @@ public class HTTPResponseTest extends TestCase {
 	}
 
 
+	public void testGetBodyAsJSONObject()
+		throws Exception {
+
+		HTTPResponse response = new HTTPResponse(200);
+		response.setEntityContentType(ContentType.APPLICATION_JSON);
+		response.setBody("{}");
+
+		assertTrue(response.getBodyAsJSONObject().isEmpty());
+	}
+
+
+	public void testGetBodyAsJSONObject_subTypeSuffix()
+		throws Exception {
+
+		HTTPResponse response = new HTTPResponse(200);
+		response.setEntityContentType(ContentType.parse("application/fruit+json"));
+		response.setBody("{}");
+
+		assertTrue(response.getBodyAsJSONObject().isEmpty());
+	}
+
+
+	public void testGetBodyAsJSONObject_missingContentType() {
+
+		HTTPResponse response = new HTTPResponse(200);
+		response.setBody("{}");
+
+		try {
+			response.getBodyAsJSONObject();
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Missing HTTP Content-Type header", e.getMessage());
+		}
+	}
+
+
+	public void testGetBodyAsJSONObject_contentTypeNotAccepted() {
+
+		HTTPResponse response = new HTTPResponse(200);
+		response.setEntityContentType(ContentType.APPLICATION_JWT);
+		response.setBody("{}");
+
+		try {
+			response.getBodyAsJSONObject();
+			fail();
+		} catch (ParseException e) {
+			assertEquals("The HTTP Content-Type header must be application/json or have the +json suffix, received application/jwt", e.getMessage());
+		}
+	}
+
+
+	public void testGetBodyAsJSONObject_suffixNotAccepted() {
+
+		HTTPResponse response = new HTTPResponse(200);
+		response.setEntityContentType(new ContentType("application", "fruit+jwt"));
+		response.setBody("{}");
+
+		try {
+			response.getBodyAsJSONObject();
+			fail();
+		} catch (ParseException e) {
+			assertEquals("The HTTP Content-Type header must be application/json or have the +json suffix, received application/fruit+jwt", e.getMessage());
+		}
+	}
+
+
 	public void testGetBodyAsJSONArray()
 		throws Exception {
 
 		HTTPResponse response = new HTTPResponse(200);
 		response.setEntityContentType(ContentType.APPLICATION_JSON);
+		response.setBody("[\"apples\",\"pears\"]");
+
+		JSONArray array = response.getBodyAsJSONArray();
+		assertEquals("apples", array.get(0));
+		assertEquals("pears", array.get(1));
+		assertEquals(2, array.size());
+	}
+
+
+	public void testGetBodyAsJSONArray_subTypeSuffix()
+		throws Exception {
+
+		HTTPResponse response = new HTTPResponse(200);
+		response.setEntityContentType(ContentType.parse("application/something+json"));
 		response.setBody("[\"apples\",\"pears\"]");
 
 		JSONArray array = response.getBodyAsJSONArray();

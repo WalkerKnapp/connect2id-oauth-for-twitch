@@ -2347,6 +2347,10 @@ version 11.5 (2023-10-23)
       ReadOnlyHTTPRequest interface.
 
 version 11.6 (2023-11-05)
+    * HTTPMessage.getBodyAsJSONObject, getBodyAsJSONArray and getBodyAsJWT must
+      accept appropriate sub-type suffixes (iss #443).
+    * Adds ContentTypeUtils.ensureContentType method with sub-type suffix
+      support.
     * Removes deprecated comma separator support in Scope.parse (iss #445).
     * Upgrades to com.nimbusds:content-type:2.3
     * Updates com.nimbusds:nimbus-jose-jwt:9.37

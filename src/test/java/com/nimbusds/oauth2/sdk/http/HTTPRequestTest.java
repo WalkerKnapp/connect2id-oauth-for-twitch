@@ -418,6 +418,24 @@ public class HTTPRequestTest {
 
 
 	@Test
+	public void testParseJSONObject_subTypeSuffix()
+		throws Exception {
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("http://localhost"));
+
+		httpRequest.setEntityContentType(ContentType.parse("application/fruit+json"));
+
+		httpRequest.setBody("{\"apples\":30, \"pears\":\"green\"}");
+
+		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
+
+		assertEquals(30, JSONObjectUtils.getInt(jsonObject, "apples"));
+		assertEquals("green", JSONObjectUtils.getString(jsonObject, "pears"));
+		assertEquals(2, jsonObject.size());
+	}
+
+
+	@Test
 	public void testParseJSONObject_deprecated()
 		throws Exception {
 

@@ -150,7 +150,7 @@ public class CIBARequestAcknowledgementTest extends TestCase {
 			CIBARequestAcknowledgement.parse(httpResponse);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("The HTTP Content-Type header must be application/json, received application/x-www-form-urlencoded", e.getMessage());
+			assertEquals("The HTTP Content-Type header must be application/json or have the +json suffix, received application/x-www-form-urlencoded", e.getMessage());
 		}
 	}
 	

@@ -28,8 +28,14 @@ public class ContentTypeUtilsTest extends TestCase {
 	
 	
 	public void testEnsureContentType_matches() throws ParseException {
-		
+
+		// Exact
 		ContentTypeUtils.ensureContentType(ContentType.APPLICATION_JSON, ContentType.APPLICATION_JSON);
+		ContentTypeUtils.ensureContentType(ContentType.APPLICATION_JSON, null, ContentType.APPLICATION_JSON);
+
+		// Accept suffix
+		ContentTypeUtils.ensureContentType(ContentType.APPLICATION_JSON, "json", ContentType.APPLICATION_JSON);
+		ContentTypeUtils.ensureContentType(ContentType.APPLICATION_JSON, "json", new ContentType("application", "jws+json"));
 	}
 	
 	
@@ -41,16 +47,51 @@ public class ContentTypeUtilsTest extends TestCase {
 		} catch (ParseException e) {
 			assertEquals("Missing HTTP Content-Type header", e.getMessage());
 		}
+
+		try {
+			ContentTypeUtils.ensureContentType(ContentType.APPLICATION_JSON, null, null);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Missing HTTP Content-Type header", e.getMessage());
+		}
+
+		try {
+			ContentTypeUtils.ensureContentType(ContentType.APPLICATION_JSON, "json", null);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Missing HTTP Content-Type header", e.getMessage());
+		}
 	}
 	
 	
 	public void testEnsureContentType_mismatch() {
 		
 		try {
-			ContentTypeUtils.ensureContentType(ContentType.APPLICATION_JSON, new ContentType("application", "jwt"));
+			ContentTypeUtils.ensureContentType(ContentType.APPLICATION_JSON, ContentType.APPLICATION_JWT);
 			fail();
 		} catch (ParseException e) {
 			assertEquals("The HTTP Content-Type header must be application/json, received application/jwt", e.getMessage());
+		}
+
+		try {
+			ContentTypeUtils.ensureContentType(ContentType.APPLICATION_JSON, null, ContentType.APPLICATION_JWT);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("The HTTP Content-Type header must be application/json, received application/jwt", e.getMessage());
+		}
+
+		try {
+			ContentTypeUtils.ensureContentType(ContentType.APPLICATION_JSON, "json", ContentType.APPLICATION_JWT);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("The HTTP Content-Type header must be application/json or have the +json suffix, received application/jwt", e.getMessage());
+		}
+
+		try {
+			ContentTypeUtils.ensureContentType(ContentType.APPLICATION_JSON, "json", new ContentType("text", "json"));
+			fail();
+		} catch (ParseException e) {
+			assertEquals("The HTTP Content-Type header must be application/json or have the +json suffix, received text/json", e.getMessage());
 		}
 	}
 }

@@ -145,6 +145,28 @@ abstract class HTTPMessage implements ReadOnlyHTTPMessage {
 
 
 	/**
+	 * Ensures this HTTP message has the specified {@code Content-Type}
+	 * header value. This method compares only the primary type and
+	 * subtype; any content type parameters, such as {@code charset}, are
+	 * ignored.
+	 *
+	 * @param contentType   The expected content type. Must not be
+	 *                      {@code null}.
+	 * @param subTypeSuffix Acceptable sub type suffix if the expected
+	 *                      content type doesn't match, {@code null} if not
+	 *                      specified.
+	 *
+	 * @throws ParseException If the {@code Content-Type} header is missing
+	 *                        or its primary and subtype don't match.
+	 */
+	public void ensureEntityContentType(final ContentType contentType, final String subTypeSuffix)
+		throws ParseException {
+
+		ContentTypeUtils.ensureContentType(contentType, subTypeSuffix, getEntityContentType());
+	}
+
+
+	/**
 	 * Gets an HTTP header's value.
 	 *
 	 * @param name The header name. Must not be {@code null}.
@@ -254,14 +276,15 @@ abstract class HTTPMessage implements ReadOnlyHTTPMessage {
 	 * @return The response body as a JSON object.
 	 *
 	 * @throws ParseException If the Content-Type header isn't
-	 *                        {@code application/json}, the response
-	 *                        body is {@code null}, empty or couldn't be
-	 *                        parsed to a valid JSON object.
+	 *                        {@code application/json} or has no
+	 *                        {@code +json} suffix, the response body is
+	 *                        {@code null}, empty or couldn't be parsed to
+	 *                        a valid JSON object.
 	 */
 	public JSONObject getBodyAsJSONObject()
 		throws ParseException {
 
-		ensureEntityContentType(ContentType.APPLICATION_JSON);
+		ensureEntityContentType(ContentType.APPLICATION_JSON, "json");
 
 		ensureBody();
 
@@ -275,14 +298,15 @@ abstract class HTTPMessage implements ReadOnlyHTTPMessage {
 	 * @return The response content as a JSON array.
 	 *
 	 * @throws ParseException If the Content-Type header isn't
-	 *                        {@code application/json}, the response
-	 *                        content is {@code null}, empty or couldn't be
-	 *                        parsed to a valid JSON array.
+	 *                        {@code application/json} or has no
+	 *                        {@code +json} suffix, the response content is
+	 *                        {@code null}, empty or couldn't be parsed to
+	 *                        a valid JSON array.
 	 */
 	public JSONArray getBodyAsJSONArray()
 		throws ParseException {
 
-		ensureEntityContentType(ContentType.APPLICATION_JSON);
+		ensureEntityContentType(ContentType.APPLICATION_JSON, "json");
 
 		ensureBody();
 
@@ -296,14 +320,15 @@ abstract class HTTPMessage implements ReadOnlyHTTPMessage {
 	 * @return The response body as a JSON Web Token (JWT).
 	 *
 	 * @throws ParseException If the Content-Type header isn't
-	 *                        {@code application/jwt}, the response content
-	 *                        is {@code null}, empty or couldn't be parsed
-	 *                        to a valid JSON Web Token (JWT).
+	 *                        {@code application/jwt} or has no
+	 *                        {@code +jwt} suffix, the response content is
+	 *                        {@code null}, empty or couldn't be parsed to
+	 *                        a valid JSON Web Token (JWT).
 	 */
 	public JWT getBodyAsJWT()
 		throws ParseException {
 
-		ensureEntityContentType(ContentType.APPLICATION_JWT);
+		ensureEntityContentType(ContentType.APPLICATION_JWT, "jwt");
 
 		ensureBody();
 
