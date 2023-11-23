@@ -1,7 +1,7 @@
 /*
  * oauth2-oidc-sdk
  *
- * Copyright 2012-2016, Connect2id Ltd and contributors.
+ * Copyright 2012-2023, Connect2id Ltd and contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
  * this file except in compliance with the License. You may obtain a copy of the
@@ -526,8 +526,20 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 		}
 		params.putAll(authzGrant.toParameters());
 
-		if (scope != null && ! scope.isEmpty()) {
-			params.put("scope", Collections.singletonList(scope.toString()));
+		switch (authzGrant.getType().getScopeRequirementInTokenRequest()) {
+			case REQUIRED:
+				if (scope == null || scope.isEmpty()) {
+					throw new SerializeException("Scope is not required for the grant '" + authzGrant.getType() + "'");
+				}
+				break;
+			case OPTIONAL:
+				if (scope != null && ! scope.isEmpty()) {
+					params.put("scope", Collections.singletonList(scope.toString()));
+				}
+				break;
+			case NOT_ALLOWED:
+			default:
+				break;
 		}
 
 		if (getClientID() != null) {
