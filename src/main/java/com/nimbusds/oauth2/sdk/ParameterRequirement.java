@@ -19,22 +19,22 @@ package com.nimbusds.oauth2.sdk;
 
 
 /**
- * Enumeration representing the requirement level for a parameter.
+ * The requirement level for a parameter.
  */
 public enum ParameterRequirement {
 
 	/**
-	 * Indicates that the parameter is required.
+	 * The parameter is required.
 	 */
 	REQUIRED,
 
 	/**
-	 * Indicates that the parameter is optional.
+	 * The parameter is optional.
 	 */
 	OPTIONAL,
 
 	/**
-	 * Indicates that the parameter is not allowed.
+	 * The parameter is not allowed.
 	 */
 	NOT_ALLOWED;
 }

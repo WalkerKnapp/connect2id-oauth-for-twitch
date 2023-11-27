@@ -69,6 +69,21 @@ public class GrantTypeTest extends TestCase {
 	}
 
 
+	public void testScopeParameterRequirementInTokenRequests() {
+
+		assertEquals(ParameterRequirement.NOT_ALLOWED, GrantType.AUTHORIZATION_CODE.getScopeRequirementInTokenRequest());
+		assertEquals(ParameterRequirement.NOT_ALLOWED, GrantType.IMPLICIT.getScopeRequirementInTokenRequest());
+		assertEquals(ParameterRequirement.OPTIONAL, GrantType.REFRESH_TOKEN.getScopeRequirementInTokenRequest());
+		assertEquals(ParameterRequirement.OPTIONAL, GrantType.PASSWORD.getScopeRequirementInTokenRequest());
+		assertEquals(ParameterRequirement.OPTIONAL, GrantType.CLIENT_CREDENTIALS.getScopeRequirementInTokenRequest());
+		assertEquals(ParameterRequirement.OPTIONAL, GrantType.JWT_BEARER.getScopeRequirementInTokenRequest());
+		assertEquals(ParameterRequirement.OPTIONAL, GrantType.SAML2_BEARER.getScopeRequirementInTokenRequest());
+		assertEquals(ParameterRequirement.NOT_ALLOWED, GrantType.DEVICE_CODE.getScopeRequirementInTokenRequest());
+		assertEquals(ParameterRequirement.NOT_ALLOWED, GrantType.CIBA.getScopeRequirementInTokenRequest());
+		assertEquals(ParameterRequirement.OPTIONAL, GrantType.TOKEN_EXCHANGE.getScopeRequirementInTokenRequest());
+	}
+
+
 	public void testRequestParameters() {
 
 		assertTrue(GrantType.AUTHORIZATION_CODE.getRequestParameterNames().contains("code"));
@@ -106,12 +121,13 @@ public class GrantTypeTest extends TestCase {
 	}
 
 
-	public void testDefaultConstructor() {
+	public void testMinimalConstructor() {
 
 		GrantType grantType = new GrantType("custom");
 		assertEquals("custom", grantType.getValue());
 		assertFalse(grantType.requiresClientAuthentication());
 		assertFalse(grantType.requiresClientID());
+		assertEquals(ParameterRequirement.NOT_ALLOWED, grantType.getScopeRequirementInTokenRequest());
 	}
 
 

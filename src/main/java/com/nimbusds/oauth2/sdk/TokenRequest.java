@@ -528,12 +528,13 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 
 		switch (authzGrant.getType().getScopeRequirementInTokenRequest()) {
 			case REQUIRED:
-				if (scope == null || scope.isEmpty()) {
-					throw new SerializeException("Scope is not required for the grant '" + authzGrant.getType() + "'");
+				if (CollectionUtils.isEmpty(scope)) {
+					throw new SerializeException("Scope is required for the " + authzGrant.getType() + " grant");
 				}
+				params.put("scope", Collections.singletonList(scope.toString()));
 				break;
 			case OPTIONAL:
-				if (scope != null && ! scope.isEmpty()) {
+				if (CollectionUtils.isNotEmpty(scope)) {
 					params.put("scope", Collections.singletonList(scope.toString()));
 				}
 				break;
@@ -649,7 +650,13 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 		Scope scope = null;
 
 		if (scopeValue != null) {
+
 			scope = Scope.parse(scopeValue);
+
+			if (CollectionUtils.isNotEmpty(scope) && ParameterRequirement.NOT_ALLOWED.equals(grant.getType().getScopeRequirementInTokenRequest())) {
+				String msg = "The scope parameter is not allowed";
+				throw new ParseException(msg, OAuth2Error.INVALID_REQUEST.appendDescription(": " + msg));
+			}
 		}
 
 		// Parse optional RAR

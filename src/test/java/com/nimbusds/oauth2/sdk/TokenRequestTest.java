@@ -26,10 +26,13 @@ import java.util.*;
 import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.SSLSocketFactory;
 
+import com.nimbusds.oauth2.sdk.device.DeviceCode;
+import com.nimbusds.oauth2.sdk.device.DeviceCodeGrant;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import junit.framework.TestCase;
 import org.opensaml.security.credential.BasicCredential;
+import org.opensaml.xmlsec.signature.P;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
 import com.nimbusds.common.contenttype.ContentType;
@@ -927,6 +930,30 @@ public class TokenRequestTest extends TestCase {
 			fail();
 		} catch (ParseException e) {
 			assertEquals("Missing required client_id parameter", e.getMessage());
+		}
+	}
+
+
+	public void testCodeGrant_parseWithScopeParameter()
+		throws Exception {
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
+		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+		Map<String, List<String>> formParams = new HashMap<>();
+		formParams.put("client_id", Collections.singletonList(new ClientID().getValue()));
+		formParams.put("grant_type", Collections.singletonList(GrantType.AUTHORIZATION_CODE.getValue()));
+		formParams.put("code", Collections.singletonList(new AuthorizationCode().getValue()));
+		formParams.put("redirect_uri", Collections.singletonList(URI.create("https://example.com/cb").toString()));
+		formParams.put("scope", Collections.singletonList(new Scope("read", "write").toString()));
+		httpRequest.setBody(URLUtils.serializeParameters(formParams));
+
+		try {
+			TokenRequest.parse(httpRequest);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("The scope parameter is not allowed", e.getMessage());
+			assertEquals(OAuth2Error.INVALID_REQUEST.getCode(), e.getErrorObject().getCode());
+			assertEquals("Invalid request: The scope parameter is not allowed", e.getErrorObject().getDescription());
 		}
 	}
 
@@ -1984,24 +2011,45 @@ public class TokenRequestTest extends TestCase {
 		}
 	}
 
-	public void testAuthorizationCodeGrantScopeRequirementsInTokenRequest()
-			throws Exception {
+
+	public void testAuthorizationCodeGrantScopeRequirementInTokenRequest()
+		throws Exception {
 		AuthorizationCodeGrant grant = new AuthorizationCodeGrant(new AuthorizationCode("abc"), null);
-		testScopeRequirementsInTokenRequest(grant);
-	}
-
-	public void testClientCredentialsGrantScopeRequirementsInTokenRequest()
-			throws Exception {
-		testScopeRequirementsInTokenRequest(new ClientCredentialsGrant());
-	}
-
-	public void testRefreshTokenGrantScopeRequirementsInTokenRequest()
-			throws Exception {
-		testScopeRequirementsInTokenRequest(new RefreshTokenGrant(new RefreshToken("xyz")));
+		testScopeRequirementInTokenRequest(grant);
 	}
 
 
-	private void testScopeRequirementsInTokenRequest(AuthorizationGrant grant)
+	public void testClientCredentialsGrantScopeRequirementInTokenRequest()
+		throws Exception {
+		testScopeRequirementInTokenRequest(new ClientCredentialsGrant());
+	}
+
+
+	public void testPasswordGrantScopeRequirementInTokenRequest()
+		throws Exception {
+		testScopeRequirementInTokenRequest(new ResourceOwnerPasswordCredentialsGrant("alice", new Secret("s3cr3t")));
+	}
+
+
+	public void testRefreshTokenGrantScopeRequirementInTokenRequest()
+		throws Exception {
+		testScopeRequirementInTokenRequest(new RefreshTokenGrant(new RefreshToken()));
+	}
+
+
+	public void testDeviceGrantScopeRequirementInTokenRequest()
+		throws Exception {
+		testScopeRequirementInTokenRequest(new DeviceCodeGrant(new DeviceCode()));
+	}
+
+
+	public void testCIBAGrantScopeRequirementInTokenRequest()
+		throws Exception {
+		testScopeRequirementInTokenRequest(new CIBAGrant(new AuthRequestID()));
+	}
+
+
+	private void testScopeRequirementInTokenRequest(AuthorizationGrant grant)
 		throws Exception {
 
 		URI uri = new URI("https://c2id.com/token");

@@ -2358,3 +2358,14 @@ version 11.6 (2023-11-05)
     * Updates to BouncyCastle 1.76 (1.8 on).
     * Updates to optional SAML dep org.apache.santuario:xmlsec:2.3.4
     * Updates to optional SAML dep com.google.guava:guava:32.0.1-jre
+
+version 11.7 (2023-11-27)
+    * Adds a ParameterRequirement enumeration.
+    * The GrantType adds a method returning the scope parameter requirement in
+      token requests.
+    * TokenRequest.toHTTPRequest must not include a scope parameter with an
+      authorisation code grant or other OAuth 2.0 grants that don't allow it
+      (iss #450).
+    * TokenRequest.parse must reject requests with a scope parameter that isn't
+      allowed according to the grant type with an invalid_request error (iss
+      #450).

@@ -18,12 +18,11 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+import net.jcip.annotations.Immutable;
+
+import java.util.*;
 
 
 /**
@@ -34,72 +33,63 @@ public final class GrantType extends Identifier {
 
 	
 	/**
-	 * Authorisation code. Client authentication required only for
-	 * confidential clients.
+	 * Authorisation code, as specified in RFC 6749.
 	 */
 	public static final GrantType AUTHORIZATION_CODE = new GrantType("authorization_code", false, true, ParameterRequirement.NOT_ALLOWED, new HashSet<>(Arrays.asList("code", "redirect_uri", "code_verifier")));
 
 
 	/**
-	 * Implicit. Client authentication is not performed (except for signed
-	 * OpenID Connect authentication requests).
+	 * Implicit, as specified in RFC 6749.
 	 */
-	public static final GrantType IMPLICIT = new GrantType("implicit", false, true,  ParameterRequirement.NOT_ALLOWED, Collections.<String>emptySet());
+	public static final GrantType IMPLICIT = new GrantType("implicit", false, true, ParameterRequirement.NOT_ALLOWED, Collections.<String>emptySet());
 	
 	
 	/**
-	 * Refresh token. Client authentication required only for confidential
-	 * clients.
+	 * Refresh token, as specified in RFC 6749.
 	 */
-	public static final GrantType REFRESH_TOKEN = new GrantType("refresh_token", false, false,  ParameterRequirement.OPTIONAL, Collections.singleton("refresh_token"));
+	public static final GrantType REFRESH_TOKEN = new GrantType("refresh_token", false, false, ParameterRequirement.OPTIONAL, Collections.singleton("refresh_token"));
 
 
 	/**
-	 * Password. Client authentication required only for confidential
-	 * clients.
+	 * Password, as specified in RFC 6749.
 	 */
-	public static final GrantType PASSWORD = new GrantType("password", false, false,  ParameterRequirement.OPTIONAL, new HashSet<>(Arrays.asList("username", "password")));
+	public static final GrantType PASSWORD = new GrantType("password", false, false, ParameterRequirement.OPTIONAL, new HashSet<>(Arrays.asList("username", "password")));
 
 
 	/**
-	 * Client credentials. Client authentication is required.
+	 * Client credentials, as specified in RFC 6749.
 	 */
-	public static final GrantType CLIENT_CREDENTIALS = new GrantType("client_credentials", true, true,  ParameterRequirement.OPTIONAL, Collections.<String>emptySet());
+	public static final GrantType CLIENT_CREDENTIALS = new GrantType("client_credentials", true, true, ParameterRequirement.OPTIONAL, Collections.<String>emptySet());
 
 
 	/**
-	 * JWT bearer, as defined in RFC 7523. Explicit client authentication
-	 * is optional.
+	 * JWT bearer, as specified in RFC 7523.
 	 */
-	public static final GrantType JWT_BEARER = new GrantType("urn:ietf:params:oauth:grant-type:jwt-bearer", false, false,  ParameterRequirement.OPTIONAL, Collections.singleton("assertion"));
+	public static final GrantType JWT_BEARER = new GrantType("urn:ietf:params:oauth:grant-type:jwt-bearer", false, false, ParameterRequirement.OPTIONAL, Collections.singleton("assertion"));
 
 
 	/**
-	 * SAML 2.0 bearer, as defined in RFC 7522. Explicit client
-	 * authentication is optional.
+	 * SAML 2.0 bearer, as specified in RFC 7522.
 	 */
-	public static final GrantType SAML2_BEARER = new GrantType("urn:ietf:params:oauth:grant-type:saml2-bearer", false, false,  ParameterRequirement.OPTIONAL, Collections.singleton("assertion"));
+	public static final GrantType SAML2_BEARER = new GrantType("urn:ietf:params:oauth:grant-type:saml2-bearer", false, false, ParameterRequirement.OPTIONAL, Collections.singleton("assertion"));
 
 
 	/**
-	 * Device Code, as defined in OAuth 2.0 Device Flow for
-	 * Browserless and Input Constrained Devices. Explicit client
-	 * authentication is optional.
+	 * Device authorisation grant, as specified in RFC 8628.
 	 */
-	public static final GrantType DEVICE_CODE = new GrantType("urn:ietf:params:oauth:grant-type:device_code", false, true,  ParameterRequirement.NOT_ALLOWED, Collections.singleton("device_code"));
+	public static final GrantType DEVICE_CODE = new GrantType("urn:ietf:params:oauth:grant-type:device_code", false, true, ParameterRequirement.NOT_ALLOWED, Collections.singleton("device_code"));
 
 
 	/**
-	 * Client Initiated Back-channel Authentication (CIBA), as defined in
+	 * Client Initiated Back-channel Authentication (CIBA), as specified in
 	 * OpenID Connect Client Initiated Backchannel Authentication Flow -
-	 * Core 1.0. Explicit client authentication is optional.
+	 * Core 1.0.
 	 */
-	public static final GrantType CIBA = new GrantType("urn:openid:params:grant-type:ciba", true, true,  ParameterRequirement.NOT_ALLOWED, Collections.singleton("auth_req_id"));
+	public static final GrantType CIBA = new GrantType("urn:openid:params:grant-type:ciba", true, true, ParameterRequirement.NOT_ALLOWED, Collections.singleton("auth_req_id"));
 
 	
 	/**
-	 * Token Exchange, as defined in RFC 8693. Explicit client
-	 * authentication is optional.
+	 * Token exchange, as specified in RFC 8693.
 	 */
 	public static final GrantType TOKEN_EXCHANGE = new GrantType("urn:ietf:params:oauth:grant-type:token-exchange",
 			false, false,  ParameterRequirement.OPTIONAL,
@@ -112,15 +102,21 @@ public final class GrantType extends Identifier {
 	
 	
 	/**
-	 * The client authentication requirement for this grant type.
+	 * The client authentication requirement.
 	 */
 	private final boolean requiresClientAuth;
 
 
 	/**
-	 * The client identifier requirement for this grant type.
+	 * The client identifier requirement.
 	 */
 	private final boolean requiresClientID;
+
+
+	/**
+	 * The scope parameter requirement in token requests.
+	 */
+	private final ParameterRequirement scopeRequirementInTokenRequest;
 
 
 	/**
@@ -129,16 +125,12 @@ public final class GrantType extends Identifier {
 	 */
 	private final Set<String> requestParamNames;
 
-	/**
-	 * The scope requirement on the token request for this grant type.
-	 */
-	private final ParameterRequirement scopeRequirementInTokenRequest;
-
 
 	/**
 	 * Creates a new OAuth 2.0 authorisation grant type with the specified
-	 * value. The client authentication requirement is set to
-	 * {@code false}. So is the client identifier requirement.
+	 * value. The client authentication and identifier requirements are set
+	 * to {@code false}. The scope parameter in token requests is not
+	 * allowed.
 	 *
 	 * @param value The authorisation grant type value. Must not be
 	 *              {@code null} or empty string.
@@ -153,13 +145,20 @@ public final class GrantType extends Identifier {
 	 * Creates a new OAuth 2.0 authorisation grant type with the specified
 	 * value.
 	 *
-	 * @param value              The authorisation grant type value. Must
-	 *                           not be {@code null} or empty string.
-	 * @param requiresClientAuth The client authentication requirement.
-	 * @param requiresClientID   The client identifier requirement.
-	 * @param requestParamNames  The names of the token request parameters
-	 *                           specific to this grant type, empty set or
-	 *                           {@code null} if none.
+	 * @param value                          The authorisation grant type
+	 *                                       value. Must not be
+	 *                                       {@code null} or empty string.
+	 * @param requiresClientAuth             The client authentication
+	 *                                       requirement.
+	 * @param requiresClientID               The client identifier
+	 *                                       requirement.
+	 * @param scopeRequirementInTokenRequest The scope parameter
+	 *                                       requirement in token requests.
+	 *                                       Must not be {@code null}.
+	 * @param requestParamNames              The names of the token request
+	 *                                       parameters specific to this
+	 *                                       grant type, empty set or
+	 *                                       {@code null} if none.
 	 */
 	private GrantType(final String value,
 			  final boolean requiresClientAuth,
@@ -168,9 +167,14 @@ public final class GrantType extends Identifier {
 			  final Set<String> requestParamNames) {
 
 		super(value);
+
 		this.requiresClientAuth = requiresClientAuth;
+
 		this.requiresClientID = requiresClientID;
+
+		Objects.requireNonNull(scopeRequirementInTokenRequest);
 		this.scopeRequirementInTokenRequest = scopeRequirementInTokenRequest;
+
 		this.requestParamNames = requestParamNames == null ? Collections.<String>emptySet() : Collections.unmodifiableSet(requestParamNames);
 	}
 
@@ -193,7 +197,7 @@ public final class GrantType extends Identifier {
 	 * @return {@code true} if a client identifier must always be
 	 *         communicated for this grant type (either as part of the
 	 *         client authentication, or as a parameter in the token
-	 *         request body), else {@code false}.
+	 *         request), else {@code false}.
 	 */
 	public boolean requiresClientID() {
 
@@ -201,13 +205,15 @@ public final class GrantType extends Identifier {
 	}
 
 	/**
-	 * Gets the scope requirement on the token request.
+	 * Gets the scope parameter requirement in token requests.
 	 *
-	 * @return the scope parameter requirement
+	 * @return The scope parameter requirement.
 	 */
 	public ParameterRequirement getScopeRequirementInTokenRequest() {
+
 		return scopeRequirementInTokenRequest;
 	}
+
 
 	/**
 	 * Gets the names of the token request parameters specific to this
