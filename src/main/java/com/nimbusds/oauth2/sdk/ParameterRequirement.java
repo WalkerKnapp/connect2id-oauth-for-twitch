@@ -19,28 +19,22 @@ package com.nimbusds.oauth2.sdk;
 
 
 /**
- * Enumeration representing the requirement level for a field..
- *
- * <p>Related specifications:
- *
- * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 1.1.
- * </ul>
+ * Enumeration representing the requirement level for a parameter.
  */
-public enum FieldRequirement {
+public enum ParameterRequirement {
 
 	/**
-	 * Indicates that the field is required.
+	 * Indicates that the parameter is required.
 	 */
 	REQUIRED,
 
 	/**
-	 * Indicates that the field is optional.
+	 * Indicates that the parameter is optional.
 	 */
 	OPTIONAL,
 
 	/**
-	 * Indicates that the field is not allowed.
+	 * Indicates that the parameter is not allowed.
 	 */
 	NOT_ALLOWED;
 }

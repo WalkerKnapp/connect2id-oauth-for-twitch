@@ -37,48 +37,48 @@ public final class GrantType extends Identifier {
 	 * Authorisation code. Client authentication required only for
 	 * confidential clients.
 	 */
-	public static final GrantType AUTHORIZATION_CODE = new GrantType("authorization_code", false, true, FieldRequirement.NOT_ALLOWED, new HashSet<>(Arrays.asList("code", "redirect_uri", "code_verifier")));
+	public static final GrantType AUTHORIZATION_CODE = new GrantType("authorization_code", false, true, ParameterRequirement.NOT_ALLOWED, new HashSet<>(Arrays.asList("code", "redirect_uri", "code_verifier")));
 
 
 	/**
 	 * Implicit. Client authentication is not performed (except for signed
 	 * OpenID Connect authentication requests).
 	 */
-	public static final GrantType IMPLICIT = new GrantType("implicit", false, true,  FieldRequirement.NOT_ALLOWED, Collections.<String>emptySet());
+	public static final GrantType IMPLICIT = new GrantType("implicit", false, true,  ParameterRequirement.NOT_ALLOWED, Collections.<String>emptySet());
 	
 	
 	/**
 	 * Refresh token. Client authentication required only for confidential
 	 * clients.
 	 */
-	public static final GrantType REFRESH_TOKEN = new GrantType("refresh_token", false, false,  FieldRequirement.OPTIONAL, Collections.singleton("refresh_token"));
+	public static final GrantType REFRESH_TOKEN = new GrantType("refresh_token", false, false,  ParameterRequirement.OPTIONAL, Collections.singleton("refresh_token"));
 
 
 	/**
 	 * Password. Client authentication required only for confidential
 	 * clients.
 	 */
-	public static final GrantType PASSWORD = new GrantType("password", false, false,  FieldRequirement.OPTIONAL, new HashSet<>(Arrays.asList("username", "password")));
+	public static final GrantType PASSWORD = new GrantType("password", false, false,  ParameterRequirement.OPTIONAL, new HashSet<>(Arrays.asList("username", "password")));
 
 
 	/**
 	 * Client credentials. Client authentication is required.
 	 */
-	public static final GrantType CLIENT_CREDENTIALS = new GrantType("client_credentials", true, true,  FieldRequirement.OPTIONAL, Collections.<String>emptySet());
+	public static final GrantType CLIENT_CREDENTIALS = new GrantType("client_credentials", true, true,  ParameterRequirement.OPTIONAL, Collections.<String>emptySet());
 
 
 	/**
 	 * JWT bearer, as defined in RFC 7523. Explicit client authentication
 	 * is optional.
 	 */
-	public static final GrantType JWT_BEARER = new GrantType("urn:ietf:params:oauth:grant-type:jwt-bearer", false, false,  FieldRequirement.OPTIONAL, Collections.singleton("assertion"));
+	public static final GrantType JWT_BEARER = new GrantType("urn:ietf:params:oauth:grant-type:jwt-bearer", false, false,  ParameterRequirement.OPTIONAL, Collections.singleton("assertion"));
 
 
 	/**
 	 * SAML 2.0 bearer, as defined in RFC 7522. Explicit client
 	 * authentication is optional.
 	 */
-	public static final GrantType SAML2_BEARER = new GrantType("urn:ietf:params:oauth:grant-type:saml2-bearer", false, false,  FieldRequirement.OPTIONAL, Collections.singleton("assertion"));
+	public static final GrantType SAML2_BEARER = new GrantType("urn:ietf:params:oauth:grant-type:saml2-bearer", false, false,  ParameterRequirement.OPTIONAL, Collections.singleton("assertion"));
 
 
 	/**
@@ -86,7 +86,7 @@ public final class GrantType extends Identifier {
 	 * Browserless and Input Constrained Devices. Explicit client
 	 * authentication is optional.
 	 */
-	public static final GrantType DEVICE_CODE = new GrantType("urn:ietf:params:oauth:grant-type:device_code", false, true,  FieldRequirement.NOT_ALLOWED, Collections.singleton("device_code"));
+	public static final GrantType DEVICE_CODE = new GrantType("urn:ietf:params:oauth:grant-type:device_code", false, true,  ParameterRequirement.NOT_ALLOWED, Collections.singleton("device_code"));
 
 
 	/**
@@ -94,7 +94,7 @@ public final class GrantType extends Identifier {
 	 * OpenID Connect Client Initiated Backchannel Authentication Flow -
 	 * Core 1.0. Explicit client authentication is optional.
 	 */
-	public static final GrantType CIBA = new GrantType("urn:openid:params:grant-type:ciba", true, true,  FieldRequirement.NOT_ALLOWED, Collections.singleton("auth_req_id"));
+	public static final GrantType CIBA = new GrantType("urn:openid:params:grant-type:ciba", true, true,  ParameterRequirement.NOT_ALLOWED, Collections.singleton("auth_req_id"));
 
 	
 	/**
@@ -102,7 +102,7 @@ public final class GrantType extends Identifier {
 	 * authentication is optional.
 	 */
 	public static final GrantType TOKEN_EXCHANGE = new GrantType("urn:ietf:params:oauth:grant-type:token-exchange",
-			false, false,  FieldRequirement.OPTIONAL,
+			false, false,  ParameterRequirement.OPTIONAL,
 			new HashSet<>(Arrays.asList(
 					"audience", "requested_token_type", "subject_token", "subject_token_type", "actor_token", "actor_token_type"
 			)));
@@ -132,7 +132,7 @@ public final class GrantType extends Identifier {
 	/**
 	 * The scope requirement on the token request for this grant type.
 	 */
-	private final FieldRequirement scopeRequirementInTokenRequest;
+	private final ParameterRequirement scopeRequirementInTokenRequest;
 
 
 	/**
@@ -145,7 +145,7 @@ public final class GrantType extends Identifier {
 	 */
 	public GrantType(final String value) {
 
-		this(value, false, false, FieldRequirement.NOT_ALLOWED, Collections.<String>emptySet());
+		this(value, false, false, ParameterRequirement.NOT_ALLOWED, Collections.<String>emptySet());
 	}
 
 
@@ -164,7 +164,7 @@ public final class GrantType extends Identifier {
 	private GrantType(final String value,
 			  final boolean requiresClientAuth,
 			  final boolean requiresClientID,
-			  final FieldRequirement scopeRequirementInTokenRequest,
+			  final ParameterRequirement scopeRequirementInTokenRequest,
 			  final Set<String> requestParamNames) {
 
 		super(value);
@@ -203,9 +203,9 @@ public final class GrantType extends Identifier {
 	/**
 	 * Gets the scope requirement on the token request.
 	 *
-	 * @return the scope field requirement
+	 * @return the scope parameter requirement
 	 */
-	public FieldRequirement getScopeRequirementInTokenRequest() {
+	public ParameterRequirement getScopeRequirementInTokenRequest() {
 		return scopeRequirementInTokenRequest;
 	}
 

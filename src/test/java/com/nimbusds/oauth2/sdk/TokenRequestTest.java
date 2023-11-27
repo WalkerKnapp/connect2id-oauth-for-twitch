@@ -2011,7 +2011,7 @@ public class TokenRequestTest extends TestCase {
 		assertEquals(scope, request.getScope());
 		HTTPRequest httpRequest = request.toHTTPRequest();
 		Map<String,List<String>> params = httpRequest.getQueryParameters();
-		if (grant.getType().getScopeRequirementInTokenRequest() != FieldRequirement.NOT_ALLOWED) {
+		if (grant.getType().getScopeRequirementInTokenRequest() != ParameterRequirement.NOT_ALLOWED) {
 			assertEquals(Collections.singletonList(scope.toString()), params.get("scope"));
 		} else {
 			assertNull(params.get("scope"));
