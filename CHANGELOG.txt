@@ -2369,3 +2369,9 @@ version 11.7 (2023-11-27)
     * TokenRequest.parse must reject requests with a scope parameter that isn't
       allowed according to the grant type with an invalid_request error (iss
       #450).
+
+version 11.7.1 (2023-12-08)
+    * Updates to net.minidev:json-smart:2.5.0
+    * Updates com.nimbusds:nimbus-jose-jwt:9.37.3
+    * Updates to com.google.crypto.tink:tink:1.12.0
+    * Updates to BouncyCastle 1.77
