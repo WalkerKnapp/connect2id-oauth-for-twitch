@@ -18,23 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
-import javax.crypto.spec.SecretKeySpec;
-import javax.net.ssl.SSLSocketFactory;
-
-import com.nimbusds.oauth2.sdk.device.DeviceCode;
-import com.nimbusds.oauth2.sdk.device.DeviceCodeGrant;
-import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
-import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
-import junit.framework.TestCase;
-import org.opensaml.security.credential.BasicCredential;
-import org.opensaml.xmlsec.signature.P;
-import org.opensaml.xmlsec.signature.support.SignatureConstants;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.util.Base64;
@@ -48,14 +31,29 @@ import com.nimbusds.oauth2.sdk.assertions.saml2.SAML2AssertionFactory;
 import com.nimbusds.oauth2.sdk.auth.*;
 import com.nimbusds.oauth2.sdk.ciba.AuthRequestID;
 import com.nimbusds.oauth2.sdk.ciba.CIBAGrant;
+import com.nimbusds.oauth2.sdk.device.DeviceCode;
+import com.nimbusds.oauth2.sdk.device.DeviceCodeGrant;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.*;
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import com.nimbusds.oauth2.sdk.token.*;
 import com.nimbusds.oauth2.sdk.tokenexchange.TokenExchangeGrant;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+import junit.framework.TestCase;
+import org.opensaml.security.credential.BasicCredential;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
+
+import javax.crypto.spec.SecretKeySpec;
+import javax.net.ssl.SSLSocketFactory;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.*;
 
 
 public class TokenRequestTest extends TestCase {
@@ -819,7 +817,7 @@ public class TokenRequestTest extends TestCase {
 
 		assertEquals("google", tokenRequest.getClientID().getValue());
 
-		assertTrue(tokenRequest.getScope().isEmpty());
+		assertNull(tokenRequest.getScope());
 	}
 
 
@@ -940,21 +938,20 @@ public class TokenRequestTest extends TestCase {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
 		Map<String, List<String>> formParams = new HashMap<>();
-		formParams.put("client_id", Collections.singletonList(new ClientID().getValue()));
+		formParams.put("client_id", Collections.singletonList(new ClientID("123").getValue()));
 		formParams.put("grant_type", Collections.singletonList(GrantType.AUTHORIZATION_CODE.getValue()));
-		formParams.put("code", Collections.singletonList(new AuthorizationCode().getValue()));
+		formParams.put("code", Collections.singletonList(new AuthorizationCode("ohn3Ohrohwue").getValue()));
 		formParams.put("redirect_uri", Collections.singletonList(URI.create("https://example.com/cb").toString()));
 		formParams.put("scope", Collections.singletonList(new Scope("read", "write").toString()));
 		httpRequest.setBody(URLUtils.serializeParameters(formParams));
 
-		try {
-			TokenRequest.parse(httpRequest);
-			fail();
-		} catch (ParseException e) {
-			assertEquals("The scope parameter is not allowed", e.getMessage());
-			assertEquals(OAuth2Error.INVALID_REQUEST.getCode(), e.getErrorObject().getCode());
-			assertEquals("Invalid request: The scope parameter is not allowed", e.getErrorObject().getDescription());
-		}
+		TokenRequest tokenRequest = TokenRequest.parse(httpRequest);
+		assertEquals(new ClientID("123"), tokenRequest.getClientID());
+		AuthorizationGrant grant = tokenRequest.getAuthorizationGrant();
+		AuthorizationCodeGrant codeGrant = (AuthorizationCodeGrant) grant;
+		assertEquals(new AuthorizationCode("ohn3Ohrohwue"), codeGrant.getAuthorizationCode());
+		assertEquals(URI.create("https://example.com/cb"), codeGrant.getRedirectionURI());
+		assertNull(tokenRequest.getScope());
 	}
 
 

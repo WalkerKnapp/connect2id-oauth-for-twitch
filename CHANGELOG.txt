@@ -2371,6 +2371,9 @@ version 11.7 (2023-11-27)
       #450).
 
 version 11.7.1 (2023-12-08)
+    * TokenRequest.parse must ignore the scope parameter when it is not allowed
+      by the grant type. In version 11.7 TokenRequest introduced strict
+      checking which breaks requests with non-compliant clients (iss #452).
     * Updates to net.minidev:json-smart:2.5.0
     * Updates com.nimbusds:nimbus-jose-jwt:9.37.3
     * Updates to com.google.crypto.tink:tink:1.12.0

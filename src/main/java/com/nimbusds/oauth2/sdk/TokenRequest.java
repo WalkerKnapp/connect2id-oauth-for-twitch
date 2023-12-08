@@ -647,16 +647,12 @@ public class TokenRequest extends AbstractOptionallyIdentifiedRequest {
 		// Parse optional scope
 		String scopeValue = MultivaluedMapUtils.getFirstValue(params, "scope");
 
+		ParameterRequirement scopeRequirement = grant.getType().getScopeRequirementInTokenRequest();
+
 		Scope scope = null;
 
-		if (scopeValue != null) {
-
+		if (scopeValue != null && (ParameterRequirement.REQUIRED.equals(scopeRequirement) || ParameterRequirement.OPTIONAL.equals(scopeRequirement))) {
 			scope = Scope.parse(scopeValue);
-
-			if (CollectionUtils.isNotEmpty(scope) && ParameterRequirement.NOT_ALLOWED.equals(grant.getType().getScopeRequirementInTokenRequest())) {
-				String msg = "The scope parameter is not allowed";
-				throw new ParseException(msg, OAuth2Error.INVALID_REQUEST.appendDescription(": " + msg));
-			}
 		}
 
 		// Parse optional RAR
