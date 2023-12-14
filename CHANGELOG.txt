@@ -2383,3 +2383,6 @@ version 11.7.2 (2023-12-14)
     * AccessTokenUtils.parseValueFromHeader, as invoked by AccessToken.parse
       and other classes, must handle the token type in a case-insensitive
       manner (iss #453).
+
+version 11.8 (2023-12-14)
+    * Removes the deprecated RPMetadataPolicyFactory and its package.

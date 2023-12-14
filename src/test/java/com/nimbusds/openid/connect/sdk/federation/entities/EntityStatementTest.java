@@ -18,13 +18,6 @@
 package com.nimbusds.openid.connect.sdk.federation.entities;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
-import junit.framework.TestCase;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
@@ -46,11 +39,15 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.openid.connect.sdk.SubjectType;
-import com.nimbusds.openid.connect.sdk.federation.policy.MetadataPolicy;
-import com.nimbusds.openid.connect.sdk.federation.policy.factories.DefaultRPMetadataPolicyFactory;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientInformation;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
+import junit.framework.TestCase;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 
 public class EntityStatementTest extends TestCase {
@@ -216,8 +213,8 @@ public class EntityStatementTest extends TestCase {
 			claimsSet.getIssueTime(),
 			registeredMetadata,
 			null);
-		MetadataPolicy rpMetadataPolicy = new DefaultRPMetadataPolicyFactory().create(origMetadata, clientInfo);
-		claimsSet.setMetadataPolicy(EntityType.OPENID_RELYING_PARTY, rpMetadataPolicy);
+
+		claimsSet.setRPMetadata(clientInfo.getOIDCMetadata()); // TODO
 		
 		EntityStatement registrationStatement = EntityStatement.sign(claimsSet, RSA_JWK);
 		assertEquals(RSA_JWK_THUMBPRINT, registrationStatement.verifySignature(SIMPLE_JWK_SET));
