@@ -204,6 +204,21 @@ public class DPoPAccessTokenTest extends TestCase {
 	}
 
 
+	public void testParseFromHeader_caseInsensitive()
+		throws Exception {
+
+		AccessToken token = DPoPAccessToken.parse("DPOP abc", AccessTokenType.DPOP);
+		assertEquals(AccessTokenType.DPOP, token.getType());
+		assertEquals("abc", token.getValue());
+		assertEquals(0L, token.getLifetime());
+		assertNull(token.getScope());
+
+		assertTrue(token.getParameterNames().contains("access_token"));
+		assertTrue(token.getParameterNames().contains("token_type"));
+		assertEquals(2, token.getParameterNames().size());
+	}
+
+
 	public void testParseFromHeader_missing() {
 
 		try {

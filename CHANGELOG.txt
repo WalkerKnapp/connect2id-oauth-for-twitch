@@ -2378,3 +2378,8 @@ version 11.7.1 (2023-12-08)
     * Updates com.nimbusds:nimbus-jose-jwt:9.37.3
     * Updates to com.google.crypto.tink:tink:1.12.0
     * Updates to BouncyCastle 1.77
+
+version 11.7.2 (2023-12-14)
+    * AccessTokenUtils.parseValueFromHeader, as invoked by AccessToken.parse
+      and other classes, must handle the token type in a case-insensitive
+      manner (iss #453).

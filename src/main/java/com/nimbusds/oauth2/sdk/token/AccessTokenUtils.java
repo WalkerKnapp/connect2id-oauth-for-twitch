@@ -209,7 +209,7 @@ class AccessTokenUtils {
 			throw new ParseException("Invalid HTTP Authorization header value", schemeError);
 		}
 		
-		if (! parts[0].equals(type.getValue())) {
+		if (! parts[0].equalsIgnoreCase(type.getValue())) {
 			TokenSchemeError schemeError = BearerTokenError.INVALID_REQUEST;
 			if (AccessTokenType.DPOP.equals(type)) {
 				schemeError = DPoPTokenError.INVALID_TOKEN;

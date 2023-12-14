@@ -18,9 +18,8 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
-import junit.framework.TestCase;
-
 import com.nimbusds.oauth2.sdk.ParseException;
+import junit.framework.TestCase;
 
 
 public class AccessTokenUtilsTest extends TestCase {
@@ -83,5 +82,37 @@ public class AccessTokenUtilsTest extends TestCase {
 		} catch (ParseException e) {
 			assertEquals("Couldn't determine access token type from Authorization header", e.getMessage());
 		}
+	}
+
+
+	public void testParseValueFromHeader_Bearer() throws ParseException {
+
+		String tokenValue = "ooth3oo1Ahth9toh";
+
+		assertEquals(tokenValue, AccessTokenUtils.parseValueFromHeader("Bearer " + tokenValue, AccessTokenType.BEARER));
+	}
+
+
+	public void testParseValueFromHeader_Bearer_caseInsensitive() throws ParseException {
+
+		String tokenValue = "ooth3oo1Ahth9toh";
+
+		assertEquals(tokenValue, AccessTokenUtils.parseValueFromHeader("BEARER " + tokenValue, AccessTokenType.BEARER));
+	}
+
+
+	public void testParseValueFromHeader_DPoP() throws ParseException {
+
+		String tokenValue = "ooth3oo1Ahth9toh";
+
+		assertEquals(tokenValue, AccessTokenUtils.parseValueFromHeader("DPoP " + tokenValue, AccessTokenType.DPOP));
+	}
+
+
+	public void testParseValueFromHeader_DPoP_caseInsensitive() throws ParseException {
+
+		String tokenValue = "ooth3oo1Ahth9toh";
+
+		assertEquals(tokenValue, AccessTokenUtils.parseValueFromHeader("dpop " + tokenValue, AccessTokenType.DPOP));
 	}
 }

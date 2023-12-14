@@ -277,6 +277,21 @@ public class BearerAccessTokenTest extends TestCase {
 	}
 
 
+	public void testParseFromHeader_caseInsensitive()
+		throws ParseException {
+
+		AccessToken token = AccessToken.parse("BEARER abc");
+
+		assertEquals("abc", token.getValue());
+		assertEquals(0L, token.getLifetime());
+		assertNull(token.getScope());
+
+		assertTrue(token.getParameterNames().contains("access_token"));
+		assertTrue(token.getParameterNames().contains("token_type"));
+		assertEquals(2, token.getParameterNames().size());
+	}
+
+
 	public void testParseFromHeader_missing() {
 
 		try {
