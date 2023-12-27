@@ -18,14 +18,13 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.Tokens;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.util.*;
 
 
 /**
@@ -176,7 +175,7 @@ public class AccessTokenResponse extends TokenResponse implements SuccessRespons
 		httpResponse.setCacheControl("no-store");
 		httpResponse.setPragma("no-cache");
 		
-		httpResponse.setContent(toJSONObject().toString());
+		httpResponse.setBody(toJSONObject().toString());
 		
 		return httpResponse;
 	}
@@ -230,7 +229,7 @@ public class AccessTokenResponse extends TokenResponse implements SuccessRespons
 		throws ParseException {
 		
 		httpResponse.ensureStatusCode(HTTPResponse.SC_OK);
-		JSONObject jsonObject = httpResponse.getContentAsJSONObject();
+		JSONObject jsonObject = httpResponse.getBodyAsJSONObject();
 		return parse(jsonObject);
 	}
 }
