@@ -1,11 +1,10 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
-import java.util.Collections;
-import java.util.Set;
-
 import net.jcip.annotations.Immutable;
 import net.minidev.json.JSONObject;
+
+import java.util.Set;
 
 
 /**
@@ -31,12 +30,14 @@ public class TypelessToken extends Token {
 	
 	@Override
 	public Set<String> getParameterNames() {
-		return Collections.emptySet();
+		return getCustomParameters().keySet();
 	}
 	
 	
 	@Override
 	public JSONObject toJSONObject() {
-		return new JSONObject();
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.putAll(getCustomParameters());
+		return jsonObject;
 	}
 }

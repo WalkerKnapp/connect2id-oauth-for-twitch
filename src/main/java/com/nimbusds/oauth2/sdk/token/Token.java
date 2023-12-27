@@ -18,11 +18,12 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
-import java.util.Set;
-
+import com.nimbusds.oauth2.sdk.id.Identifier;
 import net.minidev.json.JSONObject;
 
-import com.nimbusds.oauth2.sdk.id.Identifier;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -39,6 +40,12 @@ public abstract class Token extends Identifier {
 	
 	
 	private static final long serialVersionUID = 1797025947209047077L;
+
+
+	/**
+	 * Additional custom parameters.
+	 */
+	private Map<String, Object> customParams;
 	
 	
 	/**
@@ -107,4 +114,20 @@ public abstract class Token extends Identifier {
 	 * @return The token parameters as a JSON object.
 	 */
 	public abstract JSONObject toJSONObject();
+
+
+	/**
+	 * Returns the additional custom parameters.
+	 *
+	 * @return The custom parameters, empty map if none.
+	 */
+	public Map<String, Object> getCustomParameters() {
+
+		if (customParams == null) {
+			// Lazy init
+			customParams = new HashMap<>();
+		}
+
+		return customParams;
+	}
 }

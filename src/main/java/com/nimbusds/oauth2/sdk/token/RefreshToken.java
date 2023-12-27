@@ -18,15 +18,13 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import net.jcip.annotations.Immutable;
-
 import net.minidev.json.JSONObject;
 
-import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
-import com.nimbusds.oauth2.sdk.ParseException;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -83,7 +81,7 @@ public final class RefreshToken extends Token {
 	@Override
 	public Set<String> getParameterNames() {
 
-		Set<String> paramNames = new HashSet<>();
+		Set<String> paramNames = new HashSet<>(getCustomParameters().keySet());
 		paramNames.add("refresh_token");
 		return paramNames;
 	}
@@ -93,9 +91,8 @@ public final class RefreshToken extends Token {
 	public JSONObject toJSONObject() {
 
 		JSONObject o = new JSONObject();
-
+		o.putAll(getCustomParameters());
 		o.put("refresh_token", getValue());
-		
 		return o;
 	}
 

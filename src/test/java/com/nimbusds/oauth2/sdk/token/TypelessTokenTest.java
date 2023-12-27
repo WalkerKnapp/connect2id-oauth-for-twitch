@@ -19,6 +19,7 @@ package com.nimbusds.oauth2.sdk.token;
 
 
 import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
 
 
 public class TypelessTokenTest extends TestCase {
@@ -51,5 +52,25 @@ public class TypelessTokenTest extends TestCase {
 		String value = "jooroo3eXuatha1a";
 		SubjectToken subjectToken = new SubjectToken(value);
 		assertEquals(value, subjectToken.getValue());
+	}
+
+
+	public void testCustomParameters() {
+
+		TypelessToken token = new TypelessToken("abc");
+
+		assertTrue(token.getCustomParameters().isEmpty());
+
+		token.getCustomParameters().put("access_token_x", "xyz");
+
+		assertEquals("xyz", token.getCustomParameters().get("access_token_x"));
+		assertEquals(1, token.getCustomParameters().size());
+
+		assertTrue(token.getParameterNames().contains("access_token_x"));
+		assertEquals(1, token.getParameterNames().size());
+
+		JSONObject jsonObject = token.toJSONObject();
+		assertEquals("xyz", jsonObject.get("access_token_x"));
+		assertEquals(1, jsonObject.size());
 	}
 }

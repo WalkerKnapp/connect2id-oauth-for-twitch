@@ -452,4 +452,28 @@ public class BearerAccessTokenTest extends TestCase {
 			assertEquals("Invalid issued_token_type parameter: Illegal token type URI: invalid uri", e.getMessage());
 		}
 	}
+
+
+	public void testCustomParameters() {
+
+		BearerAccessToken token = new BearerAccessToken("abc");
+
+		assertTrue(token.getCustomParameters().isEmpty());
+
+		token.getCustomParameters().put("access_token_x", "xyz");
+
+		assertEquals("xyz", token.getCustomParameters().get("access_token_x"));
+		assertEquals(1, token.getCustomParameters().size());
+
+		assertTrue(token.getParameterNames().contains("token_type"));
+		assertTrue(token.getParameterNames().contains("access_token"));
+		assertTrue(token.getParameterNames().contains("access_token_x"));
+		assertEquals(3, token.getParameterNames().size());
+
+		JSONObject jsonObject = token.toJSONObject();
+		assertEquals(token.getType().getValue(), jsonObject.get("token_type"));
+		assertEquals(token.getValue(), jsonObject.get("access_token"));
+		assertEquals("xyz", jsonObject.get("access_token_x"));
+		assertEquals(3, jsonObject.size());
+	}
 }

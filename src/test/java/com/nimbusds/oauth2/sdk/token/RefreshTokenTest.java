@@ -18,9 +18,9 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
-import junit.framework.TestCase;
-
 import com.nimbusds.jose.util.Base64;
+import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
 
 
 /**
@@ -44,5 +44,26 @@ public class RefreshTokenTest extends TestCase {
 		assertEquals(16, new Base64(rt.getValue()).decode().length);
 		assertTrue(rt.getParameterNames().contains("refresh_token"));
 		assertEquals(1, rt.getParameterNames().size());
+	}
+
+
+	public void testCustomParameters() {
+
+		RefreshToken rt = new RefreshToken("abc");
+		assertTrue(rt.getCustomParameters().isEmpty());
+
+		rt.getCustomParameters().put("refresh_token_expires_in", 3600L);
+
+		assertEquals(3600L, rt.getCustomParameters().get("refresh_token_expires_in"));
+		assertEquals(1, rt.getCustomParameters().size());
+
+		assertTrue(rt.getParameterNames().contains("refresh_token"));
+		assertTrue(rt.getParameterNames().contains("refresh_token_expires_in"));
+		assertEquals(2, rt.getParameterNames().size());
+
+		JSONObject jsonObject = rt.toJSONObject();
+		assertEquals(rt.getValue(), jsonObject.get("refresh_token"));
+		assertEquals(3600L, jsonObject.get("refresh_token_expires_in"));
+		assertEquals(2, jsonObject.size());
 	}
 }

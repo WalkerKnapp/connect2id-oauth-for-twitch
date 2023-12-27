@@ -18,11 +18,10 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
-import junit.framework.TestCase;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
+import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
 
 
 public class NAAccessTokenTest extends TestCase {
@@ -92,5 +91,35 @@ public class NAAccessTokenTest extends TestCase {
 			exception = e;
 		}
 		assertTrue(exception instanceof UnsupportedOperationException);
+	}
+
+
+	public void testCustomParameters() {
+
+		NAAccessToken token = new NAAccessToken("abc", 600L, new Scope("read"), TokenTypeURI.ACCESS_TOKEN);
+
+		assertTrue(token.getCustomParameters().isEmpty());
+
+		token.getCustomParameters().put("access_token_x", "xyz");
+
+		assertEquals("xyz", token.getCustomParameters().get("access_token_x"));
+		assertEquals(1, token.getCustomParameters().size());
+
+		assertTrue(token.getParameterNames().contains("token_type"));
+		assertTrue(token.getParameterNames().contains("issued_token_type"));
+		assertTrue(token.getParameterNames().contains("access_token"));
+		assertTrue(token.getParameterNames().contains("expires_in"));
+		assertTrue(token.getParameterNames().contains("scope"));
+		assertTrue(token.getParameterNames().contains("access_token_x"));
+		assertEquals(6, token.getParameterNames().size());
+
+		JSONObject jsonObject = token.toJSONObject();
+		assertEquals(token.getType().getValue(), jsonObject.get("token_type"));
+		assertEquals(token.getIssuedTokenType().getURI().toString(), jsonObject.get("issued_token_type"));
+		assertEquals(token.getValue(), jsonObject.get("access_token"));
+		assertEquals(token.getLifetime(), jsonObject.get("expires_in"));
+		assertEquals(token.getScope().toString(), jsonObject.get("scope"));
+		assertEquals("xyz", jsonObject.get("access_token_x"));
+		assertEquals(6, jsonObject.size());
 	}
 }

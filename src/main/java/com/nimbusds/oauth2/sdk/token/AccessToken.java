@@ -356,7 +356,7 @@ public abstract class AccessToken extends Token {
 	@Override
 	public Set<String> getParameterNames() {
 
-		Set<String> paramNames = new HashSet<>();
+		Set<String> paramNames = new HashSet<>(getCustomParameters().keySet());
 		paramNames.add("access_token");
 		paramNames.add("token_type");
 
@@ -381,6 +381,8 @@ public abstract class AccessToken extends Token {
 	public JSONObject toJSONObject() {
 
 		JSONObject o = new JSONObject();
+
+		o.putAll(getCustomParameters());
 
 		o.put("access_token", getValue());
 		o.put("token_type", type.toString());

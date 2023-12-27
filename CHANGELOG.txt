@@ -2386,3 +2386,8 @@ version 11.7.2 (2023-12-14)
 
 version 11.8 (2023-12-14)
     * Removes the deprecated RPMetadataPolicyFactory and its package.
+
+version 11.9 (2023-12-27)
+    * Adds a Token.getCustomParameters() method to include additional custom
+      parameters in tokens. AccessToken and RefreshToken instances will include
+      them in getParameterNames() and toJSONObject().
