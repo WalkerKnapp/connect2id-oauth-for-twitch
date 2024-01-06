@@ -2391,3 +2391,8 @@ version 11.9 (2023-12-27)
     * Adds a Token.getCustomParameters() method to include additional custom
       parameters in tokens. AccessToken and RefreshToken instances will include
       them in getParameterNames() and toJSONObject().
+
+version 11.9.1 (2024-01-06)
+    * URLUtils.parseParameters must ignore illegally encoded keys and values,
+      rather than throw unchecked IllegalArgumentException instances produced
+      by java.net.URLDecoder.decode (iss #455).

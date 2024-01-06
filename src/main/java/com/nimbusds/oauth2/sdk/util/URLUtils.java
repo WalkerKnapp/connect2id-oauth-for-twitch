@@ -316,32 +316,35 @@ public final class URLUtils {
 			return params; // empty map
 		}
 		
-		try {
-			StringTokenizer st = new StringTokenizer(query.trim(), "&");
 
-			while(st.hasMoreTokens()) {
+		StringTokenizer st = new StringTokenizer(query.trim(), "&");
 
-				String param = st.nextToken();
+		while(st.hasMoreTokens()) {
 
-				String[] pair = param.split("=", 2); // Split around the first '=', see issue #169
+			String param = st.nextToken();
 
-				String key = URLDecoder.decode(pair[0], CHARSET);
+			String[] pair = param.split("=", 2); // Split around the first '=', see issue #169
 
-				String value = pair.length > 1 ? URLDecoder.decode(pair[1], CHARSET) : "";
-				
-				if (params.containsKey(key)) {
-					// Append value
-					List<String> updatedValueList = new LinkedList<>(params.get(key));
-					updatedValueList.add(value);
-					params.put(key, Collections.unmodifiableList(updatedValueList));
-				} else {
-					params.put(key, Collections.singletonList(value));
-				}
+			String key, value;
+			try {
+				key = URLDecoder.decode(pair[0], CHARSET);
+				value = pair.length > 1 ? URLDecoder.decode(pair[1], CHARSET) : "";
+			} catch (UnsupportedEncodingException e) {
+				// UTF-8 should always be supported
+				continue;
+			} catch (Exception e) {
+				// Handle "IllegalArgumentException: URLDecoder: Incomplete trailing escape (%) pattern", etc
+				continue;
 			}
-			
-		} catch (UnsupportedEncodingException e) {
-			
-			// UTF-8 should always be supported
+
+			if (params.containsKey(key)) {
+				// Append value
+				List<String> updatedValueList = new LinkedList<>(params.get(key));
+				updatedValueList.add(value);
+				params.put(key, Collections.unmodifiableList(updatedValueList));
+			} else {
+				params.put(key, Collections.singletonList(value));
+			}
 		}
 		
 		return params;

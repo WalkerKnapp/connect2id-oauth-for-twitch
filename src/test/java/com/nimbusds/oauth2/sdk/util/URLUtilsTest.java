@@ -394,6 +394,44 @@ public class URLUtilsTest extends TestCase {
 	}
 
 
+	public void testParseIgnoreParameterKeyWithIllegalEncoding() {
+
+		String query = "%a=v";
+
+		Map<String,List<String>> params = URLUtils.parseParameters(query);
+		assertTrue(params.isEmpty());
+	}
+
+
+	public void testParseIgnoreParameterValueWithIllegalEncoding() {
+
+		String query = "param=%a";
+
+		Map<String,List<String>> params = URLUtils.parseParameters(query);
+		assertTrue(params.isEmpty());
+	}
+
+
+	public void testParseIgnoreParameterKeyWithIllegalEncoding_keepValid() {
+
+		String query = "%a=v&key=value";
+
+		Map<String,List<String>> params = URLUtils.parseParameters(query);
+		assertEquals(Collections.singletonList("value"), params.get("key"));
+		assertEquals(1, params.size());
+	}
+
+
+	public void testParseIgnoreParameterValueWithIllegalEncoding_keepValid() {
+
+		String query = "param=%a&key=value";
+
+		Map<String,List<String>> params = URLUtils.parseParameters(query);
+		assertEquals(Collections.singletonList("value"), params.get("key"));
+		assertEquals(1, params.size());
+	}
+
+
 	// See https://bitbucket.org/connect2id/openid-connect-dev-client/issues/5/stripping-equal-sign-from-access_code-in
 	public void testDecodeQueryStringWithEscapedChars() {
 
