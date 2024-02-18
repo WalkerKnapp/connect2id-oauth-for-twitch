@@ -2396,3 +2396,7 @@ version 11.9.1 (2024-01-06)
     * URLUtils.parseParameters must ignore illegally encoded keys and values,
       rather than throw unchecked IllegalArgumentException instances produced
       by java.net.URLDecoder.decode (iss #455).
+
+version 11.10 (2024-02-18)
+    * Adds OAuth 2.0 Rich Authorization Requests (RAR) (RFC 9396) support to
+      CIBARequest.

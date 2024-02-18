@@ -183,7 +183,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	
 	/**
 	 * The transaction specific purpose, for use in OpenID Connect Identity
-	 * Assurance.
+	 * Assurance (optional).
 	 */
 	private final String purpose;
 

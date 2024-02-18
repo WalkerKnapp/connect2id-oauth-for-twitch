@@ -27,6 +27,8 @@ import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.JWTID;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.OIDCClaimsRequest;
@@ -35,7 +37,6 @@ import com.nimbusds.openid.connect.sdk.claims.ClaimsSetRequest;
 import junit.framework.TestCase;
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -75,6 +76,8 @@ public class CIBARequestTest extends TestCase {
 	private static final List<LangTag> CLAIMS_LOCALES;
 	
 	private static final String PURPOSE = "Account holder verification";
+
+	private static final List<AuthorizationDetail> RAR_DETAILS = Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("api_1")).build());
 	
 	private static final List<URI> RESOURCES = Arrays.asList(URI.create("https://rs1.example.com"), URI.create("https://rs2.example.com"));
 	
@@ -139,9 +142,34 @@ public class CIBARequestTest extends TestCase {
 		
 		assertEquals(1024, CIBARequest.CLIENT_NOTIFICATION_TOKEN_MAX_LENGTH);
 	}
+
+
+	public void testGetRegisteredParameterNames() {
+
+		Set<String> paramNames = CIBARequest.getRegisteredParameterNames();
+
+		assertTrue(paramNames.contains("scope"));
+		assertTrue(paramNames.contains("client_notification_token"));
+		assertTrue(paramNames.contains("acr_values"));
+		assertTrue(paramNames.contains("login_hint_token"));
+		assertTrue(paramNames.contains("id_token_hint"));
+		assertTrue(paramNames.contains("login_hint"));
+		assertTrue(paramNames.contains("binding_message"));
+		assertTrue(paramNames.contains("user_code"));
+		assertTrue(paramNames.contains("requested_expiry"));
+		assertTrue(paramNames.contains("claims"));
+		assertTrue(paramNames.contains("claims_locales"));
+		assertTrue(paramNames.contains("purpose"));
+		assertTrue(paramNames.contains("authorization_details"));
+		assertTrue(paramNames.contains("resource"));
+		assertTrue(paramNames.contains("request"));
+
+		assertEquals(15, paramNames.size());
+	}
 	
 
-	public void testConstructor_requiredOnly() throws java.text.ParseException {
+	public void testConstructor_requiredOnly()
+		throws Exception {
 		
 		CIBARequest request = new CIBARequest(
 			null,
@@ -152,6 +180,7 @@ public class CIBARequestTest extends TestCase {
 			null,
 			null,
 			LOGIN_HINT,
+			null,
 			null,
 			null,
 			null,
@@ -188,7 +217,8 @@ public class CIBARequestTest extends TestCase {
 	}
 	
 
-	public void testConstructor_allSet() throws MalformedURLException, ParseException {
+	public void testConstructor_allSet()
+		throws Exception {
 		
 		for (CIBAHintType hintBy: CIBAHintType.values()) {
 			CIBARequest request = new CIBARequest(
@@ -206,6 +236,7 @@ public class CIBARequestTest extends TestCase {
 				CLAIMS,
 				CLAIMS_LOCALES,
 				PURPOSE,
+				RAR_DETAILS,
 				RESOURCES,
 				CUSTOM_PARAMS
 			);
@@ -237,6 +268,7 @@ public class CIBARequestTest extends TestCase {
 			assertEquals(CLAIMS, request.getOIDCClaims());
 			assertEquals(CLAIMS_LOCALES, request.getClaimsLocales());
 			assertEquals(PURPOSE, request.getPurpose());
+			assertEquals(RAR_DETAILS, request.getAuthorizationDetails());
 			assertEquals(CUSTOM_PARAMS, request.getCustomParameters());
 			assertFalse(request.isSigned());
 			assertNull(request.getRequestJWT());
@@ -278,6 +310,7 @@ public class CIBARequestTest extends TestCase {
 			assertEquals(CLAIMS.toJSONObject(), request.getOIDCClaims().toJSONObject());
 			assertEquals(CLAIMS_LOCALES, request.getClaimsLocales());
 			assertEquals(PURPOSE, request.getPurpose());
+			assertEquals(RAR_DETAILS, request.getAuthorizationDetails());
 			assertEquals(CUSTOM_PARAMS, request.getCustomParameters());
 			assertFalse(request.isSigned());
 			assertNull(request.getRequestJWT());
@@ -313,6 +346,7 @@ public class CIBARequestTest extends TestCase {
 				.claims(CLAIMS)
 				.claimsLocales(CLAIMS_LOCALES)
 				.purpose(PURPOSE)
+				.authorizationDetails(RAR_DETAILS)
 				.resource(RESOURCES.get(0))
 				.customParameter("custom-xyz", "abc")
 				.build();
@@ -344,6 +378,7 @@ public class CIBARequestTest extends TestCase {
 			assertEquals(CLAIMS, request.getOIDCClaims());
 			assertEquals(CLAIMS_LOCALES, request.getClaimsLocales());
 			assertEquals(PURPOSE, request.getPurpose());
+			assertEquals(RAR_DETAILS, request.getAuthorizationDetails());
 			assertEquals(Collections.singletonList(RESOURCES.get(0)), request.getResources());
 			assertEquals(CUSTOM_PARAMS, request.getCustomParameters());
 			
@@ -377,13 +412,15 @@ public class CIBARequestTest extends TestCase {
 			assertEquals(CLAIMS, request.getOIDCClaims());
 			assertEquals(CLAIMS_LOCALES, request.getClaimsLocales());
 			assertEquals(PURPOSE, request.getPurpose());
+			assertEquals(RAR_DETAILS, request.getAuthorizationDetails());
+			assertEquals(Collections.singletonList(RESOURCES.get(0)), request.getResources());
 			assertEquals(CUSTOM_PARAMS, request.getCustomParameters());
 		}
 	}
 	
 	
 	public void testSignedRequest()
-		throws JOSEException, ParseException {
+		throws Exception {
 		
 		RSAKey rsaJWK = new RSAKeyGenerator(2048)
 			.algorithm(JWSAlgorithm.RS256)
@@ -775,7 +812,8 @@ public class CIBARequestTest extends TestCase {
 	}
 	
 	
-	public void testRoundTrip_privateKeyJWTClientAuthentication() throws JOSEException, ParseException {
+	public void testRoundTrip_privateKeyJWTClientAuthentication()
+		throws Exception {
 		
 		RSAKey clientKey = new RSAKeyGenerator(2048)
 			.keyIDFromThumbprint(true)
@@ -815,7 +853,8 @@ public class CIBARequestTest extends TestCase {
 	}
 	
 	
-	public void testWithNullScopeParameter() throws ParseException {
+	public void testWithNullScopeParameter()
+		throws ParseException {
 		
 		CIBARequest request = new CIBARequest.Builder(
 			CLIENT_AUTH,
@@ -845,7 +884,8 @@ public class CIBARequestTest extends TestCase {
 	}
 	
 	
-	public void testWithEmptyScopeParameter() throws ParseException {
+	public void testWithEmptyScopeParameter()
+		throws ParseException {
 		
 		CIBARequest request = new CIBARequest.Builder(
 			CLIENT_AUTH,
@@ -875,7 +915,8 @@ public class CIBARequestTest extends TestCase {
 	}
 	
 	
-	public void testWithClaimsParameter() throws ParseException {
+	public void testWithClaimsParameter()
+		throws ParseException {
 		
 		assertEquals("{\"id_token\":{\"email\":null}}", CLAIMS.toJSONString());
 		
@@ -907,7 +948,8 @@ public class CIBARequestTest extends TestCase {
 	}
 	
 	
-	public void testWithClaimsAndLocalesParameters() throws ParseException {
+	public void testWithClaimsAndLocalesParameters()
+		throws ParseException {
 		
 		assertEquals("{\"id_token\":{\"email\":null}}", CLAIMS.toJSONString());
 		
@@ -942,7 +984,8 @@ public class CIBARequestTest extends TestCase {
 	}
 	
 	
-	public void testWithPurposeParameter() throws ParseException {
+	public void testWithPurposeParameter()
+		throws ParseException {
 		
 		CIBARequest request = new CIBARequest.Builder(
 			CLIENT_AUTH,
@@ -970,7 +1013,8 @@ public class CIBARequestTest extends TestCase {
 	}
 	
 	
-	public void testWithResourceParameter() throws ParseException {
+	public void testWithResourceParameter()
+		throws ParseException {
 		
 		CIBARequest request = new CIBARequest.Builder(
 			CLIENT_AUTH,
@@ -998,7 +1042,8 @@ public class CIBARequestTest extends TestCase {
 	}
 	
 	
-	public void testWithTwoResourceParameters() throws ParseException {
+	public void testWithTwoResourceParameters()
+		throws ParseException {
 		
 		CIBARequest request = new CIBARequest.Builder(
 			CLIENT_AUTH,

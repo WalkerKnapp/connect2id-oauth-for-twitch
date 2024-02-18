@@ -35,6 +35,7 @@ import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.Identifier;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.*;
 import com.nimbusds.openid.connect.sdk.OIDCClaimsRequest;
@@ -111,6 +112,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		p.add("claims");
 		p.add("claims_locales");
 		p.add("purpose");
+		p.add("authorization_details");
 		p.add("resource");
 		
 		// Signed JWT
@@ -195,9 +197,15 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	
 	/**
 	 * The transaction specific purpose, for use in OpenID Connect Identity
-	 * Assurance.
+	 * Assurance (optional).
 	 */
 	private final String purpose;
+
+
+	/**
+	 * The RAR details (optional).
+	 */
+	private final List<AuthorizationDetail> authorizationDetails;
 	
 	
 	/**
@@ -316,6 +324,12 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		 * The transaction specific purpose (optional).
 		 */
 		private String purpose;
+
+
+		/**
+		 * The RAR details (optional).
+		 */
+		private List<AuthorizationDetail> authorizationDetails;
 		
 		
 		/**
@@ -405,6 +419,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 			claims = request.getOIDCClaims();
 			claimsLocales = request.getClaimsLocales();
 			purpose = request.getPurpose();
+			authorizationDetails = request.getAuthorizationDetails();
 			resources = request.getResources();
 			customParams = request.getCustomParameters();
 			signedRequest = request.getRequestJWT();
@@ -585,6 +600,20 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 			this.purpose = purpose;
 			return this;
 		}
+
+
+		/**
+		 * Sets the Rich Authorisation Request (RAR) details.
+		 *
+		 * @param authorizationDetails The authorisation details,
+		 *                             {@code null} if not specified.
+		 *
+		 * @return This builder.
+		 */
+		public Builder authorizationDetails(final List<AuthorizationDetail> authorizationDetails) {
+			this.authorizationDetails = authorizationDetails;
+			return this;
+		}
 		
 		
 		/**
@@ -691,6 +720,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 					claims,
 					claimsLocales,
 					purpose,
+					authorizationDetails,
 					resources,
 					customParams
 				);
@@ -847,6 +877,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	 * @param customParams            Custom parameters, empty or
 	 *                                {@code null} if not specified.
 	 */
+	@Deprecated
 	public CIBARequest(final URI uri,
 			   final ClientAuthentication clientAuth,
 			   final Scope scope,
@@ -861,6 +892,75 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 			   final OIDCClaimsRequest claims,
 			   final List<LangTag> claimsLocales,
 			   final String purpose,
+			   final List<URI> resources,
+			   final Map<String, List<String>> customParams) {
+
+		this(uri, clientAuth,
+			scope, clientNotificationToken, acrValues,
+			loginHintTokenString, idTokenHint, loginHint,
+			bindingMessage, userCode, requestedExpiry,
+			claims, claimsLocales, purpose, null ,resources,
+			customParams);
+	}
+
+
+	/**
+	 * Creates a new CIBA request.
+	 *
+	 * @param uri                     The endpoint URI, {@code null} if not
+	 *                                specified.
+	 * @param clientAuth              The client authentication. Must not
+	 *                                be {@code null}.
+	 * @param scope                   The requested scope. Must not be
+	 *                                empty or {@code null}.
+	 * @param clientNotificationToken The client notification token,
+	 *                                {@code null} if not specified.
+	 * @param acrValues               The requested ACR values,
+	 *                                {@code null} if not specified.
+	 * @param loginHintTokenString    The login hint token string,
+	 *                                {@code null} if not specified.
+	 * @param idTokenHint             The ID Token hint, {@code null} if
+	 *                                not specified.
+	 * @param loginHint               The login hint, {@code null} if not
+	 *                                specified.
+	 * @param bindingMessage          The binding message, {@code null} if
+	 *                                not specified.
+	 * @param userCode                The user code, {@code null} if not
+	 *                                specified.
+	 * @param requestedExpiry         The required expiry (as positive
+	 *                                integer), {@code null} if not
+	 *                                specified.
+	 * @param claims                  The individual claims to be
+	 *                                returned, {@code null} if not
+	 *                                specified.
+	 * @param claimsLocales           The preferred languages and scripts
+	 *                                for claims being returned,
+	 *                                {@code null} if not specified.
+	 * @param purpose                 The transaction specific purpose,
+	 *                                {@code null} if not specified.
+	 * @param authorizationDetails    The Rich Authorisation Request (RAR)
+	 *                                details, {@code null} if not
+	 *                                specified.
+	 * @param resources               The resource URI(s), {@code null} if
+	 *                                not specified.
+	 * @param customParams            Custom parameters, empty or
+	 *                                {@code null} if not specified.
+	 */
+	public CIBARequest(final URI uri,
+			   final ClientAuthentication clientAuth,
+			   final Scope scope,
+			   final BearerAccessToken clientNotificationToken,
+			   final List<ACR> acrValues,
+			   final String loginHintTokenString,
+			   final JWT idTokenHint,
+			   final String loginHint,
+			   final String bindingMessage,
+			   final Secret userCode,
+			   final Integer requestedExpiry,
+			   final OIDCClaimsRequest claims,
+			   final List<LangTag> claimsLocales,
+			   final String purpose,
+			   final List<AuthorizationDetail> authorizationDetails,
 			   final List<URI> resources,
 			   final Map<String, List<String>> customParams) {
 		
@@ -914,6 +1014,8 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		}
 		
 		this.purpose = purpose;
+
+		this.authorizationDetails = authorizationDetails;
 		
 		this.resources = ResourceUtils.ensureLegalResourceURIs(resources);
 		
@@ -958,6 +1060,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		requestedExpiry = null;
 		claims = null;
 		claimsLocales = null;
+		authorizationDetails = null;
 		purpose = null;
 		resources = null;
 		customParams = Collections.emptyMap();
@@ -967,7 +1070,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	/**
 	 * Returns the registered (standard) CIBA request parameter names.
 	 *
-	 * @return The registered CIBA request parameter names, as a
+	 * @return The registered CIBA request parameter names, as an
 	 *         unmodifiable set.
 	 */
 	public static Set<String> getRegisteredParameterNames() {
@@ -1146,6 +1249,17 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		
 		return purpose;
 	}
+
+
+	/**
+	 * Returns the Rich Authorisation Request (RAR) details.
+	 *
+	 * @return The authorisation details, {@code null} if not specified.
+	 */
+	public List<AuthorizationDetail> getAuthorizationDetails() {
+
+		return authorizationDetails;
+	}
 	
 	
 	/**
@@ -1162,7 +1276,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	/**
 	 * Returns the additional custom parameters.
 	 *
-	 * @return The additional custom parameters as a unmodifiable map,
+	 * @return The additional custom parameters as an unmodifiable map,
 	 *         empty map if none.
 	 */
 	public Map<String, List<String>> getCustomParameters() {
@@ -1259,6 +1373,9 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		}
 		if (getPurpose() != null) {
 			params.put("purpose", Collections.singletonList(purpose));
+		}
+		if (getAuthorizationDetails() != null) {
+			params.put("authorization_details", Collections.singletonList(AuthorizationDetail.toJSONString(getAuthorizationDetails())));
 		}
 		if (CollectionUtils.isNotEmpty(getResources())) {
 			params.put("resource", URIUtils.toStringList(getResources(), true));
@@ -1437,6 +1554,12 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		}
 		
 		String purpose = MultivaluedMapUtils.getFirstValue(params, "purpose");
+
+		List<AuthorizationDetail> authorizationDetails = null;
+		v = MultivaluedMapUtils.getFirstValue(params, "authorization_details");
+		if (StringUtils.isNotBlank(v)) {
+			authorizationDetails = AuthorizationDetail.parseList(v);
+		}
 		
 		List<URI> resources = ResourceUtils.parseResourceURIs(params.get("resource"));
 		
@@ -1460,7 +1583,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 				scope, clientNotificationToken, acrValues,
 				loginHintTokenString, idTokenHint, loginHint,
 				bindingMessage, userCode, requestedExpiry,
-				claims, claimsLocales, purpose,
+				claims, claimsLocales, purpose, authorizationDetails,
 				resources,
 				customParams);
 		} catch (IllegalArgumentException e) {
