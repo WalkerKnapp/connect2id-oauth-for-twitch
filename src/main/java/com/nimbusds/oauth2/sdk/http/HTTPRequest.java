@@ -186,8 +186,15 @@ public class HTTPRequest extends HTTPMessage implements ReadOnlyHTTPRequest {
 	 * The default socket factory for all outgoing HTTPS requests.
 	 */
 	private static SSLSocketFactory defaultSSLSocketFactory = (SSLSocketFactory)SSLSocketFactory.getDefault();
-	
-	
+
+
+	/**
+	 * If {@code true} disables swallowing of {@link IOException}s when the
+	 * HTTP connection streams are closed.
+	 */
+	private boolean debugCloseStreams = false;
+
+
 	/**
 	 * Creates a new minimally specified HTTP request.
 	 *
@@ -387,6 +394,19 @@ public class HTTPRequest extends HTTPMessage implements ReadOnlyHTTPRequest {
 	public void setAccept(final String accept) {
 
 		setHeader("Accept", accept);
+	}
+
+
+	/**
+	 * Enables debugging of the closing of the HTTP connection streams.
+	 *
+	 * @param debugCloseStreams If {@code true} disables swallowing of
+	 *                          {@link IOException}s when the HTTP
+	 *                          connection streams are closed.
+	 */
+	void setDebugCloseStreams(final boolean debugCloseStreams) {
+
+		this.debugCloseStreams = debugCloseStreams;
 	}
 
 
@@ -988,12 +1008,14 @@ public class HTTPRequest extends HTTPMessage implements ReadOnlyHTTPRequest {
 				conn.setRequestProperty("Content-Type", getEntityContentType().toString());
 
 			if (getBody() != null) {
+				OutputStream outputStream = null;
 				try {
-					OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
+                    			outputStream = conn.getOutputStream();
+                    			OutputStreamWriter writer = new OutputStreamWriter(outputStream);
 					writer.write(getBody());
 					writer.close();
 				} catch (IOException e) {
-					closeStreams(conn);
+					closeStreams(conn.getInputStream(), outputStream, conn.getErrorStream(), debugCloseStreams);
 					throw e; // Rethrow
 				}
 			}
@@ -1063,9 +1085,17 @@ public class HTTPRequest extends HTTPMessage implements ReadOnlyHTTPRequest {
 
 		BufferedReader reader;
 
+		InputStream inputStream = null;
+		InputStream errStream = null;
+		OutputStream outputStream = null;
 		try {
+			// getOutputStream() can only be retrieved before calling getInputStream()
+			if (conn.getDoOutput()) {
+				outputStream = conn.getOutputStream();
+			}
 			// Open a connection, then send method and headers
-			reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+			inputStream = conn.getInputStream();
+			reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
 			// The next step is to get the status
 			statusCode = conn.getResponseCode();
@@ -1083,7 +1113,7 @@ public class HTTPRequest extends HTTPMessage implements ReadOnlyHTTPRequest {
 			} else {
 				// HTTP status code indicates the response got
 				// through, read the content but using error stream
-				InputStream errStream = conn.getErrorStream();
+				errStream = conn.getErrorStream();
 
 				if (errStream != null) {
 					// We have useful HTTP error body
@@ -1123,7 +1153,7 @@ public class HTTPRequest extends HTTPMessage implements ReadOnlyHTTPRequest {
 			response.setHeader(responseHeader.getKey(), values.toArray(new String[]{}));
 		}
 
-		closeStreams(conn);
+		closeStreams(inputStream, outputStream, errStream, debugCloseStreams);
 
 		final String bodyContent = body.toString();
 		if (! bodyContent.isEmpty())
@@ -1167,34 +1197,44 @@ public class HTTPRequest extends HTTPMessage implements ReadOnlyHTTPRequest {
 	 * connection. No attempt is made to close the underlying socket with
 	 * {@code conn.disconnect} so it may be cached (HTTP 1.1 keep live).
 	 * See http://techblog.bozho.net/caveats-of-httpurlconnection/
-	 *
-	 * @param conn The HTTP URL connection. May be {@code null}.
 	 */
-	private static void closeStreams(final HttpURLConnection conn) {
-
-		if (conn == null) {
-			return;
-		}
+	private static void closeStreams(final InputStream inputStream,
+					 final OutputStream outputStream,
+					 final InputStream errStream,
+					 final boolean debugCloseStreams)
+		throws IOException {
 
 		try {
-			if (conn.getInputStream() != null) {
-				conn.getInputStream().close();
+			if (inputStream != null) {
+				inputStream.close();
+			}
+		} catch (IOException e) {
+			if (debugCloseStreams) {
+				throw e;
 			}
 		} catch (Exception e) {
 			// ignore
 		}
 
 		try {
-			if (conn.getOutputStream() != null) {
-				conn.getOutputStream().close();
+			if (outputStream != null) {
+				outputStream.close();
+			}
+		} catch (IOException e) {
+			if (debugCloseStreams) {
+				throw e;
 			}
 		} catch (Exception e) {
 			// ignore
 		}
 
 		try {
-			if (conn.getErrorStream() != null) {
-				conn.getOutputStream().close();
+			if (errStream != null) {
+				errStream.close();
+			}
+		} catch (IOException e) {
+			if (debugCloseStreams) {
+				throw e;
 			}
 		} catch (Exception e) {
 			// ignore

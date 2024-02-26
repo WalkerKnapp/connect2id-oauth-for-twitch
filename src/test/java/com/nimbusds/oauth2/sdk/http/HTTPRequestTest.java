@@ -55,6 +55,7 @@ import static org.junit.Assert.*;
 
 public class HTTPRequestTest {
 
+	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
 	@Test
 	public void testDefaultHostnameVerifier() {
@@ -69,7 +70,7 @@ public class HTTPRequestTest {
 		assertNotNull(HTTPRequest.getDefaultSSLSocketFactory());
 	}
 
-	
+
 	@Test
 	public void testConstructorPOSTAndAccessors()
 		throws Exception {
@@ -972,7 +973,7 @@ public class HTTPRequestTest {
 		assertEquals("OK", httpResponse.getStatusMessage());
 		assertEquals(new HashSet<>(Arrays.asList("cookie-1", "cookie-2")), new HashSet<>(httpResponse.getHeaderValues("Set-Cookie")));
 		httpResponse.ensureEntityContentType(new ContentType("text", "plain"));
-		assertEquals("Hello, world!\n", httpResponse.getBody());
+		assertEquals("Hello, world!" + LINE_SEPARATOR, httpResponse.getBody());
 	}
 
 
@@ -999,61 +1000,61 @@ public class HTTPRequestTest {
 		assertEquals("OK", httpResponse.getStatusMessage());
 		assertEquals(new HashSet<>(Arrays.asList("cookie-1", "cookie-2")), new HashSet<>(httpResponse.getHeaderValues("Set-Cookie")));
 		httpResponse.ensureEntityContentType(new ContentType("text", "plain"));
-		assertEquals("Hello, world!\n", httpResponse.getContent());
+		assertEquals("Hello, world!" + LINE_SEPARATOR, httpResponse.getContent());
 	}
-	
-	
+
+
 	@Test
 	public void testWithClientCertificate()
 		throws Exception {
-		
+
 		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
 		keyPairGenerator.initialize(2048);
 		KeyPair keyPair = keyPairGenerator.generateKeyPair();
-		
+
 		RSAPublicKey rsaPublicKey = (RSAPublicKey)keyPair.getPublic();
 		RSAPrivateKey rsaPrivateKey = (RSAPrivateKey)keyPair.getPrivate();
-		
+
 		X509Certificate cert = X509CertificateGenerator.generateSelfSignedCertificate(
 			new Issuer("123"),
 			rsaPublicKey,
 			rsaPrivateKey);
-		
+
 		cert.checkValidity();
-		
+
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
-		
+
 		assertNull(httpRequest.getClientX509Certificate());
-		
+
 		httpRequest.setClientX509Certificate(cert);
-		
+
 		assertEquals(cert, httpRequest.getClientX509Certificate());
 	}
-	
-	
+
+
 	@Test
 	public void testGetAndSetDefaultHostnameVerifier() {
-		
+
 		HostnameVerifier mockHostnameVerifier = new HostnameVerifier() {
 			@Override
 			public boolean verify(String s, SSLSession sslSession) {
 				return false;
 			}
 		};
-		
+
 		HostnameVerifier defaultHostnameVerifier = HTTPRequest.getDefaultHostnameVerifier();
-		
+
 		assertNotNull(defaultHostnameVerifier);
-		
+
 		HTTPRequest.setDefaultHostnameVerifier(mockHostnameVerifier);
-		
+
 		assertEquals(mockHostnameVerifier, HTTPRequest.getDefaultHostnameVerifier());
 	}
-	
-	
+
+
 	@Test
 	public void testRejectNullDefaultHostnameVerifier() {
-		
+
 		try {
 			HTTPRequest.setDefaultHostnameVerifier(null);
 			fail();
@@ -1061,11 +1062,11 @@ public class HTTPRequestTest {
 			assertEquals("The hostname verifier must not be null", e.getMessage());
 		}
 	}
-	
-	
+
+
 	@Test
 	public void testRejectNullDefaultSSLSocketFactory() {
-		
+
 		try {
 			HTTPRequest.setDefaultSSLSocketFactory(null);
 			fail();
@@ -1073,40 +1074,40 @@ public class HTTPRequestTest {
 			assertEquals("The SSL socket factory must not be null", e.getMessage());
 		}
 	}
-	
-	
+
+
 	@Test
 	public void testGetAndSetSubjectDN()
 		throws MalformedURLException {
-		
+
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
-		
+
 		assertNull(httpRequest.getClientX509CertificateSubjectDN());
 		httpRequest.setClientX509CertificateSubjectDN("cn=subject");
 		assertEquals("cn=subject", httpRequest.getClientX509CertificateSubjectDN());
 	}
-	
-	
+
+
 	@Test
 	public void testGetAndSetRootDN()
 		throws MalformedURLException {
-		
+
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
-		
+
 		assertNull(httpRequest.getClientX509CertificateRootDN());
 		httpRequest.setClientX509CertificateRootDN("cn=root");
 		assertEquals("cn=root", httpRequest.getClientX509CertificateRootDN());
 	}
-	
-	
+
+
 	@Test
 	public void testClientIP()
 		throws MalformedURLException {
-		
+
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
-		
+
 		assertNull(httpRequest.getClientIPAddress());
-		
+
 		String ip = "192.168.0.1";
 		httpRequest.setClientIPAddress(ip);
 		assertEquals(ip, httpRequest.getClientIPAddress());
@@ -1140,17 +1141,17 @@ public class HTTPRequestTest {
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("http://localhost:0/c2id/token"));
 
 		assertNull(httpRequest.getProxy());
-		
+
 		// Set proxy to use on this request
 		Proxy proxy = new Proxy(Type.HTTP, new InetSocketAddress("localhost", port()));
 		httpRequest.setProxy(proxy);
-		
+
 		assertEquals(proxy, httpRequest.getProxy());
 
 		HTTPResponse httpResponse = httpRequest.send();
 		assertEquals(999, httpResponse.getStatusCode());
 	}
-	
+
 
 	@Test
 	public void testNoProxy() throws IOException{
@@ -1166,25 +1167,25 @@ public class HTTPRequestTest {
 		HTTPResponse httpResponse = httpRequest.send();
 		assertEquals(999, httpResponse.getStatusCode());
 	}
-	
-	
+
+
 	@Test
 	public void testDPoP() throws MalformedURLException, JOSEException {
-		
+
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
-		
+
 		assertNull(httpRequest.getDPoP());
-		
+
 		RSAKey rsaJWK = new RSAKeyGenerator(2048)
 			.generate();
-		
+
 		SignedJWT dPoP = new DefaultDPoPProofFactory(rsaJWK, JWSAlgorithm.RS256)
 			.createDPoPJWT(httpRequest.getMethod().name(), httpRequest.getURI());
-		
+
 		httpRequest.setDPoP(dPoP);
-		
+
 		assertEquals(dPoP.serialize(), httpRequest.getHeaderValue("DPoP"));
-		
+
 		assertEquals(dPoP.serialize(), httpRequest.getDPoP().serialize());
 	}
 	
@@ -1232,5 +1233,40 @@ public class HTTPRequestTest {
 		assertEquals("/path/abc", url.getPath());
 		assertEquals("query", url.getQuery());
 		assertEquals("fragment", url.getRef());
+	}
+
+	@Test
+	public void testSend_POST_debug_closeStreamsExceptions()
+		throws Exception {
+
+		onRequest()
+			.havingMethodEqualTo("POST")
+			.havingHeaderEqualTo("Authorization", "Bearer xyz")
+			.havingHeaderEqualTo("Accept", ContentType.APPLICATION_JSON.toString())
+			.havingPathEqualTo("/path")
+			.havingQueryStringEqualTo(null)
+			.respond()
+			.withStatus(200)
+			.withBody("[10, 20]")
+			.withEncoding(StandardCharsets.UTF_8)
+			.withContentType(ContentType.APPLICATION_JSON.toString());
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("http://localhost:" + port() + "/path"));
+		httpRequest.setFragment("fragment");
+		httpRequest.setAuthorization("Bearer xyz");
+		httpRequest.setAccept(ContentType.APPLICATION_JSON.toString());
+		httpRequest.setBody("[10, 20]");
+		httpRequest.setDebugCloseStreams(true);
+
+		HTTPResponse httpResponse = httpRequest.send();
+
+		assertEquals(200, httpResponse.getStatusCode());
+		assertEquals("OK", httpResponse.getStatusMessage());
+		httpResponse.ensureEntityContentType(ContentType.APPLICATION_JSON);
+
+		JSONArray jsonArray = httpResponse.getBodyAsJSONArray();
+		assertEquals(10L, jsonArray.get(0));
+		assertEquals(20L, jsonArray.get(1));
+		assertEquals(2, jsonArray.size());
 	}
 }

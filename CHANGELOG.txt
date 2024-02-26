@@ -2400,3 +2400,8 @@ version 11.9.1 (2024-01-06)
 version 11.10 (2024-02-18)
     * Adds OAuth 2.0 Rich Authorization Requests (RAR) (RFC 9396) support to
       CIBARequest.
+
+version 11.10.1 (2024-02-26)
+    * Fixes an HTTPRequest.closeStreams bug that generated an unnecessary
+      java.net.ProtocolException "Cannot write output after reading input."
+      (iss #458).
