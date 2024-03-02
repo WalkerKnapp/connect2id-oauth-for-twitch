@@ -18,9 +18,10 @@
 package com.nimbusds.oauth2.sdk.util;
 
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
+import java.io.UnsupportedEncodingException;
+import java.net.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import junit.framework.TestCase;
@@ -465,6 +466,37 @@ public class JSONObjectUtilsTest extends TestCase {
 		assertEquals(value, JSONObjectUtils.getURL(o, "key", null));
 		
 		assertEquals(value, JSONObjectUtils.getURL(o, "key", def));
+	}
+
+
+	// https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/issues/460/
+	// Java URI implements https://www.rfc-editor.org/rfc/rfc2396#section-2.4.3
+	public void testGetURI_withUnencodedCurlyBrackets() {
+
+		JSONObject o = new JSONObject();
+		o.put("some_uri", "https://login.microsoftonline.com/{tenantid}/v2.0");
+
+		try {
+			JSONObjectUtils.getURI(o, "some_uri");
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Illegal character in path at index 34: https://login.microsoftonline.com/{tenantid}/v2.0", e.getMessage());
+		}
+	}
+
+
+	// https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/issues/460/
+	// Java URI implements https://www.rfc-editor.org/rfc/rfc2396#section-2.4.3
+	public void testGetURI_withEncodedCurlyBrackets() throws ParseException, UnsupportedEncodingException {
+
+		JSONObject o = new JSONObject();
+		o.put("some_uri", "https://login.microsoftonline.com/%7Btenantid%7D/v2.0");
+
+		URI uri = JSONObjectUtils.getURI(o, "some_uri");
+		assertEquals("https://login.microsoftonline.com/%7Btenantid%7D/v2.0", uri.toString());
+
+		String decodePath = URLDecoder.decode(uri.getPath(), "UTF-8");
+		assertEquals("/{tenantid}/v2.0", decodePath);
 	}
 	
 	
