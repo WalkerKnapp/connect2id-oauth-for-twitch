@@ -18,15 +18,6 @@
 package com.nimbusds.oauth2.sdk.assertions.jwt;
 
 
-import java.security.Provider;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
-import junit.framework.TestCase;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
@@ -47,6 +38,14 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.X509CertificateUtils;
+import junit.framework.TestCase;
+
+import java.security.Provider;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -137,6 +136,7 @@ public class JWTAssertionFactoryTest extends TestCase {
 		ECKey ecJWK = new ECKeyGenerator(Curve.SECP256K1)
 			.keyUse(KeyUse.SIGNATURE)
 			.keyID("1")
+			.provider(BouncyCastleProviderSingleton.getInstance())
 			.generate();
 		
 		JWTAssertionDetails details = new JWTAssertionDetails(
@@ -157,8 +157,10 @@ public class JWTAssertionFactoryTest extends TestCase {
 		assertEquals(1, jwt.getHeader().getIncludedParams().size());
 		
 		assertEquals(details.toJWTClaimsSet(), jwt.getJWTClaimsSet());
-		
-		assertTrue(jwt.verify(new ECDSAVerifier(ecJWK.toECPublicKey())));
+
+		ECDSAVerifier verifier = new ECDSAVerifier(ecJWK.toECPublicKey());
+		verifier.getJCAContext().setProvider(BouncyCastleProviderSingleton.getInstance());
+		assertTrue(jwt.verify(verifier));
 	}
 	
 	
@@ -171,6 +173,7 @@ public class JWTAssertionFactoryTest extends TestCase {
 		ECKey ecJWK = new ECKeyGenerator(Curve.SECP256K1)
 			.keyUse(KeyUse.SIGNATURE)
 			.keyID("1")
+			.provider(BouncyCastleProviderSingleton.getInstance())
 			.generate();
 		
 		JWTAssertionDetails details = new JWTAssertionDetails(

@@ -2405,3 +2405,6 @@ version 11.10.1 (2024-02-26)
     * Fixes an HTTPRequest.closeStreams bug that generated an unnecessary
       java.net.ProtocolException "Cannot write output after reading input."
       (iss #458).
+
+version 11.x (2024-03-02)
+    * Updates tests from Java 11 to Java 17 runtime.

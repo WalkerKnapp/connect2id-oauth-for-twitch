@@ -100,7 +100,7 @@ public class EmbeddedAttachmentTest extends TestCase {
 			new EmbeddedAttachment(null);
 			fail();
 		} catch (NullPointerException e) {
-			assertNull(e.getMessage());
+			assertEquals("Cannot invoke \"com.nimbusds.openid.connect.sdk.assurance.evidences.attachment.Content.getDescription()\" because \"content\" is null", e.getMessage());
 		}
 	}
 	

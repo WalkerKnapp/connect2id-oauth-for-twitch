@@ -18,14 +18,10 @@
 package com.nimbusds.openid.connect.sdk.federation.utils;
 
 
-import java.text.ParseException;
-import java.util.Collections;
-
-import junit.framework.TestCase;
-
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.crypto.bc.BouncyCastleProviderSingleton;
 import com.nimbusds.jose.jwk.*;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator;
@@ -35,6 +31,10 @@ import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
+import junit.framework.TestCase;
+
+import java.text.ParseException;
+import java.util.Collections;
 
 
 public class JWTUtilsTest extends TestCase {
@@ -49,7 +49,7 @@ public class JWTUtilsTest extends TestCase {
 		assertEquals(JWSAlgorithm.ES256, JWTUtils.resolveSigningAlgorithm(new ECKeyGenerator(Curve.P_256).generate()));
 		assertEquals(JWSAlgorithm.ES384, JWTUtils.resolveSigningAlgorithm(new ECKeyGenerator(Curve.P_384).generate()));
 		assertEquals(JWSAlgorithm.ES512, JWTUtils.resolveSigningAlgorithm(new ECKeyGenerator(Curve.P_521).generate()));
-		assertEquals(JWSAlgorithm.ES256K, JWTUtils.resolveSigningAlgorithm(new ECKeyGenerator(Curve.SECP256K1).generate()));
+		assertEquals(JWSAlgorithm.ES256K, JWTUtils.resolveSigningAlgorithm(new ECKeyGenerator(Curve.SECP256K1).provider(BouncyCastleProviderSingleton.getInstance()).generate()));
 		
 		// EdDSA
 		assertEquals(JWSAlgorithm.EdDSA, JWTUtils.resolveSigningAlgorithm(new OctetKeyPairGenerator(Curve.Ed25519).generate()));

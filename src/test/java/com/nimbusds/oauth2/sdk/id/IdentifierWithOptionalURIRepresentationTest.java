@@ -67,7 +67,7 @@ public class IdentifierWithOptionalURIRepresentationTest extends TestCase {
                         new IdentifierWithOptionalURIRepresentation((URI)null);
                         fail();
                 } catch (NullPointerException e) {
-                        assertNull(e.getMessage());
+                        assertEquals("Cannot invoke \"java.net.URI.toString()\" because \"uri\" is null", e.getMessage());
                 }
         }
 
