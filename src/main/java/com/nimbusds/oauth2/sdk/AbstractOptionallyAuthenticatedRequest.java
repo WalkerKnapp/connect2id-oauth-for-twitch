@@ -55,8 +55,8 @@ public abstract class AbstractOptionallyAuthenticatedRequest extends AbstractReq
 	 *                   {@link #toHTTPRequest()} method will not be used).
 	 * @param clientAuth The client authentication, {@code null} if none.
 	 */
-	public AbstractOptionallyAuthenticatedRequest(final URI uri,
-						      final ClientAuthentication clientAuth) {
+	protected AbstractOptionallyAuthenticatedRequest(final URI uri,
+							 final ClientAuthentication clientAuth) {
 
 		super(uri);
 
