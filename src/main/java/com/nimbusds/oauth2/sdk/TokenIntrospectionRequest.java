@@ -372,6 +372,11 @@ public class TokenIntrospectionRequest extends AbstractOptionallyAuthenticatedRe
 
 					return other instanceof Token && other.toString().equals(tokenValue);
 				}
+
+				@Override
+				public int hashCode() {
+					return Objects.hashCode(tokenValue);
+				}
 			};
 
 		} else if (tokenTypeHint.equals("access_token")) {

@@ -243,6 +243,11 @@ public final class TokenRevocationRequest extends AbstractOptionallyIdentifiedRe
 
 					return other instanceof Token && other.toString().equals(tokenValue);
 				}
+
+				@Override
+				public int hashCode() {
+					return Objects.hash(tokenValue);
+				}
 			};
 
 		} else if (tokenTypeHint.equals("access_token")) {
