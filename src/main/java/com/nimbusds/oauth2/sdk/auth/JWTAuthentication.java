@@ -21,6 +21,7 @@ package com.nimbusds.oauth2.sdk.auth;
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SerializeException;
@@ -85,10 +86,10 @@ public abstract class JWTAuthentication extends ClientAuthentication {
 
 		String subjectValue;
 		String issuerValue;
-
 		try {
-			subjectValue = jwt.getJWTClaimsSet().getSubject();
-			issuerValue = jwt.getJWTClaimsSet().getIssuer();
+			JWTClaimsSet jwtClaimsSet = jwt.getJWTClaimsSet();
+			subjectValue = jwtClaimsSet.getSubject();
+			issuerValue = jwtClaimsSet.getIssuer();
 
 		} catch (java.text.ParseException e) {
 
