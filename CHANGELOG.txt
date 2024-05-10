@@ -2406,5 +2406,9 @@ version 11.10.1 (2024-02-26)
       java.net.ProtocolException "Cannot write output after reading input."
       (iss #458).
 
-version 11.x (2024-03-02)
+version 11.10.2 (2024-05-10)
+    * Updates to Nimbus JOSE+JWT 9.39
+    * Updates to JSON Smart 2.5.1
+    * Updates to Tink 1.13.0
+    * Updates to BouncyCastle 1.78
     * Updates tests from Java 11 to Java 17 runtime.
