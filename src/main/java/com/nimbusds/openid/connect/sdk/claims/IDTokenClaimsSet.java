@@ -18,11 +18,6 @@
 package com.nimbusds.openid.connect.sdk.claims;
 
 
-import java.util.*;
-
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -32,6 +27,10 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.Nonce;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+
+import java.util.*;
 
 
 /**
@@ -259,20 +258,20 @@ public class IDTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 
 		// Code flow
 		// See http://openid.net/specs/openid-connect-core-1_0.html#CodeIDToken
-		if (new ResponseType("code").equals(responseType)) {
+		if (ResponseType.CODE.equals(responseType)) {
 			// nonce, c_hash and at_hash not required
 			return true; // ok
 		}
 
 		// Implicit flow
 		// See http://openid.net/specs/openid-connect-core-1_0.html#ImplicitIDToken
-		if (new ResponseType("id_token").equals(responseType)) {
+		if (ResponseType.IDTOKEN.equals(responseType)) {
 
 			return getNonce() != null;
 
 		}
 
-		if (new ResponseType("id_token", "token").equals(responseType)) {
+		if (ResponseType.IDTOKEN_TOKEN.equals(responseType)) {
 
 			if (getNonce() == null) {
 				// nonce required
@@ -284,7 +283,7 @@ public class IDTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 
 		// Hybrid flow
 		// See http://openid.net/specs/openid-connect-core-1_0.html#HybridIDToken
-		if (new ResponseType("code", "id_token").equals(responseType)) {
+		if (ResponseType.CODE_IDTOKEN.equals(responseType)) {
 
 			if (getNonce() == null) {
 				// nonce required
@@ -301,7 +300,7 @@ public class IDTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 
 		}
 
-		if (new ResponseType("code", "token").equals(responseType)) {
+		if (ResponseType.CODE_TOKEN.equals(responseType)) {
 
 			if (getNonce() == null) {
 				// nonce required
@@ -317,7 +316,7 @@ public class IDTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 			return true; // ok
 		}
 
-		if (new ResponseType("code", "id_token", "token").equals(responseType)) {
+		if (ResponseType.CODE_IDTOKEN_TOKEN.equals(responseType)) {
 
 			if (getNonce() == null) {
 				// nonce required
