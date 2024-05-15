@@ -2418,3 +2418,4 @@ version 11.10.2 (2024-05-10)
 version 11.11 (2024-05-15)
     * Adds support for the dpop_bound_access_tokens OAuth 2.0 client metadata
       parameter.
+    * Updates to Nimbus JOSE+JWT 9.39.1
