@@ -88,6 +88,7 @@ public class ClientMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("tls_client_auth_san_uri"));
 		assertTrue(paramNames.contains("tls_client_auth_san_ip"));
 		assertTrue(paramNames.contains("tls_client_auth_san_email"));
+		assertTrue(paramNames.contains("dpop_bound_access_tokens"));
 		assertTrue(paramNames.contains("authorization_signed_response_alg"));
 		assertTrue(paramNames.contains("authorization_encrypted_response_enc"));
 		assertTrue(paramNames.contains("authorization_encrypted_response_enc"));
@@ -100,7 +101,7 @@ public class ClientMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("organization_name"));
 		assertTrue(paramNames.contains("signed_jwks_uri"));
 		assertTrue(paramNames.contains("client_registration_types"));
-		assertEquals(39, ClientMetadata.getRegisteredParameterNames().size());
+		assertEquals(40, ClientMetadata.getRegisteredParameterNames().size());
 	}
 	
 	
@@ -237,23 +238,21 @@ public class ClientMetadataTest extends TestCase {
 		String sanEmail= "me@example.com";
 		meta.setTLSClientAuthSanEmail(sanEmail);
 
+		assertFalse(meta.getDPoPBoundAccessTokens());
+		meta.setDPoPBoundAccessTokens(true);
 		
 		JWSAlgorithm authzJWSAlg = JWSAlgorithm.ES512;
 		meta.setAuthorizationJWSAlg(authzJWSAlg);
-		assertEquals(authzJWSAlg, meta.getAuthorizationJWSAlg());
-		
+
 		JWEAlgorithm authzJWEAlg = JWEAlgorithm.ECDH_ES_A256KW;
 		meta.setAuthorizationJWEAlg(authzJWEAlg);
-		assertEquals(authzJWEAlg, meta.getAuthorizationJWEAlg());
-		
+
 		EncryptionMethod authzJWEEnc = EncryptionMethod.A256GCM;
 		meta.setAuthorizationJWEEnc(authzJWEEnc);
-		assertEquals(authzJWEEnc, meta.getAuthorizationJWEEnc());
 
 		List<AuthorizationType> authzTypes = Arrays.asList(new AuthorizationType("api_1"), new AuthorizationType("api_2"));
 		meta.setAuthorizationDetailsTypes(authzTypes);
-		assertEquals(authzTypes, meta.getAuthorizationDetailsTypes());
-		
+
 		// Test getters
 		assertEquals(redirectURIs, meta.getRedirectionURIs());
 		assertEquals(scope, meta.getScope());
@@ -293,6 +292,7 @@ public class ClientMetadataTest extends TestCase {
 		assertEquals(sanURI, meta.getTLSClientAuthSanURI());
 		assertEquals(sanIP, meta.getTLSClientAuthSanIP());
 		assertEquals(sanEmail, meta.getTLSClientAuthSanEmail());
+		assertTrue(meta.getDPoPBoundAccessTokens());
 		assertEquals(authzJWSAlg, meta.getAuthorizationJWSAlg());
 		assertEquals(authzJWEAlg, meta.getAuthorizationJWEAlg());
 		assertEquals(authzJWEEnc, meta.getAuthorizationJWEEnc());
@@ -347,6 +347,11 @@ public class ClientMetadataTest extends TestCase {
 		assertTrue(meta.getTLSClientCertificateBoundAccessTokens());
 		assertTrue(meta.getMutualTLSSenderConstrainedAccessTokens());
 		assertEquals(subjectDN, meta.getTLSClientAuthSubjectDN());
+		assertEquals(sanDNS, meta.getTLSClientAuthSanDNS());
+		assertEquals(sanURI, meta.getTLSClientAuthSanURI());
+		assertEquals(sanIP, meta.getTLSClientAuthSanIP());
+		assertEquals(sanEmail, meta.getTLSClientAuthSanEmail());
+		assertTrue(meta.getDPoPBoundAccessTokens());
 		assertEquals(authzJWSAlg, meta.getAuthorizationJWSAlg());
 		assertEquals(authzJWEAlg, meta.getAuthorizationJWEAlg());
 		assertEquals(authzJWEEnc, meta.getAuthorizationJWEEnc());
@@ -624,6 +629,8 @@ public class ClientMetadataTest extends TestCase {
 		
 		String sanEmail= "me@example.com";
 		meta.setTLSClientAuthSanEmail(sanEmail);
+
+		meta.setDPoPBoundAccessTokens(true);
 		
 		JWSAlgorithm authzJWSAlg = JWSAlgorithm.ES512;
 		meta.setAuthorizationJWSAlg(authzJWSAlg);
@@ -685,6 +692,7 @@ public class ClientMetadataTest extends TestCase {
 		assertEquals(sanURI, copy.getTLSClientAuthSanURI());
 		assertEquals(sanIP, copy.getTLSClientAuthSanIP());
 		assertEquals(sanEmail, copy.getTLSClientAuthSanEmail());
+		assertTrue(copy.getDPoPBoundAccessTokens());
 		assertTrue(copy.getCustomFields().isEmpty());
 		assertEquals(authzJWSAlg, copy.getAuthorizationJWSAlg());
 		assertEquals(authzJWEAlg, copy.getAuthorizationJWEAlg());
@@ -737,6 +745,7 @@ public class ClientMetadataTest extends TestCase {
 		assertEquals(sanURI, copy.getTLSClientAuthSanURI());
 		assertEquals(sanIP, copy.getTLSClientAuthSanIP());
 		assertEquals(sanEmail, copy.getTLSClientAuthSanEmail());
+		assertTrue(copy.getDPoPBoundAccessTokens());
 		assertEquals(authzJWSAlg, copy.getAuthorizationJWSAlg());
 		assertEquals(authzJWEAlg, copy.getAuthorizationJWEAlg());
 		assertEquals(authzJWEEnc, copy.getAuthorizationJWEEnc());
@@ -1451,6 +1460,42 @@ public class ClientMetadataTest extends TestCase {
 		assertEquals(softwareStatement.serialize(), clientMetadata.getSoftwareStatement().serialize());
 		
 		assertTrue(clientMetadata.getSoftwareStatement().verify(new RSASSAVerifier(rsaJWK.toRSAPublicKey())));
+	}
+
+
+	public void testDPoP_defaultFalse()
+		throws ParseException {
+
+		ClientMetadata clientMetadata = new ClientMetadata();
+
+		assertFalse(clientMetadata.getDPoPBoundAccessTokens());
+
+		JSONObject jsonObject = clientMetadata.toJSONObject();
+
+		assertFalse(jsonObject.containsKey("dpop_bound_access_tokens"));
+		assertTrue(jsonObject.isEmpty());
+
+		ClientMetadata parsed = ClientMetadata.parse(jsonObject);
+		assertFalse(parsed.getDPoPBoundAccessTokens());
+	}
+
+
+	public void testDPoP_true()
+		throws ParseException {
+
+		ClientMetadata clientMetadata = new ClientMetadata();
+		assertFalse(clientMetadata.getDPoPBoundAccessTokens());
+
+		clientMetadata.setDPoPBoundAccessTokens(true);
+		assertTrue(clientMetadata.getDPoPBoundAccessTokens());
+
+		JSONObject jsonObject = clientMetadata.toJSONObject();
+
+		assertTrue(JSONObjectUtils.getBoolean(jsonObject, "dpop_bound_access_tokens"));
+		assertEquals(1, jsonObject.size());
+
+		ClientMetadata parsed = ClientMetadata.parse(jsonObject);
+		assertTrue(parsed.getDPoPBoundAccessTokens());
 	}
 	
 	

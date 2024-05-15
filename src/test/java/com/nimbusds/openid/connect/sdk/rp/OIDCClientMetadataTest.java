@@ -18,16 +18,6 @@
 package com.nimbusds.openid.connect.sdk.rp;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
-
-import com.nimbusds.oauth2.sdk.id.Identifier;
-import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
-import junit.framework.TestCase;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
@@ -47,7 +37,9 @@ import com.nimbusds.oauth2.sdk.ciba.BackChannelTokenDeliveryMode;
 import com.nimbusds.oauth2.sdk.client.ClientMetadata;
 import com.nimbusds.oauth2.sdk.client.RegistrationError;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.id.SoftwareID;
+import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.SubjectType;
@@ -55,6 +47,13 @@ import com.nimbusds.openid.connect.sdk.assurance.evidences.attachment.HashAlgori
 import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistrationType;
 import com.nimbusds.openid.connect.sdk.id.SectorID;
+import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.*;
 
 
 public class OIDCClientMetadataTest extends TestCase {
@@ -96,6 +95,9 @@ public class OIDCClientMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("tls_client_auth_san_uri"));
 		assertTrue(paramNames.contains("tls_client_auth_san_ip"));
 		assertTrue(paramNames.contains("tls_client_auth_san_email"));
+
+		// DPoP
+		assertTrue(paramNames.contains("dpop_bound_access_tokens"));
 		
 		// JARM
 		assertTrue(paramNames.contains("authorization_signed_response_alg"));
@@ -137,7 +139,7 @@ public class OIDCClientMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("organization_name"));
 		assertTrue(paramNames.contains("signed_jwks_uri"));
 		assertTrue(paramNames.contains("client_registration_types"));
-		assertEquals(58, OIDCClientMetadata.getRegisteredParameterNames().size());
+		assertEquals(59, OIDCClientMetadata.getRegisteredParameterNames().size());
 	}
 	
 	
@@ -508,6 +510,42 @@ public class OIDCClientMetadataTest extends TestCase {
 		assertNull(metadata.getAuthorizationJWSAlg());
 		assertEquals(JWEAlgorithm.ECDH_ES, metadata.getAuthorizationJWEAlg());
 		assertEquals(EncryptionMethod.A128CBC_HS256, metadata.getAuthorizationJWEEnc());
+	}
+
+
+	public void testDPoP_defaultFalse()
+		throws ParseException {
+
+		OIDCClientMetadata clientMetadata = new OIDCClientMetadata();
+
+		assertFalse(clientMetadata.getDPoPBoundAccessTokens());
+
+		JSONObject jsonObject = clientMetadata.toJSONObject();
+
+		assertFalse(jsonObject.containsKey("dpop_bound_access_tokens"));
+		assertTrue(jsonObject.isEmpty());
+
+		OIDCClientMetadata parsed = OIDCClientMetadata.parse(jsonObject);
+		assertFalse(parsed.getDPoPBoundAccessTokens());
+	}
+
+
+	public void testDPoP_true()
+		throws ParseException {
+
+		OIDCClientMetadata clientMetadata = new OIDCClientMetadata();
+		assertFalse(clientMetadata.getDPoPBoundAccessTokens());
+
+		clientMetadata.setDPoPBoundAccessTokens(true);
+		assertTrue(clientMetadata.getDPoPBoundAccessTokens());
+
+		JSONObject jsonObject = clientMetadata.toJSONObject();
+
+		assertTrue(JSONObjectUtils.getBoolean(jsonObject, "dpop_bound_access_tokens"));
+		assertEquals(1, jsonObject.size());
+
+		OIDCClientMetadata parsed = OIDCClientMetadata.parse(jsonObject);
+		assertTrue(parsed.getDPoPBoundAccessTokens());
 	}
 	
 	

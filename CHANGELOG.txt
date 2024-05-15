@@ -2414,3 +2414,7 @@ version 11.10.2 (2024-05-10)
     * Updates to Tink 1.13.0
     * Updates to BouncyCastle 1.78
     * Updates tests from Java 11 to Java 17 runtime.
+
+version 11.11 (2024-05-15)
+    * Adds support for the dpop_bound_access_tokens OAuth 2.0 client metadata
+      parameter.

@@ -75,6 +75,7 @@ public class ClientInformationTest extends TestCase {
 		assertTrue(paramNames.contains("tls_client_auth_san_uri"));
 		assertTrue(paramNames.contains("tls_client_auth_san_ip"));
 		assertTrue(paramNames.contains("tls_client_auth_san_email"));
+		assertTrue(paramNames.contains("dpop_bound_access_tokens"));
 		assertTrue(paramNames.contains("authorization_signed_response_alg"));
 		assertTrue(paramNames.contains("authorization_encrypted_response_enc"));
 		assertTrue(paramNames.contains("authorization_encrypted_response_enc"));
@@ -88,7 +89,7 @@ public class ClientInformationTest extends TestCase {
 		assertTrue(paramNames.contains("signed_jwks_uri"));
 		assertTrue(paramNames.contains("client_registration_types"));
 
-		assertEquals(45, paramNames.size());
+		assertEquals(46, paramNames.size());
 	}
 	
 	

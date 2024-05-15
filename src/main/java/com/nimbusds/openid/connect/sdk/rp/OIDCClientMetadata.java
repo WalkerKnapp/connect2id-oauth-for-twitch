@@ -58,6 +58,8 @@ import com.nimbusds.openid.connect.sdk.id.SectorID;
  *         2.
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
  *         Access Tokens (RFC 8705), sections 2.1.2 and 3.4.
+ *     <li>OAuth 2.0 Demonstrating Proof of Possession (DPoP) (RFC 9449),
+ *        section 5.2.
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
  *         OAuth 2.0 (JARM)
  *     <li>OAuth 2.0 Pushed Authorization Requests (RFC 9126)

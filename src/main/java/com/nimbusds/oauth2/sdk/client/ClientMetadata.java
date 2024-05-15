@@ -71,6 +71,8 @@ import java.util.*;
  *         2.
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
  *         Access Tokens (RFC 8705), sections 2.1.2 and 3.4.
+ *     <li>OAuth 2.0 Demonstrating Proof of Possession (DPoP) (RFC 9449),
+ *        section 5.2.
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
  *         OAuth 2.0 (JARM).
  *     <li>OAuth 2.0 Pushed Authorization Requests (RFC 9126)
@@ -127,6 +129,7 @@ public class ClientMetadata {
 		p.add("tls_client_auth_san_uri");
 		p.add("tls_client_auth_san_ip");
 		p.add("tls_client_auth_san_email");
+		p.add("dpop_bound_access_tokens");
 		p.add("authorization_signed_response_alg");
 		p.add("authorization_encrypted_response_alg");
 		p.add("authorization_encrypted_response_enc");
@@ -331,6 +334,12 @@ public class ClientMetadata {
 	 * the OAuth client will use in mutual TLS authentication.
 	 */
 	private String tlsClientAuthSanEmail = null;
+
+
+	/**
+	 * Preference for DPoP bound access tokens.
+	 */
+	private boolean dPoPBoundAccessTokens = false;
 	
 	
 	/**
@@ -458,6 +467,7 @@ public class ClientMetadata {
 		tlsClientAuthSanURI = metadata.getTLSClientAuthSanURI();
 		tlsClientAuthSanIP = metadata.getTLSClientAuthSanIP();
 		tlsClientAuthSanEmail = metadata.getTLSClientAuthSanEmail();
+		dPoPBoundAccessTokens = metadata.getDPoPBoundAccessTokens();
 		authzJWSAlg = metadata.getAuthorizationJWSAlg();
 		authzJWEAlg = metadata.getAuthorizationJWEAlg();
 		authzJWEEnc = metadata.getAuthorizationJWEEnc();
@@ -1360,7 +1370,7 @@ public class ClientMetadata {
 	
 	
 	/**
-	 * Sets the preference for TLS client certificate bound access tokens.
+	 * Gets the preference for TLS client certificate bound access tokens.
 	 * Corresponds to the
 	 * {@code tls_client_certificate_bound_access_tokens} client metadata
 	 * field.
@@ -1375,7 +1385,7 @@ public class ClientMetadata {
 	
 	
 	/**
-	 * Gets the preference for TLS client certificate bound access tokens.
+	 * Sets the preference for TLS client certificate bound access tokens.
 	 * Corresponds to the
 	 * {@code tls_client_certificate_bound_access_tokens} client metadata
 	 * field.
@@ -1611,6 +1621,33 @@ public class ClientMetadata {
 				throw new IllegalStateException(exceptionMessage);
 			}
 		}
+	}
+
+
+	/**
+	 * Gets the preference for DPoP bound access tokens. Corresponds to the
+	 * {@code dpop_bound_access_tokens} client metadata field.
+	 *
+	 * @return {@code true} indicates a preference for DPoP bound access
+	 *         tokens, {@code false} if none.
+	 */
+	public boolean getDPoPBoundAccessTokens() {
+
+		return dPoPBoundAccessTokens;
+	}
+
+
+	/**
+	 * Sets the preference for DPoP bound access tokens. Corresponds to the
+	 * {@code dpop_bound_access_tokens} client metadata field.
+	 *
+	 * @param dPoPBoundAccessTokens {@code true} indicates a preference for
+	 *                              DPoP bound access tokens, {@code false}
+	 *                              if none.
+	 */
+	public void setDPoPBoundAccessTokens(final boolean dPoPBoundAccessTokens) {
+
+		this.dPoPBoundAccessTokens = dPoPBoundAccessTokens;
 	}
 	
 	
@@ -2209,10 +2246,10 @@ public class ClientMetadata {
 		
 		if (softwareStatement != null)
 			o.put("software_statement", softwareStatement.serialize());
-		
-		if (getTLSClientCertificateBoundAccessTokens()) {
-			o.put("tls_client_certificate_bound_access_tokens", tlsClientCertificateBoundAccessTokens);
-		}
+
+		// mTLS
+		if (tlsClientCertificateBoundAccessTokens)
+			o.put("tls_client_certificate_bound_access_tokens", true);
 		
 		if (tlsClientAuthSubjectDN != null)
 			o.put("tls_client_auth_subject_dn", tlsClientAuthSubjectDN);
@@ -2228,7 +2265,12 @@ public class ClientMetadata {
 		
 		if (tlsClientAuthSanEmail != null)
 			o.put("tls_client_auth_san_email", tlsClientAuthSanEmail);
-		
+
+		// DPoP
+		if (dPoPBoundAccessTokens)
+			o.put("dpop_bound_access_tokens", true);
+
+		// JARM
 		if (authzJWSAlg != null) {
 			o.put("authorization_signed_response_alg", authzJWSAlg.getName());
 		}
@@ -2291,7 +2333,7 @@ public class ClientMetadata {
 	
 	
 	/**
-	 * Parses an client metadata instance from the specified JSON object.
+	 * Parses a client metadata instance from the specified JSON object.
 	 *
 	 * @param jsonObject The JSON object to parse. Must not be
 	 *                   {@code null}.
@@ -2310,7 +2352,7 @@ public class ClientMetadata {
 
 
 	/**
-	 * Parses an client metadata instance from the specified JSON object.
+	 * Parses a client metadata instance from the specified JSON object.
 	 *
 	 * @param jsonObject The JSON object to parse, will be modified by
 	 *                   the parse routine. Must not be {@code null}.
@@ -2561,6 +2603,8 @@ public class ClientMetadata {
 				}
 				jsonObject.remove("software_statement");
 			}
+
+			// mTLS
 			
 			if (jsonObject.get("tls_client_certificate_bound_access_tokens") != null) {
 				metadata.setTLSClientCertificateBoundAccessTokens(JSONObjectUtils.getBoolean(jsonObject, "tls_client_certificate_bound_access_tokens"));
@@ -2593,6 +2637,15 @@ public class ClientMetadata {
 			}
 			
 			metadata.ensureExactlyOneCertSubjectFieldForTLSClientAuth();
+
+			// DPoP
+
+			if (jsonObject.get("dpop_bound_access_tokens") != null) {
+				metadata.setDPoPBoundAccessTokens(JSONObjectUtils.getBoolean(jsonObject, "dpop_bound_access_tokens"));
+				jsonObject.remove("dpop_bound_access_tokens");
+			}
+
+			// JARM
 			
 			if (jsonObject.get("authorization_signed_response_alg") != null) {
 				metadata.setAuthorizationJWSAlg(JWSAlgorithm.parse(JSONObjectUtils.getString(jsonObject, "authorization_signed_response_alg")));
