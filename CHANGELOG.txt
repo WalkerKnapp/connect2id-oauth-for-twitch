@@ -2419,3 +2419,13 @@ version 11.11 (2024-05-15)
     * Adds support for the dpop_bound_access_tokens OAuth 2.0 client metadata
       parameter.
     * Updates to Nimbus JOSE+JWT 9.39.1
+
+version 11.12 (2024-05-17)
+    * Moves the getExpirationTime method from IDTokenClaimsSet to
+      CommonOIDCTokenClaimsSet.
+    * LogoutTokenClaimsSet and LogoutTokenValidator must support the required
+      "exp" claim (iss #469).
+    * Adds new LogoutTokenClaimsSet constructor that includes an "exp" claim
+      argument.
+    * Deprecates the LogoutTokenClaimsSet constructor that doesn't include the
+      "exp" claim argument.

@@ -56,18 +56,12 @@ import java.util.*;
  *
  * <ul>
  *     <li>OpenID Connect Core 1.0, section 2.
- *     <li>OpenID Connect Front-Channel Logout 1.0, section 3 (draft 02).
+ *     <li>OpenID Connect Front-Channel Logout 1.0, section 3.
  *     <li>Financial Services – Financial API - Part 2: Read and Write API
  *         Security Profile, section 5.1.
  * </ul>
  */
 public class IDTokenClaimsSet extends CommonOIDCTokenClaimsSet {
-
-
-	/**
-	 * The expiration time claim name.
-	 */
-	public static final String EXP_CLAIM_NAME = "exp";
 
 
 	/**
@@ -132,7 +126,6 @@ public class IDTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 
 	static {
 		Set<String> claimNames = new HashSet<>(CommonOIDCTokenClaimsSet.getStandardClaimNames());
-		claimNames.add(EXP_CLAIM_NAME);
 		claimNames.add(AUTH_TIME_CLAIM_NAME);
 		claimNames.add(NONCE_CLAIM_NAME);
 		claimNames.add(AT_HASH_CLAIM_NAME);
@@ -355,18 +348,6 @@ public class IDTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 	public boolean hasRequiredClaims(final ResponseType responseType) {
 
 		return hasRequiredClaims(responseType, true);
-	}
-
-
-	/**
-	 * Gets the ID token expiration time. Corresponds to the {@code exp}
-	 * claim.
-	 *
-	 * @return The expiration time.
-	 */
-	public Date getExpirationTime() {
-
-		return getDateClaim(EXP_CLAIM_NAME);
 	}
 
 

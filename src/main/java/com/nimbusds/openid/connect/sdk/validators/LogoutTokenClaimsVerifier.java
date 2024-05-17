@@ -18,31 +18,32 @@
 package com.nimbusds.openid.connect.sdk.validators;
 
 
-import java.util.List;
-import java.util.Map;
-
-import net.jcip.annotations.ThreadSafe;
-
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.BadJWTException;
-import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
+import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.claims.LogoutTokenClaimsSet;
+import net.jcip.annotations.ThreadSafe;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
 
 
 /**
- * ID token claims verifier.
+ * Logout token claims verifier.
  *
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.6 (draft 07).
+ *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.6.
  * </ul>
  */
 @ThreadSafe
-public class LogoutTokenClaimsVerifier implements JWTClaimsSetVerifier {
+public class LogoutTokenClaimsVerifier extends DefaultJWTClaimsVerifier {
 	
 	
 	/**
@@ -62,20 +63,20 @@ public class LogoutTokenClaimsVerifier implements JWTClaimsSetVerifier {
 	 *
 	 * @param issuer   The expected ID token issuer. Must not be
 	 *                 {@code null}.
-	 * @param clientID The client ID. Must not be {@code null}. or positive
-	 *                 integer.
+	 * @param clientID The client ID. Must not be {@code null}.
 	 */
 	public LogoutTokenClaimsVerifier(final Issuer issuer,
 					 final ClientID clientID) {
-		
-		if (issuer == null) {
-			throw new IllegalArgumentException("The expected ID token issuer must not be null");
-		}
+
+		super(
+			Collections.singleton(clientID.getValue()),
+			new JWTClaimsSet.Builder()
+				.issuer(issuer.getValue())
+				.build(),
+                        new HashSet<>(Arrays.asList("iat", "exp", "jti", "events")),
+			Collections.singleton("nonce")
+		);
 		this.expectedIssuer = issuer;
-		
-		if (clientID == null) {
-			throw new IllegalArgumentException("The client ID must not be null");
-		}
 		this.expectedClientID = clientID;
 	}
 	
@@ -105,7 +106,9 @@ public class LogoutTokenClaimsVerifier implements JWTClaimsSetVerifier {
 	@Override
 	public void verify(final JWTClaimsSet claimsSet, final SecurityContext ctx)
 		throws BadJWTException {
-		
+
+		super.verify(claimsSet, ctx);
+
 		// See http://openid.net/specs/openid-connect-backchannel-1_0-ID1.html#Validation
 		
 		// Check event type
@@ -113,7 +116,7 @@ public class LogoutTokenClaimsVerifier implements JWTClaimsSetVerifier {
 			Map<String, Object> events = claimsSet.getJSONObjectClaim("events");
 			
 			if (events == null) {
-				throw new BadJWTException("Missing JWT events (events) claim");
+				throw new BadJWTException("Missing / invalid JWT events (events) claim");
 			}
 			
 			if (com.nimbusds.jose.util.JSONObjectUtils.getJSONObject(events, LogoutTokenClaimsSet.EVENT_TYPE) == null) {
@@ -124,39 +127,6 @@ public class LogoutTokenClaimsVerifier implements JWTClaimsSetVerifier {
 			throw new BadJWTException("Invalid JWT events (events) claim", e);
 		}
 		
-		
-		// Check required claims, match them with expected where needed
-		
-		final String tokenIssuer = claimsSet.getIssuer();
-		
-		if (tokenIssuer == null) {
-			throw BadJWTExceptions.MISSING_ISS_CLAIM_EXCEPTION;
-		}
-		
-		if (! getExpectedIssuer().getValue().equals(tokenIssuer)) {
-			throw new BadJWTException("Unexpected JWT issuer: " + tokenIssuer);
-		}
-		
-		final List<String> tokenAudience = claimsSet.getAudience();
-		
-		if (tokenAudience == null || tokenAudience.isEmpty()) {
-			throw BadJWTExceptions.MISSING_AUD_CLAIM_EXCEPTION;
-		}
-		
-		if (! tokenAudience.contains(expectedClientID.getValue())) {
-			throw new BadJWTException("Unexpected JWT audience: " + tokenAudience);
-		}
-		
-		
-		if (claimsSet.getIssueTime() == null) {
-			throw BadJWTExceptions.MISSING_IAT_CLAIM_EXCEPTION;
-		}
-		
-		if (claimsSet.getJWTID() == null) {
-			throw new BadJWTException("Missing JWT ID (jti) claim");
-		}
-		
-		
 		// Either sub or sid must be present
 		try {
 			if (claimsSet.getSubject() == null && claimsSet.getStringClaim("sid") == null) {
@@ -165,11 +135,6 @@ public class LogoutTokenClaimsVerifier implements JWTClaimsSetVerifier {
 			
 		} catch (java.text.ParseException e) {
 			throw new BadJWTException("Invalid session ID (sid) claim");
-		}
-		
-		// Nonce illegal
-		if (claimsSet.getClaim("nonce") != null) {
-			throw new BadJWTException("Found illegal nonce (nonce) claim");
 		}
 	}
 }

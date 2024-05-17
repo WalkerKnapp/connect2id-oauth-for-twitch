@@ -118,7 +118,7 @@ This SDK version implements the following standards and drafts:
 
 * OpenID Connect Front-Channel Logout 1.0 (2022-09-12)
 
-* OpenID Connect Back-Channel Logout 1.0 (2022-09-12)
+* OpenID Connect Back-Channel Logout 1.0 (2023-12-15)
 
 * OpenID Connect Extended Authentication Profile (EAP) ACR Values 1.0 -
   draft 00

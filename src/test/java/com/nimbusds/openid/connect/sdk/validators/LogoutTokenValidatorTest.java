@@ -18,16 +18,6 @@
 package com.nimbusds.openid.connect.sdk.validators;
 
 
-import java.net.URI;
-import java.security.Key;
-import java.util.*;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONObject;
-import org.junit.Assert;
-import org.opensaml.xmlsec.signature.J;
-import org.opensaml.xmlsec.signature.P;
-
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSAEncrypter;
@@ -42,8 +32,12 @@ import com.nimbusds.jose.proc.BadJWSException;
 import com.nimbusds.jose.proc.JWEDecryptionKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.util.ByteUtils;
-import com.nimbusds.jwt.*;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.BadJWTException;
+import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.*;
@@ -53,6 +47,13 @@ import com.nimbusds.openid.connect.sdk.claims.SessionID;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientInformation;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
+import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
+import org.junit.Assert;
+
+import java.net.URI;
+import java.security.Key;
+import java.util.*;
 
 
 public class LogoutTokenValidatorTest extends TestCase {
@@ -74,6 +75,12 @@ public class LogoutTokenValidatorTest extends TestCase {
 	
 	
 	private static final Secret CLIENT_SECRET = new Secret(32);
+
+
+	private static final Date IAT = DateUtils.nowWithSecondsPrecision();
+
+
+	private static final Date EXP = DateUtils.fromSecondsSinceEpoch(IAT.getTime() + 5 * 60 * 1000L);
 	
 	
 	private static final RSAKey RSA_SIGN_JWK;
@@ -111,7 +118,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -134,7 +142,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -169,7 +178,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			null,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			SESSION_ID)
 			.toJWTClaimsSet();
@@ -204,7 +214,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			SESSION_ID)
 			.toJWTClaimsSet();
@@ -239,7 +250,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			SESSION_ID)
 			.toJWTClaimsSet();
@@ -275,7 +287,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			SESSION_ID)
 			.toJWTClaimsSet();
@@ -312,7 +325,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -360,7 +374,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -394,7 +409,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -426,7 +442,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -450,7 +467,7 @@ public class LogoutTokenValidatorTest extends TestCase {
 			validator.validate(jwt);
 			fail();
 		} catch (BadJWTException e) {
-			assertEquals("Found illegal nonce (nonce) claim", e.getMessage());
+			assertEquals("JWT has prohibited claims: [nonce]", e.getMessage());
 		}
 	}
 	
@@ -461,7 +478,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			SESSION_ID)
 			.toJWTClaimsSet();
@@ -493,7 +511,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			SESSION_ID)
 			.toJWTClaimsSet();
@@ -532,7 +551,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			SESSION_ID)
 			.toJWTClaimsSet();
@@ -573,7 +593,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -608,7 +629,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -631,7 +653,7 @@ public class LogoutTokenValidatorTest extends TestCase {
 			validator.validate(jwt);
 			fail();
 		} catch (BadJWTException e) {
-			assertEquals("Missing JWT events (events) claim", e.getMessage());
+			assertEquals("JWT missing required claims: [events]", e.getMessage());
 		}
 	}
 	
@@ -643,7 +665,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -679,7 +702,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -702,7 +726,7 @@ public class LogoutTokenValidatorTest extends TestCase {
 			validator.validate(jwt);
 			fail();
 		} catch (BadJWTException e) {
-			assertEquals("Missing JWT issuer (iss) claim", e.getMessage());
+			assertEquals("JWT missing required claims: [iss]", e.getMessage());
 		}
 	}
 	
@@ -714,7 +738,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			new Issuer(URI.create("https://other-idp.com")),
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -734,7 +759,7 @@ public class LogoutTokenValidatorTest extends TestCase {
 			validator.validate(jwt);
 			fail();
 		} catch (BadJWTException e) {
-			assertEquals("Unexpected JWT issuer: https://other-idp.com", e.getMessage());
+			assertEquals("JWT iss claim has value https://other-idp.com, must be https://c2id.com", e.getMessage());
 		}
 	}
 	
@@ -746,7 +771,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -769,7 +795,7 @@ public class LogoutTokenValidatorTest extends TestCase {
 			validator.validate(jwt);
 			fail();
 		} catch (BadJWTException e) {
-			assertEquals("Missing JWT audience (aud) claim", e.getMessage());
+			assertEquals("JWT missing required audience", e.getMessage());
 		}
 	}
 	
@@ -781,7 +807,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(new ClientID("other-client-id")).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -801,7 +828,7 @@ public class LogoutTokenValidatorTest extends TestCase {
 			validator.validate(jwt);
 			fail();
 		} catch (BadJWTException e) {
-			assertEquals("Unexpected JWT audience: [other-client-id]", e.getMessage());
+			assertEquals("JWT audience rejected: [other-client-id]", e.getMessage());
 		}
 	}
 	
@@ -813,7 +840,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -836,7 +864,7 @@ public class LogoutTokenValidatorTest extends TestCase {
 			validator.validate(jwt);
 			fail();
 		} catch (BadJWTException e) {
-			assertEquals("Missing JWT ID (jti) claim", e.getMessage());
+			assertEquals("JWT missing required claims: [jti]", e.getMessage());
 		}
 	}
 	
@@ -848,7 +876,8 @@ public class LogoutTokenValidatorTest extends TestCase {
 			ISSUER,
 			SUBJECT,
 			new Audience(CLIENT_ID).toSingleAudienceList(),
-			new Date(),
+			IAT,
+			EXP,
 			JWTID,
 			null)
 			.toJWTClaimsSet();
@@ -871,7 +900,80 @@ public class LogoutTokenValidatorTest extends TestCase {
 			validator.validate(jwt);
 			fail();
 		} catch (BadJWTException e) {
-			assertEquals("Missing JWT issue time (iat) claim", e.getMessage());
+			assertEquals("JWT missing required claims: [iat]", e.getMessage());
+		}
+	}
+
+
+	public void testMissingExpirationTime()
+		throws Exception {
+
+		JWTClaimsSet claimsSet = new LogoutTokenClaimsSet(
+			ISSUER,
+			SUBJECT,
+			new Audience(CLIENT_ID).toSingleAudienceList(),
+			IAT,
+			EXP,
+			JWTID,
+			null)
+			.toJWTClaimsSet();
+
+		Map<String, Object> jsonObject = claimsSet.toJSONObject();
+		jsonObject.remove("exp");
+
+		SignedJWT jwt = new SignedJWT(
+			new JWSHeader.Builder(JWSAlgorithm.HS256)
+				.build(),
+			JWTClaimsSet.parse(jsonObject));
+
+		jwt.sign(new MACSigner(CLIENT_SECRET.getValueBytes()));
+
+		LogoutTokenValidator validator = new LogoutTokenValidator(
+			ISSUER, CLIENT_ID, JWSAlgorithm.HS256, CLIENT_SECRET
+		);
+
+		try {
+			validator.validate(jwt);
+			fail();
+		} catch (BadJWTException e) {
+			assertEquals("JWT missing required claims: [exp]", e.getMessage());
+		}
+	}
+
+
+	public void testExpired()
+		throws Exception {
+
+		Date now = DateUtils.nowWithSecondsPrecision();
+		Date twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000L);
+		Date oneHoursAgo = new Date(now.getTime() - 1 * 60 * 60 * 1000L);
+
+		JWTClaimsSet claimsSet = new LogoutTokenClaimsSet(
+			ISSUER,
+			SUBJECT,
+			new Audience(CLIENT_ID).toSingleAudienceList(),
+			twoHoursAgo,
+			oneHoursAgo,
+			JWTID,
+			null)
+			.toJWTClaimsSet();
+
+		SignedJWT jwt = new SignedJWT(
+			new JWSHeader.Builder(JWSAlgorithm.HS256)
+				.build(),
+			claimsSet);
+
+		jwt.sign(new MACSigner(CLIENT_SECRET.getValueBytes()));
+
+		LogoutTokenValidator validator = new LogoutTokenValidator(
+			ISSUER, CLIENT_ID, JWSAlgorithm.HS256, CLIENT_SECRET
+		);
+
+		try {
+			validator.validate(jwt);
+			fail();
+		} catch (BadJWTException e) {
+			assertEquals("Expired JWT", e.getMessage());
 		}
 	}
 	
@@ -914,6 +1016,7 @@ public class LogoutTokenValidatorTest extends TestCase {
 			SUBJECT,
 			new Audience(clientInfo.getID()).toSingleAudienceList(),
 			now,
+			inOneHour,
 			JWTID,
 			SESSION_ID);
 		

@@ -18,11 +18,6 @@
 package com.nimbusds.openid.connect.sdk.claims;
 
 
-import java.util.*;
-
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.Audience;
@@ -30,6 +25,10 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+
+import java.util.*;
 
 
 /**
@@ -43,6 +42,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  *   "sub"    : "248289761001",
  *   "aud"    : "s6BhdRkqt3",
  *   "iat"    : 1471566154,
+ *   "exp"    : 1471569754,
  *   "jti"    : "bWJq",
  *   "sid"    : "08a5019c-17e1-4977-8f42-65a12843ea02",
  *   "events" : { "http://schemas.openid.net/event/backchannel-logout": { } }
@@ -52,7 +52,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.4 (draft 07).
+ *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.4.
  *     <li>Security Event Token (SET) (RFC 8417).
  * </ul>
  */
@@ -112,6 +112,7 @@ public class LogoutTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 	 *            ID is set.
 	 * @param aud The audience. Must not be {@code null}.
 	 * @param iat The issue time. Must not be {@code null}.
+	 * @param exp The expiration time. Must not be {@code null}.
 	 * @param jti The JWT ID. Must not be {@code null}.
 	 * @param sid The session ID. Must not be {@code null} unless the
 	 *            subject is set.
@@ -120,6 +121,7 @@ public class LogoutTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 				    final Subject sub,
 				    final List<Audience> aud,
 				    final Date iat,
+				    final Date exp,
 				    final JWTID jti,
 				    final SessionID sid) {
 		
@@ -141,6 +143,8 @@ public class LogoutTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 		setClaim(AUD_CLAIM_NAME, audList);
 		
 		setDateClaim(IAT_CLAIM_NAME, iat);
+
+		setDateClaim(EXP_CLAIM_NAME, exp);
 		
 		setClaim(JTI_CLAIM_NAME, jti.getValue());
 		
@@ -151,6 +155,31 @@ public class LogoutTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 		if (sid != null) {
 			setClaim(SID_CLAIM_NAME, sid.getValue());
 		}
+	}
+
+
+	/**
+	 * Creates a new logout token claims set. Either the subject or the
+	 * session ID must be set, or both.
+	 *
+	 * @param iss The issuer. Must not be {@code null}.
+	 * @param sub The subject. Must not be {@code null} unless the session
+	 *            ID is set.
+	 * @param aud The audience. Must not be {@code null}.
+	 * @param iat The issue time. Must not be {@code null}.
+	 * @param jti The JWT ID. Must not be {@code null}.
+	 * @param sid The session ID. Must not be {@code null} unless the
+	 *            subject is set.
+	 */
+	@Deprecated
+	public LogoutTokenClaimsSet(final Issuer iss,
+				    final Subject sub,
+				    final List<Audience> aud,
+				    final Date iat,
+				    final JWTID jti,
+				    final SessionID sid) {
+
+		this(iss, sub, aud, iat, null, jti, sid);
 	}
 	
 	
@@ -182,6 +211,9 @@ public class LogoutTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 		
 		if (getDateClaim(IAT_CLAIM_NAME) == null)
 			throw new ParseException("Missing or invalid iat claim");
+
+		if (getDateClaim(EXP_CLAIM_NAME) == null)
+			throw new ParseException("Missing or invalid exp claim");
 		
 		if (getStringClaim(JTI_CLAIM_NAME) == null)
 			throw new ParseException("Missing or invalid jti claim");

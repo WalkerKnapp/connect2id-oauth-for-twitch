@@ -18,16 +18,23 @@
 package com.nimbusds.openid.connect.sdk.claims;
 
 
+import net.minidev.json.JSONObject;
+
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-
-import net.minidev.json.JSONObject;
 
 /**
  * Common OpenID tokens (ID, logout) claims set.
  */
 abstract class CommonOIDCTokenClaimsSet extends CommonClaimsSet {
+
+
+	/**
+	 * The expiration time claim name.
+	 */
+	public static final String EXP_CLAIM_NAME = "exp";
 	
 	
 	/**
@@ -44,6 +51,7 @@ abstract class CommonOIDCTokenClaimsSet extends CommonClaimsSet {
 	
 	static {
 		Set<String> claimNames = new HashSet<>(CommonClaimsSet.getStandardClaimNames());
+		claimNames.add(EXP_CLAIM_NAME);
 		claimNames.add(SID_CLAIM_NAME);
 		STD_CLAIM_NAMES = Collections.unmodifiableSet(claimNames);
 	}
@@ -78,6 +86,18 @@ abstract class CommonOIDCTokenClaimsSet extends CommonClaimsSet {
 	protected CommonOIDCTokenClaimsSet(final JSONObject jsonObject) {
 		
 		super(jsonObject);
+	}
+
+
+	/**
+	 * Gets the token expiration time. Corresponds to the {@code exp}
+	 * claim.
+	 *
+	 * @return The expiration time.
+	 */
+	public Date getExpirationTime() {
+
+		return getDateClaim(EXP_CLAIM_NAME);
 	}
 	
 	
