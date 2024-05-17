@@ -278,6 +278,44 @@ public class LogoutTokenValidatorTest extends TestCase {
 		assertEquals(JWTID, validatedClaims.getJWTID());
 		assertEquals(SESSION_ID, validatedClaims.getSessionID());
 	}
+
+
+	// https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/issues/465
+	public void testGoodRSASigned_genericType()
+		throws Exception {
+
+		JWTClaimsSet claimsSet = new LogoutTokenClaimsSet(
+			ISSUER,
+			SUBJECT,
+			new Audience(CLIENT_ID).toSingleAudienceList(),
+			IAT,
+			EXP,
+			JWTID,
+			SESSION_ID)
+			.toJWTClaimsSet();
+
+		SignedJWT jwt = new SignedJWT(
+			new JWSHeader.Builder(JWSAlgorithm.RS256)
+				.type(JOSEObjectType.JWT)
+				.keyID(RSA_SIGN_JWK.getKeyID())
+				.build(),
+			claimsSet);
+
+		jwt.sign(new RSASSASigner(RSA_SIGN_JWK));
+
+		LogoutTokenValidator validator = new LogoutTokenValidator(
+			ISSUER, CLIENT_ID, JWSAlgorithm.RS256, new JWKSet(RSA_SIGN_JWK.toPublicJWK())
+		);
+
+		LogoutTokenClaimsSet validatedClaims = validator.validate(jwt);
+
+		assertEquals(ISSUER, validatedClaims.getIssuer());
+		assertEquals(SUBJECT, validatedClaims.getSubject());
+		assertEquals(new Audience(CLIENT_ID).toSingleAudienceList(), validatedClaims.getAudience());
+		assertNotNull(validatedClaims.getIssueTime());
+		assertEquals(JWTID, validatedClaims.getJWTID());
+		assertEquals(SESSION_ID, validatedClaims.getSessionID());
+	}
 	
 	
 	public void testGoodRSASigned_requireType()
@@ -579,7 +617,7 @@ public class LogoutTokenValidatorTest extends TestCase {
 				if (requireTypedToken) {
 					assertEquals("Invalid / missing logout token typ (type) header, must be logout+jwt", e.getMessage());
 				} else {
-					assertEquals("If set the logout token typ (type) header must be logout+jwt", e.getMessage());
+					assertEquals("If set the logout token typ (type) header must be logout+jwt or JWT", e.getMessage());
 				}
 			}
 		}

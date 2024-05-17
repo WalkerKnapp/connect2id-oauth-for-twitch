@@ -336,8 +336,8 @@ public class LogoutTokenValidator extends AbstractJWTValidator {
 					throw new BadJOSEException("Invalid / missing logout token typ (type) header, must be " + TYPE);
 				}
 			} else {
-				if (type != null && ! TYPE.equals(type)) {
-					throw new BadJOSEException("If set the logout token typ (type) header must be " + TYPE);
+				if (type != null && ! TYPE.equals(type) && ! JOSEObjectType.JWT.equals(type)) {
+					throw new BadJOSEException("If set the logout token typ (type) header must be " + TYPE + " or " + JOSEObjectType.JWT);
 				}
 			}
 		}

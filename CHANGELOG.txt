@@ -2429,3 +2429,4 @@ version 11.12 (2024-05-17)
       argument.
     * Deprecates the LogoutTokenClaimsSet constructor that doesn't include the
       "exp" claim argument.
+    * LogoutTokenValidator should accept JWS header "typ":"JWT" (iss #465).
