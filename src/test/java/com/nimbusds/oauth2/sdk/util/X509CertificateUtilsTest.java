@@ -18,25 +18,31 @@
 package com.nimbusds.oauth2.sdk.util;
 
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PublicKey;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.Date;
-
-import junit.framework.TestCase;
-import org.junit.Assert;
-
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jose.util.Base64;
 import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.http.X509CertificateGenerator;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
+import junit.framework.TestCase;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.junit.Assert;
+
+import java.io.IOException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PublicKey;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
+import java.util.Collections;
+import java.util.Date;
 
 
 public class X509CertificateUtilsTest extends TestCase {
@@ -234,5 +240,53 @@ public class X509CertificateUtilsTest extends TestCase {
 		
 		Assert.assertArrayEquals(RSA_PUBLIC_KEY.getEncoded(), cert.getPublicKey().getEncoded());
 		cert.verify(RSA_PUBLIC_KEY);
+	}
+
+
+	public void testEntraID_addCertToJWK() throws ParseException, JOSEException, IOException, OperatorCreationException, CertificateEncodingException {
+
+		// Parse the RSA JWK
+		String jwkString =
+			"{" +
+			"  \"kty\" : \"RSA\"," +
+			"  \"use\" : \"sig\"," +
+			"  \"kid\" : \"CXup\"," +
+			"  \"n\"   : \"hrwD-lc-IwzwidCANmy4qsiZk11yp9kHykOuP0yOnwi36VomYTQVEzZXgh2sDJpGgAutdQudgwLoV8tVSsTG9SQHgJjH9Pd_9V4Ab6PANyZNG6DSeiq1QfiFlEP6Obt0JbRB3W7X2vkxOVaNoWrYskZodxU2V0ogeVL_LkcCGAyNu2jdx3j0DjJatNVk7ystNxb9RfHhJGgpiIkO5S3QiSIVhbBKaJHcZHPF1vq9g0JMGuUCI-OTSVg6XBkTLEGw1C_R73WD_oVEBfdXbXnLukoLHBS11p3OxU7f4rfxA_f_72_UwmWGJnsqS3iahbms3FkvqoL9x_Vj3GhuJSf97Q\"," +
+			"  \"e\"   : \"AQAB\"," +
+			"  \"d\"   : \"bmpuqB4PIhJcndRs_i0jOXKjyQzwBXXq2GuWxPEsgFBYx7fFdCuGifQiytMeSEW2OQFY6W7XaqJbXneYMmoI0qTwMQcD91FNX_vlR5he0dNlpZqqYsvVN3c_oT4ENoPUr4GF6L4Jz74gBOlVsE8rvw3MVqrfmbF543ONBJPUt3d1TjKwaZQlgPji-ycGg_P7K-dKxpyfQsC8xMmVmiAF4QQtnUa9vMgiChiO8-6VzGm2yWWyIUVRLxSohrbSNFhqF2zeWXePAw0_nzeZh3IDIMS5ABo92Pry4N3X-X7v_7nf8MGngK4duQ_1UkkLk-3u0I3tk_glsarDN0tYhzPwAQ\"" +
+			"}";
+
+		RSAKey rsaJWK = RSAKey.parse(jwkString);
+
+		// Set the validity time window of the certificate
+		Date notBefore = new Date();
+		Date notAfter = new Date(notBefore.getTime() + 365 * 24 * 60 * 60 * 1000L);
+
+		// Create a self-signed certificate
+		X509Certificate x509Cert = X509CertificateUtils.generate(
+			new Issuer("idp.c2id.com"),
+			new Subject("idp.c2id.com"),
+			notBefore,
+			notAfter,
+			rsaJWK.toPublicKey(),
+			rsaJWK.toRSAPrivateKey()
+		);
+
+		System.out.println(x509Cert.getIssuerX500Principal());
+		System.out.println(x509Cert.getSubjectX500Principal());
+		System.out.println(x509Cert.getNotBefore());
+		System.out.println(x509Cert.getNotAfter());
+		// Example output:
+		// CN=idp.c2id.com
+		// CN=idp.c2id.com
+		// Mon May 27 12:28:39 CET 2024
+		// Tue May 27 12:28:39 CET 2025
+
+		// Add the certificate to the RSA JWK
+		rsaJWK = new RSAKey.Builder(rsaJWK)
+			.x509CertChain(Collections.singletonList(Base64.encode(x509Cert.getEncoded())))
+			.build();
+
+		System.out.println(rsaJWK);
 	}
 }
