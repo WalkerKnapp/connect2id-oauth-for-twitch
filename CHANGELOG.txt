@@ -2434,3 +2434,4 @@ version 11.12 (2024-05-17)
 version 11.12.1 (2024-06-25)
     * The TokenIntrospectionRequest.parse method must throw a ParseException
       when a blank token is found (iss #470).
+    * Updates to Nimbus JOSE+JWT 9.40
