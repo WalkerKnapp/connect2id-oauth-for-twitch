@@ -26,6 +26,7 @@ import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.oauth2.sdk.token.Token;
 import com.nimbusds.oauth2.sdk.token.TypelessAccessToken;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import net.jcip.annotations.Immutable;
 import net.minidev.json.JSONObject;
@@ -332,7 +333,7 @@ public class TokenIntrospectionRequest extends AbstractOptionallyAuthenticatedRe
 
 		final String tokenValue = MultivaluedMapUtils.removeAndReturnFirstValue(params, "token");
 
-		if (tokenValue == null || tokenValue.isEmpty()) {
+		if (StringUtils.isBlank(tokenValue)) {
 			throw new ParseException("Missing required token parameter");
 		}
 

@@ -322,4 +322,29 @@ public class TokenIntrospectionRequestTest extends TestCase {
 		assertEquals(mtlsClientAuthz.getValue(), request.getClientAuthorization().getValue());
 		assertNull(request.getClientAuthentication());
 	}
+
+
+	public void testParseEmptyAccessTokenValue() {
+
+		URI endpoint = URI.create("https://c2id.com/token/introspect");
+
+		for (String hint: Arrays.asList(
+			"token_type_hint=access_token&",
+			"token_type_hint=refresh_token&",
+			"" // none
+		)) {
+
+			HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, endpoint);
+			httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+			httpRequest.setAuthorization(new BearerAccessToken("soo5Ruj8yieH").toAuthorizationHeader());
+			httpRequest.setBody(hint + "token=%20");
+
+			try {
+				TokenIntrospectionRequest.parse(httpRequest);
+				fail();
+			} catch (ParseException e) {
+				assertEquals("Missing required token parameter", e.getMessage());
+			}
+		}
+	}
 }

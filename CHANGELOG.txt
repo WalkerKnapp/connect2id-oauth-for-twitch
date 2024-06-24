@@ -2430,3 +2430,7 @@ version 11.12 (2024-05-17)
     * Deprecates the LogoutTokenClaimsSet constructor that doesn't include the
       "exp" claim argument.
     * LogoutTokenValidator should accept JWS header "typ":"JWT" (iss #465).
+
+version 11.12.1 (2024-06-25)
+    * The TokenIntrospectionRequest.parse method must throw a ParseException
+      when a blank token is found (iss #470).
