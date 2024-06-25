@@ -4,6 +4,7 @@ package com.nimbusds.oauth2.sdk.token;
 import net.jcip.annotations.Immutable;
 import net.minidev.json.JSONObject;
 
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -39,5 +40,17 @@ public class TypelessToken extends Token {
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.putAll(getCustomParameters());
 		return jsonObject;
+	}
+
+
+	@Override
+	public boolean equals(final Object other) {
+
+		return other instanceof Token && other.toString().equals(getValue());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getValue());
 	}
 }

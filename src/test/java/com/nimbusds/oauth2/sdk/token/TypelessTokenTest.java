@@ -35,6 +35,31 @@ public class TypelessTokenTest extends TestCase {
 		assertTrue(token.getParameterNames().isEmpty());
 		
 		assertTrue(token.toJSONObject().isEmpty());
+
+		assertEquals(token, new TypelessToken(value));
+		assertEquals(token.hashCode(), new TypelessToken(value).hashCode());
+	}
+
+
+	public void testEquality() {
+
+		String value = "iePhohph8hoozaet";
+
+		TypelessToken token = new TypelessToken(value);
+		BearerAccessToken bearerAccessToken = new BearerAccessToken(value);
+
+		assertEquals(token, bearerAccessToken);
+		assertEquals(token.hashCode(), bearerAccessToken.hashCode());
+	}
+
+
+	public void testInequality() {
+
+		TypelessToken t1 = new TypelessToken("1");
+		TypelessToken t2 = new TypelessToken("2");
+
+		assertNotSame(t1, t2);
+		assertNotSame(t1.hashCode(), t2.hashCode());
 	}
 	
 	

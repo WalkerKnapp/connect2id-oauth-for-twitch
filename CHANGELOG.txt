@@ -2435,3 +2435,7 @@ version 11.12.1 (2024-06-25)
     * The TokenIntrospectionRequest.parse method must throw a ParseException
       when a blank token is found (iss #470).
     * Updates to Nimbus JOSE+JWT 9.40
+
+version 11.13 (2024-06-25)
+    * TypelessToken overrides equals and hashCode.
+
