@@ -18,7 +18,13 @@
 package com.nimbusds.oauth2.sdk.auth;
 
 
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import junit.framework.TestCase;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -31,5 +37,38 @@ public class JWTAuthenticationTest extends TestCase {
 	
 		assertEquals("urn:ietf:params:oauth:client-assertion-type:jwt-bearer", 
 			     JWTAuthentication.CLIENT_ASSERTION_TYPE);
+	}
+
+
+	public void testParseClientID_success() {
+
+		Map<String, List<String>> params = new HashMap<>();
+		params.put("client_id", Collections.singletonList("123"));
+
+		assertEquals(new ClientID("123"), JWTAuthentication.parseClientID(params));
+	}
+
+
+	public void testParseClientID_none() {
+
+		assertNull(JWTAuthentication.parseClientID(Collections.<String, List<String>>emptyMap()));
+	}
+
+
+	public void testParseClientID_emptyString() {
+
+		Map<String, List<String>> params = new HashMap<>();
+		params.put("client_id", Collections.singletonList(""));
+
+		assertNull(JWTAuthentication.parseClientID(params));
+	}
+
+
+	public void testParseClientID_blankString() {
+
+		Map<String, List<String>> params = new HashMap<>();
+		params.put("client_id", Collections.singletonList(" "));
+
+		assertNull(JWTAuthentication.parseClientID(params));
 	}
 }

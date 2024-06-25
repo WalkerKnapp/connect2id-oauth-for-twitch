@@ -2440,4 +2440,6 @@ version 11.13 (2024-06-25)
     * TypelessToken overrides equals and hashCode.
     * The TokenRevocationRequest.parse method must throw a ParseException when
       a blank token is found (iss #471).
+    * JWTAuthentication.parseClientID(Map<String,List<String>>) must correctly
+      handle empty and blank client_id values (iss #472).
 

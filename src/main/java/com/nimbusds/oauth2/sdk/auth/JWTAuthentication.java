@@ -28,6 +28,7 @@ import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 
 import java.util.*;
@@ -307,7 +308,7 @@ public abstract class JWTAuthentication extends ClientAuthentication {
 		
 		String clientIDString = MultivaluedMapUtils.getFirstValue(params, "client_id");
 
-		return clientIDString != null ? new ClientID(clientIDString) : null;
+		return StringUtils.isNotBlank(clientIDString) ? new ClientID(clientIDString) : null;
 	}
 	
 	
@@ -315,7 +316,8 @@ public abstract class JWTAuthentication extends ClientAuthentication {
 	 * Parses the specified HTTP request for a JSON Web Token (JWT) based
 	 * client authentication.
 	 *
-	 * @param httpRequest The HTTP request to parse. Must not be {@code null}.
+	 * @param httpRequest The HTTP request to parse. Must not be
+	 *                    {@code null}.
 	 *
 	 * @return The JSON Web Token (JWT) based client authentication.
 	 *
