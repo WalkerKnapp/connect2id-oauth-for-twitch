@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.nimbusds.oauth2.sdk.token.*;
 import junit.framework.TestCase;
 
 import com.nimbusds.common.contenttype.ContentType;
@@ -34,10 +35,6 @@ import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.oauth2.sdk.token.AccessToken;
-import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-import com.nimbusds.oauth2.sdk.token.RefreshToken;
-import com.nimbusds.oauth2.sdk.token.Token;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 
 
@@ -194,8 +191,7 @@ public class TokenRevocationRequestTest extends TestCase {
 
 		TokenRevocationRequest request = TokenRevocationRequest.parse(httpRequest);
 		assertEquals("abc", request.getToken().getValue());
-		assertFalse(request.getToken() instanceof AccessToken);
-		assertFalse(request.getToken() instanceof RefreshToken);
+		assertTrue(request.getToken() instanceof TypelessToken);
 		assertNull(request.getClientAuthentication());
 		assertEquals(new ClientID("123"), request.getClientID());
 	}
@@ -214,8 +210,48 @@ public class TokenRevocationRequestTest extends TestCase {
 
 		TokenRevocationRequest request = TokenRevocationRequest.parse(httpRequest);
 		assertEquals("abc", request.getToken().getValue());
-		assertFalse(request.getToken() instanceof AccessToken);
-		assertFalse(request.getToken() instanceof RefreshToken);
+		assertTrue(request.getToken() instanceof TypelessToken);
+		assertEquals(new ClientID("123"), request.getClientAuthentication().getClientID());
+		assertEquals(new Secret("secret"), ((ClientSecretBasic)request.getClientAuthentication()).getClientSecret());
+		assertNull(request.getClientID());
+	}
+
+
+	public void testWithUnsupportedToken_publicClient()
+		throws Exception {
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token/revoke"));
+		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+
+		Map<String,List<String>> queryParams = new HashMap<>();
+		queryParams.put("token", Collections.singletonList("abc"));
+		queryParams.put("token_type_hint", Collections.singletonList("xxx"));
+		queryParams.put("client_id", Collections.singletonList("123"));
+		httpRequest.setBody(URLUtils.serializeParameters(queryParams));
+
+		TokenRevocationRequest request = TokenRevocationRequest.parse(httpRequest);
+		assertEquals("abc", request.getToken().getValue());
+		assertTrue(request.getToken() instanceof TypelessToken);
+		assertNull(request.getClientAuthentication());
+		assertEquals(new ClientID("123"), request.getClientID());
+	}
+
+
+	public void testWithUnsupportedToken_confidentialClient()
+		throws Exception {
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token/revoke"));
+		httpRequest.setAuthorization(new ClientSecretBasic(new ClientID("123"), new Secret("secret")).toHTTPAuthorizationHeader());
+		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+
+		Map<String,List<String>> queryParams = new HashMap<>();
+		queryParams.put("token", Collections.singletonList("abc"));
+		queryParams.put("token_type_hint", Collections.singletonList("xxx"));
+		httpRequest.setBody(URLUtils.serializeParameters(queryParams));
+
+		TokenRevocationRequest request = TokenRevocationRequest.parse(httpRequest);
+		assertEquals("abc", request.getToken().getValue());
+		assertTrue(request.getToken() instanceof TypelessToken);
 		assertEquals(new ClientID("123"), request.getClientAuthentication().getClientID());
 		assertEquals(new Secret("secret"), ((ClientSecretBasic)request.getClientAuthentication()).getClientSecret());
 		assertNull(request.getClientID());
@@ -259,6 +295,26 @@ public class TokenRevocationRequestTest extends TestCase {
 			fail();
 		} catch (ParseException e) {
 			assertEquals("Invalid token revocation request: No client authentication or client_id parameter found", e.getMessage());
+		}
+	}
+
+
+	public void testParseBlankToken()
+		throws MalformedURLException {
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token/revoke"));
+		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+
+		Map<String,List<String>> queryParams = new HashMap<>();
+		queryParams.put("client_id", Collections.singletonList("123"));
+		queryParams.put("token", Collections.singletonList(" "));
+		httpRequest.setBody(URLUtils.serializeParameters(queryParams));
+
+		try {
+			TokenRevocationRequest.parse(httpRequest);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Missing required token parameter", e.getMessage());
 		}
 	}
 }

@@ -21,18 +21,17 @@ package com.nimbusds.oauth2.sdk;
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
-import com.nimbusds.oauth2.sdk.token.AccessToken;
-import com.nimbusds.oauth2.sdk.token.RefreshToken;
-import com.nimbusds.oauth2.sdk.token.Token;
-import com.nimbusds.oauth2.sdk.token.TypelessAccessToken;
+import com.nimbusds.oauth2.sdk.token.*;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -329,7 +328,7 @@ public class TokenIntrospectionRequest extends AbstractOptionallyAuthenticatedRe
 		httpRequest.ensureMethod(HTTPRequest.Method.POST);
 		httpRequest.ensureEntityContentType(ContentType.APPLICATION_URLENCODED);
 
-		Map<String,List<String>> params = httpRequest.getBodyAsFormParameters();
+		Map<String, List<String>> params = httpRequest.getBodyAsFormParameters();
 
 		final String tokenValue = MultivaluedMapUtils.removeAndReturnFirstValue(params, "token");
 
@@ -338,55 +337,16 @@ public class TokenIntrospectionRequest extends AbstractOptionallyAuthenticatedRe
 		}
 
 		// Detect the token type
-		Token token = null;
-
 		final String tokenTypeHint = MultivaluedMapUtils.removeAndReturnFirstValue(params, "token_type_hint");
 
-		if (tokenTypeHint == null) {
-
-			// Can be both access or refresh token
-			token = new Token() {
-				
-				private static final long serialVersionUID = 8491102820261331059L;
-				
-				
-				@Override
-				public String getValue() {
-
-					return tokenValue;
-				}
-
-				@Override
-				public Set<String> getParameterNames() {
-
-					return Collections.emptySet();
-				}
-
-				@Override
-				public JSONObject toJSONObject() {
-
-					return new JSONObject();
-				}
-
-				@Override
-				public boolean equals(final Object other) {
-
-					return other instanceof Token && other.toString().equals(tokenValue);
-				}
-
-				@Override
-				public int hashCode() {
-					return Objects.hashCode(tokenValue);
-				}
-			};
-
-		} else if (tokenTypeHint.equals("access_token")) {
-
+		Token token;
+		if ("access_token".equals(tokenTypeHint)) {
 			token = new TypelessAccessToken(tokenValue);
-
-		} else if (tokenTypeHint.equals("refresh_token")) {
-
+		} else if ("refresh_token".equals(tokenTypeHint)) {
 			token = new RefreshToken(tokenValue);
+		} else {
+			// Can be both access or refresh token
+			token = new TypelessToken(tokenValue);
 		}
 
 		// Important: auth methods mutually exclusive!
@@ -398,7 +358,7 @@ public class TokenIntrospectionRequest extends AbstractOptionallyAuthenticatedRe
 		AccessToken clientAuthz = null;
 
 		if (clientAuth == null && httpRequest.getAuthorization() != null) {
-			clientAuthz = AccessToken.parse(httpRequest.getAuthorization());
+			clientAuthz = AccessToken.parse(httpRequest.getAuthorization(), AccessTokenType.BEARER);
 		}
 
 		URI uri = httpRequest.getURI();

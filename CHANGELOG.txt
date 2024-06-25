@@ -2438,4 +2438,6 @@ version 11.12.1 (2024-06-25)
 
 version 11.13 (2024-06-25)
     * TypelessToken overrides equals and hashCode.
+    * The TokenRevocationRequest.parse method must throw a ParseException when
+      a blank token is found (iss #471).
 

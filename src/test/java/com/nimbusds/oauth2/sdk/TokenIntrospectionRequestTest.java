@@ -18,13 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-import java.security.cert.X509Certificate;
-import java.util.*;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
@@ -35,7 +28,13 @@ import com.nimbusds.oauth2.sdk.http.X509CertificateGenerator;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-import com.nimbusds.oauth2.sdk.token.Token;
+import com.nimbusds.oauth2.sdk.token.TypelessAccessToken;
+import com.nimbusds.oauth2.sdk.token.TypelessToken;
+import junit.framework.TestCase;
+
+import java.net.URI;
+import java.security.cert.X509Certificate;
+import java.util.*;
 
 
 /**
@@ -58,24 +57,7 @@ public class TokenIntrospectionRequestTest extends TestCase {
 		TokenIntrospectionRequest request = new TokenIntrospectionRequest(
 			URI.create("https://server.example.com/introspect"),
 			new BearerAccessToken("23410913-abewfq.123483"),
-			new Token("2YotnFZFEjr1zCsicMWpAA") {
-				@Override
-				public Set<String> getParameterNames() {
-					return null;
-				}
-
-
-				@Override
-				public JSONObject toJSONObject() {
-					return null;
-				}
-
-
-				@Override
-				public boolean equals(Object object) {
-					return false;
-				}
-			});
+			new TypelessToken("2YotnFZFEjr1zCsicMWpAA"));
 
 		assertEquals(URI.create("https://server.example.com/introspect"), request.getEndpointURI());
 		assertNull(request.getClientAuthentication());
@@ -96,6 +78,7 @@ public class TokenIntrospectionRequestTest extends TestCase {
 		assertEquals(URI.create("https://server.example.com/introspect"), request.getEndpointURI());
 		assertNull(request.getClientAuthentication());
 		assertEquals(new BearerAccessToken("23410913-abewfq.123483"), request.getClientAuthorization());
+		assertTrue(request.getToken() instanceof TypelessToken);
 		assertEquals("2YotnFZFEjr1zCsicMWpAA", request.getToken().getValue());
 		assertTrue(request.getCustomParameters().isEmpty());
 	}
@@ -145,6 +128,7 @@ public class TokenIntrospectionRequestTest extends TestCase {
 		assertNull(request.getClientAuthorization());
 		assertEquals("mF_9.B5f-4.1JqM", request.getToken().getValue());
 		assertTrue(request.getToken() instanceof AccessToken);
+		assertTrue(request.getToken() instanceof TypelessAccessToken);
 		assertTrue(request.getCustomParameters().isEmpty());
 	}
 

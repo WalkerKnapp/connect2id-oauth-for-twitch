@@ -22,10 +22,7 @@ import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.oauth2.sdk.token.AccessToken;
-import com.nimbusds.oauth2.sdk.token.RefreshToken;
-import com.nimbusds.oauth2.sdk.token.Token;
-import com.nimbusds.oauth2.sdk.token.TypelessAccessToken;
+import com.nimbusds.oauth2.sdk.token.*;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
@@ -203,60 +200,21 @@ public final class TokenRevocationRequest extends AbstractOptionallyIdentifiedRe
 
 		final String tokenValue = MultivaluedMapUtils.getFirstValue(params,"token");
 
-		if (tokenValue == null || tokenValue.isEmpty()) {
+		if (StringUtils.isBlank(tokenValue)) {
 			throw new ParseException("Missing required token parameter");
 		}
 
 		// Detect the token type
-		Token token = null;
-
 		final String tokenTypeHint = MultivaluedMapUtils.getFirstValue(params,"token_type_hint");
 
-		if (tokenTypeHint == null) {
-
-			// Can be both access or refresh token
-			token = new Token() {
-				
-				private static final long serialVersionUID = 8606135001277432930L;
-				
-				
-				@Override
-				public String getValue() {
-
-					return tokenValue;
-				}
-
-				@Override
-				public Set<String> getParameterNames() {
-
-					return Collections.emptySet();
-				}
-
-				@Override
-				public JSONObject toJSONObject() {
-
-					return new JSONObject();
-				}
-
-				@Override
-				public boolean equals(final Object other) {
-
-					return other instanceof Token && other.toString().equals(tokenValue);
-				}
-
-				@Override
-				public int hashCode() {
-					return Objects.hash(tokenValue);
-				}
-			};
-
-		} else if (tokenTypeHint.equals("access_token")) {
-
+		Token token;
+		if ("access_token".equals(tokenTypeHint)) {
 			token = new TypelessAccessToken(tokenValue);
-
-		} else if (tokenTypeHint.equals("refresh_token")) {
-
+		} else if ("refresh_token".equals(tokenTypeHint)) {
 			token = new RefreshToken(tokenValue);
+		} else {
+			// Can be both access or refresh token
+			token = new TypelessToken(tokenValue);
 		}
 
 		URI uri = httpRequest.getURI();
