@@ -327,14 +327,8 @@ public abstract class JWTAuthentication extends ClientAuthentication {
 		throws ParseException {
 		
 		httpRequest.ensureMethod(HTTPRequest.Method.POST);
-		httpRequest.ensureEntityContentType(ContentType.APPLICATION_URLENCODED);
-		
-		String query = httpRequest.getQuery();
-		
-		if (query == null)
-			throw new ParseException("Missing HTTP POST request entity body");
-		
-		Map<String,List<String>> params = URLUtils.parseParameters(query);
+
+		Map<String,List<String>> params = httpRequest.getBodyAsFormParameters();
 		
 		JWSAlgorithm alg = parseClientAssertion(params).getHeader().getAlgorithm();
 			
