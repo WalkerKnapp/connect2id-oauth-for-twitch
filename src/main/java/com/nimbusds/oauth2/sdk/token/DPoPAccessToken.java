@@ -248,7 +248,7 @@ public class DPoPAccessToken extends AccessToken {
 
 		// Try alternative token locations, form and query string are
 		// parameters are not differentiated here
-		Map<String,List<String>> params = request.getQueryParameters();
+		Map<String,List<String>> params = request.getQueryStringParameters();
 		return parse(params);
 	}
 }
