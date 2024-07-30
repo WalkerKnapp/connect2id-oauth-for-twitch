@@ -39,6 +39,21 @@ public class GrantTypeTest extends TestCase {
 	}
 
 
+	public void testShortNames() {
+
+		assertEquals("code", GrantType.AUTHORIZATION_CODE.getShortName());
+		assertEquals("implicit", GrantType.IMPLICIT.getShortName());
+		assertEquals("refresh token", GrantType.REFRESH_TOKEN.getShortName());
+		assertEquals("password", GrantType.PASSWORD.getShortName());
+		assertEquals("client credentials", GrantType.CLIENT_CREDENTIALS.getShortName());
+		assertEquals("JWT bearer", GrantType.JWT_BEARER.getShortName());
+		assertEquals("SAML 2.0 bearer", GrantType.SAML2_BEARER.getShortName());
+		assertEquals("device code", GrantType.DEVICE_CODE.getShortName());
+		assertEquals("CIBA", GrantType.CIBA.getShortName());
+		assertEquals("token exchange", GrantType.TOKEN_EXCHANGE.getShortName());
+	}
+
+
 	public void testClientAuthRequirement() {
 
 		assertFalse(GrantType.AUTHORIZATION_CODE.requiresClientAuthentication());

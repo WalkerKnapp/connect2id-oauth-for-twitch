@@ -35,7 +35,7 @@ public final class GrantType extends Identifier {
 	/**
 	 * Authorisation code, as specified in RFC 6749.
 	 */
-	public static final GrantType AUTHORIZATION_CODE = new GrantType("authorization_code", false, true, ParameterRequirement.NOT_ALLOWED, new HashSet<>(Arrays.asList("code", "redirect_uri", "code_verifier")));
+	public static final GrantType AUTHORIZATION_CODE = new GrantType("authorization_code", "code", false, true, ParameterRequirement.NOT_ALLOWED, new HashSet<>(Arrays.asList("code", "redirect_uri", "code_verifier")));
 
 
 	/**
@@ -47,7 +47,7 @@ public final class GrantType extends Identifier {
 	/**
 	 * Refresh token, as specified in RFC 6749.
 	 */
-	public static final GrantType REFRESH_TOKEN = new GrantType("refresh_token", false, false, ParameterRequirement.OPTIONAL, Collections.singleton("refresh_token"));
+	public static final GrantType REFRESH_TOKEN = new GrantType("refresh_token", "refresh token", false, false, ParameterRequirement.OPTIONAL, Collections.singleton("refresh_token"));
 
 
 	/**
@@ -59,25 +59,37 @@ public final class GrantType extends Identifier {
 	/**
 	 * Client credentials, as specified in RFC 6749.
 	 */
-	public static final GrantType CLIENT_CREDENTIALS = new GrantType("client_credentials", true, true, ParameterRequirement.OPTIONAL, Collections.<String>emptySet());
+	public static final GrantType CLIENT_CREDENTIALS = new GrantType(
+		"client_credentials",
+		"client credentials", true, true, ParameterRequirement.OPTIONAL,
+		Collections.<String>emptySet());
 
 
 	/**
 	 * JWT bearer, as specified in RFC 7523.
 	 */
-	public static final GrantType JWT_BEARER = new GrantType("urn:ietf:params:oauth:grant-type:jwt-bearer", false, false, ParameterRequirement.OPTIONAL, Collections.singleton("assertion"));
+	public static final GrantType JWT_BEARER = new GrantType(
+		"urn:ietf:params:oauth:grant-type:jwt-bearer",
+		"JWT bearer", false, false, ParameterRequirement.OPTIONAL,
+		Collections.singleton("assertion"));
 
 
 	/**
 	 * SAML 2.0 bearer, as specified in RFC 7522.
 	 */
-	public static final GrantType SAML2_BEARER = new GrantType("urn:ietf:params:oauth:grant-type:saml2-bearer", false, false, ParameterRequirement.OPTIONAL, Collections.singleton("assertion"));
+	public static final GrantType SAML2_BEARER = new GrantType(
+		"urn:ietf:params:oauth:grant-type:saml2-bearer",
+		"SAML 2.0 bearer", false, false, ParameterRequirement.OPTIONAL,
+		Collections.singleton("assertion"));
 
 
 	/**
 	 * Device authorisation grant, as specified in RFC 8628.
 	 */
-	public static final GrantType DEVICE_CODE = new GrantType("urn:ietf:params:oauth:grant-type:device_code", false, true, ParameterRequirement.NOT_ALLOWED, Collections.singleton("device_code"));
+	public static final GrantType DEVICE_CODE = new GrantType(
+		"urn:ietf:params:oauth:grant-type:device_code",
+		"device code", false, true, ParameterRequirement.NOT_ALLOWED,
+		Collections.singleton("device_code"));
 
 
 	/**
@@ -85,20 +97,30 @@ public final class GrantType extends Identifier {
 	 * OpenID Connect Client Initiated Backchannel Authentication Flow -
 	 * Core 1.0.
 	 */
-	public static final GrantType CIBA = new GrantType("urn:openid:params:grant-type:ciba", true, true, ParameterRequirement.NOT_ALLOWED, Collections.singleton("auth_req_id"));
+	public static final GrantType CIBA = new GrantType(
+		"urn:openid:params:grant-type:ciba",
+		"CIBA", true, true, ParameterRequirement.NOT_ALLOWED,
+		Collections.singleton("auth_req_id"));
 
 	
 	/**
 	 * Token exchange, as specified in RFC 8693.
 	 */
-	public static final GrantType TOKEN_EXCHANGE = new GrantType("urn:ietf:params:oauth:grant-type:token-exchange",
-			false, false,  ParameterRequirement.OPTIONAL,
-			new HashSet<>(Arrays.asList(
-					"audience", "requested_token_type", "subject_token", "subject_token_type", "actor_token", "actor_token_type"
-			)));
+	public static final GrantType TOKEN_EXCHANGE = new GrantType(
+		"urn:ietf:params:oauth:grant-type:token-exchange",
+		"token exchange", false, false,  ParameterRequirement.OPTIONAL,
+		new HashSet<>(Arrays.asList(
+				"audience", "requested_token_type", "subject_token", "subject_token_type", "actor_token", "actor_token_type"
+		)));
 	
 	
 	private static final long serialVersionUID = -5367937758427680765L;
+
+
+	/**
+	 * Short name for the grant.
+	 */
+	private final String shortName;
 	
 	
 	/**
@@ -166,7 +188,42 @@ public final class GrantType extends Identifier {
 			  final ParameterRequirement scopeRequirementInTokenRequest,
 			  final Set<String> requestParamNames) {
 
+		this(value, value, requiresClientAuth, requiresClientID, scopeRequirementInTokenRequest, requestParamNames);
+	}
+
+
+	/**
+	 * Creates a new OAuth 2.0 authorisation grant type with the specified
+	 * value.
+	 *
+	 * @param value                          The authorisation grant type
+	 *                                       value. Must not be
+	 *                                       {@code null} or empty string.
+	 * @param shortName                      Short (display) name for the
+	 *                                       grant. Must not be
+	 *                                       {@code null}.
+	 * @param requiresClientAuth             The client authentication
+	 *                                       requirement.
+	 * @param requiresClientID               The client identifier
+	 *                                       requirement.
+	 * @param scopeRequirementInTokenRequest The scope parameter
+	 *                                       requirement in token requests.
+	 *                                       Must not be {@code null}.
+	 * @param requestParamNames              The names of the token request
+	 *                                       parameters specific to this
+	 *                                       grant type, empty set or
+	 *                                       {@code null} if none.
+	 */
+	private GrantType(final String value,
+			  final String shortName,
+			  final boolean requiresClientAuth,
+			  final boolean requiresClientID,
+			  final ParameterRequirement scopeRequirementInTokenRequest,
+			  final Set<String> requestParamNames) {
+
 		super(value);
+
+		this.shortName = Objects.requireNonNull(shortName);
 
 		this.requiresClientAuth = requiresClientAuth;
 
@@ -176,6 +233,17 @@ public final class GrantType extends Identifier {
 		this.scopeRequirementInTokenRequest = scopeRequirementInTokenRequest;
 
 		this.requestParamNames = requestParamNames == null ? Collections.<String>emptySet() : Collections.unmodifiableSet(requestParamNames);
+	}
+
+
+	/**
+	 * Returns a short (display) name for the grant.
+	 *
+	 * @return The short name.
+	 */
+	public String getShortName() {
+
+		return shortName;
 	}
 
 

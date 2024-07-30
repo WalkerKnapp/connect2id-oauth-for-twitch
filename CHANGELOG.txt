@@ -2443,3 +2443,6 @@ version 11.13 (2024-06-25)
     * JWTAuthentication.parseClientID(Map<String,List<String>>) must correctly
       handle empty and blank client_id values (iss #472).
 
+version 11.14 (2024-07-30)
+    * Adds GrantType.getShortName method returning a short (display) name for
+      the grant.
