@@ -209,13 +209,13 @@ public class DPoPAccessToken extends AccessToken {
 	
 	
 	/**
-	 * Parses a query or form parameters map for a bearer access token.
+	 * Parses a query or form parameters map for a DPoP access token.
 	 *
 	 * @param parameters The query parameters. Must not be {@code null}.
 	 *
-	 * @return The bearer access token.
+	 * @return The DPoP access token.
 	 *
-	 * @throws ParseException If a bearer access token wasn't found in the
+	 * @throws ParseException If a DPoP access token wasn't found in the
 	 *                        parameters.
 	 */
 	public static DPoPAccessToken parse(final Map<String,List<String>> parameters)
@@ -227,13 +227,13 @@ public class DPoPAccessToken extends AccessToken {
 	
 	
 	/**
-	 * Parses an HTTP request for a bearer access token.
+	 * Parses an HTTP request for a DPoP access token.
 	 * 
 	 * @param request The HTTP request to parse. Must not be {@code null}.
 	 * 
-	 * @return The bearer access token.
+	 * @return The DPoP access token.
 	 * 
-	 * @throws ParseException If a bearer access token wasn't found in the
+	 * @throws ParseException If a DPoP access token wasn't found in the
 	 *                        HTTP request.
 	 */
 	public static DPoPAccessToken parse(final HTTPRequest request)
