@@ -2446,3 +2446,7 @@ version 11.13 (2024-06-25)
 version 11.14 (2024-07-30)
     * Adds GrantType.getShortName method returning a short (display) name for
       the grant.
+
+version 11.15 (2024-08-12)
+    * Adds OpenID Connect Native SSO for Mobile Apps 1.0 (draft 06) support.
+    * Adds TokenRequest.Builder class.
