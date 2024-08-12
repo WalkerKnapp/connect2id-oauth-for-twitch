@@ -111,6 +111,7 @@ public class OIDCProviderMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("frontchannel_logout_session_supported"));
 		assertTrue(paramNames.contains("backchannel_logout_supported"));
 		assertTrue(paramNames.contains("backchannel_logout_session_supported"));
+		assertTrue(paramNames.contains("native_sso_supported"));
 		assertTrue(paramNames.contains("mtls_endpoint_aliases"));
 		assertTrue(paramNames.contains("tls_client_certificate_bound_access_tokens"));
 		assertTrue(paramNames.contains("dpop_signing_alg_values_supported"));
@@ -141,7 +142,7 @@ public class OIDCProviderMetadataTest extends TestCase {
 		assertTrue(paramNames.contains("request_authentication_signing_alg_values_supported"));
 		assertTrue(paramNames.contains("federation_registration_endpoint"));
 		assertTrue(paramNames.contains("prompt_values_supported"));
-		assertEquals(86, paramNames.size());
+		assertEquals(87, paramNames.size());
 	}
 
 
@@ -615,6 +616,10 @@ public class OIDCProviderMetadataTest extends TestCase {
 		assertFalse(meta.supportsBackChannelLogoutSession());
 		meta.setSupportsBackChannelLogoutSession(true);
 		assertTrue(meta.supportsBackChannelLogoutSession());
+
+		assertFalse(meta.supportsNativeSSO());
+		meta.setSupportsNativeSSO(true);
+		assertTrue(meta.supportsNativeSSO());
 		
 		assertNull(meta.getPromptTypes());
 		meta.setPromptTypes(Arrays.asList(Prompt.Type.LOGIN, Prompt.Type.CREATE));
@@ -785,6 +790,8 @@ public class OIDCProviderMetadataTest extends TestCase {
 		assertTrue(meta.supportsFrontChannelLogoutSession());
 		assertTrue(meta.supportsBackChannelLogout());
 		assertTrue(meta.supportsBackChannelLogoutSession());
+
+		assertTrue(meta.supportsNativeSSO());
 		
 		assertEquals(Arrays.asList(Prompt.Type.LOGIN, Prompt.Type.CREATE), meta.getPromptTypes());
 		
@@ -1251,6 +1258,37 @@ public class OIDCProviderMetadataTest extends TestCase {
 		assertFalse(meta.supportsFrontChannelLogoutSession());
 		assertTrue(meta.supportsBackChannelLogout());
 		assertTrue(meta.supportsBackChannelLogoutSession());
+	}
+
+
+	public void testNativeSSO()
+		throws ParseException {
+
+		OIDCProviderMetadata meta = new OIDCProviderMetadata(
+			new Issuer("https://c2id.com"),
+			Collections.singletonList(SubjectType.PUBLIC),
+			URI.create("https://c2id.com/jwks.json"));
+
+		meta.applyDefaults();
+
+		assertFalse(meta.supportsNativeSSO());
+
+		JSONObject out = meta.toJSONObject();
+		assertFalse(out.containsKey("native_sso_supported"));
+
+		meta = OIDCProviderMetadata.parse(out.toJSONString());
+
+		assertFalse(meta.supportsNativeSSO());
+
+		meta.setSupportsNativeSSO(true);
+		assertTrue(meta.supportsNativeSSO());
+
+		out = meta.toJSONObject();
+		assertTrue(JSONObjectUtils.getBoolean(out, "native_sso_supported"));
+
+		meta = OIDCProviderMetadata.parse(out.toJSONString());
+
+		assertTrue(meta.supportsNativeSSO());
 	}
 	
 	

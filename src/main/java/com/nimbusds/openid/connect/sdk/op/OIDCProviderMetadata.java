@@ -18,14 +18,6 @@
 package com.nimbusds.openid.connect.sdk.op;
 
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.*;
-
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -52,6 +44,13 @@ import com.nimbusds.openid.connect.sdk.assurance.evidences.attachment.HashAlgori
 import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.claims.ClaimType;
 import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistrationType;
+import net.minidev.json.JSONObject;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
 
 
 /**
@@ -64,6 +63,7 @@ import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistratio
  *     <li>OpenID Connect Session Management 1.0, section 2.1.
  *     <li>OpenID Connect Front-Channel Logout 1.0, section 3.
  *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.1.
+ *     <li>OpenID Connect Native SSO for Mobile Apps 1.0
  *     <li>OpenID Connect for Identity Assurance 1.0 (draft 12).
  *     <li>OpenID Connect Federation 1.0 (draft 23).
  *     <li>Initiating User Registration via OpenID Connect 1.0
@@ -109,6 +109,7 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 		p.add("backchannel_logout_supported");
 		p.add("backchannel_logout_session_supported");
 		p.add("frontchannel_logout_supported");
+		p.add("native_sso_supported");
 		p.add("frontchannel_logout_session_supported");
 		p.add("verified_claims_supported");
 		p.add("trust_frameworks_supported");
@@ -249,6 +250,13 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	 * parameter is set, else not.
 	 */
 	private boolean backChannelLogoutSessionSupported = false;
+
+
+	/**
+	 * If {@code true} the {@code native_sso_supported} parameter is set,
+	 * else not.
+	 */
+	private boolean nativeSSOSupported = false;
 	
 	
 	/**
@@ -809,6 +817,24 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 	public void setSupportsBackChannelLogoutSession(final boolean backChannelLogoutSessionSupported) {
 		this.backChannelLogoutSessionSupported = backChannelLogoutSessionSupported;
 	}
+
+
+	@Override
+	public boolean supportsNativeSSO() {
+		return nativeSSOSupported;
+	}
+
+
+	/**
+	 * Sets the support for OpenID Connect native SSO. Corresponds to the
+	 * {@code native_sso_supported} metadata field.
+	 *
+	 * @param nativeSSOSupported {@code true} if native SSO is supported,
+	 *                           else {@code false}.
+	 */
+	public void setSupportsNativeSSO(final boolean nativeSSOSupported) {
+		this.nativeSSOSupported = nativeSSOSupported;
+	}
 	
 	
 	@Override
@@ -1226,6 +1252,10 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 		if (backChannelLogoutSupported) {
 			o.put("backchannel_logout_session_supported", backChannelLogoutSessionSupported);
 		}
+
+		if (nativeSSOSupported) {
+			o.put("native_sso_supported", true);
+		}
 		
 		// OpenID Connect for Identity Assurance 1.0
 		if (verifiedClaimsSupported) {
@@ -1561,7 +1591,11 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 		
 		if (op.backChannelLogoutSupported && jsonObject.get("backchannel_logout_session_supported") != null)
 			op.backChannelLogoutSessionSupported = JSONObjectUtils.getBoolean(jsonObject, "backchannel_logout_session_supported");
-		
+
+		// Native SSO
+		if (jsonObject.get("native_sso_supported") != null)
+			op.setSupportsNativeSSO(JSONObjectUtils.getBoolean(jsonObject, "native_sso_supported"));
+
 		if (jsonObject.get("mtls_endpoint_aliases") != null)
 			op.setMtlsEndpointAliases(OIDCProviderEndpointMetadata.parse(JSONObjectUtils.getJSONObject(jsonObject, "mtls_endpoint_aliases")));
 		
