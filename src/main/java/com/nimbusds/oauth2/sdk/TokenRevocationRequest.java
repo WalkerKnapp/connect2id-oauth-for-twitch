@@ -27,7 +27,6 @@ import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
 
 import java.net.URI;
 import java.util.*;
@@ -76,55 +75,39 @@ public final class TokenRevocationRequest extends AbstractOptionallyIdentifiedRe
 	/**
 	 * Creates a new token revocation request for a confidential client.
 	 *
-	 * @param uri        The URI of the token revocation endpoint. May be
+	 * @param endpoint   The URI of the token revocation endpoint. May be
 	 *                   {@code null} if the {@link #toHTTPRequest} method
-	 *                   will not be used.
+	 *                   is not going to be used.
 	 * @param clientAuth The client authentication. Must not be
 	 *                   {@code null}.
 	 * @param token      The access or refresh token to revoke. Must not be
 	 *                   {@code null}.
 	 */
-	public TokenRevocationRequest(final URI uri,
+	public TokenRevocationRequest(final URI endpoint,
 				      final ClientAuthentication clientAuth,
 				      final Token token) {
 
-		super(uri, clientAuth);
-
-		if (clientAuth == null) {
-			throw new IllegalArgumentException("The client authentication must not be null");
-		}
-
-		if (token == null)
-			throw new IllegalArgumentException("The token must not be null");
-
-		this.token = token;
+		super(endpoint, Objects.requireNonNull(clientAuth));
+		this.token = Objects.requireNonNull(token);
 	}
 
 
 	/**
 	 * Creates a new token revocation request for a public client.
 	 *
-	 * @param uri      The URI of the token revocation endpoint. May be
+	 * @param endpoint The URI of the token revocation endpoint. May be
 	 *                 {@code null} if the {@link #toHTTPRequest} method
-	 *                 will not be used.
+	 *                 is not going to be used.
 	 * @param clientID The client ID. Must not be {@code null}.
 	 * @param token    The access or refresh token to revoke. Must not be
 	 *                 {@code null}.
 	 */
-	public TokenRevocationRequest(final URI uri,
+	public TokenRevocationRequest(final URI endpoint,
 				      final ClientID clientID,
 				      final Token token) {
 
-		super(uri, clientID);
-
-		if (clientID == null) {
-			throw new IllegalArgumentException("The client ID must not be null");
-		}
-
-		if (token == null)
-			throw new IllegalArgumentException("The token must not be null");
-
-		this.token = token;
+		super(endpoint, Objects.requireNonNull(clientID));
+		this.token = Objects.requireNonNull(token);
 	}
 
 

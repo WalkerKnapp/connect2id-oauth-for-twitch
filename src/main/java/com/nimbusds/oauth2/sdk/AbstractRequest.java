@@ -30,26 +30,23 @@ public abstract class AbstractRequest implements Request {
 	/**
 	 * The request endpoint.
 	 */
-	private final URI uri;
+	private final URI endpoint;
 	
 	
 	/**
 	 * Creates a new base abstract request.
-	 * 
-	 * @param uri The URI of the endpoint (HTTP or HTTPS) for which the 
-	 *            request is intended, {@code null} if not specified (if,
-	 *            for example, the {@link #toHTTPRequest()} method will not
-	 *            be used).
+	 *
+	 * @param endpoint The URI of the endpoint. May be {@code null} if the
+	 *                 {@link #toHTTPRequest} method is not going to be
+	 *                 used.
 	 */
-	protected AbstractRequest(final URI uri) {
-		
-		this.uri = uri;
+	protected AbstractRequest(final URI endpoint) {
+		this.endpoint = endpoint;
 	}
 	
 	
 	@Override
 	public URI getEndpointURI() {
-		
-		return uri;
+		return endpoint;
 	}
 }

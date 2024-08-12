@@ -18,9 +18,9 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
+
+import java.net.URI;
 
 
 /**
@@ -49,17 +49,14 @@ public abstract class AbstractOptionallyAuthenticatedRequest extends AbstractReq
 	/**
 	 * Creates a new abstract request with optional client authentication.
 	 *
-	 * @param uri        The URI of the endpoint (HTTP or HTTPS) for which
-	 *                   the request is intended, {@code null} if not
-	 *                   specified (if, for example, the
-	 *                   {@link #toHTTPRequest()} method will not be used).
+	 * @param endpoint   The URI of the endpoint. May be {@code null} if
+	 *                   the {@link #toHTTPRequest} method is not going to
+	 *                   be used.
 	 * @param clientAuth The client authentication, {@code null} if none.
 	 */
-	protected AbstractOptionallyAuthenticatedRequest(final URI uri,
+	protected AbstractOptionallyAuthenticatedRequest(final URI endpoint,
 							 final ClientAuthentication clientAuth) {
-
-		super(uri);
-
+		super(endpoint);
 		this.clientAuth = clientAuth;
 	}
 
@@ -70,7 +67,6 @@ public abstract class AbstractOptionallyAuthenticatedRequest extends AbstractReq
 	 * @return The client authentication, {@code null} if none.
 	 */
 	public ClientAuthentication getClientAuthentication() {
-
 		return clientAuth;
 	}
 }

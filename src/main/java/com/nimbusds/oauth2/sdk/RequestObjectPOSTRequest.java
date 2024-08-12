@@ -18,11 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
@@ -33,6 +28,11 @@ import com.nimbusds.oauth2.sdk.auth.TLSClientAuthentication;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.Objects;
 
 
 /**
@@ -82,25 +82,21 @@ public final class RequestObjectPOSTRequest extends AbstractOptionallyAuthentica
 	/**
 	 * Creates a new request object POST request.
 	 *
-	 * @param uri           The URI of the request object endpoint. May be
+	 * @param endpoint      The URI of the request object endpoint. May be
 	 *                      {@code null} if the {@link #toHTTPRequest}
-	 *                      method will not be used.
+	 *                      method is not going to be used.
 	 * @param requestObject The request object. Must not be {@code null}.
 	 */
-	public RequestObjectPOSTRequest(final URI uri,
+	public RequestObjectPOSTRequest(final URI endpoint,
 					final JWT requestObject) {
 		
-		super(uri, null);
+		super(endpoint, null);
 		
-		if (requestObject == null) {
-			throw new IllegalArgumentException("The request object must not be null");
-		}
-		
+		this.requestObject = Objects.requireNonNull(requestObject);
+
 		if (requestObject instanceof PlainJWT) {
 			throw new IllegalArgumentException("The request object must not be an unsecured JWT (alg=none)");
 		}
-		
-		this.requestObject = requestObject;
 		
 		requestJSONObject = null;
 	}
@@ -113,31 +109,21 @@ public final class RequestObjectPOSTRequest extends AbstractOptionallyAuthentica
 	 * confidentiality of the request parameters. This method is not
 	 * standard.
 	 *
-	 * @param uri               The URI of the request object endpoint. May
+	 * @param endpoint          The URI of the request object endpoint. May
 	 *                          be {@code null} if the
-	 *                          {@link #toHTTPRequest} method will not be
-	 *                          used.
+	 *                          {@link #toHTTPRequest} method is not going
+	 *                          to be used.
 	 * @param tlsClientAuth     The mutual TLS client authentication. Must
 	 *                          not be {@code null}.
 	 * @param requestJSONObject The request parameters as plain JSON
 	 *                          object. Must not be {@code null}.
 	 */
-	public RequestObjectPOSTRequest(final URI uri,
+	public RequestObjectPOSTRequest(final URI endpoint,
 					final TLSClientAuthentication tlsClientAuth,
 					final JSONObject requestJSONObject) {
 		
-		super(uri, tlsClientAuth);
-		
-		if (tlsClientAuth == null) {
-			throw new IllegalArgumentException("The mutual TLS client authentication must not be null");
-		}
-		
-		if (requestJSONObject == null) {
-			throw new IllegalArgumentException("The request JSON object must not be null");
-		}
-		
-		this.requestJSONObject = requestJSONObject;
-		
+		super(endpoint, Objects.requireNonNull(tlsClientAuth));
+		this.requestJSONObject = Objects.requireNonNull(requestJSONObject);
 		requestObject = null;
 	}
 	
@@ -250,7 +236,6 @@ public final class RequestObjectPOSTRequest extends AbstractOptionallyAuthentica
 			
 			ClientID clientID = new ClientID(JSONObjectUtils.getString(jsonObject, "client_id"));
 			
-			// TODO
 			TLSClientAuthentication tlsClientAuth;
 			if (httpRequest.getClientX509Certificate() != null && httpRequest.getClientX509CertificateSubjectDN() != null &&
 					httpRequest.getClientX509CertificateSubjectDN().equals(httpRequest.getClientX509CertificateRootDN())) {

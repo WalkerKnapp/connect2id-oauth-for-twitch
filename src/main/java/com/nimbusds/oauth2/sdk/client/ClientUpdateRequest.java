@@ -18,11 +18,6 @@
 package com.nimbusds.oauth2.sdk.client;
 
 
-import java.net.URI;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ProtectedResourceRequest;
@@ -32,6 +27,11 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.Objects;
 
 
 /**
@@ -96,9 +96,9 @@ public class ClientUpdateRequest extends ProtectedResourceRequest {
 	/**
 	 * Creates a new client update request.
 	 *
-	 * @param uri         The URI of the client update endpoint. May be
+	 * @param endpoint    The URI of the client update endpoint. May be
 	 *                    {@code null} if the {@link #toHTTPRequest()}
-	 *                    method will not be used.
+	 *                    method is not going to be used.
 	 * @param id          The client ID. Must not be {@code null}.
 	 * @param accessToken The client registration access token. Must not be
 	 *                    {@code null}.
@@ -107,24 +107,15 @@ public class ClientUpdateRequest extends ProtectedResourceRequest {
 	 * @param secret      The optional client secret, {@code null} if not
 	 *                    specified.
 	 */
-	public ClientUpdateRequest(final URI uri,
+	public ClientUpdateRequest(final URI endpoint,
 		                   final ClientID id,
 		                   final BearerAccessToken accessToken,
 				   final ClientMetadata metadata, 
 				   final Secret secret) {
 
-		super(uri, accessToken);
-		
-		if (id == null)
-			throw new IllegalArgumentException("The client identifier must not be null");
-		
-		this.id = id;
-
-		if (metadata == null)
-			throw new IllegalArgumentException("The client metadata must not be null");
-		
-		this.metadata = metadata;
-		
+		super(endpoint, accessToken);
+		this.id = Objects.requireNonNull(id);
+		this.metadata = Objects.requireNonNull(metadata);
 		this.secret = secret;
 	}
 	

@@ -34,7 +34,7 @@ import java.util.*;
 
 
 /**
- * Device authorisation request. Used to start the authorization flow for
+ * Device authorisation request. Used to start the authorisation flow for
  * browserless and input constraint devices. Supports custom request
  * parameters.
  *
@@ -96,7 +96,7 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 		/**
 		 * The endpoint URI (optional).
 		 */
-		private URI uri;
+		private URI endpoint;
 
 
 		/**
@@ -124,17 +124,14 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 
 
 		/**
-		 * Creates a new devize authorization request builder.
+		 * Creates a new device authorization request builder.
 		 *
-		 * @param clientID The client identifier. Corresponds to the {@code client_id}
-		 *                 parameter. Must not be {@code null}.
+		 * @param clientID The client identifier. Corresponds to the
+		 *                 {@code client_id} parameter. Must not be
+		 *                 {@code null}.
 		 */
 		public Builder(final ClientID clientID) {
-
-			if (clientID == null)
-				throw new IllegalArgumentException("The client ID must not be null");
-
-			this.clientID = clientID;
+			this.clientID = Objects.requireNonNull(clientID);
 			this.clientAuth = null;
 		}
 
@@ -147,12 +144,8 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 		 *                   {@code null}.
 		 */
 		public Builder(final ClientAuthentication clientAuth) {
-
-			if (clientAuth == null)
-				throw new IllegalArgumentException("The client authentication must not be null");
-
 			this.clientID = null;
-			this.clientAuth = clientAuth;
+			this.clientAuth = Objects.requireNonNull(clientAuth);
 		}
 
 
@@ -165,7 +158,7 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 		 */
 		public Builder(final DeviceAuthorizationRequest request) {
 
-			uri = request.getEndpointURI();
+			endpoint = request.getEndpointURI();
 			clientAuth = request.getClientAuthentication();
 			scope = request.scope;
 			clientID = request.getClientID();
@@ -210,16 +203,17 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 
 
 		/**
-		 * Sets the URI of the endpoint (HTTP or HTTPS) for which the
-		 * request is intended.
+		 * Sets the URI of the device authorisation endpoint.
 		 *
-		 * @param uri The endpoint URI, {@code null} if not specified.
+		 * @param endpoint The URI of the device authorisation
+		 *                 endpoint. May be {@code null} if the request
+		 *                 is not going to be serialised.
 		 *
 		 * @return This builder.
 		 */
-		public Builder endpointURI(final URI uri) {
+		public Builder endpointURI(final URI endpoint) {
 
-			this.uri = uri;
+			this.endpoint = endpoint;
 			return this;
 		}
 
@@ -233,9 +227,9 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 
 			try {
 				if (clientAuth == null) {
-					return new DeviceAuthorizationRequest(uri, clientID, scope, customParams);
+					return new DeviceAuthorizationRequest(endpoint, clientID, scope, customParams);
 				} else {
-					return new DeviceAuthorizationRequest(uri, clientAuth, scope, customParams);
+					return new DeviceAuthorizationRequest(endpoint, clientAuth, scope, customParams);
 				}
 			} catch (IllegalArgumentException e) {
 				throw new IllegalStateException(e.getMessage(), e);
@@ -247,25 +241,25 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 	/**
 	 * Creates a new minimal device authorization request.
 	 *
-	 * @param uri      The URI of the device authorization endpoint. May be
+	 * @param endpoint The URI of the device authorization endpoint. May be
 	 *                 {@code null} if the {@link #toHTTPRequest} method
-	 *                 will not be used.
+	 *                 is not going to be used.
 	 * @param clientID The client identifier. Corresponds to the
 	 *                 {@code client_id} parameter. Must not be
 	 *                 {@code null}.
 	 */
-	public DeviceAuthorizationRequest(final URI uri, final ClientID clientID) {
+	public DeviceAuthorizationRequest(final URI endpoint, final ClientID clientID) {
 
-		this(uri, clientID, null, null);
+		this(endpoint, clientID, null, null);
 	}
 
 
 	/**
 	 * Creates a new device authorization request.
 	 *
-	 * @param uri      The URI of the device authorization endpoint. May be
+	 * @param endpoint The URI of the device authorization endpoint. May be
 	 *                 {@code null} if the {@link #toHTTPRequest} method
-	 *                 will not be used.
+	 *                 is not going to be used.
 	 * @param clientID The client identifier. Corresponds to the
 	 *                 {@code client_id} parameter. Must not be
 	 *                 {@code null}.
@@ -273,9 +267,9 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 	 *                 {@code scope} parameter. {@code null} if not
 	 *                 specified.
 	 */
-	public DeviceAuthorizationRequest(final URI uri, final ClientID clientID, final Scope scope) {
+	public DeviceAuthorizationRequest(final URI endpoint, final ClientID clientID, final Scope scope) {
 
-		this(uri, clientID, scope, null);
+		this(endpoint, clientID, scope, null);
 	}
 
 
@@ -283,9 +277,9 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 	 * Creates a new device authorization request with extension and custom
 	 * parameters.
 	 *
-	 * @param uri          The URI of the device authorization endpoint.
+	 * @param endpoint     The URI of the device authorization endpoint.
 	 *                     May be {@code null} if the {@link #toHTTPRequest}
-	 *                     method will not be used.
+	 *                     method is not going to be used.
 	 * @param clientID     The client identifier. Corresponds to the
 	 *                     {@code client_id} parameter. Must not be
 	 *                     {@code null}.
@@ -295,15 +289,12 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 	 * @param customParams Custom parameters, empty map or {@code null} if
 	 *                     none.
 	 */
-	public DeviceAuthorizationRequest(final URI uri,
+	public DeviceAuthorizationRequest(final URI endpoint,
 	                                  final ClientID clientID,
 	                                  final Scope scope,
 	                                  final Map<String, List<String>> customParams) {
 
-		super(uri, clientID);
-
-		if (clientID == null)
-			throw new IllegalArgumentException("The client ID must not be null");
+		super(endpoint, Objects.requireNonNull(clientID));
 
 		this.scope = scope;
 
@@ -442,7 +433,7 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 
 
 	/**
-	 * Parses an device authorization request from the specified HTTP
+	 * Parses a device authorization request from the specified HTTP
 	 * request.
 	 *
 	 * <p>Example HTTP request (GET):

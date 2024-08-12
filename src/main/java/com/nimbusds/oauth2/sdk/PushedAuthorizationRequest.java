@@ -30,14 +30,11 @@ import com.nimbusds.openid.connect.sdk.op.AuthenticationRequestDetector;
 import net.jcip.annotations.Immutable;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
- * Pushed authorisation request.
+ * Pushed authorisation request (PAR).
  *
  * <p>Example HTTP request:
  *
@@ -73,25 +70,19 @@ public class PushedAuthorizationRequest extends AbstractOptionallyAuthenticatedR
 	 * Creates a new authenticated pushed authorisation request for a
 	 * confidential client.
 	 *
-	 * @param uri          The URI of the token endpoint. May be
+	 * @param endpoint     The URI of the PAR endpoint. May be
 	 *                     {@code null} if the {@link #toHTTPRequest}
-	 *                     method will not be used.
+	 *                     method is not going to be used.
 	 * @param clientAuth   The client authentication. Must not be
 	 *                     {@code null}.
 	 * @param authzRequest The authorisation request. Must not be
 	 *                     {@code null}.
 	 */
-	public PushedAuthorizationRequest(final URI uri,
+	public PushedAuthorizationRequest(final URI endpoint,
 					  final ClientAuthentication clientAuth,
 					  final AuthorizationRequest authzRequest) {
-		super(uri, clientAuth);
+		super(endpoint, Objects.requireNonNull(clientAuth));
 		
-		if (clientAuth == null)
-			throw new IllegalArgumentException("The client authentication must not be null");
-		
-		if (authzRequest == null) {
-			throw new IllegalArgumentException("The authorization request must not be null");
-		}
 		if (authzRequest.getRequestURI() != null) {
 			throw new IllegalArgumentException("Authorization request_uri parameter not allowed");
 		}
@@ -102,19 +93,16 @@ public class PushedAuthorizationRequest extends AbstractOptionallyAuthenticatedR
 	/**
 	 * Creates a new pushed authorisation request for a public client.
 	 *
-	 * @param uri          The URI of the token endpoint. May be
+	 * @param endpoint     The URI of the PAR endpoint. May be
 	 *                     {@code null} if the {@link #toHTTPRequest}
-	 *                     method will not be used.
+	 *                     method is not going to be used.
 	 * @param authzRequest The authorisation request. Must not be
 	 *                     {@code null}.
 	 */
-	public PushedAuthorizationRequest(final URI uri,
+	public PushedAuthorizationRequest(final URI endpoint,
 					  final AuthorizationRequest authzRequest) {
 		
-		super(uri, null);
-		if (authzRequest == null) {
-			throw new IllegalArgumentException("The authorization request must not be null");
-		}
+		super(endpoint, null);
 		if (authzRequest.getRequestURI() != null) {
 			throw new IllegalArgumentException("Authorization request_uri parameter not allowed");
 		}

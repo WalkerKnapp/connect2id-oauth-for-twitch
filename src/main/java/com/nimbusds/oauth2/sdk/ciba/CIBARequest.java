@@ -235,7 +235,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		/**
 		 * The endpoint URI (optional).
 		 */
-		private URI uri;
+		private URI endpoint;
 		
 		
 		/**
@@ -405,7 +405,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		 */
 		public Builder(final CIBARequest request) {
 			
-			uri = request.getEndpointURI();
+			endpoint = request.getEndpointURI();
 			clientAuth = request.getClientAuthentication();
 			scope = request.getScope();
 			clientNotificationToken = request.getClientNotificationToken();
@@ -674,16 +674,17 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		
 		
 		/**
-		 * Sets the URI of the endpoint (HTTP or HTTPS) for which the
-		 * request is intended.
+		 * Sets the URI of the CIBA endpoint.
 		 *
-		 * @param uri The endpoint URI, {@code null} if not specified.
+		 * @param endpoint The URI of the CIBA endpoint. May be
+		 *                 {@code null} if the {@link #toHTTPRequest()}
+		 *                 method is not going to be used.
 		 *
 		 * @return This builder.
 		 */
-		public Builder endpointURI(final URI uri) {
+		public Builder endpointURI(final URI endpoint) {
 			
-			this.uri = uri;
+			this.endpoint = endpoint;
 			return this;
 		}
 		
@@ -698,7 +699,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 			try {
 				if (signedRequest != null) {
 					return new CIBARequest(
-						uri,
+						endpoint,
 						clientAuth,
 						signedRequest
 					);
@@ -706,7 +707,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 				
 				// Plain request
 				return new CIBARequest(
-					uri,
+					endpoint,
 					clientAuth,
 					scope,
 					clientNotificationToken,
@@ -734,8 +735,10 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	/**
 	 * Creates a new CIBA request.
 	 *
-	 * @param uri                     The endpoint URI, {@code null} if not
-	 *                                specified.
+	 * @param endpoint                The URI of the CIBA endpoint. May be
+	 *                                {@code null} if the
+	 *                                {@link #toHTTPRequest()} method is
+	 *                                not going to be used.
 	 * @param clientAuth              The client authentication. Must not
 	 *                                be {@code null}.
 	 * @param scope                   The requested scope. Must not be
@@ -761,7 +764,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	 *                                {@code null} if not specified.
 	 */
 	@Deprecated
-	public CIBARequest(final URI uri,
+	public CIBARequest(final URI endpoint,
 			   final ClientAuthentication clientAuth,
 			   final Scope scope,
 			   final BearerAccessToken clientNotificationToken,
@@ -774,7 +777,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 			   final Integer requestedExpiry,
 			   final Map<String, List<String>> customParams) {
 		
-		this(uri, clientAuth,
+		this(endpoint, clientAuth,
 			scope, clientNotificationToken, acrValues,
 			loginHintTokenString, idTokenHint, loginHint,
 			bindingMessage, userCode, requestedExpiry,
@@ -785,8 +788,10 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	/**
 	 * Creates a new CIBA request.
 	 *
-	 * @param uri                     The endpoint URI, {@code null} if not
-	 *                                specified.
+	 * @param endpoint                The URI of the CIBA endpoint. May be
+	 *                                {@code null} if the
+	 *                                {@link #toHTTPRequest()} method is
+	 *                                not going to be used.
 	 * @param clientAuth              The client authentication. Must not
 	 *                                be {@code null}.
 	 * @param scope                   The requested scope. Must not be
@@ -814,7 +819,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	 *                                {@code null} if not specified.
 	 */
 	@Deprecated
-	public CIBARequest(final URI uri,
+	public CIBARequest(final URI endpoint,
 			   final ClientAuthentication clientAuth,
 			   final Scope scope,
 			   final BearerAccessToken clientNotificationToken,
@@ -828,7 +833,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 			   final OIDCClaimsRequest claims,
 			   final Map<String, List<String>> customParams) {
 		
-		this(uri, clientAuth,
+		this(endpoint, clientAuth,
 			scope, clientNotificationToken, acrValues,
 			loginHintTokenString, idTokenHint, loginHint,
 			bindingMessage, userCode, requestedExpiry,
@@ -841,8 +846,10 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	/**
 	 * Creates a new CIBA request.
 	 *
-	 * @param uri                     The endpoint URI, {@code null} if not
-	 *                                specified.
+	 * @param endpoint                The URI of the CIBA endpoint. May be
+	 *                                {@code null} if the
+	 *                                {@link #toHTTPRequest()} method is
+	 *                                not going to be used.
 	 * @param clientAuth              The client authentication. Must not
 	 *                                be {@code null}.
 	 * @param scope                   The requested scope. Must not be
@@ -878,7 +885,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	 *                                {@code null} if not specified.
 	 */
 	@Deprecated
-	public CIBARequest(final URI uri,
+	public CIBARequest(final URI endpoint,
 			   final ClientAuthentication clientAuth,
 			   final Scope scope,
 			   final BearerAccessToken clientNotificationToken,
@@ -895,7 +902,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 			   final List<URI> resources,
 			   final Map<String, List<String>> customParams) {
 
-		this(uri, clientAuth,
+		this(endpoint, clientAuth,
 			scope, clientNotificationToken, acrValues,
 			loginHintTokenString, idTokenHint, loginHint,
 			bindingMessage, userCode, requestedExpiry,
@@ -907,8 +914,10 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	/**
 	 * Creates a new CIBA request.
 	 *
-	 * @param uri                     The endpoint URI, {@code null} if not
-	 *                                specified.
+	 * @param endpoint                The URI of the CIBA endpoint. May be
+	 *                                {@code null} if the
+	 *                                {@link #toHTTPRequest()} method is
+	 *                                not going to be used.
 	 * @param clientAuth              The client authentication. Must not
 	 *                                be {@code null}.
 	 * @param scope                   The requested scope. Must not be
@@ -946,7 +955,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	 * @param customParams            Custom parameters, empty or
 	 *                                {@code null} if not specified.
 	 */
-	public CIBARequest(final URI uri,
+	public CIBARequest(final URI endpoint,
 			   final ClientAuthentication clientAuth,
 			   final Scope scope,
 			   final BearerAccessToken clientNotificationToken,
@@ -964,7 +973,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 			   final List<URI> resources,
 			   final Map<String, List<String>> customParams) {
 		
-		super(uri, clientAuth);
+		super(endpoint, clientAuth);
 		
 		this.scope = scope;
 		
@@ -1028,22 +1037,20 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	/**
 	 * Creates a new CIBA signed request.
 	 *
-	 * @param uri           The endpoint URI, {@code null} if not
-	 *                      specified.
+	 * @param endpoint      The URI of the CIBA endpoint. May be
+	 *                      {@code null} if the {@link #toHTTPRequest()}
+	 *                      method is not going to be used.
 	 * @param clientAuth    The client authentication. Must not be
 	 *                      {@code null}.
 	 * @param signedRequest The signed request JWT. Must not be
 	 *                      {@code null}.
 	 */
-	public CIBARequest(final URI uri,
+	public CIBARequest(final URI endpoint,
 			   final ClientAuthentication clientAuth,
 			   final SignedJWT signedRequest) {
 		
-		super(uri, clientAuth);
-		
-		if (signedRequest == null) {
-			throw new IllegalArgumentException("The signed request JWT must not be null");
-		}
+		super(endpoint, clientAuth);
+
 		if (JWSObject.State.UNSIGNED.equals(signedRequest.getState())) {
 			throw new IllegalArgumentException("The request JWT must be in a signed state");
 		}

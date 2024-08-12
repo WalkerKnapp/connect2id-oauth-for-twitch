@@ -28,10 +28,7 @@ import com.nimbusds.oauth2.sdk.util.URLUtils;
 import net.jcip.annotations.Immutable;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -76,41 +73,33 @@ public class UserInfoRequest extends ProtectedResourceRequest {
 	/**
 	 * Creates a new UserInfo HTTP GET request.
 	 *
-	 * @param uri         The URI of the UserInfo endpoint. May be
+	 * @param endpoint    The URI of the UserInfo endpoint. May be
 	 *                    {@code null} if the {@link #toHTTPRequest} method
-	 *                    will not be used.
+	 *                    is not going to be used.
 	 * @param accessToken An access token for the request. Must not be
 	 *                    {@code null}.
 	 */
-	public UserInfoRequest(final URI uri, final AccessToken accessToken) {
+	public UserInfoRequest(final URI endpoint, final AccessToken accessToken) {
 	
-		this(uri, HTTPRequest.Method.GET, accessToken);
+		this(endpoint, HTTPRequest.Method.GET, accessToken);
 	}
 	
 	
 	/**
 	 * Creates a new UserInfo request.
 	 *
-	 * @param uri         The URI of the UserInfo endpoint. May be
+	 * @param endpoint    The URI of the UserInfo endpoint. May be
 	 *                    {@code null} if the {@link #toHTTPRequest} method
-	 *                    will not be used.
+	 *                    is not going to be used.
 	 * @param httpMethod  The HTTP method. Must be HTTP GET or POST and not 
 	 *                    {@code null}.
 	 * @param accessToken An access token for the request. Must not be
 	 *                    {@code null}.
 	 */
-	public UserInfoRequest(final URI uri, final HTTPRequest.Method httpMethod, final AccessToken accessToken) {
+	public UserInfoRequest(final URI endpoint, final HTTPRequest.Method httpMethod, final AccessToken accessToken) {
 	
-		super(uri, accessToken);
-		
-		if (httpMethod == null)
-			throw new IllegalArgumentException("The HTTP method must not be null");
-		
-		this.httpMethod = httpMethod;
-		
-		
-		if (accessToken == null)
-			throw new IllegalArgumentException("The access token must not be null");
+		super(endpoint, Objects.requireNonNull(accessToken));
+		this.httpMethod = Objects.requireNonNull(httpMethod);
 	}
 	
 	

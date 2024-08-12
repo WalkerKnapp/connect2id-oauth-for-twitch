@@ -197,7 +197,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		/**
 		 * The endpoint URI (optional).
 		 */
-		private URI uri;
+		private URI endpoint;
 
 
 		/**
@@ -476,7 +476,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 *                Must not be {@code null}.
 		 */
 		public Builder(final AuthenticationRequest request) {
-			uri = request.getEndpointURI();
+			endpoint = request.getEndpointURI();
 			rt = request.getResponseType();
 			clientID = request.getClientID();
 			redirectURI = request.getRedirectionURI();
@@ -579,15 +579,16 @@ public class AuthenticationRequest extends AuthorizationRequest {
 
 
 		/**
-		 * Sets the URI of the endpoint (HTTP or HTTPS) for which the
-		 * request is intended.
+		 * Sets the URI of the authorisation endpoint.
 		 *
-		 * @param uri The endpoint URI, {@code null} if not specified.
+		 * @param endpoint The URI of the authorisation endpoint. May
+		 *                 be {@code null} if the request is not going
+		 *                 to be serialised.
 		 *
 		 * @return This builder.
 		 */
-		public Builder endpointURI(final URI uri) {
-			this.uri = uri;
+		public Builder endpointURI(final URI endpoint) {
+			this.endpoint = endpoint;
 			return this;
 		}
 
@@ -1022,7 +1023,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 
 			try {
 				return new AuthenticationRequest(
-					uri, rt, rm, scope, clientID, redirectURI, state, nonce,
+					endpoint, rt, rm, scope, clientID, redirectURI, state, nonce,
 					display, prompt, dpopJKT, trustChain, maxAge, uiLocales, claimsLocales,
 					idTokenHint, loginHint, acrValues, claims,
 					purpose,
@@ -1043,9 +1044,9 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	/**
 	 * Creates a new minimal OpenID Connect authentication request.
 	 *
-	 * @param uri         The URI of the OAuth 2.0 authorisation endpoint.
-	 *                    May be {@code null} if the {@link #toHTTPRequest}
-	 *                    method will not be used.
+	 * @param endpoint    The URI of the authorisation endpoint. May be
+	 *                    {@code null} if the request is not going to be
+	 *                    serialised.
 	 * @param rt          The response type. Corresponds to the 
 	 *                    {@code response_type} parameter. Must specify a
 	 *                    valid OpenID Connect response type. Must not be
@@ -1065,7 +1066,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 * @param nonce       The nonce. Corresponds to the {@code nonce} 
 	 *                    parameter. May be {@code null} for code flow.
 	 */
-	public AuthenticationRequest(final URI uri,
+	public AuthenticationRequest(final URI endpoint,
 				     final ResponseType rt,
 				     final Scope scope,
 				     final ClientID clientID,
@@ -1076,7 +1077,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		// Not specified: display, prompt, maxAge, uiLocales, claimsLocales, 
 		// idTokenHint, loginHint, acrValues, claims, purpose
 		// codeChallenge, codeChallengeMethod
-		this(uri, rt, null, scope, clientID, redirectURI, state, nonce,
+		this(endpoint, rt, null, scope, clientID, redirectURI, state, nonce,
 			null, null, -1, null, null,
 			null, null, null, (OIDCClaimsRequest) null, null,
 			null, null,
@@ -1089,10 +1090,9 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 * Creates a new OpenID Connect authentication request with extension
 	 * and custom parameters.
 	 *
-	 * @param uri                  The URI of the OAuth 2.0 authorisation
-	 *                             endpoint. May be {@code null} if the
-	 *                             {@link #toHTTPRequest} method will not
-	 *                             be used.
+	 * @param endpoint             The URI of the authorisation endpoint.
+	 *                             May be {@code null} if the request is
+	 *                             not going to be serialised.
 	 * @param rt                   The response type set. Corresponds to
 	 *                             the {@code response_type} parameter.
 	 *                             Must specify a valid OpenID Connect
@@ -1182,7 +1182,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 *                             or {@code null} if none.
 	 */
 	@Deprecated
-	public AuthenticationRequest(final URI uri,
+	public AuthenticationRequest(final URI endpoint,
 				     final ResponseType rt,
 				     final ResponseMode rm,
 				     final Scope scope,
@@ -1208,7 +1208,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 				     final boolean includeGrantedScopes,
 				     final Map<String,List<String>> customParams) {
 
-		this(uri, rt, rm, scope, clientID, redirectURI, state, nonce,
+		this(endpoint, rt, rm, scope, clientID, redirectURI, state, nonce,
 			display, prompt, maxAge, uiLocales, claimsLocales,
 			idTokenHint, loginHint, acrValues, toOIDCClaimsRequestWithSilentFail(claims), purpose,
 			requestObject, requestURI,
@@ -1221,10 +1221,9 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 * Creates a new OpenID Connect authentication request with extension
 	 * and custom parameters.
 	 *
-	 * @param uri                  The URI of the OAuth 2.0 authorisation
-	 *                             endpoint. May be {@code null} if the
-	 *                             {@link #toHTTPRequest} method will not
-	 *                             be used.
+	 * @param endpoint             The URI of the authorisation endpoint.
+	 *                             May be {@code null} if the request is
+	 *                             not going to be serialised.
 	 * @param rt                   The response type set. Corresponds to
 	 *                             the {@code response_type} parameter.
 	 *                             Must specify a valid OpenID Connect
@@ -1314,7 +1313,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 *                             or {@code null} if none.
 	 */
 	@Deprecated
-	public AuthenticationRequest(final URI uri,
+	public AuthenticationRequest(final URI endpoint,
 				     final ResponseType rt,
 				     final ResponseMode rm,
 				     final Scope scope,
@@ -1340,7 +1339,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 				     final boolean includeGrantedScopes,
 				     final Map<String,List<String>> customParams) {
 
-		this(uri, rt, rm, scope, clientID, redirectURI, state, nonce, display, prompt, null, null,
+		this(endpoint, rt, rm, scope, clientID, redirectURI, state, nonce, display, prompt, null, null,
 			maxAge, uiLocales, claimsLocales, idTokenHint, loginHint, acrValues, claims, purpose,
 			requestObject, requestURI, codeChallenge, codeChallengeMethod,
 			resources, includeGrantedScopes,
@@ -1352,10 +1351,9 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 * Creates a new OpenID Connect authentication request with extension
 	 * and custom parameters.
 	 *
-	 * @param uri                  The URI of the OAuth 2.0 authorisation
-	 *                             endpoint. May be {@code null} if the
-	 *                             {@link #toHTTPRequest} method will not
-	 *                             be used.
+	 * @param endpoint             The URI of the authorisation endpoint.
+	 *                             May be {@code null} if the request is
+	 *                             not going to be serialised.
 	 * @param rt                   The response type set. Corresponds to
 	 *                             the {@code response_type} parameter.
 	 *                             Must specify a valid OpenID Connect
@@ -1447,7 +1445,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 *                             or {@code null} if none.
 	 */
 	@Deprecated
-	public AuthenticationRequest(final URI uri,
+	public AuthenticationRequest(final URI endpoint,
 				     final ResponseType rt,
 				     final ResponseMode rm,
 				     final Scope scope,
@@ -1474,7 +1472,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 				     final boolean includeGrantedScopes,
 				     final Map<String,List<String>> customParams) {
 		
-		this(uri, rt, rm, scope, clientID, redirectURI, state, nonce, display, prompt, dpopJKT, null,
+		this(endpoint, rt, rm, scope, clientID, redirectURI, state, nonce, display, prompt, dpopJKT, null,
 			maxAge, uiLocales, claimsLocales, idTokenHint, loginHint, acrValues, claims, purpose,
 			requestObject, requestURI, codeChallenge, codeChallengeMethod,
 			resources, includeGrantedScopes,
@@ -1486,10 +1484,9 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 * Creates a new OpenID Connect authentication request with extension
 	 * and custom parameters.
 	 *
-	 * @param uri                  The URI of the OAuth 2.0 authorisation
-	 *                             endpoint. May be {@code null} if the
-	 *                             {@link #toHTTPRequest} method will not
-	 *                             be used.
+	 * @param endpoint             The URI of the authorisation endpoint.
+	 *                             May be {@code null} if the request is
+	 *                             not going to be serialised.
 	 * @param rt                   The response type set. Corresponds to
 	 *                             the {@code response_type} parameter.
 	 *                             Must specify a valid OpenID Connect
@@ -1583,7 +1580,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 *                             or {@code null} if none.
 	 */
 	@Deprecated
-	public AuthenticationRequest(final URI uri,
+	public AuthenticationRequest(final URI endpoint,
 				     final ResponseType rt,
 				     final ResponseMode rm,
 				     final Scope scope,
@@ -1611,7 +1608,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 				     final boolean includeGrantedScopes,
 				     final Map<String,List<String>> customParams) {
 
-		this(uri, rt, rm, scope, clientID, redirectURI, state, nonce, display, prompt,
+		this(endpoint, rt, rm, scope, clientID, redirectURI, state, nonce, display, prompt,
 			dpopJKT, trustChain,
 			maxAge, uiLocales, claimsLocales, idTokenHint, loginHint, acrValues, claims, purpose,
 			requestObject, requestURI,
@@ -1625,10 +1622,9 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 * Creates a new OpenID Connect authentication request with extension
 	 * and custom parameters.
 	 *
-	 * @param uri                  The URI of the OAuth 2.0 authorisation
-	 *                             endpoint. May be {@code null} if the
-	 *                             {@link #toHTTPRequest} method will not
-	 *                             be used.
+	 * @param endpoint             The URI of the authorisation endpoint.
+	 *                             May be {@code null} if the request is
+	 *                             not going to be serialised.
 	 * @param rt                   The response type set. Corresponds to
 	 *                             the {@code response_type} parameter.
 	 *                             Must specify a valid OpenID Connect
@@ -1723,7 +1719,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 * @param customParams         Additional custom parameters, empty map
 	 *                             or {@code null} if none.
 	 */
-	public AuthenticationRequest(final URI uri,
+	public AuthenticationRequest(final URI endpoint,
 				     final ResponseType rt,
 				     final ResponseMode rm,
 				     final Scope scope,
@@ -1752,7 +1748,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 				     final boolean includeGrantedScopes,
 				     final Map<String,List<String>> customParams) {
 
-		super(uri, rt, rm, clientID, redirectURI, scope, state,
+		super(endpoint, rt, rm, clientID, redirectURI, scope, state,
 			codeChallenge, codeChallengeMethod,
 			authorizationDetails, resources, includeGrantedScopes,
 			requestObject, requestURI, prompt, dpopJKT, trustChain, customParams);

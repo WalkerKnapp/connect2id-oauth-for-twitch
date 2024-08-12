@@ -18,11 +18,6 @@
 package com.nimbusds.openid.connect.sdk.rp;
 
 
-import java.net.URI;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.client.ClientUpdateRequest;
@@ -30,6 +25,10 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
 
 
 /**
@@ -78,9 +77,9 @@ public class OIDCClientUpdateRequest extends ClientUpdateRequest {
 	/**
 	 * Creates a new OpenID Connect client update request.
 	 *
-	 * @param uri         The URI of the client update endpoint. May be
+	 * @param endpoint    The URI of the client update endpoint. May be
 	 *                    {@code null} if the {@link #toHTTPRequest()}
-	 *                    method will not be used.
+	 *                    method is not going to be used.
 	 * @param id          The client ID. Must not be {@code null}.
 	 * @param accessToken The client registration access token. Must not be
 	 *                    {@code null}.
@@ -89,13 +88,13 @@ public class OIDCClientUpdateRequest extends ClientUpdateRequest {
 	 * @param secret      The optional client secret, {@code null} if not
 	 *                    specified.
 	 */
-	public OIDCClientUpdateRequest(final URI uri,
+	public OIDCClientUpdateRequest(final URI endpoint,
 		                       final ClientID id,
 		                       final BearerAccessToken accessToken,
 				       final OIDCClientMetadata metadata,
 				       final Secret secret) {
 		
-		super(uri, id, accessToken, metadata, secret);
+		super(endpoint, id, accessToken, metadata, secret);
 	}
 	
 	

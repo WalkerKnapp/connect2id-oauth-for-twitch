@@ -118,10 +118,10 @@ public class LogoutRequest extends AbstractRequest {
 	/**
 	 * Creates a new OpenID Connect logout request.
 	 *
-	 * @param uri                   The URI of the end-session endpoint.
+	 * @param endpoint              The URI of the end-session endpoint.
 	 *                              May be {@code null} if the
-	 *                              {@link #toHTTPRequest} method will not
-	 *                              be used.
+	 *                              {@link #toHTTPRequest} method is not
+	 *                              going to be used.
 	 * @param idTokenHint           The ID token hint (recommended),
 	 *                              {@code null} if not specified.
 	 * @param logoutHint            The optional logout hint, {@code null}
@@ -137,14 +137,14 @@ public class LogoutRequest extends AbstractRequest {
 	 *                              languages and scripts for the user
 	 *                              interface, ordered by preference.
 	 */
-	public LogoutRequest(final URI uri,
+	public LogoutRequest(final URI endpoint,
 			     final JWT idTokenHint,
 			     final String logoutHint,
 			     final ClientID clientID,
 			     final URI postLogoutRedirectURI,
 			     final State state,
 			     final List<LangTag> uiLocales) {
-		super(uri);
+		super(endpoint);
 		this.idTokenHint = idTokenHint;
 		this.logoutHint = logoutHint;
 		this.clientID = clientID;
@@ -160,10 +160,10 @@ public class LogoutRequest extends AbstractRequest {
 	/**
 	 * Creates a new OpenID Connect logout request.
 	 *
-	 * @param uri                   The URI of the end-session endpoint.
+	 * @param endpoint              The URI of the end-session endpoint.
 	 *                              May be {@code null} if the
-	 *                              {@link #toHTTPRequest} method will not
-	 *                              be used.
+	 *                              {@link #toHTTPRequest} method is not
+	 *                              going to be used.
 	 * @param idTokenHint           The ID token hint (recommended),
 	 *                              {@code null} if not specified.
 	 * @param postLogoutRedirectURI The optional post-logout redirection
@@ -172,11 +172,11 @@ public class LogoutRequest extends AbstractRequest {
 	 *                              post-logout redirection URI,
 	 *                              {@code null} if not specified.
 	 */
-	public LogoutRequest(final URI uri,
+	public LogoutRequest(final URI endpoint,
 			     final JWT idTokenHint,
 			     final URI postLogoutRedirectURI,
 			     final State state) {
-		this(uri, idTokenHint, null, null, postLogoutRedirectURI, state, null);
+		this(endpoint, idTokenHint, null, null, postLogoutRedirectURI, state, null);
 	}
 
 
@@ -184,15 +184,15 @@ public class LogoutRequest extends AbstractRequest {
 	 * Creates a new OpenID Connect logout request without a post-logout
 	 * redirection.
 	 *
-	 * @param uri         The URI of the end-session endpoint. May be
+	 * @param endpoint    The URI of the end-session endpoint. May be
 	 *                    {@code null} if the {@link #toHTTPRequest} method
-	 *                    will not be used.
+	 *                    is not going to be used.
 	 * @param idTokenHint The ID token hint (recommended), {@code null} if
 	 *                    not specified.
 	 */
-	public LogoutRequest(final URI uri,
+	public LogoutRequest(final URI endpoint,
 			     final JWT idTokenHint) {
-		this(uri, idTokenHint, null, null);
+		this(endpoint, idTokenHint, null, null);
 	}
 	
 	
@@ -200,11 +200,12 @@ public class LogoutRequest extends AbstractRequest {
 	 * Creates a new OpenID Connect logout request without a post-logout
 	 * redirection.
 	 *
-	 * @param uri The URI of the end-session endpoint. May be {@code null}
-	 *            if the {@link #toHTTPRequest} method will not be used.
+	 * @param endpoint The URI of the end-session endpoint. May be
+	 *                 {@code null} if the {@link #toHTTPRequest} method is
+	 *                 not going to be used.
 	 */
-	public LogoutRequest(final URI uri) {
-		this(uri, null, null, null);
+	public LogoutRequest(final URI endpoint) {
+		this(endpoint, null, null, null);
 	}
 
 

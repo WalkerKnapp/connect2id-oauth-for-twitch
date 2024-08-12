@@ -18,14 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-import java.security.cert.X509Certificate;
-import java.text.ParseException;
-import javax.net.ssl.SSLSocketFactory;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -44,6 +36,13 @@ import com.nimbusds.oauth2.sdk.http.X509CertificateGenerator;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.net.URI;
+import java.security.cert.X509Certificate;
+import java.text.ParseException;
 
 
 public class RequestObjectPOSTRequestTest extends TestCase {
@@ -172,8 +171,8 @@ public class RequestObjectPOSTRequestTest extends TestCase {
 				null);
 			
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The request object must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	
@@ -202,8 +201,8 @@ public class RequestObjectPOSTRequestTest extends TestCase {
 				null,
 				new JSONObject());
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The mutual TLS client authentication must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	
@@ -216,8 +215,8 @@ public class RequestObjectPOSTRequestTest extends TestCase {
 				new SelfSignedTLSClientAuthentication(new ClientID("123"), (SSLSocketFactory)null),
 				null);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The request JSON object must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 }

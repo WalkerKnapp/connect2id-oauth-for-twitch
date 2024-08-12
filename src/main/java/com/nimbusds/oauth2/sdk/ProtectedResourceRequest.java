@@ -18,9 +18,9 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+
+import java.net.URI;
 
 
 /**
@@ -47,7 +47,7 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 	 * 
 	 * @param uri         The URI of the protected resource. May be 
 	 *                    {@code null} if the {@link #toHTTPRequest()}
-	 *                    method will not be used.
+	 *                    method is not going to be used.
 	 * @param accessToken An OAuth 2.0 access token for the request, 
 	 *                    {@code null} if none.
 	 */

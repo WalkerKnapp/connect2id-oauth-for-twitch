@@ -18,14 +18,6 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
@@ -37,6 +29,10 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.*;
 
 
 /**
@@ -72,8 +68,8 @@ public class BackChannelLogoutRequest extends AbstractRequest {
 	 * Creates a new back-channel logout request.
 	 *
 	 * @param uri         The back-channel logout URI. May be {@code null}
-	 *                    if the {@link #toHTTPRequest} method will not be
-	 *                    used.
+	 *                    if the {@link #toHTTPRequest} method is not
+	 *                    going to be used.
 	 * @param logoutToken The logout token. Must be signed, or signed and
 	 *                    encrypted. Must not be {@code null}.
 	 */
@@ -82,15 +78,11 @@ public class BackChannelLogoutRequest extends AbstractRequest {
 		
 		super(uri);
 		
-		if (logoutToken == null) {
-			throw new IllegalArgumentException("The logout token must not be null");
-		}
-		
+		this.logoutToken = Objects.requireNonNull(logoutToken);
+
 		if (logoutToken instanceof PlainJWT) {
 			throw new IllegalArgumentException("The logout token must not be unsecured (plain)");
 		}
-		
-		this.logoutToken = logoutToken;
 	}
 	
 	

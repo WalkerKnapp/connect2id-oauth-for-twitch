@@ -18,11 +18,6 @@
 package com.nimbusds.openid.connect.sdk.rp;
 
 
-import java.net.URI;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.client.ClientRegistrationRequest;
@@ -30,6 +25,10 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
 
 
 /**
@@ -77,20 +76,20 @@ public class OIDCClientRegistrationRequest extends ClientRegistrationRequest {
 	/**
 	 * Creates a new OpenID Connect client registration request.
 	 *
-	 * @param uri         The URI of the client registration endpoint. May 
+	 * @param endpoint    The URI of the client registration endpoint. May
 	 *                    be {@code null} if the {@link #toHTTPRequest()}
-	 *                    method will not be used.
+	 *                    method is not going to be used.
 	 * @param metadata    The OpenID Connect client metadata. Must not be 
 	 *                    {@code null} and must specify one or more
 	 *                    redirection URIs.
 	 * @param accessToken An OAuth 2.0 Bearer access token for the request, 
 	 *                    {@code null} if none.
 	 */
-	public OIDCClientRegistrationRequest(final URI uri,
+	public OIDCClientRegistrationRequest(final URI endpoint,
 		                             final OIDCClientMetadata metadata, 
 		                             final BearerAccessToken accessToken) {
 
-		super(uri, metadata, accessToken);
+		super(endpoint, metadata, accessToken);
 	}
 
 
@@ -98,10 +97,10 @@ public class OIDCClientRegistrationRequest extends ClientRegistrationRequest {
 	 * Creates a new OpenID Connect client registration request with an
 	 * optional software statement.
 	 *
-	 * @param uri               The URI of the client registration
+	 * @param endpoint          The URI of the client registration
 	 *                          endpoint. May be {@code null} if the
-	 *                          {@link #toHTTPRequest()} method will not be
-	 *                          used.
+	 *                          {@link #toHTTPRequest()} method is not
+	 *                          going to be used.
 	 * @param metadata          The OpenID Connect client metadata. Must
 	 *                          not be {@code null} and must specify one or
 	 *                          more redirection URIs.
@@ -111,12 +110,12 @@ public class OIDCClientRegistrationRequest extends ClientRegistrationRequest {
 	 * @param accessToken       An OAuth 2.0 Bearer access token for the
 	 *                          request, {@code null} if none.
 	 */
-	public OIDCClientRegistrationRequest(final URI uri,
+	public OIDCClientRegistrationRequest(final URI endpoint,
 					     final OIDCClientMetadata metadata,
 					     final SignedJWT softwareStatement,
 					     final BearerAccessToken accessToken) {
 
-		super(uri, metadata, softwareStatement, accessToken);
+		super(endpoint, metadata, softwareStatement, accessToken);
 	}
 	
 	

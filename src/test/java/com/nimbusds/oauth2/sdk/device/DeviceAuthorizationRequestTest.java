@@ -233,8 +233,8 @@ public class DeviceAuthorizationRequestTest extends TestCase {
 		try {
 			new DeviceAuthorizationRequest(tokenEndpoint, null);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The client ID must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST,

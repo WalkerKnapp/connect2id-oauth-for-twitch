@@ -228,7 +228,7 @@ public class AuthorizationRequest extends AbstractRequest {
 		/**
 		 * The endpoint URI (optional).
 		 */
-		private URI uri;
+		private URI endpoint;
 
 
 		/**
@@ -413,7 +413,7 @@ public class AuthorizationRequest extends AbstractRequest {
 		 */
 		public Builder(final AuthorizationRequest request) {
 			
-			uri = request.getEndpointURI();
+			endpoint = request.getEndpointURI();
 			scope = request.getScope();
 			rt = request.getResponseType();
 			clientID = request.getClientID();
@@ -746,15 +746,16 @@ public class AuthorizationRequest extends AbstractRequest {
 
 
 		/**
-		 * Sets the URI of the endpoint (HTTP or HTTPS) for which the
-		 * request is intended.
+		 * Sets the URI of the authorisation endpoint.
 		 *
-		 * @param uri The endpoint URI, {@code null} if not specified.
+		 * @param endpoint The URI of the authorisation endpoint. May
+		 *                 be {@code null} if the request is not going
+		 *                 to be serialised.
 		 *
 		 * @return This builder.
 		 */
-		public Builder endpointURI(final URI uri) {
-			this.uri = uri;
+		public Builder endpointURI(final URI endpoint) {
+			this.endpoint = endpoint;
 			return this;
 		}
 
@@ -766,7 +767,7 @@ public class AuthorizationRequest extends AbstractRequest {
 		 */
 		public AuthorizationRequest build() {
 			try {
-				return new AuthorizationRequest(uri, rt, rm, clientID, redirectURI, scope, state,
+				return new AuthorizationRequest(endpoint, rt, rm, clientID, redirectURI, scope, state,
 					codeChallenge, codeChallengeMethod,
 					authorizationDetails, resources, includeGrantedScopes,
 					requestObject, requestURI,
@@ -782,9 +783,9 @@ public class AuthorizationRequest extends AbstractRequest {
 	/**
 	 * Creates a new minimal authorisation request.
 	 *
-	 * @param uri      The URI of the authorisation endpoint. May be
-	 *                 {@code null} if the {@link #toHTTPRequest} method
-	 *                 will not be used.
+	 * @param endpoint The URI of the authorisation endpoint. May be
+	 *                 {@code null} if the request is not going to be
+	 *                 serialised.
 	 * @param rt       The response type. Corresponds to the
 	 *                 {@code response_type} parameter. Must not be
 	 *                 {@code null}.
@@ -792,21 +793,20 @@ public class AuthorizationRequest extends AbstractRequest {
 	 *                 {@code client_id} parameter. Must not be
 	 *                 {@code null}.
 	 */
-	public AuthorizationRequest(final URI uri,
+	public AuthorizationRequest(final URI endpoint,
 		                    final ResponseType rt,
 	                            final ClientID clientID) {
 
-		this(uri, rt, null, clientID, null, null, null, null, null, null, false, null, null, null, null);
+		this(endpoint, rt, null, clientID, null, null, null, null, null, null, false, null, null, null, null);
 	}
 
 
 	/**
 	 * Creates a new authorisation request.
 	 *
-	 * @param uri                 The URI of the authorisation endpoint.
-	 *                            May be {@code null} if the
-	 *                            {@link #toHTTPRequest} method will not be
-	 *                            used.
+	 * @param endpoint            The URI of the authorisation endpoint.
+	 *                            May be {@code null} if the request is not
+	 *                            going to be serialised.
 	 * @param rt                  The response type. Corresponds to the
 	 *                            {@code response_type} parameter. Must not
 	 *                            be {@code null}.
@@ -828,7 +828,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	 *                            {@code state} parameter. {@code null} if
 	 *                            not specified.
 	 */
-	public AuthorizationRequest(final URI uri,
+	public AuthorizationRequest(final URI endpoint,
 		                    final ResponseType rt,
 				    final ResponseMode rm,
 	                            final ClientID clientID,
@@ -836,7 +836,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	                            final Scope scope,
 				    final State state) {
 
-		this(uri, rt, rm, clientID, redirectURI, scope, state, null, null, null, false, null, null, null, null);
+		this(endpoint, rt, rm, clientID, redirectURI, scope, state, null, null, null, false, null, null, null, null);
 	}
 
 
@@ -844,10 +844,9 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * Creates a new authorisation request with extension and custom
 	 * parameters.
 	 *
-	 * @param uri                  The URI of the authorisation endpoint.
-	 *                             May be {@code null} if the
-	 *                             {@link #toHTTPRequest} method will not
-	 *                             be used.
+	 * @param endpoint             The URI of the authorisation endpoint.
+	 *                             May be {@code null} if the request is
+	 *                             not going to be serialised.
 	 * @param rt                   The response type. Corresponds to the
 	 *                             {@code response_type} parameter. Must
 	 *                             not be {@code null}, unless a request
@@ -895,7 +894,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	 *                             {@code null} if none.
 	 */
 	@Deprecated
-	public AuthorizationRequest(final URI uri,
+	public AuthorizationRequest(final URI endpoint,
 				    final ResponseType rt,
 				    final ResponseMode rm,
 				    final ClientID clientID,
@@ -911,7 +910,7 @@ public class AuthorizationRequest extends AbstractRequest {
 				    final Prompt prompt,
 				    final Map<String, List<String>> customParams) {
 
-		this(uri, rt, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod,
+		this(endpoint, rt, rm, clientID, redirectURI, scope, state, codeChallenge, codeChallengeMethod,
 			resources, includeGrantedScopes,
 			requestObject, requestURI, prompt, null, customParams);
 	}
@@ -921,10 +920,9 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * Creates a new authorisation request with extension and custom
 	 * parameters.
 	 *
-	 * @param uri                  The URI of the authorisation endpoint.
-	 *                             May be {@code null} if the
-	 *                             {@link #toHTTPRequest} method will not
-	 *                             be used.
+	 * @param endpoint             The URI of the authorisation endpoint.
+	 *                             May be {@code null} if the request is
+	 *                             not going to be serialised.
 	 * @param rt                   The response type. Corresponds to the
 	 *                             {@code response_type} parameter. Must
 	 *                             not be {@code null}, unless a request
@@ -974,7 +972,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	 *                             {@code null} if none.
 	 */
 	@Deprecated
-	public AuthorizationRequest(final URI uri,
+	public AuthorizationRequest(final URI endpoint,
 				    final ResponseType rt,
 				    final ResponseMode rm,
 				    final ClientID clientID,
@@ -991,7 +989,7 @@ public class AuthorizationRequest extends AbstractRequest {
 				    final JWKThumbprintConfirmation dpopJKT,
 				    final Map<String, List<String>> customParams) {
 		
-		this(uri, rt, rm, clientID, redirectURI, scope, state,
+		this(endpoint, rt, rm, clientID, redirectURI, scope, state,
 			codeChallenge, codeChallengeMethod,
 			resources, includeGrantedScopes,
 			requestObject, requestURI, prompt, dpopJKT, null, customParams);
@@ -1002,10 +1000,9 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * Creates a new authorisation request with extension and custom
 	 * parameters.
 	 *
-	 * @param uri                  The URI of the authorisation endpoint.
-	 *                             May be {@code null} if the
-	 *                             {@link #toHTTPRequest} method will not
-	 *                             be used.
+	 * @param endpoint             The URI of the authorisation endpoint.
+	 *                             May be {@code null} if the request is
+	 *                             not going to be serialised.
 	 * @param rt                   The response type. Corresponds to the
 	 *                             {@code response_type} parameter. Must
 	 *                             not be {@code null}, unless a request
@@ -1057,7 +1054,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	 *                             {@code null} if none.
 	 */
 	@Deprecated
-	public AuthorizationRequest(final URI uri,
+	public AuthorizationRequest(final URI endpoint,
 				    final ResponseType rt,
 				    final ResponseMode rm,
 				    final ClientID clientID,
@@ -1075,7 +1072,7 @@ public class AuthorizationRequest extends AbstractRequest {
 				    final TrustChain trustChain,
 				    final Map<String, List<String>> customParams) {
 
-		this(uri, rt, rm, clientID, redirectURI, scope, state,
+		this(endpoint, rt, rm, clientID, redirectURI, scope, state,
 			codeChallenge, codeChallengeMethod,
 			null, resources, includeGrantedScopes,
 			requestObject, requestURI, prompt ,dpopJKT, trustChain, customParams);
@@ -1086,10 +1083,9 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * Creates a new authorisation request with extension and custom
 	 * parameters.
 	 *
-	 * @param uri                  The URI of the authorisation endpoint.
-	 *                             May be {@code null} if the
-	 *                             {@link #toHTTPRequest} method will not
-	 *                             be used.
+	 * @param endpoint             The URI of the authorisation endpoint.
+	 *                             May be {@code null} if the request is
+	 *                             not going to be serialised.
 	 * @param rt                   The response type. Corresponds to the
 	 *                             {@code response_type} parameter. Must
 	 *                             not be {@code null}, unless a request
@@ -1142,7 +1138,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * @param customParams         Custom parameters, empty map or
 	 *                             {@code null} if none.
 	 */
-	public AuthorizationRequest(final URI uri,
+	public AuthorizationRequest(final URI endpoint,
 				    final ResponseType rt,
 				    final ResponseMode rm,
 				    final ClientID clientID,
@@ -1161,7 +1157,7 @@ public class AuthorizationRequest extends AbstractRequest {
 				    final TrustChain trustChain,
 				    final Map<String, List<String>> customParams) {
 
-		super(uri);
+		super(endpoint);
 
 		if (rt == null && requestObject == null && requestURI == null)
 			throw new IllegalArgumentException("The response type must not be null");
@@ -1232,7 +1228,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	 * parameter names.
 	 *
 	 * @return The registered OAuth 2.0 authorisation request parameter
-	 *         names, as a unmodifiable set.
+	 *         names, as an unmodifiable set.
 	 */
 	public static Set<String> getRegisteredParameterNames() {
 

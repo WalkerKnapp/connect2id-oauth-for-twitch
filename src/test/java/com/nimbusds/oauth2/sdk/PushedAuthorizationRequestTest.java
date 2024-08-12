@@ -18,15 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import junit.framework.TestCase;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
@@ -36,6 +27,14 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+import junit.framework.TestCase;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 
 public class PushedAuthorizationRequestTest extends TestCase {
@@ -164,8 +163,8 @@ public class PushedAuthorizationRequestTest extends TestCase {
 				null,
 				new AuthorizationRequest.Builder(new ResponseType(ResponseType.Value.CODE), new ClientID()).build());
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The client authentication must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	
@@ -179,8 +178,8 @@ public class PushedAuthorizationRequestTest extends TestCase {
 				new ClientSecretBasic(new ClientID(), new Secret()),
 				null);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The authorization request must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertEquals("Cannot invoke \"com.nimbusds.oauth2.sdk.AuthorizationRequest.getRequestURI()\" because \"authzRequest\" is null", e.getMessage());
 		}
 		
 		// public client
@@ -189,8 +188,8 @@ public class PushedAuthorizationRequestTest extends TestCase {
 				URI.create("https://c2id.com/par"),
 				null);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The authorization request must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertEquals("Cannot invoke \"com.nimbusds.oauth2.sdk.AuthorizationRequest.getRequestURI()\" because \"authzRequest\" is null", e.getMessage());
 		}
 	}
 	

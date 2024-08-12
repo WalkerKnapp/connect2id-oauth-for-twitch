@@ -18,11 +18,6 @@
 package com.nimbusds.oauth2.sdk.client;
 
 
-import java.net.URI;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -34,6 +29,11 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.Objects;
 
 
 /**
@@ -104,19 +104,19 @@ public class ClientRegistrationRequest extends ProtectedResourceRequest {
 	/**
 	 * Creates a new client registration request.
 	 *
-	 * @param uri         The URI of the client registration endpoint. May 
+	 * @param endpoint    The URI of the client registration endpoint. May
 	 *                    be {@code null} if the {@link #toHTTPRequest()}
-	 *                    method will not be used.
+	 *                    method is not going to be used.
 	 * @param metadata    The client metadata. Must not be {@code null} and 
 	 *                    must specify one or more redirection URIs.
 	 * @param accessToken An OAuth 2.0 Bearer access token for the request, 
 	 *                    {@code null} if none.
 	 */
-	public ClientRegistrationRequest(final URI uri,
+	public ClientRegistrationRequest(final URI endpoint,
 		                         final ClientMetadata metadata, 
 		                         final BearerAccessToken accessToken) {
 
-		this(uri, metadata, null, accessToken);
+		this(endpoint, metadata, null, accessToken);
 	}
 
 
@@ -124,10 +124,10 @@ public class ClientRegistrationRequest extends ProtectedResourceRequest {
 	 * Creates a new client registration request with an optional software
 	 * statement.
 	 *
-	 * @param uri               The URI of the client registration
+	 * @param endpoint          The URI of the client registration
 	 *                          endpoint. May be {@code null} if the
-	 *                          {@link #toHTTPRequest()} method will not be
-	 *                          used.
+	 *                          {@link #toHTTPRequest()} method is not
+	 *                          going to be used.
 	 * @param metadata          The client metadata. Must not be
 	 *                          {@code null} and must specify one or more
 	 *                          redirection URIs.
@@ -137,17 +137,13 @@ public class ClientRegistrationRequest extends ProtectedResourceRequest {
 	 * @param accessToken       An OAuth 2.0 Bearer access token for the
 	 *                          request, {@code null} if none.
 	 */
-	public ClientRegistrationRequest(final URI uri,
+	public ClientRegistrationRequest(final URI endpoint,
 					 final ClientMetadata metadata,
 					 final SignedJWT softwareStatement,
 					 final BearerAccessToken accessToken) {
 
-		super(uri, accessToken);
-
-		if (metadata == null)
-			throw new IllegalArgumentException("The client metadata must not be null");
-
-		this.metadata = metadata;
+		super(endpoint, accessToken);
+		this.metadata = Objects.requireNonNull(metadata);
 
 
 		if (softwareStatement != null) {
@@ -246,7 +242,7 @@ public class ClientRegistrationRequest extends ProtectedResourceRequest {
 		httpRequest.ensureMethod(HTTPRequest.Method.POST);
 
 		// Get the JSON object content
-		JSONObject jsonObject = httpRequest.getQueryAsJSONObject();
+		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
 
 		// Extract the software statement if any
 		SignedJWT stmt = null;

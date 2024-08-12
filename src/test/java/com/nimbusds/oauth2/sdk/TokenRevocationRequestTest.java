@@ -18,6 +18,16 @@
 package com.nimbusds.oauth2.sdk;
 
 
+import com.nimbusds.common.contenttype.ContentType;
+import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
+import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
+import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.token.*;
+import com.nimbusds.oauth2.sdk.util.URLUtils;
+import junit.framework.TestCase;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -25,17 +35,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.nimbusds.oauth2.sdk.token.*;
-import junit.framework.TestCase;
-
-import com.nimbusds.common.contenttype.ContentType;
-import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
-import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
-import com.nimbusds.oauth2.sdk.auth.Secret;
-import com.nimbusds.oauth2.sdk.http.HTTPRequest;
-import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.oauth2.sdk.util.URLUtils;
 
 
 /**
@@ -263,8 +262,8 @@ public class TokenRevocationRequestTest extends TestCase {
 		try {
 			new TokenRevocationRequest(URI.create("https://c2id.com/token"), (ClientAuthentication)null, new BearerAccessToken());
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The client authentication must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 
@@ -274,8 +273,8 @@ public class TokenRevocationRequestTest extends TestCase {
 		try {
 			new TokenRevocationRequest(URI.create("https://c2id.com/token"), (ClientID) null, new BearerAccessToken());
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The client ID must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 

@@ -28,10 +28,7 @@ import com.nimbusds.oauth2.sdk.util.URLUtils;
 import net.jcip.annotations.Immutable;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -103,16 +100,16 @@ public class TokenIntrospectionRequest extends AbstractOptionallyAuthenticatedRe
 	 * Creates a new token introspection request. The request submitter is
 	 * not authenticated.
 	 *
-	 * @param uri   The URI of the token introspection endpoint. May be
-	 *              {@code null} if the {@link #toHTTPRequest} method will
-	 *              not be used.
-	 * @param token The access or refresh token to introspect. Must not be
-	 *              {@code null}.
+	 * @param endpoint The URI of the token introspection endpoint. May be
+	 *                 {@code null} if the {@link #toHTTPRequest} method is
+	 *                 not going to be used.
+	 * @param token    The access or refresh token to introspect. Must not
+	 *                 be {@code null}.
 	 */
-	public TokenIntrospectionRequest(final URI uri,
+	public TokenIntrospectionRequest(final URI endpoint,
 					 final Token token) {
 
-		this(uri, token, null);
+		this(endpoint, token, null);
 	}
 
 
@@ -120,24 +117,20 @@ public class TokenIntrospectionRequest extends AbstractOptionallyAuthenticatedRe
 	 * Creates a new token introspection request. The request submitter is
 	 * not authenticated.
 	 *
-	 * @param uri          The URI of the token introspection endpoint. May
+	 * @param endpoint     The URI of the token introspection endpoint. May
 	 *                     be {@code null} if the {@link #toHTTPRequest}
-	 *                     method will not be used.
+	 *                     method is not going to be used.
 	 * @param token        The access or refresh token to introspect. Must
 	 *                     not be {@code null}.
 	 * @param customParams Optional custom parameters, {@code null} if
 	 *                     none.
 	 */
-	public TokenIntrospectionRequest(final URI uri,
+	public TokenIntrospectionRequest(final URI endpoint,
 					 final Token token,
 					 final Map<String,List<String>> customParams) {
 
-		super(uri, null);
-
-		if (token == null)
-			throw new IllegalArgumentException("The token must not be null");
-
-		this.token = token;
+		super(endpoint, null);
+		this.token = Objects.requireNonNull(token);
 		this.clientAuthz = null;
 		this.customParams = customParams != null ? customParams : Collections.<String,List<String>>emptyMap();
 	}
@@ -147,18 +140,18 @@ public class TokenIntrospectionRequest extends AbstractOptionallyAuthenticatedRe
 	 * Creates a new token introspection request. The request submitter may
 	 * authenticate with a secret or private key JWT assertion.
 	 *
-	 * @param uri        The URI of the token introspection endpoint. May
+	 * @param endpoint   The URI of the token introspection endpoint. May
 	 *                   be {@code null} if the {@link #toHTTPRequest}
-	 *                   method will not be used.
+	 *                   method is not going to be used.
 	 * @param clientAuth The client authentication, {@code null} if none.
 	 * @param token      The access or refresh token to introspect. Must
 	 *                   not be {@code null}.
 	 */
-	public TokenIntrospectionRequest(final URI uri,
+	public TokenIntrospectionRequest(final URI endpoint,
 					 final ClientAuthentication clientAuth,
 					 final Token token) {
 
-		this(uri, clientAuth, token, null);
+		this(endpoint, clientAuth, token, null);
 	}
 
 
@@ -166,26 +159,22 @@ public class TokenIntrospectionRequest extends AbstractOptionallyAuthenticatedRe
 	 * Creates a new token introspection request. The request submitter may
 	 * authenticate with a secret or private key JWT assertion.
 	 *
-	 * @param uri          The URI of the token introspection endpoint. May
+	 * @param endpoint     The URI of the token introspection endpoint. May
 	 *                     be {@code null} if the {@link #toHTTPRequest}
-	 *                     method will not be used.
+	 *                     method is not going to be used.
 	 * @param clientAuth   The client authentication, {@code null} if none.
 	 * @param token        The access or refresh token to introspect. Must
 	 *                     not be {@code null}.
 	 * @param customParams Optional custom parameters, {@code null} if
 	 *                     none.
 	 */
-	public TokenIntrospectionRequest(final URI uri,
+	public TokenIntrospectionRequest(final URI endpoint,
 					 final ClientAuthentication clientAuth,
 					 final Token token,
 					 final Map<String,List<String>> customParams) {
 
-		super(uri, clientAuth);
-
-		if (token == null)
-			throw new IllegalArgumentException("The token must not be null");
-
-		this.token = token;
+		super(endpoint, clientAuth);
+		this.token = Objects.requireNonNull(token);
 		this.clientAuthz = null;
 		this.customParams = customParams != null ? customParams : Collections.<String,List<String>>emptyMap();
 	}
@@ -195,18 +184,18 @@ public class TokenIntrospectionRequest extends AbstractOptionallyAuthenticatedRe
 	 * Creates a new token introspection request. The request submitter may
 	 * authorise itself with an access token.
 	 *
-	 * @param uri         The URI of the token introspection endpoint. May
+	 * @param endpoint    The URI of the token introspection endpoint. May
 	 *                    be {@code null} if the {@link #toHTTPRequest}
-	 *                    method will not be used.
+	 *                    method is not going to be used.
 	 * @param clientAuthz The client authorisation, {@code null} if none.
 	 * @param token       The access or refresh token to introspect. Must
 	 *                    not be {@code null}.
 	 */
-	public TokenIntrospectionRequest(final URI uri,
+	public TokenIntrospectionRequest(final URI endpoint,
 					 final AccessToken clientAuthz,
 					 final Token token) {
 
-		this(uri, clientAuthz, token, null);
+		this(endpoint, clientAuthz, token, null);
 	}
 
 
@@ -214,26 +203,22 @@ public class TokenIntrospectionRequest extends AbstractOptionallyAuthenticatedRe
 	 * Creates a new token introspection request. The request submitter may
 	 * authorise itself with an access token.
 	 *
-	 * @param uri          The URI of the token introspection endpoint. May
+	 * @param endpoint     The URI of the token introspection endpoint. May
 	 *                     be {@code null} if the {@link #toHTTPRequest}
-	 *                     method will not be used.
+	 *                     method is not going to be used.
 	 * @param clientAuthz  The client authorisation, {@code null} if none.
 	 * @param token        The access or refresh token to introspect. Must
 	 *                     not be {@code null}.
 	 * @param customParams Optional custom parameters, {@code null} if
 	 *                     none.
 	 */
-	public TokenIntrospectionRequest(final URI uri,
+	public TokenIntrospectionRequest(final URI endpoint,
 					 final AccessToken clientAuthz,
 					 final Token token,
 					 final Map<String,List<String>> customParams) {
 
-		super(uri, null);
-
-		if (token == null)
-			throw new IllegalArgumentException("The token must not be null");
-
-		this.token = token;
+		super(endpoint, null);
+		this.token = Objects.requireNonNull(token);
 		this.clientAuthz = clientAuthz;
 		this.customParams = customParams != null ? customParams : Collections.<String,List<String>>emptyMap();
 	}
