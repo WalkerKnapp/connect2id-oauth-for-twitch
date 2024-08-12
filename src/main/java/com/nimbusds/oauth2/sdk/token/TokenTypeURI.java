@@ -1,16 +1,16 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
+import com.nimbusds.oauth2.sdk.ParseException;
+import net.jcip.annotations.Immutable;
+
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import net.jcip.annotations.Immutable;
-
-import com.nimbusds.oauth2.sdk.ParseException;
+import java.util.Objects;
 
 
 /**
@@ -65,6 +65,13 @@ public final class TokenTypeURI implements Serializable {
 	 * The token type URI for a JSON Web Token (JWT).
 	 */
 	public static final TokenTypeURI JWT = new TokenTypeURI(URI.create("urn:ietf:params:oauth:token-type:jwt"));
+
+
+	/**
+	 * The token type URI for a {@code device_secret} for OpenID Connect
+	 * native SSO.
+	 */
+	public static final TokenTypeURI DEVICE_SECRET = new TokenTypeURI(URI.create("urn:x-oath:params:oauth:token-type:device-secret"));
 	
 	
 	private static final Map<String, TokenTypeURI> KNOWN_TOKEN_TYPE_URIS;
@@ -77,6 +84,7 @@ public final class TokenTypeURI implements Serializable {
 		knownTokenTypeUris.put(SAML1.getURI().toString(), SAML1);
 		knownTokenTypeUris.put(SAML2.getURI().toString(), SAML2);
 		knownTokenTypeUris.put(JWT.getURI().toString(), JWT);
+		knownTokenTypeUris.put(DEVICE_SECRET.getURI().toString(), DEVICE_SECRET);
 		KNOWN_TOKEN_TYPE_URIS = Collections.unmodifiableMap(knownTokenTypeUris);
 	}
 	
@@ -89,10 +97,7 @@ public final class TokenTypeURI implements Serializable {
 	 * @param uri The URI value. Must not be {@code null}.
 	 */
 	private TokenTypeURI(final URI uri) {
-		if (uri == null) {
-			throw new IllegalArgumentException("The URI must not be null");
-		}
-		this.uri = uri;
+		this.uri = Objects.requireNonNull(uri);
 	}
 	
 	
