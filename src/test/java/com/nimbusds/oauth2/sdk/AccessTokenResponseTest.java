@@ -30,9 +30,6 @@ import net.minidev.json.JSONObject;
 import java.util.*;
 
 
-/**
- * Tests access token response serialisation and parsing.
- */
 public class AccessTokenResponseTest extends TestCase {
 
 
@@ -201,6 +198,17 @@ public class AccessTokenResponseTest extends TestCase {
 		assertNull(response.getTokens().getRefreshToken());
 		assertEquals("abc", (String) response.getCustomParameters().get("sub_sid"));
 		assertEquals("abc", (String) response.getCustomParams().get("sub_sid"));
+	}
+
+
+	public void testConstructor_rejectNullTokens() {
+
+		try {
+			new AccessTokenResponse(null);
+			fail();
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
+		}
 	}
 
 

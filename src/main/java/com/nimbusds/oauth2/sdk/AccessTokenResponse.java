@@ -90,11 +90,7 @@ public class AccessTokenResponse extends TokenResponse implements SuccessRespons
 	public AccessTokenResponse(final Tokens tokens,
 				   final Map<String,Object> customParams) {
 
-		if (tokens == null)
-			throw new IllegalArgumentException("The tokens must not be null");
-
-		this.tokens = tokens;
-
+		this.tokens = Objects.requireNonNull(tokens);
 		this.customParams = customParams;
 	}
 
