@@ -20,6 +20,7 @@ package com.nimbusds.openid.connect.sdk.token;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import net.minidev.json.JSONObject;
@@ -40,13 +41,13 @@ public final class OIDCTokens extends Tokens {
 
 
 	/**
-	 * The ID Token serialised to a JWT, {@code null} if not specified.
+	 * The ID token serialised to a JWT, {@code null} if not specified.
 	 */
 	private final JWT idToken;
 
 
 	/**
-	 * The ID Token as raw string (for more efficient serialisation),
+	 * The ID token as raw string (for more efficient serialisation),
 	 * {@code null} if not specified.
 	 */
 	private final String idTokenString;
@@ -60,14 +61,8 @@ public final class OIDCTokens extends Tokens {
 	 * @param refreshToken The refresh token. If none {@code null}.
 	 */
 	public OIDCTokens(final JWT idToken, final AccessToken accessToken, final RefreshToken refreshToken) {
-
 		super(accessToken, refreshToken);
-
-		if (idToken == null) {
-			throw new IllegalArgumentException("The ID token must not be null");
-		}
-
-		this.idToken = idToken;
+		this.idToken = Objects.requireNonNull(idToken);
 		idTokenString = null;
 	}
 	
@@ -80,14 +75,8 @@ public final class OIDCTokens extends Tokens {
 	 * @param refreshToken  The refresh token. If none {@code null}.
 	 */
 	public OIDCTokens(final String idTokenString, final AccessToken accessToken, final RefreshToken refreshToken) {
-
 		super(accessToken, refreshToken);
-
-		if (idTokenString == null) {
-			throw new IllegalArgumentException("The ID token string must not be null");
-		}
-
-		this.idTokenString = idTokenString;
+		this.idTokenString = Objects.requireNonNull(idTokenString);
 		idToken = null;
 	}
 	

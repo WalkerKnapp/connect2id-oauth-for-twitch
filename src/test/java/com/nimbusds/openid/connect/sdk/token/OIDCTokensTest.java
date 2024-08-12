@@ -284,8 +284,8 @@ public class OIDCTokensTest extends TestCase {
 		try {
 			new OIDCTokens((JWT)null, new BearerAccessToken(), null);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The ID token must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 
@@ -295,8 +295,8 @@ public class OIDCTokensTest extends TestCase {
 		try {
 			new OIDCTokens((String)null, new BearerAccessToken(), null);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The ID token string must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 
