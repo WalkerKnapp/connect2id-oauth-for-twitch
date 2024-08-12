@@ -57,6 +57,7 @@ import java.util.*;
  * <ul>
  *     <li>OpenID Connect Core 1.0, section 2.
  *     <li>OpenID Connect Front-Channel Logout 1.0, section 3.
+ *     <li>OpenID Connect Native SSO for Mobile Apps 1.0
  *     <li>Financial Services – Financial API - Part 2: Read and Write API
  *         Security Profile, section 5.1.
  * </ul>
@@ -92,6 +93,12 @@ public class IDTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 	 * The state hash claim name.
 	 */
 	public static final String S_HASH_CLAIM_NAME = "s_hash";
+
+
+	/**
+	 * The device secret hash claim name.
+	 */
+	public static final String DS_HASH_CLAIM_NAME = "ds_hash";
 
 
 	/**
@@ -131,6 +138,7 @@ public class IDTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 		claimNames.add(AT_HASH_CLAIM_NAME);
 		claimNames.add(C_HASH_CLAIM_NAME);
 		claimNames.add(S_HASH_CLAIM_NAME);
+		claimNames.add(DS_HASH_CLAIM_NAME);
 		claimNames.add(ACR_CLAIM_NAME);
 		claimNames.add(AMR_CLAIM_NAME);
 		claimNames.add(AZP_CLAIM_NAME);
@@ -474,6 +482,32 @@ public class IDTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 	public void setStateHash(final StateHash sHash) {
 		
 		setClaim(S_HASH_CLAIM_NAME, sHash != null ? sHash.getValue() : null);
+	}
+
+
+	/**
+	 * Gets the device secret hash. Corresponds to the {@code ds_hash}
+	 * claim.
+	 *
+	 * @return The device secret hash, {@code null} if not specified or
+	 *         parsing failed.
+	 */
+	public DeviceSecretHash getDeviceSecretHash() {
+
+		String value = getStringClaim(DS_HASH_CLAIM_NAME);
+		return value != null ? new DeviceSecretHash(value) : null;
+	}
+
+
+	/**
+	 * Sets the device secret hash. Corresponds to the {@code ds_hash}
+	 * claim.
+	 *
+	 * @param dsHash The device secret hash, {@code null} if not specified.
+	 */
+	public void setDeviceSecretHash(final DeviceSecretHash dsHash) {
+
+		setClaim(DS_HASH_CLAIM_NAME, dsHash != null ? dsHash.getValue() : null);
 	}
 
 

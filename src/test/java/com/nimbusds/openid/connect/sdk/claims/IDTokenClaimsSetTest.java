@@ -18,19 +18,6 @@
 package com.nimbusds.openid.connect.sdk.claims;
 
 
-import java.net.URL;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import junit.framework.TestCase;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -41,11 +28,20 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.openid.connect.sdk.Nonce;
+import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
+
+import java.net.URL;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 
-/**
- * Tests the ID token claims set.
- */
 public class IDTokenClaimsSetTest extends TestCase {
 
 
@@ -59,6 +55,7 @@ public class IDTokenClaimsSetTest extends TestCase {
 		assertEquals("azp", IDTokenClaimsSet.AZP_CLAIM_NAME);
 		assertEquals("c_hash", IDTokenClaimsSet.C_HASH_CLAIM_NAME);
 		assertEquals("s_hash", IDTokenClaimsSet.S_HASH_CLAIM_NAME);
+		assertEquals("ds_hash", IDTokenClaimsSet.DS_HASH_CLAIM_NAME);
 		assertEquals("exp", IDTokenClaimsSet.EXP_CLAIM_NAME);
 		assertEquals("iat", IDTokenClaimsSet.IAT_CLAIM_NAME);
 		assertEquals("iss", IDTokenClaimsSet.ISS_CLAIM_NAME);
@@ -84,13 +81,14 @@ public class IDTokenClaimsSetTest extends TestCase {
 		assertTrue(stdClaimNames.contains("at_hash"));
 		assertTrue(stdClaimNames.contains("c_hash"));
 		assertTrue(stdClaimNames.contains("s_hash"));
+		assertTrue(stdClaimNames.contains("ds_hash"));
 		assertTrue(stdClaimNames.contains("acr"));
 		assertTrue(stdClaimNames.contains("amr"));
 		assertTrue(stdClaimNames.contains("azp"));
 		assertTrue(stdClaimNames.contains("sub_jwk"));
 		assertTrue(stdClaimNames.contains("sid"));
 
-		assertEquals(15, stdClaimNames.size());
+		assertEquals(16, stdClaimNames.size());
 	}
 
 
@@ -198,6 +196,9 @@ public class IDTokenClaimsSetTest extends TestCase {
 		StateHash stateHash = new StateHash("789");
 		idTokenClaimsSet.setStateHash(stateHash);
 
+		DeviceSecretHash deviceSecretHash = new DeviceSecretHash("aa1heg4TahGe6eiT");
+		idTokenClaimsSet.setDeviceSecretHash(deviceSecretHash);
+
 		ACR acr = new ACR("1");
 		idTokenClaimsSet.setACR(acr);
 
@@ -221,6 +222,7 @@ public class IDTokenClaimsSetTest extends TestCase {
 		assertEquals(accessTokenHash.getValue(), idTokenClaimsSet.getAccessTokenHash().getValue());
 		assertEquals(codeHash.getValue(), idTokenClaimsSet.getCodeHash().getValue());
 		assertEquals(stateHash.getValue(), idTokenClaimsSet.getStateHash().getValue());
+		assertEquals(deviceSecretHash.getValue(), idTokenClaimsSet.getDeviceSecretHash().getValue());
 		assertEquals(acr.getValue(), idTokenClaimsSet.getACR().getValue());
 		assertEquals("A", idTokenClaimsSet.getAMR().get(0).getValue());
 		assertEquals(authorizedParty.getValue(), idTokenClaimsSet.getAuthorizedParty().getValue());
@@ -247,6 +249,7 @@ public class IDTokenClaimsSetTest extends TestCase {
 		assertEquals(accessTokenHash.getValue(), idTokenClaimsSet.getAccessTokenHash().getValue());
 		assertEquals(codeHash.getValue(), idTokenClaimsSet.getCodeHash().getValue());
 		assertEquals(stateHash.getValue(), idTokenClaimsSet.getStateHash().getValue());
+		assertEquals(deviceSecretHash.getValue(), idTokenClaimsSet.getDeviceSecretHash().getValue());
 		assertEquals(acr.getValue(), idTokenClaimsSet.getACR().getValue());
 		assertEquals("A", idTokenClaimsSet.getAMR().get(0).getValue());
 		assertEquals(authorizedParty.getValue(), idTokenClaimsSet.getAuthorizedParty().getValue());
@@ -290,6 +293,45 @@ public class IDTokenClaimsSetTest extends TestCase {
 		idTokenClaimsSet = IDTokenClaimsSet.parse(jsonObject.toJSONString());
 		
 		assertEquals(stateHash, idTokenClaimsSet.getStateHash());
+	}
+
+
+	public void testDeviceSecretHash()
+		throws Exception {
+
+		IDTokenClaimsSet idTokenClaimsSet = new IDTokenClaimsSet(
+			new Issuer("https://c2id.com"),
+			new Subject("alice"),
+			new Audience("123").toSingleAudienceList(),
+			new Date(60_000L),
+			new Date(0L)
+		);
+
+		assertNull(idTokenClaimsSet.getDeviceSecretHash());
+
+		// Set / get null
+		idTokenClaimsSet.setDeviceSecretHash(null);
+		assertNull(idTokenClaimsSet.getDeviceSecretHash());
+
+		DeviceSecretHash deviceSecretHash = new DeviceSecretHash("aa1heg4TahGe6eiT");
+
+		idTokenClaimsSet.setDeviceSecretHash(deviceSecretHash);
+
+		assertEquals(deviceSecretHash, idTokenClaimsSet.getDeviceSecretHash());
+
+		JSONObject jsonObject = idTokenClaimsSet.toJSONObject();
+
+		assertEquals("https://c2id.com", jsonObject.get("iss"));
+		assertEquals("alice", jsonObject.get("sub"));
+		assertEquals(deviceSecretHash.getValue(), jsonObject.get("ds_hash"));
+		assertEquals(0L, jsonObject.get("iat"));
+		assertEquals(60L, jsonObject.get("exp"));
+		assertEquals("123", ((List<String>)jsonObject.get("aud")).get(0));
+		assertEquals(6, jsonObject.size());
+
+		idTokenClaimsSet = IDTokenClaimsSet.parse(jsonObject.toJSONString());
+
+		assertEquals(deviceSecretHash, idTokenClaimsSet.getDeviceSecretHash());
 	}
 
 
