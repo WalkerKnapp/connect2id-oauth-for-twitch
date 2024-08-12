@@ -18,15 +18,15 @@
 package com.nimbusds.oauth2.sdk;
 
 
+import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
+import net.jcip.annotations.Immutable;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.jcip.annotations.Immutable;
-
-import com.nimbusds.oauth2.sdk.token.RefreshToken;
-import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 
 
 /**
@@ -135,13 +135,11 @@ public class RefreshTokenGrant extends AuthorizationGrant {
 		// Parse refresh token
 		String refreshTokenString = MultivaluedMapUtils.getFirstValue(params, "refresh_token");
 
-		if (refreshTokenString == null || refreshTokenString.trim().isEmpty()) {
+		if (StringUtils.isBlank(refreshTokenString)) {
 			String msg = "Missing or empty refresh_token parameter";
 			throw new ParseException(msg, OAuth2Error.INVALID_REQUEST.appendDescription(": " + msg));
 		}
 
-		RefreshToken refreshToken = new RefreshToken(refreshTokenString);
-
-		return new RefreshTokenGrant(refreshToken);
+		return new RefreshTokenGrant(new RefreshToken(refreshTokenString));
 	}
 }
