@@ -25,15 +25,15 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import com.nimbusds.oauth2.sdk.token.*;
+import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import com.nimbusds.openid.connect.sdk.nativesso.DeviceSecret;
 import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 
-/**
- * Tests the OpenID Connect tokens class.
- */
 public class OIDCTokensTest extends TestCase {
 
 
@@ -50,6 +50,26 @@ public class OIDCTokensTest extends TestCase {
 		"JydB5eYIvOfOHYBRVML9fKwdOLM2xVxJsPwvy3BqlVKc593p2WwItIg52ILWrc6A"+
 		"tqkqHxKsAXLVyAoVInYkl_NDBkCqYe2KgNJFzfEC8g";
 
+	private static final BearerAccessToken BEARER_ACCESS_TOKEN_ALL_SET =
+		new BearerAccessToken(
+			"Chei4euPai5Phai0mohnaexeex7shou4",
+			60L,
+			Scope.parse("openid email"),
+			Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build()),
+			TokenTypeURI.ACCESS_TOKEN
+		);
+
+	private static final BearerAccessToken BEARER_ACCESS_TOKEN_MINIMAL =
+		new BearerAccessToken(
+			"Chei4euPai5Phai0mohnaexeex7shou4",
+			60L,
+			null);
+
+
+	private static final RefreshToken REFRESH_TOKEN = new RefreshToken();
+
+	private static final DeviceSecret DEVICE_SECRET = new DeviceSecret("cc0abf90-dd97-45bb-a778-269813e695c9");
+
 
 	public static JWT ID_TOKEN;
 
@@ -63,219 +83,201 @@ public class OIDCTokensTest extends TestCase {
 	}
 
 
-	public void testAllDefined()
+	public void testIDTokenConstructor()
 		throws ParseException {
 
-		AccessToken accessToken = new BearerAccessToken(
-			"Chei4euPai5Phai0mohnaexeex7shou4",
-			60L,
-			Scope.parse("openid email"),
-			Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build()),
-			TokenTypeURI.ACCESS_TOKEN
-		);
-		RefreshToken refreshToken = new RefreshToken();
+		for (RefreshToken refreshToken: Arrays.asList(REFRESH_TOKEN, null)) {
 
-		OIDCTokens tokens = new OIDCTokens(ID_TOKEN, accessToken, refreshToken);
+			OIDCTokens tokens = new OIDCTokens(ID_TOKEN, BEARER_ACCESS_TOKEN_ALL_SET, refreshToken);
 
-		assertEquals(ID_TOKEN, tokens.getIDToken());
-		assertEquals(ID_TOKEN_STRING, tokens.getIDTokenString());
-		assertEquals(accessToken, tokens.getAccessToken());
-		assertEquals(accessToken, tokens.getBearerAccessToken());
-		assertEquals(refreshToken, tokens.getRefreshToken());
+			assertEquals(ID_TOKEN, tokens.getIDToken());
+			assertEquals(ID_TOKEN_STRING, tokens.getIDTokenString());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET, tokens.getAccessToken());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET, tokens.getBearerAccessToken());
+			assertEquals(refreshToken, tokens.getRefreshToken());
+			assertNull(tokens.getDeviceSecret());
 
-		assertTrue(tokens.getParameterNames().contains("id_token"));
-		assertTrue(tokens.getParameterNames().contains("token_type"));
-		assertTrue(tokens.getParameterNames().contains("access_token"));
-		assertTrue(tokens.getParameterNames().contains("expires_in"));
-		assertTrue(tokens.getParameterNames().contains("scope"));
-		assertTrue(tokens.getParameterNames().contains("authorization_details"));
-		assertTrue(tokens.getParameterNames().contains("issued_token_type"));
-		assertTrue(tokens.getParameterNames().contains("refresh_token"));
-		assertEquals(8, tokens.getParameterNames().size());
+			assertTrue(tokens.getParameterNames().contains("id_token"));
+			assertTrue(tokens.getParameterNames().contains("token_type"));
+			assertTrue(tokens.getParameterNames().contains("access_token"));
+			assertTrue(tokens.getParameterNames().contains("expires_in"));
+			assertTrue(tokens.getParameterNames().contains("scope"));
+			assertTrue(tokens.getParameterNames().contains("authorization_details"));
+			assertTrue(tokens.getParameterNames().contains("issued_token_type"));
+			if (refreshToken != null) {
+				assertTrue(tokens.getParameterNames().contains("refresh_token"));
+			}
+			assertEquals(refreshToken != null ? 8 : 7, tokens.getParameterNames().size());
 
-		JSONObject jsonObject = tokens.toJSONObject();
-		assertEquals(ID_TOKEN_STRING, jsonObject.get("id_token"));
-		assertEquals("Bearer", jsonObject.get("token_type"));
-		assertEquals(accessToken.getValue(), jsonObject.get("access_token"));
-		assertEquals(60L, jsonObject.get("expires_in"));
-		assertEquals("openid email", jsonObject.get("scope"));
-		assertEquals(AuthorizationDetail.toJSONArray(accessToken.getAuthorizationDetails()), jsonObject.get("authorization_details"));
-		assertEquals(accessToken.getIssuedTokenType().getURI().toString(), jsonObject.get("issued_token_type"));
-		assertEquals(refreshToken.getValue(), jsonObject.get("refresh_token"));
-		assertEquals(8, jsonObject.size());
+			JSONObject jsonObject = tokens.toJSONObject();
+			assertEquals(ID_TOKEN_STRING, jsonObject.get("id_token"));
+			assertEquals("Bearer", jsonObject.get("token_type"));
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getValue(), jsonObject.get("access_token"));
+			assertEquals(60L, jsonObject.get("expires_in"));
+			assertEquals("openid email", jsonObject.get("scope"));
+			assertEquals(AuthorizationDetail.toJSONArray(BEARER_ACCESS_TOKEN_ALL_SET.getAuthorizationDetails()), jsonObject.get("authorization_details"));
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getIssuedTokenType().getURI().toString(), jsonObject.get("issued_token_type"));
+			assertEquals(refreshToken != null ? refreshToken.getValue() : null, jsonObject.get("refresh_token"));
+			assertEquals(refreshToken != null ? 8 : 7, jsonObject.size());
 
-		tokens = OIDCTokens.parse(jsonObject);
+			tokens = OIDCTokens.parse(jsonObject);
 
-		assertEquals(ID_TOKEN.getParsedString(), tokens.getIDToken().getParsedString());
-		assertEquals(ID_TOKEN_STRING, tokens.getIDTokenString());
-		assertEquals(accessToken.getValue(), tokens.getAccessToken().getValue());
-		assertEquals(accessToken.getLifetime(), tokens.getAccessToken().getLifetime());
-		assertEquals(accessToken.getScope(), tokens.getAccessToken().getScope());
-		assertEquals(accessToken.getAuthorizationDetails(), tokens.getAccessToken().getAuthorizationDetails());
-		assertEquals(accessToken.getIssuedTokenType(), tokens.getAccessToken().getIssuedTokenType());
-		assertEquals(refreshToken.getValue(), tokens.getRefreshToken().getValue());
+			assertEquals(ID_TOKEN.getParsedString(), tokens.getIDToken().getParsedString());
+			assertEquals(ID_TOKEN_STRING, tokens.getIDTokenString());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getValue(), tokens.getAccessToken().getValue());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getLifetime(), tokens.getAccessToken().getLifetime());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getScope(), tokens.getAccessToken().getScope());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getAuthorizationDetails(), tokens.getAccessToken().getAuthorizationDetails());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getIssuedTokenType(), tokens.getAccessToken().getIssuedTokenType());
+			assertEquals(refreshToken, tokens.getRefreshToken());
+			assertNull(tokens.getDeviceSecret());
+		}
 	}
 
 
-	public void testAllDefined_fromIDTokenString()
+	public void testIDTokenConstructor_idTokenString()
 		throws ParseException {
-		
-		AccessToken accessToken = new BearerAccessToken(
-			"Chei4euPai5Phai0mohnaexeex7shou4",
-			60L,
-			Scope.parse("openid email"),
-			Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build()),
-			TokenTypeURI.ACCESS_TOKEN
-		);
-		RefreshToken refreshToken = new RefreshToken();
 
-		OIDCTokens tokens = new OIDCTokens(ID_TOKEN_STRING, accessToken, refreshToken);
+		for (RefreshToken refreshToken: Arrays.asList(REFRESH_TOKEN, null)) {
 
-		assertEquals(ID_TOKEN_STRING, tokens.getIDToken().getParsedString());
-		assertEquals(ID_TOKEN_STRING, tokens.getIDTokenString());
-		assertEquals(accessToken, tokens.getAccessToken());
-		assertEquals(accessToken, tokens.getBearerAccessToken());
-		assertEquals(refreshToken, tokens.getRefreshToken());
+			OIDCTokens tokens = new OIDCTokens(ID_TOKEN_STRING, BEARER_ACCESS_TOKEN_ALL_SET, refreshToken);
 
-		assertTrue(tokens.getParameterNames().contains("id_token"));
-		assertTrue(tokens.getParameterNames().contains("token_type"));
-		assertTrue(tokens.getParameterNames().contains("access_token"));
-		assertTrue(tokens.getParameterNames().contains("expires_in"));
-		assertTrue(tokens.getParameterNames().contains("scope"));
-		assertTrue(tokens.getParameterNames().contains("authorization_details"));
-		assertTrue(tokens.getParameterNames().contains("issued_token_type"));
-		assertTrue(tokens.getParameterNames().contains("refresh_token"));
-		assertEquals(8, tokens.getParameterNames().size());
+			assertEquals(ID_TOKEN_STRING, tokens.getIDToken().getParsedString());
+			assertEquals(ID_TOKEN_STRING, tokens.getIDTokenString());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET, tokens.getAccessToken());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET, tokens.getBearerAccessToken());
+			assertEquals(refreshToken, tokens.getRefreshToken());
+			assertNull(tokens.getDeviceSecret());
 
-		JSONObject jsonObject = tokens.toJSONObject();
-		assertEquals(ID_TOKEN_STRING, jsonObject.get("id_token"));
-		assertEquals("Bearer", jsonObject.get("token_type"));
-		assertEquals(accessToken.getValue(), jsonObject.get("access_token"));
-		assertEquals(60L, jsonObject.get("expires_in"));
-		assertEquals("openid email", jsonObject.get("scope"));
-		assertEquals(AuthorizationDetail.toJSONArray(accessToken.getAuthorizationDetails()), jsonObject.get("authorization_details"));
-		assertEquals(accessToken.getIssuedTokenType().getURI().toString(), jsonObject.get("issued_token_type"));
-		assertEquals(refreshToken.getValue(), jsonObject.get("refresh_token"));
-		assertEquals(8, jsonObject.size());
+			assertTrue(tokens.getParameterNames().contains("id_token"));
+			assertTrue(tokens.getParameterNames().contains("token_type"));
+			assertTrue(tokens.getParameterNames().contains("access_token"));
+			assertTrue(tokens.getParameterNames().contains("expires_in"));
+			assertTrue(tokens.getParameterNames().contains("scope"));
+			assertTrue(tokens.getParameterNames().contains("authorization_details"));
+			assertTrue(tokens.getParameterNames().contains("issued_token_type"));
+			if (refreshToken != null) {
+				assertTrue(tokens.getParameterNames().contains("refresh_token"));
+			}
+			assertEquals(refreshToken != null ? 8 : 7, tokens.getParameterNames().size());
 
-		tokens = OIDCTokens.parse(jsonObject);
+			JSONObject jsonObject = tokens.toJSONObject();
+			assertEquals(ID_TOKEN_STRING, jsonObject.get("id_token"));
+			assertEquals("Bearer", jsonObject.get("token_type"));
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getValue(), jsonObject.get("access_token"));
+			assertEquals(60L, jsonObject.get("expires_in"));
+			assertEquals("openid email", jsonObject.get("scope"));
+			assertEquals(AuthorizationDetail.toJSONArray(BEARER_ACCESS_TOKEN_ALL_SET.getAuthorizationDetails()), jsonObject.get("authorization_details"));
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getIssuedTokenType().getURI().toString(), jsonObject.get("issued_token_type"));
+			assertEquals(refreshToken != null ? refreshToken.getValue() : null, jsonObject.get("refresh_token"));
+			assertEquals(refreshToken != null ? 8 : 7, jsonObject.size());
 
-		assertEquals(ID_TOKEN_STRING, tokens.getIDToken().getParsedString());
-		assertEquals(ID_TOKEN_STRING, tokens.getIDTokenString());
-		assertEquals(accessToken.getValue(), tokens.getAccessToken().getValue());
-		assertEquals(accessToken.getLifetime(), tokens.getAccessToken().getLifetime());
-		assertEquals(accessToken.getScope(), tokens.getAccessToken().getScope());
-		assertEquals(accessToken.getAuthorizationDetails(), tokens.getAccessToken().getAuthorizationDetails());
-		assertEquals(accessToken.getIssuedTokenType(), tokens.getAccessToken().getIssuedTokenType());
-		assertEquals(refreshToken.getValue(), tokens.getRefreshToken().getValue());
+			tokens = OIDCTokens.parse(jsonObject);
+
+			assertEquals(ID_TOKEN_STRING, tokens.getIDToken().getParsedString());
+			assertEquals(ID_TOKEN_STRING, tokens.getIDTokenString());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getValue(), tokens.getAccessToken().getValue());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getLifetime(), tokens.getAccessToken().getLifetime());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getScope(), tokens.getAccessToken().getScope());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getAuthorizationDetails(), tokens.getAccessToken().getAuthorizationDetails());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET.getIssuedTokenType(), tokens.getAccessToken().getIssuedTokenType());
+			assertEquals(refreshToken, tokens.getRefreshToken());
+			assertNull(tokens.getDeviceSecret());
+		}
+	}
+
+
+	public void testIDTokenConstructor_withDeviceSecret() throws ParseException {
+
+		for (OIDCTokens tokens: Arrays.asList(
+			new OIDCTokens(ID_TOKEN, BEARER_ACCESS_TOKEN_MINIMAL, null, DEVICE_SECRET),
+			new OIDCTokens(ID_TOKEN_STRING, BEARER_ACCESS_TOKEN_MINIMAL, null, DEVICE_SECRET))) {
+
+			assertEquals(ID_TOKEN.serialize(), tokens.getIDToken().serialize());
+			assertEquals(ID_TOKEN_STRING, tokens.getIDToken().serialize());
+			assertEquals(BEARER_ACCESS_TOKEN_MINIMAL, tokens.getBearerAccessToken());
+			assertEquals(DEVICE_SECRET, tokens.getDeviceSecret());
+
+			assertTrue(tokens.getParameterNames().contains("device_secret"));
+
+			JSONObject jsonObject = tokens.toJSONObject();
+
+			tokens = OIDCTokens.parse(jsonObject);
+
+			assertEquals(DEVICE_SECRET.getValue(), jsonObject.get("device_secret"));
+
+			assertEquals(ID_TOKEN.serialize(), tokens.getIDToken().serialize());
+			assertEquals(ID_TOKEN_STRING, tokens.getIDToken().serialize());
+			assertEquals(BEARER_ACCESS_TOKEN_MINIMAL, tokens.getBearerAccessToken());
+			assertEquals(DEVICE_SECRET, tokens.getDeviceSecret());
+		}
 	}
 
 
 	// The token response from a refresh token grant may not include an id_token
-	public void testNoIDToken()
+	public void testNoIDTokenConstructor()
 		throws ParseException {
 
-		AccessToken accessToken = new BearerAccessToken();
+		for (RefreshToken refreshToken : Arrays.asList(REFRESH_TOKEN, null)) {
 
-		OIDCTokens tokens = new OIDCTokens(accessToken, null);
+			OIDCTokens tokens = new OIDCTokens(BEARER_ACCESS_TOKEN_MINIMAL, refreshToken);
 
-		assertNull(tokens.getIDToken());
-		assertNull(tokens.getIDTokenString());
-		assertEquals(accessToken, tokens.getAccessToken());
-		assertEquals(accessToken, tokens.getBearerAccessToken());
-		assertNull(tokens.getRefreshToken());
+			assertNull(tokens.getIDToken());
+			assertNull(tokens.getIDTokenString());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET, tokens.getAccessToken());
+			assertEquals(BEARER_ACCESS_TOKEN_ALL_SET, tokens.getBearerAccessToken());
+			assertEquals(refreshToken, tokens.getRefreshToken());
+			assertNull(tokens.getDeviceSecret());
 
-		assertTrue(tokens.getParameterNames().contains("token_type"));
-		assertTrue(tokens.getParameterNames().contains("access_token"));
-		assertEquals(2, tokens.getParameterNames().size());
+			assertTrue(tokens.getParameterNames().contains("token_type"));
+			assertTrue(tokens.getParameterNames().contains("access_token"));
+			assertTrue(tokens.getParameterNames().contains("expires_in"));
+			if (refreshToken != null) {
+				assertTrue(tokens.getParameterNames().contains("refresh_token"));
+			}
+			assertEquals(refreshToken != null ? 4 : 3, tokens.getParameterNames().size());
 
-		JSONObject jsonObject = tokens.toJSONObject();
-		assertEquals("Bearer", jsonObject.get("token_type"));
-		assertEquals(accessToken.getValue(), jsonObject.get("access_token"));
-		assertEquals(2, jsonObject.size());
+			JSONObject jsonObject = tokens.toJSONObject();
+			assertEquals("Bearer", jsonObject.get("token_type"));
+			assertEquals(BEARER_ACCESS_TOKEN_MINIMAL.getValue(), jsonObject.get("access_token"));
+			assertEquals(BEARER_ACCESS_TOKEN_MINIMAL.getLifetime(), jsonObject.get("expires_in"));
+			assertEquals(refreshToken != null ? refreshToken.getValue() : null, jsonObject.get("refresh_token"));
+			assertEquals(refreshToken != null ? 4 : 3, jsonObject.size());
 
-		tokens = OIDCTokens.parse(jsonObject);
+			tokens = OIDCTokens.parse(jsonObject);
 
-		assertNull(tokens.getIDToken());
-		assertNull(tokens.getIDTokenString());
-		assertEquals(accessToken.getValue(), tokens.getAccessToken().getValue());
-		assertEquals(0L, tokens.getAccessToken().getLifetime());
-		assertNull(tokens.getAccessToken().getScope());
-		assertNull(tokens.getRefreshToken());
+			assertNull(tokens.getIDToken());
+			assertNull(tokens.getIDTokenString());
+			assertEquals(BEARER_ACCESS_TOKEN_MINIMAL.getValue(), tokens.getAccessToken().getValue());
+			assertEquals(BEARER_ACCESS_TOKEN_MINIMAL.getLifetime(), tokens.getAccessToken().getLifetime());
+			assertNull(tokens.getAccessToken().getScope());
+			assertEquals(refreshToken, tokens.getRefreshToken());
+			assertNull(tokens.getDeviceSecret());
+		}
 	}
 
 
-	public void testMinimal()
-		throws ParseException {
+	public void testNoIDTokenConstructor_withDeviceSecret() throws ParseException {
 
-		AccessToken accessToken = new BearerAccessToken();
+		OIDCTokens tokens = new OIDCTokens(BEARER_ACCESS_TOKEN_MINIMAL, null, DEVICE_SECRET);
 
-		OIDCTokens tokens = new OIDCTokens(ID_TOKEN, accessToken, null);
+		assertNull(tokens.getIDToken());
+		assertNull(tokens.getIDToken());
+		assertEquals(BEARER_ACCESS_TOKEN_MINIMAL, tokens.getBearerAccessToken());
+		assertEquals(DEVICE_SECRET, tokens.getDeviceSecret());
 
-		assertEquals(ID_TOKEN, tokens.getIDToken());
-		assertEquals(ID_TOKEN_STRING, tokens.getIDTokenString());
-		assertEquals(accessToken, tokens.getAccessToken());
-		assertEquals(accessToken, tokens.getBearerAccessToken());
-		assertNull(tokens.getRefreshToken());
-
-		assertTrue(tokens.getParameterNames().contains("id_token"));
-		assertTrue(tokens.getParameterNames().contains("token_type"));
-		assertTrue(tokens.getParameterNames().contains("access_token"));
-		assertEquals(3, tokens.getParameterNames().size());
+		assertTrue(tokens.getParameterNames().contains("device_secret"));
 
 		JSONObject jsonObject = tokens.toJSONObject();
-		assertEquals(ID_TOKEN_STRING, jsonObject.get("id_token"));
-		assertEquals("Bearer", jsonObject.get("token_type"));
-		assertEquals(accessToken.getValue(), jsonObject.get("access_token"));
-		assertEquals(3, jsonObject.size());
 
 		tokens = OIDCTokens.parse(jsonObject);
 
-		assertEquals(ID_TOKEN.getParsedString(), tokens.getIDToken().getParsedString());
-		assertEquals(ID_TOKEN_STRING, tokens.getIDTokenString());
-		assertEquals(accessToken.getValue(), tokens.getAccessToken().getValue());
-		assertEquals(0L, tokens.getAccessToken().getLifetime());
-		assertNull(tokens.getAccessToken().getScope());
-		assertNull(tokens.getAccessToken().getAuthorizationDetails());
-		assertNull(tokens.getAccessToken().getIssuedTokenType());
-		assertNull(tokens.getRefreshToken());
-	}
+		assertEquals(DEVICE_SECRET.getValue(), jsonObject.get("device_secret"));
 
-
-	public void testMinimal_fromIDTokenString()
-		throws ParseException {
-
-		AccessToken accessToken = new BearerAccessToken();
-
-		OIDCTokens tokens = new OIDCTokens(ID_TOKEN_STRING, accessToken, null);
-
-		assertEquals(ID_TOKEN_STRING, tokens.getIDToken().getParsedString());
-		assertEquals(ID_TOKEN_STRING, tokens.getIDTokenString());
-		assertEquals(accessToken, tokens.getAccessToken());
-		assertEquals(accessToken, tokens.getBearerAccessToken());
-		assertNull(tokens.getRefreshToken());
-
-		assertTrue(tokens.getParameterNames().contains("id_token"));
-		assertTrue(tokens.getParameterNames().contains("token_type"));
-		assertTrue(tokens.getParameterNames().contains("access_token"));
-		assertEquals(3, tokens.getParameterNames().size());
-
-		JSONObject jsonObject = tokens.toJSONObject();
-		assertEquals(ID_TOKEN_STRING, jsonObject.get("id_token"));
-		assertEquals("Bearer", jsonObject.get("token_type"));
-		assertEquals(accessToken.getValue(), jsonObject.get("access_token"));
-		assertEquals(3, jsonObject.size());
-
-		tokens = OIDCTokens.parse(jsonObject);
-
-		assertEquals(ID_TOKEN_STRING, tokens.getIDToken().getParsedString());
-		assertEquals(ID_TOKEN_STRING, tokens.getIDTokenString());
-		assertEquals(accessToken.getValue(), tokens.getAccessToken().getValue());
-		assertEquals(0L, tokens.getAccessToken().getLifetime());
-		assertNull(tokens.getAccessToken().getScope());
-		assertNull(tokens.getAccessToken().getAuthorizationDetails());
-		assertNull(tokens.getAccessToken().getIssuedTokenType());
-		assertNull(tokens.getRefreshToken());
+		assertNull(tokens.getIDToken());
+		assertNull(tokens.getIDToken());
+		assertEquals(BEARER_ACCESS_TOKEN_MINIMAL, tokens.getBearerAccessToken());
+		assertEquals(DEVICE_SECRET, tokens.getDeviceSecret());
 	}
 
 
@@ -287,6 +289,13 @@ public class OIDCTokensTest extends TestCase {
 		} catch (NullPointerException e) {
 			assertNull(e.getMessage());
 		}
+
+		try {
+			new OIDCTokens((JWT)null, new BearerAccessToken(), null, null);
+			fail();
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
+		}
 	}
 
 
@@ -294,6 +303,13 @@ public class OIDCTokensTest extends TestCase {
 
 		try {
 			new OIDCTokens((String)null, new BearerAccessToken(), null);
+			fail();
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
+		}
+
+		try {
+			new OIDCTokens((String)null, new BearerAccessToken(), null, null);
 			fail();
 		} catch (NullPointerException e) {
 			assertNull(e.getMessage());
@@ -340,15 +356,7 @@ public class OIDCTokensTest extends TestCase {
 	
 	public void testCastFromTokens() {
 		
-		AccessToken accessToken = new BearerAccessToken(
-			"eviegheing6pee2I",
-			60L,
-			Scope.parse("openid email"),
-			TokenTypeURI.ACCESS_TOKEN
-		);
-		RefreshToken refreshToken = new RefreshToken();
-		
-		Tokens tokens = new OIDCTokens(ID_TOKEN, accessToken, refreshToken);
+		Tokens tokens = new OIDCTokens(ID_TOKEN, BEARER_ACCESS_TOKEN_ALL_SET, REFRESH_TOKEN);
 		
 		OIDCTokens oidcTokens = tokens.toOIDCTokens();
 		
@@ -363,5 +371,28 @@ public class OIDCTokensTest extends TestCase {
 		assertEquals(Collections.singletonMap("key", "value"), tokens.getMetadata());
 		tokens.getMetadata().clear();
 		assertTrue(tokens.getMetadata().isEmpty());
+	}
+	
+	
+	public void testParseDeviceSecretExample() throws ParseException {
+		
+		String json = 
+			"{" +
+			"  \"access_token\":\"2YotnFZFEjr1zCsicMWpAA\"," +
+			"  \"issued_token_type\": \"urn:ietf:params:oauth:token-type:access_token\"," +
+			"  \"token_type\":\"Bearer\"," +
+			"  \"expires_in\":3600," +
+			"  \"refresh_token\":\"tGzv3JOkF0XG5Qx2TlKWIA\"," +
+			"  \"device_secret\":\"casdfgarfgasdfg\"" +
+			"}";
+
+		OIDCTokens tokens = OIDCTokens.parse(JSONObjectUtils.parse(json));
+		assertEquals("2YotnFZFEjr1zCsicMWpAA", tokens.getAccessToken().getValue());
+		assertEquals(AccessTokenType.BEARER, tokens.getAccessToken().getType());
+		assertEquals(3600L, tokens.getAccessToken().getLifetime());
+
+		assertEquals(new RefreshToken("tGzv3JOkF0XG5Qx2TlKWIA"), tokens.getRefreshToken());
+
+		assertEquals(new DeviceSecret("casdfgarfgasdfg"), tokens.getDeviceSecret());
 	}
 }
