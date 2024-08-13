@@ -18,6 +18,7 @@
 package com.nimbusds.oauth2.sdk;
 
 
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -1628,13 +1629,14 @@ public class AuthorizationRequest extends AbstractRequest {
 		HTTPRequest httpRequest;
 		if (method.equals(HTTPRequest.Method.GET)) {
 			httpRequest = new HTTPRequest(HTTPRequest.Method.GET, getEndpointURI());
+			httpRequest.appendQueryParameters(toParameters());
 		} else if (method.equals(HTTPRequest.Method.POST)) {
 			httpRequest = new HTTPRequest(HTTPRequest.Method.POST, getEndpointURI());
+			httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+			httpRequest.setBody(URLUtils.serializeParameters(toParameters()));
 		} else {
-			throw new IllegalArgumentException("The HTTP request method must be GET or POST");
+			throw new IllegalArgumentException("HTTP GET or POST expected");
 		}
-		
-		httpRequest.appendQueryParameters(toParameters());
 		
 		return httpRequest;
 	}
@@ -1993,7 +1995,8 @@ public class AuthorizationRequest extends AbstractRequest {
 	
 	
 	/**
-	 * Parses an authorisation request from the specified HTTP request.
+	 * Parses an authorisation request from the specified HTTP GET or POST
+	 * request.
 	 *
 	 * <p>Example HTTP request (GET):
 	 *
@@ -2014,12 +2017,15 @@ public class AuthorizationRequest extends AbstractRequest {
 	 */
 	public static AuthorizationRequest parse(final HTTPRequest httpRequest) 
 		throws ParseException {
-		
-		String query = httpRequest.getQuery(); // TODO GET + POST
-		
-		if (query == null)
-			throw new ParseException("Missing URI query string");
-		
-		return parse(URIUtils.getBaseURI(httpRequest.getURI()), query);
+
+		if (HTTPRequest.Method.GET.equals(httpRequest.getMethod())) {
+			return parse(URIUtils.getBaseURI(httpRequest.getURI()), httpRequest.getQueryStringParameters());
+		}
+
+		if (HTTPRequest.Method.POST.equals(httpRequest.getMethod())) {
+			return parse(URIUtils.getBaseURI(httpRequest.getURI()), httpRequest.getBodyAsFormParameters());
+		}
+
+		throw new ParseException("HTTP GET or POST expected");
 	}
 }

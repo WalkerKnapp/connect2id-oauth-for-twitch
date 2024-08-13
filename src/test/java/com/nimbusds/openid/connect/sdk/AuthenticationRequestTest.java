@@ -18,6 +18,7 @@
 package com.nimbusds.openid.connect.sdk;
 
 
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -35,6 +36,7 @@ import com.nimbusds.langtag.LangTagException;
 import com.nimbusds.langtag.LangTagUtils;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.JWTID;
@@ -44,6 +46,7 @@ import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
+import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.assurance.IdentityTrustFramework;
 import com.nimbusds.openid.connect.sdk.assurance.request.MinimalVerificationSpec;
@@ -3276,5 +3279,92 @@ public class AuthenticationRequestTest extends TestCase {
 			.build();
 		
 //		System.out.println(request.toURI());
+	}
+
+
+	public void testToHTTPRequest_POST_thenParse() throws ParseException {
+
+		AuthenticationRequest request = new AuthenticationRequest(
+			URI.create("https://c2id.com/login"),
+			ResponseType.CODE,
+			new Scope("openid"),
+			new ClientID(),
+			URI.create("https://example.com/cb"),
+			new State(),
+			new Nonce());
+
+		HTTPRequest httpRequest = request.toHTTPRequest(HTTPRequest.Method.POST);
+		assertEquals(request.getEndpointURI(), httpRequest.getURI());
+		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
+		assertEquals(ContentType.APPLICATION_URLENCODED, httpRequest.getEntityContentType());
+		assertEquals(request.toParameters(), httpRequest.getBodyAsFormParameters());
+
+		assertEquals(request.toURI(), AuthenticationRequest.parse(httpRequest).toURI());
+	}
+
+
+	public void testToHTTPRequest_GET_thenParse() throws ParseException {
+
+		AuthenticationRequest request = new AuthenticationRequest(
+			URI.create("https://c2id.com/login"),
+			ResponseType.CODE,
+			new Scope("openid"),
+			new ClientID(),
+			URI.create("https://example.com/cb"),
+			new State(),
+			new Nonce());
+
+		HTTPRequest httpRequest = request.toHTTPRequest(HTTPRequest.Method.GET);
+		assertEquals(request.getEndpointURI(), URIUtils.getBaseURI(httpRequest.getURI()));
+		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
+		assertNull(httpRequest.getEntityContentType());
+		assertNull(httpRequest.getBody());
+		assertEquals(request.toParameters(), httpRequest.getQueryStringParameters());
+
+		assertEquals(request.toURI(), AuthenticationRequest.parse(httpRequest).toURI());
+	}
+
+
+	public void testToHTTPRequest_unexpectedMethod() {
+
+		AuthenticationRequest request = new AuthenticationRequest(
+			URI.create("https://c2id.com/login"),
+			ResponseType.CODE,
+			new Scope("openid"),
+			new ClientID(),
+			URI.create("https://example.com/cb"),
+			new State(),
+			new Nonce());
+
+		try {
+			request.toHTTPRequest(HTTPRequest.Method.PUT);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("HTTP GET or POST expected", e.getMessage());
+		}
+	}
+
+
+	public void testParseHTTPRequest_unexpectedMethod() {
+
+		AuthenticationRequest request = new AuthenticationRequest(
+			URI.create("https://c2id.com/login"),
+			ResponseType.CODE,
+			new Scope("openid"),
+			new ClientID(),
+			URI.create("https://example.com/cb"),
+			new State(),
+			new Nonce());
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.PUT, request.getEndpointURI());
+		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+		httpRequest.setBody(URLUtils.serializeParameters(request.toParameters()));
+
+		try {
+			AuthenticationRequest.parse(httpRequest).toURI();
+			fail();
+		} catch (ParseException e) {
+			assertEquals("HTTP GET or POST expected", e.getMessage());
+		}
 	}
 }

@@ -37,7 +37,6 @@ import com.nimbusds.oauth2.sdk.util.*;
 import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 import net.jcip.annotations.Immutable;
-import org.bouncycastle.asn1.cmp.OOBCert;
 
 import java.net.URI;
 import java.util.*;
@@ -2392,8 +2391,8 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	
 	
 	/**
-	 * Parses an authentication request from the specified HTTP GET or HTTP
-	 * POST request.
+	 * Parses an authentication request from the specified HTTP GET or POST
+	 * request.
 	 *
 	 * <p>Example HTTP request (GET):
 	 *
@@ -2416,14 +2415,15 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	 */
 	public static AuthenticationRequest parse(final HTTPRequest httpRequest)
 		throws ParseException {
-		
-		String query = httpRequest.getQuery(); // TODO
-		
-		if (query == null)
-			throw new ParseException("Missing URI query string");
 
-		URI endpointURI = httpRequest.getURI();
-		
-		return parse(endpointURI, query);
+		if (HTTPRequest.Method.GET.equals(httpRequest.getMethod())) {
+			return parse(URIUtils.getBaseURI(httpRequest.getURI()), httpRequest.getQueryStringParameters());
+		}
+
+		if (HTTPRequest.Method.POST.equals(httpRequest.getMethod())) {
+			return parse(URIUtils.getBaseURI(httpRequest.getURI()), httpRequest.getBodyAsFormParameters());
+		}
+
+		throw new ParseException("HTTP GET or POST expected");
 	}
 }

@@ -18,6 +18,7 @@
 package com.nimbusds.oauth2.sdk;
 
 
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -45,6 +46,7 @@ import com.nimbusds.oauth2.sdk.rar.Action;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.rar.AuthorizationType;
 import com.nimbusds.oauth2.sdk.rar.Location;
+import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.*;
 import com.nimbusds.openid.connect.sdk.claims.ACR;
@@ -2142,6 +2144,77 @@ public class AuthorizationRequestTest extends TestCase {
 			} catch (ParseException e) {
 				assertEquals("Invalid redirect_uri parameter: The query parameter " + queryParam + " is prohibited", e.getMessage());
 			}
+		}
+	}
+
+
+	public void testToHTTPRequest_POST_thenParse() throws ParseException {
+
+		AuthorizationRequest request = new AuthorizationRequest(
+			URI.create("https://c2id.com/login"),
+			ResponseType.CODE,
+			new ClientID());
+
+		HTTPRequest httpRequest = request.toHTTPRequest(HTTPRequest.Method.POST);
+		assertEquals(request.getEndpointURI(), httpRequest.getURI());
+		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
+		assertEquals(ContentType.APPLICATION_URLENCODED, httpRequest.getEntityContentType());
+		assertEquals(request.toParameters(), httpRequest.getBodyAsFormParameters());
+
+		assertEquals(request.toURI(), AuthorizationRequest.parse(httpRequest).toURI());
+	}
+
+
+	public void testToHTTPRequest_GET_thenParse() throws ParseException {
+
+		AuthorizationRequest request = new AuthorizationRequest(
+			URI.create("https://c2id.com/login"),
+			ResponseType.CODE,
+			new ClientID());
+
+		HTTPRequest httpRequest = request.toHTTPRequest(HTTPRequest.Method.GET);
+		assertEquals(request.getEndpointURI(), URIUtils.getBaseURI(httpRequest.getURI()));
+		assertEquals(HTTPRequest.Method.GET, httpRequest.getMethod());
+		assertNull(httpRequest.getEntityContentType());
+		assertNull(httpRequest.getBody());
+		assertEquals(request.toParameters(), httpRequest.getQueryStringParameters());
+
+		assertEquals(request.toURI(), AuthorizationRequest.parse(httpRequest).toURI());
+	}
+
+
+	public void testToHTTPRequest_unexpectedMethod() {
+
+		AuthorizationRequest request = new AuthorizationRequest(
+			URI.create("https://c2id.com/login"),
+			ResponseType.CODE,
+			new ClientID());
+
+		try {
+			request.toHTTPRequest(HTTPRequest.Method.PUT);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("HTTP GET or POST expected", e.getMessage());
+		}
+	}
+
+
+	public void testParseHTTPRequest_unexpectedMethod() {
+
+		AuthorizationRequest request = new AuthorizationRequest(
+			URI.create("https://c2id.com/login"),
+			ResponseType.CODE,
+			new ClientID());
+
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.PUT, request.getEndpointURI());
+		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+		httpRequest.setBody(URLUtils.serializeParameters(request.toParameters()));
+
+		try {
+			AuthorizationRequest.parse(httpRequest);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("HTTP GET or POST expected", e.getMessage());
 		}
 	}
 }
