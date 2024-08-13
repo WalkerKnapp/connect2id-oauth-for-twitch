@@ -27,8 +27,8 @@ import com.nimbusds.oauth2.sdk.ParseException;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 5.6.
- *     <li>OpenID Connect Discovery 1.0, section 3.
+ *     <li>OpenID Connect Core 1.0
+ *     <li>OpenID Connect Discovery 1.0
  * </ul>
  */
 public enum ClaimType {

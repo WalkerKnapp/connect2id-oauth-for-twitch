@@ -18,15 +18,15 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
+import com.nimbusds.common.contenttype.ContentType;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import net.jcip.annotations.Immutable;
 import net.minidev.json.JSONObject;
 
-import com.nimbusds.common.contenttype.ContentType;
-import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -59,7 +59,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 5.2.
+ *     <li>OAuth 2.0 (RFC 6749)
  * </ul>
  */
 @Immutable
@@ -120,11 +120,7 @@ public class TokenErrorResponse extends TokenResponse implements ErrorResponse {
 	 *              error response. Must not be {@code null}.
 	 */
 	public TokenErrorResponse(final ErrorObject error) {
-	
-		if (error == null)
-			throw new IllegalArgumentException("The error must not be null");
-			
-		this.error = error;
+		this.error = Objects.requireNonNull(error);
 	}
 
 
@@ -175,9 +171,7 @@ public class TokenErrorResponse extends TokenResponse implements ErrorResponse {
 		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
 		httpResponse.setCacheControl("no-store");
 		httpResponse.setPragma("no-cache");
-		
-		httpResponse.setContent(toJSONObject().toString());
-		
+		httpResponse.setBody(toJSONObject().toString());
 		return httpResponse;
 	}
 

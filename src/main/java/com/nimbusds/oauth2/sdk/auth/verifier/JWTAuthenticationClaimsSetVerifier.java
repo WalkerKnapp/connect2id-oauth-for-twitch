@@ -35,7 +35,7 @@ import com.nimbusds.oauth2.sdk.id.Audience;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 9.
+ *     <li>OpenID Connect Core 1.0
  *     <li>JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and
  *         Authorization Grants (RFC 7523).
  * </ul>

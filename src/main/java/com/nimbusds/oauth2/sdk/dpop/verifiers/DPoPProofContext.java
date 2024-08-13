@@ -21,6 +21,8 @@ package com.nimbusds.oauth2.sdk.dpop.verifiers;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.util.Base64URL;
 
+import java.util.Objects;
+
 
 /**
  * DPoP proof JWT verification context.
@@ -46,10 +48,7 @@ class DPoPProofContext implements SecurityContext {
 	 *
 	 */
 	public DPoPProofContext(final DPoPIssuer issuer) {
-		if (issuer == null) {
-			throw new IllegalArgumentException("The DPoP issuer must not be null");
-		}
-		this.issuer = issuer;
+		this.issuer = Objects.requireNonNull(issuer);
 	}
 	
 	

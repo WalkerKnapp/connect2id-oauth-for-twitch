@@ -18,14 +18,14 @@
 package com.nimbusds.oauth2.sdk.id;
 
 
-import java.io.Serializable;
-import java.util.Objects;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import net.jcip.annotations.Immutable;
 import net.minidev.json.JSONAware;
 import net.minidev.json.JSONObject;
+
+import java.io.Serializable;
+import java.util.Objects;
 
 
 /**
@@ -75,10 +75,7 @@ public final class Actor implements Serializable, Comparable<Actor>, JSONAware {
 	 * @param parent  Optional parent for the actor, {@code null} if none.
 	 */
 	public Actor(final Subject subject, final Issuer issuer, final Actor parent) {
-		if (subject == null) {
-			throw new IllegalArgumentException("The subject must not be null");
-		}
-		this.subject = subject;
+		this.subject = Objects.requireNonNull(subject);
 		this.issuer = issuer;
 		this.parent = parent;
 	}

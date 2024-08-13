@@ -44,10 +44,10 @@ import java.util.Map;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Token Introspection (RFC 7662).
- *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 9.2.
+ *     <li>OAuth 2.0 Token Introspection (RFC 7662)
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
- *         Access Tokens (RFC 8705).
+ *         Access Tokens (RFC 8705)
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
  *         (DPoP) (RFC 9449)
  * </ul>
@@ -848,7 +848,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 
 		HTTPResponse httpResponse = new HTTPResponse(HTTPResponse.SC_OK);
 		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
-		httpResponse.setContent(params.toJSONString());
+		httpResponse.setBody(params.toJSONString());
 		return httpResponse;
 	}
 
@@ -890,7 +890,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 		throws ParseException {
 
 		httpResponse.ensureStatusCode(HTTPResponse.SC_OK);
-		JSONObject jsonObject = httpResponse.getContentAsJSONObject();
+		JSONObject jsonObject = httpResponse.getBodyAsJSONObject();
 		return parse(jsonObject);
 	}
 }

@@ -78,7 +78,7 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *      <li>OpenID Connect CIBA Flow - Core 1.0, section 7.1.
+ *      <li>OpenID Connect CIBA Flow - Core 1.0
  * </ul>
  */
 @Immutable
@@ -361,13 +361,8 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		public Builder(final ClientAuthentication clientAuth,
 			       final Scope scope) {
 			
-			if (clientAuth == null) {
-				throw new IllegalArgumentException("The client authentication must not be null");
-			}
-			this.clientAuth = clientAuth;
-			
+			this.clientAuth = Objects.requireNonNull(clientAuth);
 			this.scope = scope;
-			
 			signedRequest = null;
 		}
 		
@@ -383,16 +378,8 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		public Builder(final ClientAuthentication clientAuth,
 			       final SignedJWT signedRequest) {
 			
-			if (clientAuth == null) {
-				throw new IllegalArgumentException("The client authentication must not be null");
-			}
-			this.clientAuth = clientAuth;
-			
-			if (signedRequest == null) {
-				throw new IllegalArgumentException("The signed request JWT must not be null");
-			}
-			this.signedRequest = signedRequest;
-			
+			this.clientAuth = Objects.requireNonNull(clientAuth);
+			this.signedRequest = Objects.requireNonNull(signedRequest);
 			scope = null;
 		}
 		

@@ -17,17 +17,16 @@
 
 package com.nimbusds.oauth2.sdk.ciba;
 
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.Identifier;
+import net.jcip.annotations.Immutable;
 
 
 /**
  * CIBA token delivery mode.
  *
  * <ul>
- *      <li>OpenID Connect CIBA Flow - Core 1.0, section 5.
+ *      <li>OpenID Connect CIBA Flow - Core 1.0
  * </ul>
  */
 @Immutable
@@ -64,7 +63,6 @@ public final class BackChannelTokenDeliveryMode extends Identifier {
 	 *              {@code null}.
 	 */
 	public BackChannelTokenDeliveryMode(final String value) {
-
 		super(value);
 	}
 	

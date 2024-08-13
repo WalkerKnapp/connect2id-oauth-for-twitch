@@ -18,20 +18,16 @@
 package com.nimbusds.oauth2.sdk.client;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.*;
 
 
 /**
@@ -49,10 +45,8 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591), section
- *         3.2.1.
- *     <li>OAuth 2.0 Dynamic Client Registration Management Protocol (RFC
- *         7592), section 3.
+ *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591)
+ *     <li>OAuth 2.0 Dynamic Client Registration Management Protocol (RFC 7592)
  * </ul>
  */
 @Immutable
@@ -170,22 +164,11 @@ public class ClientInformation {
 				 final URI registrationURI,
 				 final BearerAccessToken accessToken) {
 
-		if (id == null)
-			throw new IllegalArgumentException("The client identifier must not be null");
-		
-		this.id = id;
-
+		this.id = Objects.requireNonNull(id);
 		this.issueDate = issueDate;
-
-		if (metadata == null)
-			throw new IllegalArgumentException("The client metadata must not be null");
-
-		this.metadata = metadata;
-
+		this.metadata = Objects.requireNonNull(metadata);
 		this.secret = secret;
-
 		this.registrationURI = registrationURI;
-
 		this.accessToken = accessToken;
 	}
 
@@ -255,7 +238,7 @@ public class ClientInformation {
 	 */
 	public ClientType inferClientType() {
 
-		// The client must by unambiguously public, else it is marked as confidential
+		// The client must be unambiguously public, else it is marked as confidential
 
 		return secret == null
 			&& ClientAuthenticationMethod.NONE.equals(getMetadata().getTokenEndpointAuthMethod())

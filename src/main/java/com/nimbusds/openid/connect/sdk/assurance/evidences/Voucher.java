@@ -35,7 +35,7 @@ import com.nimbusds.openid.connect.sdk.claims.Address;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect for Identity Assurance 1.0, section 5.1.1.3.
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 public class Voucher {

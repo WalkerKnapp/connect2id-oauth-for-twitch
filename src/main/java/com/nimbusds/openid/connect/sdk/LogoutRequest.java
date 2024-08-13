@@ -72,7 +72,7 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect RP-Initiated Logout 1.0, section 2.
+ *     <li>OpenID Connect RP-Initiated Logout 1.0
  * </ul>
  */
 @Immutable

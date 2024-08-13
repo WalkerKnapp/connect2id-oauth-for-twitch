@@ -18,13 +18,6 @@
 package com.nimbusds.oauth2.sdk.client;
 
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ErrorResponse;
@@ -32,6 +25,13 @@ import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -73,9 +73,8 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591), section
- *         3.2.2.
- *     <li>OAuth 2.0 Bearer Token Usage (RFC 6750), section 3.1.
+ *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591)
+ *     <li>OAuth 2.0 Bearer Token Usage (RFC 6750)
  * </ul>
  */
 @Immutable
@@ -120,10 +119,7 @@ public class ClientRegistrationErrorResponse
 	 */
 	public ClientRegistrationErrorResponse(final ErrorObject error) {
 
-		if (error == null)
-			throw new IllegalArgumentException("The error must not be null");
-
-		this.error = error;
+		this.error = Objects.requireNonNull(error);
 	}
 
 
@@ -155,7 +151,7 @@ public class ClientRegistrationErrorResponse
 	 *
 	 * {
 	 *  "error":"invalid_redirect_uri",
-	 *  "error_description":"The redirection URI of http://sketchy.example.com is not allowed for this server."
+	 *  "error_description":"The redirection URI of https://sketchy.example.com is not allowed for this server."
 	 * }
 	 * </pre>
 	 *
@@ -190,7 +186,7 @@ public class ClientRegistrationErrorResponse
 
 			httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
 
-			httpResponse.setContent(jsonObject.toString());
+			httpResponse.setBody(jsonObject.toString());
 		}
 		
 		httpResponse.setCacheControl("no-store");

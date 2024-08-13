@@ -18,9 +18,8 @@
 package com.nimbusds.oauth2.sdk.auth;
 
 
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.oauth2.sdk.id.Identifier;
+import net.jcip.annotations.Immutable;
 
 
 /**
@@ -44,11 +43,10 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 2.3.
- *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591), section
- *         2.
+ *     <li>OAuth 2.0 (RFC 6749)
+ *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591)
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
- *         Access Tokens (RFC 8705), section 2.
+ *         Access Tokens (RFC 8705)
  *     <li>OpenID Connect Federation 1.0.
  * </ul>
  */

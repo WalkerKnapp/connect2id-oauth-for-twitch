@@ -18,15 +18,14 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 
 
 /**
@@ -36,8 +35,8 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 4.1.3.
- *     <li>Proof Key for Code Exchange by OAuth Public Clients (RFC 7636).
+ *     <li>OAuth 2.0 (RFC 6749)
+ *     <li>Proof Key for Code Exchange by OAuth Public Clients (RFC 7636)
  * </ul>
  */
 @Immutable
@@ -101,14 +100,8 @@ public class AuthorizationCodeGrant extends AuthorizationGrant {
 				      final CodeVerifier codeVerifier) {
 
 		super(GRANT_TYPE);
-
-		if (code == null)
-			throw new IllegalArgumentException("The authorisation code must not be null");
-
-		this.code = code;
-
+		this.code = Objects.requireNonNull(code);
 		this.redirectURI = redirectURI;
-
 		this.codeVerifier = codeVerifier;
 	}
 

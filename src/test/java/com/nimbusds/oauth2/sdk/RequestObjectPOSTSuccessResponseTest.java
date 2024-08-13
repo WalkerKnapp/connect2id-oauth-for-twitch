@@ -96,29 +96,29 @@ public class RequestObjectPOSTSuccessResponseTest extends TestCase {
 		try {
 			new RequestObjectPOSTSuccessResponse(null, audience, requestURI, exp);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The issuer must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 		
 		try {
 			new RequestObjectPOSTSuccessResponse(issuer, null, requestURI, exp);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The audience must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 		
 		try {
 			new RequestObjectPOSTSuccessResponse(issuer, audience, null, exp);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The request URI must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 		
 		try {
 			new RequestObjectPOSTSuccessResponse(issuer, audience, requestURI, null);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The request URI expiration time must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	

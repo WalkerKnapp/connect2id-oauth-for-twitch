@@ -18,8 +18,6 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -27,6 +25,9 @@ import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.SuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
+import net.jcip.annotations.Immutable;
+
+import java.util.Objects;
 
 
 /**
@@ -55,7 +56,7 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 5.3.2.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 @Immutable
@@ -83,12 +84,7 @@ public class UserInfoSuccessResponse
 	 * @param claimsSet The UserInfo claims set. Must not be {@code null}.
 	 */
 	public UserInfoSuccessResponse(final UserInfo claimsSet) {
-	
-		if (claimsSet == null)
-			throw new IllegalArgumentException("The claims must not be null");
-		
-		this.claimsSet = claimsSet;
-		
+		this.claimsSet = Objects.requireNonNull(claimsSet);
 		this.jwt = null;
 	}
 	
@@ -100,19 +96,13 @@ public class UserInfoSuccessResponse
 	 * @param jwt The UserInfo claims set. Must not be {@code null}.
 	 */
 	public UserInfoSuccessResponse(final JWT jwt) {
-	
-		if (jwt == null)
-			throw new IllegalArgumentException("The claims JWT must not be null");
-		
-		this.jwt = jwt;
-		
+		this.jwt = Objects.requireNonNull(jwt);
 		this.claimsSet = null;
 	}
 
 
 	@Override
 	public boolean indicatesSuccess() {
-
 		return true;
 	}
 	
@@ -182,7 +172,7 @@ public class UserInfoSuccessResponse
 			}
 		}
 		
-		httpResponse.setContent(content);
+		httpResponse.setBody(content);
 	
 		return httpResponse;
 	}
@@ -230,7 +220,7 @@ public class UserInfoSuccessResponse
 			UserInfo claimsSet;
 			
 			try {
-				claimsSet = new UserInfo(httpResponse.getContentAsJSONObject());
+				claimsSet = new UserInfo(httpResponse.getBodyAsJSONObject());
 				
 			} catch (Exception e) {
 				
@@ -245,7 +235,7 @@ public class UserInfoSuccessResponse
 			JWT jwt;
 			
 			try {
-				jwt = httpResponse.getContentAsJWT();
+				jwt = httpResponse.getBodyAsJWT();
 				
 			} catch (ParseException e) {
 			

@@ -31,14 +31,13 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * the actual authentication method used or level of assurance such as 
  * ITU-T X.1254 | ISO/IEC 29115 entity authentication assurance level.
  *
- * <p>The ACR is represented by a string or an URI string.
+ * <p>The ACR is represented by a string or a URI string.
  *
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 2.
+ *     <li>OpenID Connect Core 1.0
  *     <li>OpenID Connect Extended Authentication Profile (EAP) ACR Values 1.0
- *         - draft 00
  *     <li>RFC 6711
  *     <li>See ISO/IEC DIS 29115
  * </ul>

@@ -36,6 +36,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -44,7 +45,7 @@ import java.util.Map;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 3.1
+ *     <li>OAuth 2.0 (RFC 6749)
  *     <li>OAuth 2.0 Multiple Response Type Encoding Practices 1.0
  *     <li>OAuth 2.0 Form Post Response Mode 1.0
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
@@ -99,18 +100,10 @@ public abstract class AuthorizationResponse implements Response {
 					final Issuer issuer,
 					final ResponseMode rm) {
 
-		if (redirectURI == null) {
-			throw new IllegalArgumentException("The redirection URI must not be null");
-		}
-
-		this.redirectURI = redirectURI;
-		
+		this.redirectURI = Objects.requireNonNull(redirectURI);
 		jwtResponse = null;
-
 		this.state = state;
-		
 		this.issuer = issuer;
-
 		this.rm = rm;
 	}
 
@@ -125,22 +118,10 @@ public abstract class AuthorizationResponse implements Response {
 	 */
 	protected AuthorizationResponse(final URI redirectURI, final JWT jwtResponse, final ResponseMode rm) {
 
-		if (redirectURI == null) {
-			throw new IllegalArgumentException("The redirection URI must not be null");
-		}
-
-		this.redirectURI = redirectURI;
-
-		if (jwtResponse == null) {
-			throw new IllegalArgumentException("The JWT response must not be null");
-		}
-		
-		this.jwtResponse = jwtResponse;
-		
+		this.redirectURI = Objects.requireNonNull(redirectURI);
+		this.jwtResponse = Objects.requireNonNull(jwtResponse);
 		this.state = null;
-		
 		this.issuer = null;
-
 		this.rm = rm;
 	}
 

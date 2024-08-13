@@ -18,14 +18,14 @@
 package com.nimbusds.oauth2.sdk.ciba;
 
 
-import java.net.URI;
-
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ProtectedResourceRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.Objects;
 
 
 /**
@@ -34,7 +34,7 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
  * <p>Related specifications:
  *
  * <ul>
- *      <li>OpenID Connect CIBA Flow - Core 1.0, section 12.3.
+ *      <li>OpenID Connect CIBA Flow - Core 1.0
  * </ul>
  */
 public abstract class CIBAPushCallback extends ProtectedResourceRequest {
@@ -59,11 +59,7 @@ public abstract class CIBAPushCallback extends ProtectedResourceRequest {
 				final BearerAccessToken accessToken,
 				final AuthRequestID authRequestID) {
 		super(endpoint, accessToken);
-		
-		if (authRequestID == null) {
-			throw new IllegalArgumentException("The auth_req_id must not be null");
-		}
-		this.authRequestID = authRequestID;
+		this.authRequestID = Objects.requireNonNull(authRequestID);
 	}
 	
 	
@@ -122,7 +118,7 @@ public abstract class CIBAPushCallback extends ProtectedResourceRequest {
 	public static CIBAPushCallback parse(final HTTPRequest httpRequest)
 		throws ParseException {
 		
-		JSONObject jsonObject = httpRequest.getQueryAsJSONObject();
+		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
 		
 		if (jsonObject.containsKey("error")) {
 			return CIBAErrorDelivery.parse(httpRequest);

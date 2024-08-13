@@ -21,6 +21,7 @@ package com.nimbusds.oauth2.sdk;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 
 import java.net.URI;
+import java.util.Objects;
 
 
 /**
@@ -59,11 +60,7 @@ public abstract class AbstractAuthenticatedRequest extends AbstractRequest {
 					       final ClientAuthentication clientAuth) {
 
 		super(endpoint);
-
-		if (clientAuth == null) {
-			throw new IllegalArgumentException("The client authentication must not be null");
-		}
-		this.clientAuth = clientAuth;
+		this.clientAuth = Objects.requireNonNull(clientAuth);
 	}
 
 

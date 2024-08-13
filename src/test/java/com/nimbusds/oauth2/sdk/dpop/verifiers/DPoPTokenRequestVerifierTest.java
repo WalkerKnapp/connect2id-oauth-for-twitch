@@ -18,12 +18,6 @@
 package com.nimbusds.oauth2.sdk.dpop.verifiers;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.Date;
-
-import junit.framework.TestCase;
-
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
@@ -38,6 +32,11 @@ import com.nimbusds.oauth2.sdk.dpop.DefaultDPoPProofFactory;
 import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.openid.connect.sdk.Nonce;
+import junit.framework.TestCase;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.Date;
 
 
 public class DPoPTokenRequestVerifierTest extends TestCase {
@@ -349,7 +348,7 @@ public class DPoPTokenRequestVerifierTest extends TestCase {
 	
 	public void testConstructor_nullEndpoint() {
 		
-		IllegalArgumentException exception = null;
+		NullPointerException exception = null;
 		try {
 			new DPoPTokenRequestVerifier(
 				Collections.singleton(JWSAlgorithm.RS256),
@@ -360,10 +359,10 @@ public class DPoPTokenRequestVerifierTest extends TestCase {
 					10
 				)
 			);
-		} catch (IllegalArgumentException e) {
+		} catch (NullPointerException e) {
 			exception = e;
 		}
 		
-		assertEquals("The token endpoint URI must not be null", exception.getMessage());
+		assertNull(exception.getMessage());
 	}
 }

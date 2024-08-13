@@ -144,9 +144,9 @@ public abstract class TLSClientAuthentication extends ClientAuthentication {
 		} else if (ct.matches(ContentType.APPLICATION_URLENCODED)) {
 			
 			// Token or similar request
-			Map<String, List<String>> params = new LinkedHashMap<>();
+			Map<String, List<String>> params;
 			try {
-				params.putAll(httpRequest.getBodyAsFormParameters());
+				params = new LinkedHashMap<>(httpRequest.getBodyAsFormParameters());
 			} catch (ParseException e) {
 				throw new SerializeException(e.getMessage(), e);
 			}

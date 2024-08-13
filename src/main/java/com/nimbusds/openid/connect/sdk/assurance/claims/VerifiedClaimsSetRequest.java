@@ -54,8 +54,8 @@ import com.nimbusds.openid.connect.sdk.claims.ClaimsSetRequest;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 5.5.
- *     <li>OpenID Connect for Identity Assurance 1.0, section 6.
+ *     <li>OpenID Connect Core 1.0
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  *
  * @deprecated Use

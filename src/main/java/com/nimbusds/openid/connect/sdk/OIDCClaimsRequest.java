@@ -64,8 +64,8 @@ import com.nimbusds.openid.connect.sdk.claims.ClaimsSetRequest;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 5.5.
- *     <li>OpenID Connect for Identity Assurance 1.0.
+ *     <li>OpenID Connect Core 1.0
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 @Immutable
@@ -112,17 +112,8 @@ public class OIDCClaimsRequest implements JSONAware {
 				  final List<VerifiedClaimsSetRequest> userInfoVerified) {
 		
 		this.idToken = idToken;
-		
 		this.userInfo = userInfo;
-		
-		if (idTokenVerified == null) {
-			throw new IllegalArgumentException("The ID token verified claims set request list must not be null");
-		}
 		this.idTokenVerified = Collections.unmodifiableList(idTokenVerified);
-		
-		if (userInfoVerified == null) {
-			throw new IllegalArgumentException("The UserInfo verified claims set request list must not be null");
-		}
 		this.userInfoVerified = Collections.unmodifiableList(userInfoVerified);
 	}
 	

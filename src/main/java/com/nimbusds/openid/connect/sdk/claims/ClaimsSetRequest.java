@@ -52,8 +52,8 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 5.5.
- *     <li>OpenID Connect for Identity Assurance 1.0.
+ *     <li>OpenID Connect Core 1.0
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 @Immutable
@@ -66,8 +66,8 @@ public class ClaimsSetRequest implements JSONAware {
 	 * <p>Related specifications:
 	 *
 	 * <ul>
-	 *     <li>OpenID Connect Core 1.0, section 5.5.1.
-	 *     <li>OpenID Connect for Identity Assurance 1.0.
+	 *     <li>OpenID Connect Core 1.0
+	 *     <li>OpenID Connect for Identity Assurance 1.0
 	 * </ul>
 	 */
 	@Immutable

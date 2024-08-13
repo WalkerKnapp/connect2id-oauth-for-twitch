@@ -18,18 +18,18 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-import java.util.Date;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.Date;
+import java.util.Objects;
 
 
 /**
@@ -53,10 +53,9 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>Financial-grade API - Part 2: Read and Write API Security Profile,
- *         section 7.
+ *     <li>Financial-grade API - Part 2: Read and Write API Security Profile
  *     <li>The OAuth 2.0 Authorization Framework: JWT Secured Authorization
- *         Request (JAR) (RFC 9101).
+ *         Request (JAR) (RFC 9101)
  * </ul>
  */
 @Deprecated
@@ -92,8 +91,8 @@ public final class RequestObjectPOSTSuccessResponse extends RequestObjectPOSTRes
 	 * Creates a new request object POST success response.
 	 *
 	 * @param iss        The issuer. Must not be {@code null}.
-	 * @param aud        The audience (the intended client IDMust not be
-	 *                   {@code null}.).
+	 * @param aud        The audience (the intended client ID). Must not be
+	 *                   {@code null}.
 	 * @param requestURI The request URI. Must not be {@code null}.
 	 * @param exp        The request URI expiration time. Must not be
 	 *                   {@code null}.
@@ -102,25 +101,10 @@ public final class RequestObjectPOSTSuccessResponse extends RequestObjectPOSTRes
 						final Audience aud,
 						final URI requestURI,
 						final Date exp) {
-		if (iss == null) {
-			throw new IllegalArgumentException("The issuer must not be null");
-		}
-		this.iss = iss;
-		
-		if (aud == null) {
-			throw new IllegalArgumentException("The audience must not be null");
-		}
-		this.aud = aud;
-		
-		if (requestURI == null) {
-			throw new IllegalArgumentException("The request URI must not be null");
-		}
-		this.requestURI = requestURI;
-		
-		if (exp == null) {
-			throw new IllegalArgumentException("The request URI expiration time must not be null");
-		}
-		this.exp = exp;
+		this.iss = Objects.requireNonNull(iss);
+		this.aud = Objects.requireNonNull(aud);
+		this.requestURI = Objects.requireNonNull(requestURI);
+		this.exp = Objects.requireNonNull(exp);
 	}
 	
 	

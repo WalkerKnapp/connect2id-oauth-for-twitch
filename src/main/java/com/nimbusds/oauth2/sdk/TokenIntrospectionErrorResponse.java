@@ -58,7 +58,7 @@ import com.nimbusds.oauth2.sdk.token.BearerTokenError;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Token Introspection (RFC 7662).
+ *     <li>OAuth 2.0 Token Introspection (RFC 7662)
  * </ul>
  */
 @Immutable
@@ -146,7 +146,7 @@ public class TokenIntrospectionErrorResponse extends TokenIntrospectionResponse 
 		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
 		httpResponse.setCacheControl("no-store");
 		httpResponse.setPragma("no-cache");
-		httpResponse.setContent(error.toJSONObject().toJSONString());
+		httpResponse.setBody(error.toJSONObject().toJSONString());
 
 		return httpResponse;
 	}

@@ -36,10 +36,7 @@ import net.jcip.annotations.ThreadSafe;
 
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -48,12 +45,12 @@ import java.util.Set;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), sections 2.3.1 and 3.2.1.
- *     <li>OpenID Connect Core 1.0, section 9.
+ *     <li>OAuth 2.0 (RFC 6749)
+ *     <li>OpenID Connect Core 1.0
  *     <li>JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7523).
+ *         Authorization Grants (RFC 7523)
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
- *         Access Tokens (RFC 8705), section 2.
+ *         Access Tokens (RFC 8705)
  * </ul>
  */
 @ThreadSafe
@@ -125,16 +122,9 @@ public class ClientAuthenticationVerifier<T> {
 					    final Set<Audience> expectedAudience) {
 
 		claimsSetVerifier = new JWTAuthenticationClaimsSetVerifier(expectedAudience);
-
-		if (clientCredentialsSelector == null) {
-			throw new IllegalArgumentException("The client credentials selector must not be null");
-		}
-		
 		this.certBindingVerifier = certBindingVerifier;
 		this.pkiCertBindingVerifier = null;
-
-		this.clientCredentialsSelector = clientCredentialsSelector;
-
+		this.clientCredentialsSelector = Objects.requireNonNull(clientCredentialsSelector);
 		this.expendedJTIChecker = null;
 	}
 
@@ -182,16 +172,9 @@ public class ClientAuthenticationVerifier<T> {
 					    final ExpendedJTIChecker<T> expendedJTIChecker) {
 
 		claimsSetVerifier = new JWTAuthenticationClaimsSetVerifier(expectedAudience);
-
-		if (clientCredentialsSelector == null) {
-			throw new IllegalArgumentException("The client credentials selector must not be null");
-		}
-
 		this.certBindingVerifier = null;
 		this.pkiCertBindingVerifier = null;
-
-		this.clientCredentialsSelector = clientCredentialsSelector;
-
+		this.clientCredentialsSelector = Objects.requireNonNull(clientCredentialsSelector);
 		this.expendedJTIChecker = expendedJTIChecker;
 	}
 	
@@ -252,14 +235,9 @@ public class ClientAuthenticationVerifier<T> {
 					    final long expMaxAhead) {
 
 		claimsSetVerifier = new JWTAuthenticationClaimsSetVerifier(expectedAudience, expMaxAhead);
-
-		if (clientCredentialsSelector == null) {
-			throw new IllegalArgumentException("The client credentials selector must not be null");
-		}
-
 		this.certBindingVerifier = null;
 		this.pkiCertBindingVerifier = pkiCertBindingVerifier;
-		this.clientCredentialsSelector = clientCredentialsSelector;
+		this.clientCredentialsSelector = Objects.requireNonNull(clientCredentialsSelector);
 		this.expendedJTIChecker = expendedJTIChecker;
 	}
 

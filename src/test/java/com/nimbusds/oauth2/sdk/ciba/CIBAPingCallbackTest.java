@@ -73,17 +73,17 @@ public class CIBAPingCallbackTest extends TestCase {
 
 
 	public void testAuthRequestIDNotNull() {
-		IllegalArgumentException exception = null;
+		NullPointerException exception = null;
 		try {
 			new CIBAPingCallback(
 				ENDPOINT,
 				new BearerAccessToken(),
 				null);
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (NullPointerException e) {
 			exception = e;
 		}
-		assertEquals("The auth_req_id must not be null", exception.getMessage());
+		assertNull(exception.getMessage());
 	}
 	
 	

@@ -39,7 +39,7 @@ import java.util.Map;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.6.
+ *     <li>OpenID Connect Back-Channel Logout 1.0
  * </ul>
  */
 @ThreadSafe

@@ -22,10 +22,7 @@ import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 import net.minidev.json.JSONObject;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -61,11 +58,7 @@ public class Tokens {
 	 */
 	public Tokens(final AccessToken accessToken, final RefreshToken refreshToken) {
 
-		if (accessToken == null)
-			throw new IllegalArgumentException("The access token must not be null");
-
-		this.accessToken = accessToken;
-
+		this.accessToken = Objects.requireNonNull(accessToken);
 		this.refreshToken = refreshToken;
 	}
 	

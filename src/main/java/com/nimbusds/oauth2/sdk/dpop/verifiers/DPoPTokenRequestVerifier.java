@@ -18,12 +18,6 @@
 package com.nimbusds.oauth2.sdk.dpop.verifiers;
 
 
-import java.net.URI;
-import java.util.Map;
-import java.util.Set;
-
-import net.jcip.annotations.ThreadSafe;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.SignedJWT;
@@ -31,6 +25,12 @@ import com.nimbusds.oauth2.sdk.dpop.JWKThumbprintConfirmation;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.util.singleuse.SingleUseChecker;
 import com.nimbusds.openid.connect.sdk.Nonce;
+import net.jcip.annotations.ThreadSafe;
+
+import java.net.URI;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -71,11 +71,7 @@ public class DPoPTokenRequestVerifier extends DPoPCommonVerifier {
 					final SingleUseChecker<Map.Entry<DPoPIssuer, JWTID>> singleUseChecker) {
 		
 		super(acceptedJWSAlgs, maxClockSkewSeconds, singleUseChecker);
-		
-		if (endpointURI == null) {
-			throw new IllegalArgumentException("The token endpoint URI must not be null");
-		}
-		this.endpointURI = endpointURI;
+		this.endpointURI = Objects.requireNonNull(endpointURI);
 	}
 	
 	

@@ -41,13 +41,13 @@ import com.nimbusds.openid.connect.sdk.claims.ClaimType;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Discovery 1.0, section 3
- *     <li>OpenID Connect Session Management 1.0, section 2.1 (draft 28)
- *     <li>OpenID Connect Front-Channel Logout 1.0, section 3 (draft 02)
- *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.1 (draft 07)
+ *     <li>OpenID Connect Discovery 1.0
+ *     <li>OpenID Connect Session Management 1.0
+ *     <li>OpenID Connect Front-Channel Logout 1.0
+ *     <li>OpenID Connect Back-Channel Logout 1.0
  *     <li>OpenID Connect Native SSO for Mobile Apps 1.0
- *     <li>OpenID Connect for Identity Assurance 1.0 (draft 12)
- *     <li>OpenID Connect Federation 1.0 (draft 22)
+ *     <li>OpenID Connect for Identity Assurance 1.0
+ *     <li>OpenID Connect Federation 1.0
  *     <li>OAuth 2.0 Authorization Server Metadata (RFC 8414)
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
  *         Access Tokens (RFC 8705)

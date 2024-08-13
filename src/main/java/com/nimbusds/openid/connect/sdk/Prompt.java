@@ -18,12 +18,11 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.util.*;
-
-import net.jcip.annotations.NotThreadSafe;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import net.jcip.annotations.NotThreadSafe;
+
+import java.util.*;
 
 
 /**
@@ -32,7 +31,7 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 3.1.2.1.
+ *     <li>OpenID Connect Core 1.0
  *     <li>Initiating User Registration via OpenID Connect 1.0
  * </ul>
  */
@@ -88,8 +87,8 @@ public class Prompt extends LinkedHashSet<Prompt.Type> {
 		 * end-user with an account creation user interface instead of
 		 * the normal login flow. Care must be taken if combining this
 		 * value with other prompt values. Mutually exclusive
-		 * conditions can arise so it is RECOMMENDED that create not be
-		 * present with any other values.
+		 * conditions can arise, so it is RECOMMENDED that create not
+		 * be present with any other values.
 		 */
 		CREATE;
 		
@@ -121,20 +120,21 @@ public class Prompt extends LinkedHashSet<Prompt.Type> {
 
 			if (StringUtils.isBlank(s))
 				throw new ParseException("Null or empty prompt type string");
-			
-			if ("none".equals(s)) {
-				return NONE;
-			} else if ("login".equals(s)) {
-				return LOGIN;
-			} else if ("consent".equals(s)) {
-				return CONSENT;
-			} else if ("select_account".equals(s)) {
-				return SELECT_ACCOUNT;
-			} else if ("create".equals(s)) {
-				return CREATE;
-			} else {
-				throw new ParseException("Unknown prompt type: " + s);
-			}
+
+                        switch (s) {
+                                case "none":
+                                        return NONE;
+                                case "login":
+                                        return LOGIN;
+                                case "consent":
+                                        return CONSENT;
+                                case "select_account":
+                                        return SELECT_ACCOUNT;
+                                case "create":
+                                        return CREATE;
+                                default:
+                                        throw new ParseException("Unknown prompt type: " + s);
+                        }
 		}
 	}
 	

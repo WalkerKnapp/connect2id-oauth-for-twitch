@@ -18,11 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
@@ -32,13 +27,16 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URIUtils;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.*;
 
 
 /**
  * Authorisation error response. Intended only for errors which are allowed to
  * be communicated back to the requesting OAuth 2.0 client, such as
- * {@code access_denied}. For a complete list see OAuth 2.0 (RFC 6749),
- * sections 4.1.2.1 and 4.2.2.1.
+ * {@code access_denied}.
  *
  * <p>If the authorisation request fails due to a missing, invalid, or
  * mismatching {@code redirect_uri}, or if the {@code client_id} is missing or
@@ -71,11 +69,11 @@ import com.nimbusds.oauth2.sdk.util.URIUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), sections 4.1.2.1 and 4.2.2.1.
- *     <li>OAuth 2.0 Multiple Response Type Encoding Practices 1.0.
- *     <li>OAuth 2.0 Form Post Response Mode 1.0.
+ *     <li>OAuth 2.0 (RFC 6749)
+ *     <li>OAuth 2.0 Multiple Response Type Encoding Practices 1.0
+ *     <li>OAuth 2.0 Form Post Response Mode 1.0
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
- *         OAuth 2.0 (JARM).
+ *         OAuth 2.0 (JARM)
  *     <li>OAuth 2.0 Authorization Server Issuer Identification (RFC 9207)
  * </ul>
  */

@@ -51,9 +51,9 @@ import java.util.*;
  *
  * <ul>
  *     <li>Assertion Framework for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7521).
+ *         Authorization Grants (RFC 7521)
  *     <li>JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7523).
+ *         Authorization Grants (RFC 7523)
  * </ul>
  */
 @Immutable

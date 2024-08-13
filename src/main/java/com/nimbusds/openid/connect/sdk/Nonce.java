@@ -38,7 +38,7 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 3.1.2.1. and 15.5.2.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 @Immutable

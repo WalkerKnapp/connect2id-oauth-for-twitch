@@ -18,12 +18,13 @@
 package com.nimbusds.openid.connect.sdk.id;
 
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import net.jcip.annotations.ThreadSafe;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 
 /**
@@ -39,7 +40,7 @@ import net.jcip.annotations.ThreadSafe;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 8.1.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 @ThreadSafe
@@ -58,10 +59,7 @@ public class HashBasedPairwiseSubjectCodec extends PairwiseSubjectCodec {
 	 * @param salt The salt, must not be {@code null}.
 	 */
 	public HashBasedPairwiseSubjectCodec(final byte[] salt) {
-		super(salt);
-		if (salt == null) {
-			throw new IllegalArgumentException("The salt must not be null");
-		}
+		super(Objects.requireNonNull(salt));
 	}
 
 

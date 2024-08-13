@@ -103,9 +103,8 @@ public class TokenExchangeGrantTest extends TestCase {
 		try {
 			new TokenExchangeGrant(null, null, null, null, null, null);
 			fail();
-		} catch (Exception e) {
-			assertTrue(e instanceof IllegalArgumentException);
-			assertEquals("The subject token must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	

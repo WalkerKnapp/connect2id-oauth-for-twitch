@@ -18,13 +18,12 @@
 package com.nimbusds.oauth2.sdk.dpop.verifiers;
 
 
-import junit.framework.TestCase;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.oauth2.sdk.dpop.DPoPUtils;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.DPoPAccessToken;
+import junit.framework.TestCase;
 
 
 public class DPoPProofContextTest extends TestCase {
@@ -54,13 +53,13 @@ public class DPoPProofContextTest extends TestCase {
 	
 	public void testConstructor_rejectNullIssuer() {
 		
-		IllegalArgumentException exception = null;
+		NullPointerException exception = null;
 		try {
 			new DPoPProofContext(null);
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (NullPointerException e) {
 			exception = e;
 		}
-		assertEquals("The DPoP issuer must not be null", exception.getMessage());
+		assertNull(exception.getMessage());
 	}
 }

@@ -33,7 +33,7 @@ import com.nimbusds.oauth2.sdk.util.date.SimpleDate;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect for Identity Assurance 1.0, section 5.1.1.1.
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 public class DocumentDetails {

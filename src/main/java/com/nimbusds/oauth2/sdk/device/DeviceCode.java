@@ -29,7 +29,7 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Device Authorization Grant (RFC 8628).
+ *     <li>OAuth 2.0 Device Authorization Grant (RFC 8628)
  * </ul>
  */
 @Immutable

@@ -21,7 +21,7 @@ import java.util.Objects;
  * https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#uri
  *
  * <ul>
- *     <li>OAuth 2.0 Token Exchange (RFC 8693), section 3.
+ *     <li>OAuth 2.0 Token Exchange (RFC 8693)
  * </ul>
  */
 @Immutable

@@ -41,7 +41,7 @@ import net.minidev.json.JSONObject;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, sections 5.1 and 5.6.2.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 public class AggregatedClaims extends ExternalClaims {

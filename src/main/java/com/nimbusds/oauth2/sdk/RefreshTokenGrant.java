@@ -23,10 +23,7 @@ import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import net.jcip.annotations.Immutable;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -35,7 +32,7 @@ import java.util.Map;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 6.
+ *     <li>OAuth 2.0 (RFC 6749)
  * </ul>
  */
 @Immutable
@@ -60,14 +57,8 @@ public class RefreshTokenGrant extends AuthorizationGrant {
 	 * @param refreshToken The refresh token. Must not be {@code null}.
 	 */
 	public RefreshTokenGrant(final RefreshToken refreshToken) {
-
-
 		super(GRANT_TYPE);
-
-		if (refreshToken == null)
-			throw new IllegalArgumentException("The refresh token must not be null");
-
-		this.refreshToken = refreshToken;
+		this.refreshToken = Objects.requireNonNull(refreshToken);
 	}
 
 

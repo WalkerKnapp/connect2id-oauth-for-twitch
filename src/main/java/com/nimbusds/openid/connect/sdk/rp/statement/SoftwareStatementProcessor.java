@@ -54,8 +54,7 @@ import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591), sections
- *         2.3 and 3.1.1.
+ *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591)
  * </ul>
  *
  * @param <C> Optional security context to pass to the underlying JWK source.

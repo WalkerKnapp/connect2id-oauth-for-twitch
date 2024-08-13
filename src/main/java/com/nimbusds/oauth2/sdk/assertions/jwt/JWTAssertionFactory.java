@@ -18,15 +18,6 @@
 package com.nimbusds.oauth2.sdk.assertions.jwt;
 
 
-import java.security.PrivateKey;
-import java.security.Provider;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.RSAPrivateKey;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -40,6 +31,15 @@ import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 
+import java.security.PrivateKey;
+import java.security.Provider;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 
 /**
  * Static JWT bearer assertion factory.
@@ -48,9 +48,9 @@ import com.nimbusds.oauth2.sdk.auth.Secret;
  *
  * <ul>
  *     <li>Assertion Framework for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7521).
+ *         Authorization Grants (RFC 7521)
  *     <li>JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7523).
+ *         Authorization Grants (RFC 7523)
  * </ul>
  */
 public class JWTAssertionFactory {

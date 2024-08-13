@@ -28,7 +28,7 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect for Identity Assurance 1.0, section 5.1.2 and 9.
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 public enum AttachmentType {

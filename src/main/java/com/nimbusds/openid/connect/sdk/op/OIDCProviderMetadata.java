@@ -59,13 +59,13 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Discovery 1.0, section 3.
- *     <li>OpenID Connect Session Management 1.0, section 2.1.
- *     <li>OpenID Connect Front-Channel Logout 1.0, section 3.
- *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.1.
+ *     <li>OpenID Connect Discovery 1.0
+ *     <li>OpenID Connect Session Management 1.0
+ *     <li>OpenID Connect Front-Channel Logout 1.0
+ *     <li>OpenID Connect Back-Channel Logout 1.0
  *     <li>OpenID Connect Native SSO for Mobile Apps 1.0
- *     <li>OpenID Connect for Identity Assurance 1.0 (draft 12).
- *     <li>OpenID Connect Federation 1.0 (draft 23).
+ *     <li>OpenID Connect for Identity Assurance 1.0
+ *     <li>OpenID Connect Federation 1.0
  *     <li>Initiating User Registration via OpenID Connect 1.0
  *     <li>OAuth 2.0 Authorization Server Metadata (RFC 8414)
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
@@ -77,8 +77,7 @@ import java.util.*;
  *     <li>OAuth 2.0 Pushed Authorization Requests (RFC 9126)
  *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
  *     <li>OAuth 2.0 Device Authorization Grant (RFC 8628)
- *     <li>OAuth 2.0 Incremental Authorization
- *         (draft-ietf-oauth-incremental-authz-04)
+ *     <li>OAuth 2.0 Incremental Authorization (draft-ietf-oauth-incremental-authz)
  * </ul>
  */
 public class OIDCProviderMetadata extends AuthorizationServerMetadata implements ReadOnlyOIDCProviderMetadata {
@@ -358,11 +357,7 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 		
 		ensureAtLeastOneSubjectType(subjectTypes);
 		this.subjectTypes = subjectTypes;
-
-		if (jwkSetURI == null)
-			throw new IllegalArgumentException("The public JWK set URI must not be null");
-
-		setJWKSetURI(jwkSetURI);
+		setJWKSetURI(Objects.requireNonNull(jwkSetURI));
 		
 		// Default OpenID Connect setting is supported
 		setSupportsRequestURIParam(true);

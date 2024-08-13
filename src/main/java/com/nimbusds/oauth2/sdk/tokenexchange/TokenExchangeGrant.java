@@ -1,10 +1,6 @@
 package com.nimbusds.oauth2.sdk.tokenexchange;
 
 
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
@@ -16,6 +12,9 @@ import com.nimbusds.oauth2.sdk.token.TypelessToken;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import net.jcip.annotations.Immutable;
+
+import java.util.*;
 
 
 /**
@@ -24,7 +23,7 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Token Exchange (RFC 8693).
+ *     <li>OAuth 2.0 Token Exchange (RFC 8693)
  * </ul>
  */
 @Immutable
@@ -119,17 +118,8 @@ public class TokenExchangeGrant extends AuthorizationGrant {
 				  final List<Audience> audience) {
 		
 		super(GRANT_TYPE);
-		
-		if (subjectToken == null) {
-			throw new IllegalArgumentException("The subject token must not be null");
-		}
-		this.subjectToken = subjectToken;
-		
-		if (subjectTokenType == null) {
-			throw new IllegalArgumentException("The subject token type must not be null");
-		}
-		this.subjectTokenType = subjectTokenType;
-		
+		this.subjectToken = Objects.requireNonNull(subjectToken);
+		this.subjectTokenType = Objects.requireNonNull(subjectTokenType);
 		this.actorToken = actorToken;
 		
 		if (actorToken != null && actorTokenType == null) {
@@ -138,7 +128,6 @@ public class TokenExchangeGrant extends AuthorizationGrant {
 		this.actorTokenType = actorTokenType;
 		
 		this.requestedTokenType = requestedTokenType;
-		
 		this.audience = audience;
 	}
 	

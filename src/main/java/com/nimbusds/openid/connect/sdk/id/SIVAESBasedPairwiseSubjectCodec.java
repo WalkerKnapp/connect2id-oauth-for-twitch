@@ -59,8 +59,8 @@ import org.cryptomator.siv.SivMode;
  *
  * <ul>
  *     <li>Synthetic Initialization Vector (SIV) Authenticated Encryption Using
- *         the Advanced Encryption Standard (AES) (RFC 5297).
- *     <li>OpenID Connect Core 1.0, section 8.1.
+ *         the Advanced Encryption Standard (AES) (RFC 5297)
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 @ThreadSafe
@@ -116,11 +116,7 @@ public class SIVAESBasedPairwiseSubjectCodec extends PairwiseSubjectCodec {
 	public SIVAESBasedPairwiseSubjectCodec(final SecretKey secretKey,
 					       final int padSubjectToLength) {
 		super(null);
-		
-		if (secretKey == null) {
-			throw new IllegalArgumentException("The SIV AES secret key must not be null");
-		}
-		
+
 		byte[] keyBytes = secretKey.getEncoded();
 		
 		switch (keyBytes.length) {

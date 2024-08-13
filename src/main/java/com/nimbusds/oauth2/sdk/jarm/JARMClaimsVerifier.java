@@ -18,9 +18,6 @@
 package com.nimbusds.oauth2.sdk.jarm;
 
 
-import java.util.Date;
-import java.util.List;
-
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.BadJWTException;
@@ -32,6 +29,10 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
 import net.jcip.annotations.ThreadSafe;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
 
 /**
  * JSON Web Token (JWT) encoded authorisation response claims verifier.
@@ -40,7 +41,7 @@ import net.jcip.annotations.ThreadSafe;
  *
  * <ul>
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
- *         OAuth 2.0 (JARM).
+ *         OAuth 2.0 (JARM)
  * </ul>
  */
 @ThreadSafe
@@ -79,16 +80,8 @@ public class JARMClaimsVerifier implements JWTClaimsSetVerifier, ClockSkewAware 
 				  final ClientID clientID,
 				  final int maxClockSkew) {
 		
-		if (issuer == null) {
-			throw new IllegalArgumentException("The expected ID token issuer must not be null");
-		}
-		this.expectedIssuer = issuer;
-		
-		if (clientID == null) {
-			throw new IllegalArgumentException("The client ID must not be null");
-		}
-		this.expectedClientID = clientID;
-		
+		this.expectedIssuer = Objects.requireNonNull(issuer);
+		this.expectedClientID = Objects.requireNonNull(clientID);
 		setMaxClockSkew(maxClockSkew);
 	}
 	

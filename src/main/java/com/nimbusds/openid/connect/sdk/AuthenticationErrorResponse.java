@@ -84,9 +84,9 @@ import com.nimbusds.oauth2.sdk.id.State;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 3.1.2.6
+ *     <li>OpenID Connect Core 1.0
  *     <li>OpenID Connect Core Unmet Authentication Requirements 1.0
- *     <li>OAuth 2.0 (RFC 6749), sections 4.1.2.1 and 4.2.2.1
+ *     <li>OAuth 2.0 (RFC 6749)
  *     <li>OAuth 2.0 Multiple Response Type Encoding Practices 1.0
  *     <li>OAuth 2.0 Form Post Response Mode 1.0
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for

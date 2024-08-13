@@ -18,17 +18,16 @@
 package com.nimbusds.oauth2.sdk.device;
 
 
-import java.net.URI;
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.*;
 
 
 /**
@@ -56,7 +55,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Device Authorization Grant (RFC 8628), section 3.2.
+ *     <li>OAuth 2.0 Device Authorization Grant (RFC 8628)
  * </ul>
  */
 @Immutable
@@ -183,20 +182,9 @@ public class DeviceAuthorizationSuccessResponse extends DeviceAuthorizationRespo
 	                                          final long interval,
 	                                          final Map<String, Object> customParams) {
 
-		if (deviceCode == null)
-			throw new IllegalArgumentException("The device_code must not be null");
-
-		this.deviceCode = deviceCode;
-
-		if (userCode == null)
-			throw new IllegalArgumentException("The user_code must not be null");
-
-		this.userCode = userCode;
-
-		if (verificationURI == null)
-			throw new IllegalArgumentException("The verification_uri must not be null");
-
-		this.verificationURI = verificationURI;
+		this.deviceCode = Objects.requireNonNull(deviceCode);
+		this.userCode = Objects.requireNonNull(userCode);
+		this.verificationURI = Objects.requireNonNull(verificationURI);
 
 		this.verificationURIComplete = verificationURIComplete;
 
@@ -384,7 +372,7 @@ public class DeviceAuthorizationSuccessResponse extends DeviceAuthorizationRespo
 		httpResponse.setCacheControl("no-store");
 		httpResponse.setPragma("no-cache");
 
-		httpResponse.setContent(toJSONObject().toString());
+		httpResponse.setBody(toJSONObject().toString());
 
 		return httpResponse;
 	}
@@ -478,7 +466,7 @@ public class DeviceAuthorizationSuccessResponse extends DeviceAuthorizationRespo
 	public static DeviceAuthorizationSuccessResponse parse(final HTTPResponse httpResponse) throws ParseException {
 
 		httpResponse.ensureStatusCode(HTTPResponse.SC_OK);
-		JSONObject jsonObject = httpResponse.getContentAsJSONObject();
+		JSONObject jsonObject = httpResponse.getBodyAsJSONObject();
 		return parse(jsonObject);
 	}
 }

@@ -18,19 +18,18 @@
 package com.nimbusds.oauth2.sdk.auth;
 
 
-import java.security.cert.X509Certificate;
-import java.util.List;
-import java.util.Map;
-import javax.net.ssl.SSLSocketFactory;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
-import com.nimbusds.oauth2.sdk.util.URLUtils;
+import net.jcip.annotations.Immutable;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.security.cert.X509Certificate;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -44,7 +43,7 @@ import com.nimbusds.oauth2.sdk.util.URLUtils;
  *
  * <ul>
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
- *         Access Tokens (RFC 8705), section 2.2.
+ *         Access Tokens (RFC 8705)
  * </ul>
  */
 @Immutable
@@ -82,11 +81,7 @@ public class SelfSignedTLSClientAuthentication extends TLSClientAuthentication {
 	public SelfSignedTLSClientAuthentication(final ClientID clientID,
 						 final X509Certificate certificate) {
 		
-		super(ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH, clientID, certificate);
-		
-		if (certificate == null) {
-			throw new IllegalArgumentException("The client X.509 certificate must not be null");
-		}
+		super(ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH, clientID, Objects.requireNonNull(certificate));
 	}
 	
 	
@@ -107,13 +102,7 @@ public class SelfSignedTLSClientAuthentication extends TLSClientAuthentication {
 	public static SelfSignedTLSClientAuthentication parse(final HTTPRequest httpRequest)
 		throws ParseException {
 		
-		String query = httpRequest.getQuery();
-		
-		if (query == null) {
-			throw new ParseException("Missing HTTP POST request entity body");
-		}
-		
-		Map<String,List<String>> params = URLUtils.parseParameters(query);
+		Map<String,List<String>> params = httpRequest.getBodyAsFormParameters();
 		
 		String clientIDString = MultivaluedMapUtils.getFirstValue(params, "client_id");
 		

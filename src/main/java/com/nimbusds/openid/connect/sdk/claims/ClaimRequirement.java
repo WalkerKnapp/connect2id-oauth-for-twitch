@@ -24,7 +24,7 @@ package com.nimbusds.openid.connect.sdk.claims;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 5.5.1.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 public enum ClaimRequirement {

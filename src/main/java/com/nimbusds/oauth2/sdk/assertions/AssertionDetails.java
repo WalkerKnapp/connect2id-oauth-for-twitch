@@ -18,10 +18,15 @@
 package com.nimbusds.oauth2.sdk.assertions;
 
 
+import com.nimbusds.oauth2.sdk.id.Audience;
+import com.nimbusds.oauth2.sdk.id.Identifier;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.Subject;
+import com.nimbusds.oauth2.sdk.util.CollectionUtils;
+
 import java.util.Date;
 import java.util.List;
-
-import com.nimbusds.oauth2.sdk.id.*;
+import java.util.Objects;
 
 
 /**
@@ -32,7 +37,7 @@ import com.nimbusds.oauth2.sdk.id.*;
  *
  * <ul>
  *     <li>Assertion Framework for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7521), section 5.1.
+ *         Authorization Grants (RFC 7521)
  * </ul>
  */
 public abstract class AssertionDetails {
@@ -97,29 +102,16 @@ public abstract class AssertionDetails {
 				final Date iat,
 				final Date exp,
 				final Identifier id) {
-		if (issuer == null)
-			throw new IllegalArgumentException("The issuer must not be null");
 
-		this.issuer = issuer;
+		this.issuer = Objects.requireNonNull(issuer);
+		this.subject = Objects.requireNonNull(subject);
 
-		if (subject == null)
-			throw new IllegalArgumentException("The subject must not be null");
-
-		this.subject = subject;
-
-
-		if (audience == null || audience.isEmpty())
+		if (CollectionUtils.isEmpty(audience))
 			throw new IllegalArgumentException("The audience must not be null or empty");
-
 		this.audience = audience;
 
-
-		if (exp == null)
-			throw new IllegalArgumentException("The expiration time must not be null");
-		this.exp = exp;
-
+		this.exp = Objects.requireNonNull(exp);
 		this.iat = iat;
-
 		this.id = id;
 	}
 	

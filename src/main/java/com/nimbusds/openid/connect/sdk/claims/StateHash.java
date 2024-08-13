@@ -32,7 +32,7 @@ import com.nimbusds.oauth2.sdk.id.State;
  *
  * <ul>
  *     <li>Financial Services – Financial API - Part 2: Read and Write API
- *         Security Profile, section 5.1.
+ *         Security Profile
  * </ul>
  */
 @Immutable

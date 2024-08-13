@@ -20,6 +20,8 @@ package com.nimbusds.oauth2.sdk.auth;
 
 import com.nimbusds.oauth2.sdk.id.ClientID;
 
+import java.util.Objects;
+
 
 /**
  * Base abstract class for plain secret based client authentication at the
@@ -28,8 +30,8 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), sections 2.3.1 and 3.2.1.
- *     <li>OpenID Connect Core 1.0, section 9.
+ *     <li>OAuth 2.0 (RFC 6749)
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 public abstract class PlainClientSecret extends ClientAuthentication {
@@ -54,12 +56,7 @@ public abstract class PlainClientSecret extends ClientAuthentication {
 				    final Secret secret) {
 
 		super(method, clientID);
-
-		if (secret == null) {
-			throw new IllegalArgumentException("The client secret must not be null");
-		}
-
-		this.secret = secret;
+		this.secret = Objects.requireNonNull(secret);
 	}
 
 

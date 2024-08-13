@@ -18,16 +18,15 @@
 package com.nimbusds.oauth2.sdk.as;
 
 
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import com.nimbusds.oauth2.sdk.util.OrderedJSONObject;
+import net.minidev.json.JSONObject;
+
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import net.minidev.json.JSONObject;
-
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
-import com.nimbusds.oauth2.sdk.util.OrderedJSONObject;
 
 
 /**
@@ -43,7 +42,7 @@ import com.nimbusds.oauth2.sdk.util.OrderedJSONObject;
  *     <li>OAuth 2.0 Device Authorization Grant (RFC 8628)
  *     <li>OpenID Connect Client Initiated Backchannel Authentication Flow -
  * 	   Core 1.0
- *     <li>OpenID Federation 1.0 (draft 22).
+ *     <li>OpenID Federation 1.0
  * </ul>
  */
 public class AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizationServerEndpointMetadata {

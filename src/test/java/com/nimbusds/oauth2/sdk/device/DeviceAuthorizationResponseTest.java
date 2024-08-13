@@ -155,8 +155,8 @@ public class DeviceAuthorizationResponseTest extends TestCase {
 		try {
 			new DeviceAuthorizationSuccessResponse(deviceCode, userCode, verificationUri, lifetime);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The device_code must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 
 		JSONObject o = new JSONObject();
@@ -168,7 +168,7 @@ public class DeviceAuthorizationResponseTest extends TestCase {
 		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
 		httpResponse.setCacheControl("no-store");
 		httpResponse.setPragma("no-cache");
-		httpResponse.setContent(o.toString());
+		httpResponse.setBody(o.toString());
 
 		try {
 			DeviceAuthorizationSuccessResponse.parse(httpResponse);
@@ -189,8 +189,8 @@ public class DeviceAuthorizationResponseTest extends TestCase {
 		try {
 			new DeviceAuthorizationSuccessResponse(deviceCode, userCode, verificationUri, lifetime);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The user_code must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 
 		JSONObject o = new JSONObject();
@@ -202,7 +202,7 @@ public class DeviceAuthorizationResponseTest extends TestCase {
 		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
 		httpResponse.setCacheControl("no-store");
 		httpResponse.setPragma("no-cache");
-		httpResponse.setContent(o.toString());
+		httpResponse.setBody(o.toString());
 
 		try {
 			DeviceAuthorizationSuccessResponse.parse(httpResponse);
@@ -223,8 +223,8 @@ public class DeviceAuthorizationResponseTest extends TestCase {
 		try {
 			new DeviceAuthorizationSuccessResponse(deviceCode, userCode, verificationUri, lifetime);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The verification_uri must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 
 		JSONObject o = new JSONObject();
@@ -236,7 +236,7 @@ public class DeviceAuthorizationResponseTest extends TestCase {
 		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
 		httpResponse.setCacheControl("no-store");
 		httpResponse.setPragma("no-cache");
-		httpResponse.setContent(o.toString());
+		httpResponse.setBody(o.toString());
 
 		try {
 			DeviceAuthorizationSuccessResponse.parse(httpResponse);

@@ -65,10 +65,8 @@ import java.util.Objects;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Dynamic Client Registration Management Protocol (RFC
- *         7592), section 2.2.
- *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591), section
- *         2.
+ *     <li>OAuth 2.0 Dynamic Client Registration Management Protocol (RFC 7592)
+ *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591)
  * </ul>
  */
 @Immutable

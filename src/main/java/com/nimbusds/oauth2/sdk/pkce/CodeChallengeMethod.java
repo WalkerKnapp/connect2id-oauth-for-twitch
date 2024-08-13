@@ -28,7 +28,7 @@ import net.jcip.annotations.Immutable;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>Proof Key for Code Exchange by OAuth Public Clients (RFC 7636).
+ *     <li>Proof Key for Code Exchange by OAuth Public Clients (RFC 7636)
  * </ul>
  */
 @Immutable

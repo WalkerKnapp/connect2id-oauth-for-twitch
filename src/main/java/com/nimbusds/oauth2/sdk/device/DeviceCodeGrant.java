@@ -18,18 +18,14 @@
 package com.nimbusds.oauth2.sdk.device;
 
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+import net.jcip.annotations.Immutable;
+
+import java.util.*;
 
 
 /**
@@ -65,11 +61,7 @@ public class DeviceCodeGrant extends AuthorizationGrant {
 	public DeviceCodeGrant(final DeviceCode deviceCode) {
 
 		super(GRANT_TYPE);
-
-		if (deviceCode == null)
-			throw new IllegalArgumentException("The device code must not be null");
-
-		this.deviceCode = deviceCode;
+		this.deviceCode = Objects.requireNonNull(deviceCode);
 	}
 
 

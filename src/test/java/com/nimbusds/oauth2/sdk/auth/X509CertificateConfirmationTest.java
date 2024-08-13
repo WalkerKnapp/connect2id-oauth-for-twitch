@@ -151,8 +151,8 @@ public class X509CertificateConfirmationTest extends TestCase {
 		try {
 			new X509CertificateConfirmation(null);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The X.509 certificate thumbprint must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	
@@ -174,7 +174,7 @@ public class X509CertificateConfirmationTest extends TestCase {
 			X509CertificateConfirmation.parse((JSONObject)null);
 			fail();
 		} catch (NullPointerException e) {
-			// ok;
+			assertEquals("Cannot invoke \"net.minidev.json.JSONObject.containsKey(Object)\" because \"jsonObject\" is null", e.getMessage());
 		}
 	}
 	

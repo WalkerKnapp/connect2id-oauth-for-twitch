@@ -37,8 +37,8 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), sections 2.3.1 and 3.2.1.
- *     <li>OpenID Connect Core 1.0, section 9.
+ *     <li>OAuth 2.0 (RFC 6749)
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 @Immutable
@@ -60,7 +60,7 @@ public final class ClientSecretPost extends PlainClientSecret {
 	@Override
 	public Set<String> getFormParameterNames() {
 		
-		return Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("client_id", "client_secret")));
+		return Collections.unmodifiableSet(new HashSet<>(Arrays.asList("client_id", "client_secret")));
 	}
 	
 	
@@ -102,9 +102,9 @@ public final class ClientSecretPost extends PlainClientSecret {
 		if (! ct.matches(ContentType.APPLICATION_URLENCODED))
 			throw new SerializeException("The HTTP Content-Type header must be " + ContentType.APPLICATION_URLENCODED);
 
-		Map<String, List<String>> params = new LinkedHashMap<>();
+		Map<String, List<String>> params;
 		try {
-			params.putAll(httpRequest.getBodyAsFormParameters());
+			params = new LinkedHashMap<>(httpRequest.getBodyAsFormParameters());
 		} catch (ParseException e) {
 			throw new SerializeException(e.getMessage(), e);
 		}

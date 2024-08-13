@@ -30,14 +30,14 @@ import java.net.URI;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>RFC 6749
+ *     <li>OAuth 2.0 (RFC 6749)
  * </ul>
  */
  public abstract class ProtectedResourceRequest extends AbstractRequest {
 
 
  	/**
-	 * OAuth 2.0 Bearer access token.
+	 * The access token (optional).
 	 */
 	private final AccessToken accessToken;
 	
@@ -48,8 +48,8 @@ import java.net.URI;
 	 * @param uri         The URI of the protected resource. May be 
 	 *                    {@code null} if the {@link #toHTTPRequest()}
 	 *                    method is not going to be used.
-	 * @param accessToken An OAuth 2.0 access token for the request, 
-	 *                    {@code null} if none.
+	 * @param accessToken An access token for the request, {@code null} if
+	 *                    none.
 	 */
 	protected ProtectedResourceRequest(final URI uri, final AccessToken accessToken) {
 		
@@ -60,9 +60,9 @@ import java.net.URI;
 
 
 	/**
-	 * Gets the OAuth 2.0 access token for this protected resource request.
+	 * Gets the access token for this protected resource request.
 	 *
-	 * @return The OAuth 2.0 access token, {@code null} if none.
+	 * @return The access token, {@code null} if none.
 	 */
 	public AccessToken getAccessToken() {
 

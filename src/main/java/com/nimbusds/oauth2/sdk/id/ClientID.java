@@ -33,7 +33,7 @@ import net.jcip.annotations.Immutable;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 2.2.
+ *     <li>OAuth 2.0 (RFC 6749)
  * </ul>
  */
 @Immutable

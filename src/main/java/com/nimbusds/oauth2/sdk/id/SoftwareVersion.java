@@ -27,8 +27,7 @@ import net.jcip.annotations.Immutable;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591), section
- *         2.
+ *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591)
  * </ul>
  */
 @Immutable

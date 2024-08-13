@@ -36,7 +36,7 @@ import java.util.Objects;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 2.
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
  * </ul>
  */
 public class AuthorizationDetail {
@@ -195,8 +195,7 @@ public class AuthorizationDetail {
          * @param jsonObject The JSON object. Must not be {@code null}.
          */
         private AuthorizationDetail(final JSONObject jsonObject) {
-                Objects.requireNonNull(jsonObject);
-                this.jsonObject = jsonObject;
+                this.jsonObject = Objects.requireNonNull(jsonObject);
         }
 
 

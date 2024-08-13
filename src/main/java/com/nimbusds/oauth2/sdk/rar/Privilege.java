@@ -27,7 +27,7 @@ import net.jcip.annotations.Immutable;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 2.2.
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
  * </ul>
  */
 @Immutable

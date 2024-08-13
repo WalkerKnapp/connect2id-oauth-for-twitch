@@ -18,13 +18,14 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.util.List;
-import java.util.Map;
-
 import com.nimbusds.oauth2.sdk.ciba.CIBAGrant;
 import com.nimbusds.oauth2.sdk.device.DeviceCodeGrant;
 import com.nimbusds.oauth2.sdk.tokenexchange.TokenExchangeGrant;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -47,7 +48,7 @@ import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), sections 1.3.
+ *     <li>OAuth 2.0 (RFC 6749)
  * </ul>
  */
 public abstract class AuthorizationGrant {
@@ -66,11 +67,7 @@ public abstract class AuthorizationGrant {
 	 *                           {@code null}.
 	 */
 	protected AuthorizationGrant(final GrantType type) {
-
-		if (type == null)
-			throw new IllegalArgumentException("The grant type must not be null");
-
-		this.type = type;
+		this.type = Objects.requireNonNull(type);
 	}
 
 

@@ -18,12 +18,12 @@
 package com.nimbusds.oauth2.sdk.ciba;
 
 
-import java.util.*;
-
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
+
+import java.util.*;
 
 
 /**
@@ -52,7 +52,7 @@ import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect CIBA Flow - Core 1.0, section 7.1.1.
+ *     <li>OpenID Connect CIBA Flow - Core 1.0
  * </ul>
  */
 public class CIBASignedRequestClaimsSet extends ClaimsSet {

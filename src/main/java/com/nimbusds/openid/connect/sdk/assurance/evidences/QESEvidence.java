@@ -34,7 +34,7 @@ import com.nimbusds.oauth2.sdk.util.date.DateWithTimeZoneOffset;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect for Identity Assurance 1.0, section 5.1.1.5.
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  *
  * @deprecated Use {@link ElectronicSignatureEvidence} instead.

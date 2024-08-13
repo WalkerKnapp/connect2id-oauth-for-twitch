@@ -37,10 +37,9 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>Financial-grade API - Part 2: Read and Write API Security Profile,
- *         section 7.
+ *     <li>Financial-grade API - Part 2: Read and Write API Security Profile
  *     <li>The OAuth 2.0 Authorization Framework: JWT Secured Authorization
- *         Request (JAR) (RFC 9101).
+ *         Request (JAR) (RFC 9101)
  * </ul>
  */
 @Deprecated

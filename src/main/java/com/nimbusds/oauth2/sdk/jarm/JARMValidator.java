@@ -73,7 +73,7 @@ import net.jcip.annotations.ThreadSafe;
  *
  * <ul>
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
- *         OAuth 2.0 (JARM).
+ *         OAuth 2.0 (JARM)
  * </ul>
  */
 @ThreadSafe
@@ -481,7 +481,7 @@ public class JARMValidator extends AbstractJWTValidator implements ClockSkewAwar
 	 *
 	 * @throws GeneralException If the resolved Authorisation Server / 
 	 *                          OpenID Provider metadata is invalid.
-	 * @throws IOException      On a HTTP exception.
+	 * @throws IOException      On an HTTP exception.
 	 */
 	public static JARMValidator create(final Issuer issuer,
 					   final ClientInformation clientInfo)
@@ -515,7 +515,7 @@ public class JARMValidator extends AbstractJWTValidator implements ClockSkewAwar
 	 *
 	 * @throws GeneralException If the resolved Authorisation Server / 
 	 *                          OpenID Provider metadata is invalid.
-	 * @throws IOException      On a HTTP exception.
+	 * @throws IOException      On an HTTP exception.
 	 */
 	public static JARMValidator create(final Issuer issuer,
 					   final ClientInformation clientInfo,

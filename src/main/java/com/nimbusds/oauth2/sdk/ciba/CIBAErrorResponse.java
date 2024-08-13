@@ -18,19 +18,19 @@
 package com.nimbusds.oauth2.sdk.ciba;
 
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ErrorResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -67,7 +67,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
  * <p>Related specifications:
  *
  * <ul>
- *      <li>OpenID Connect CIBA Flow - Core 1.0, sections 11, 12 and 13.
+ *      <li>OpenID Connect CIBA Flow - Core 1.0
  * </ul>
  */
 @Immutable
@@ -128,11 +128,7 @@ public class CIBAErrorResponse extends CIBAResponse implements ErrorResponse {
 	 *              error response. Must not be {@code null}.
 	 */
 	public CIBAErrorResponse(final ErrorObject error) {
-
-		if (error == null)
-			throw new IllegalArgumentException("The error must not be null");
-
-		this.error = error;
+		this.error = Objects.requireNonNull(error);
 	}
 
 	
@@ -179,7 +175,7 @@ public class CIBAErrorResponse extends CIBAResponse implements ErrorResponse {
 		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
 		httpResponse.setCacheControl("no-store");
 		httpResponse.setPragma("no-cache");
-		httpResponse.setContent(toJSONObject().toString());
+		httpResponse.setBody(toJSONObject().toString());
 
 		return httpResponse;
 	}

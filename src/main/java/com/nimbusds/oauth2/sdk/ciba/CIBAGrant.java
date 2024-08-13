@@ -18,15 +18,14 @@
 package com.nimbusds.oauth2.sdk.ciba;
 
 
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+import net.jcip.annotations.Immutable;
+
+import java.util.*;
 
 
 /**
@@ -35,7 +34,7 @@ import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
  * <p>Related specifications:
  *
  * <ul>
- *      <li>OpenID Connect CIBA Flow - Core 1.0.
+ *      <li>OpenID Connect CIBA Flow - Core 1.0
  * </ul>
  */
 @Immutable
@@ -63,11 +62,7 @@ public class CIBAGrant extends AuthorizationGrant {
 	public CIBAGrant(final AuthRequestID authRequestID) {
 		
 		super(GRANT_TYPE);
-		
-		if (authRequestID == null)
-			throw new IllegalArgumentException("The auth_req_id must not be null");
-		
-		this.authRequestID = authRequestID;
+		this.authRequestID = Objects.requireNonNull(authRequestID);
 	}
 	
 	

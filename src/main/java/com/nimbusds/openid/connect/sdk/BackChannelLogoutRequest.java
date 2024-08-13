@@ -51,7 +51,7 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.5.
+ *     <li>OpenID Connect Back-Channel Logout 1.0
  * </ul>
  */
 @Immutable

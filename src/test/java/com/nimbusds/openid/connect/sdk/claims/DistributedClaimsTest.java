@@ -242,8 +242,8 @@ public class DistributedClaimsTest extends TestCase {
 		try {
 			new DistributedClaims("src1", Collections.singleton("score"), null, new BearerAccessToken());
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The claims source URI must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 }

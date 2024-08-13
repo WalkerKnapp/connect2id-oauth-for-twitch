@@ -18,19 +18,16 @@
 package com.nimbusds.openid.connect.sdk.id;
 
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.nimbusds.jose.util.Resource;
 import com.nimbusds.jose.util.ResourceRetriever;
 import com.nimbusds.oauth2.sdk.GeneralException;
 import com.nimbusds.oauth2.sdk.ciba.BackChannelTokenDeliveryMode;
 import com.nimbusds.oauth2.sdk.util.JSONArrayUtils;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.*;
 
 
 /**
@@ -39,9 +36,9 @@ import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 8.1.
- *     <li>OpenID Connect Dynamic Client Registration 1.0, section 5.
- *     <li>OpenID Connect CIBA Flow - Core 1.0, section 4.
+ *     <li>OpenID Connect Core 1.0
+ *     <li>OpenID Connect Dynamic Client Registration 1.0
+ *     <li>OpenID Connect CIBA Flow - Core 1.0
  * </ul>
  */
 public class SectorIDURIValidator {
@@ -60,10 +57,7 @@ public class SectorIDURIValidator {
 	 *                          be {@code null}.
 	 */
 	public SectorIDURIValidator(final ResourceRetriever resourceRetriever) {
-		if (resourceRetriever == null) {
-			throw new IllegalArgumentException("The resource retriever must not be null");
-		}
-		this.resourceRetriever = resourceRetriever;
+		this.resourceRetriever = Objects.requireNonNull(resourceRetriever);
 	}
 
 

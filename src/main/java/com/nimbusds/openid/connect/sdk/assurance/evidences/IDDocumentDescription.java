@@ -36,7 +36,7 @@ import com.nimbusds.openid.connect.sdk.assurance.claims.ISO3166_1Alpha2CountryCo
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect for Identity Assurance 1.0, section 5.1.1.1.
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 @Deprecated

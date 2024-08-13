@@ -18,14 +18,14 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.Objects;
 
 
 /**
@@ -74,10 +74,7 @@ public class PushedAuthorizationSuccessResponse extends PushedAuthorizationRespo
 	 *                   positive integer.
 	 */
 	public PushedAuthorizationSuccessResponse(final URI requestURI, final long lifetime) {
-		if (requestURI == null) {
-			throw new IllegalArgumentException("The request URI must not be null");
-		}
-		this.requestURI = requestURI;
+		this.requestURI = Objects.requireNonNull(requestURI);
 		if (lifetime <= 0) {
 			throw new IllegalArgumentException("The request lifetime must be a positive integer");
 		}
@@ -140,7 +137,7 @@ public class PushedAuthorizationSuccessResponse extends PushedAuthorizationRespo
 		
 		HTTPResponse httpResponse = new HTTPResponse(HTTPResponse.SC_CREATED);
 		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
-		httpResponse.setContent(toJSONObject().toString());
+		httpResponse.setBody(toJSONObject().toString());
 		return httpResponse;
 	}
 	
@@ -181,7 +178,7 @@ public class PushedAuthorizationSuccessResponse extends PushedAuthorizationRespo
 		throws ParseException {
 		
 		httpResponse.ensureStatusCode(HTTPResponse.SC_CREATED, HTTPResponse.SC_OK);
-		JSONObject jsonObject = httpResponse.getContentAsJSONObject();
+		JSONObject jsonObject = httpResponse.getBodyAsJSONObject();
 		return parse(jsonObject);
 	}
 }

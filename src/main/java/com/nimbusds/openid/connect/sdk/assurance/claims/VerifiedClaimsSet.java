@@ -34,7 +34,7 @@ import com.nimbusds.openid.connect.sdk.claims.PersonClaims;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect for Identity Assurance 1.0, section 5.
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 public class VerifiedClaimsSet implements JSONAware {

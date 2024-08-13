@@ -59,7 +59,7 @@ import java.util.*;
  *     <li>OAuth 2.0 (RFC 6749)
  *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
  *     <li>Resource Indicators for OAuth 2.0 (RFC 8707)
- *     <li>OAuth 2.0 Incremental Authorization (draft-ietf-oauth-incremental-authz-04)
+ *     <li>OAuth 2.0 Incremental Authorization (draft-ietf-oauth-incremental-authz)
  *     <li>OpenID Connect Native SSO for Mobile Apps 1.0
  * </ul>
  */

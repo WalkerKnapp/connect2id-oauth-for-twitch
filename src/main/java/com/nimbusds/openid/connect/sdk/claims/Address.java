@@ -35,8 +35,8 @@ import com.nimbusds.openid.connect.sdk.assurance.claims.CountryCode;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 5.1.1.
- *     <li>OpenID Connect for Identity Assurance 1.0, section 4.3.
+ *     <li>OpenID Connect Core 1.0
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 public class Address extends ClaimsSet {

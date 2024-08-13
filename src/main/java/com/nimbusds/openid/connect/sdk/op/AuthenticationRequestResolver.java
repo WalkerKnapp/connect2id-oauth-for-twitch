@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import net.jcip.annotations.ThreadSafe;
 
@@ -58,7 +59,7 @@ import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 6.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 @ThreadSafe
@@ -101,9 +102,7 @@ public class AuthenticationRequestResolver<C extends SecurityContext> {
 	 *                     request objects. Must not be {@code null}.
 	 */
 	public AuthenticationRequestResolver(final JWTProcessor<C> jwtProcessor) {
-		if (jwtProcessor == null)
-			throw new IllegalArgumentException("The JWT processor must not be null");
-		this.jwtProcessor = jwtProcessor;
+		this.jwtProcessor = Objects.requireNonNull(jwtProcessor);
 		jwtRetriever = null;
 	}
 	
@@ -123,13 +122,8 @@ public class AuthenticationRequestResolver<C extends SecurityContext> {
 	 */
 	public AuthenticationRequestResolver(final JWTProcessor<C> jwtProcessor,
 					     final ResourceRetriever jwtRetriever) {
-		if (jwtProcessor == null)
-			throw new IllegalArgumentException("The JWT processor must not be null");
-		this.jwtProcessor = jwtProcessor;
-
-		if (jwtRetriever == null)
-			throw new IllegalArgumentException("The JWT retriever must not be null");
-		this.jwtRetriever = jwtRetriever;
+		this.jwtProcessor = Objects.requireNonNull(jwtProcessor);
+		this.jwtRetriever = Objects.requireNonNull(jwtRetriever);
 	}
 	
 	

@@ -40,7 +40,7 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Discovery 1.0, section 4.1.
+ *     <li>OpenID Connect Discovery 1.0
  * </ul>
  */
 @Immutable

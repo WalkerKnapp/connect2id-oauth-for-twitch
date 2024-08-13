@@ -67,19 +67,17 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591), section
- *         2.
+ *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591)
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
- *         Access Tokens (RFC 8705), sections 2.1.2 and 3.4.
- *     <li>OAuth 2.0 Demonstrating Proof of Possession (DPoP) (RFC 9449),
- *        section 5.2.
+ *         Access Tokens (RFC 8705)
+ *     <li>OAuth 2.0 Demonstrating Proof of Possession (DPoP) (RFC 9449)
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
- *         OAuth 2.0 (JARM).
+ *         OAuth 2.0 (JARM)
  *     <li>OAuth 2.0 Pushed Authorization Requests (RFC 9126)
- *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 10.
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
  *     <li>OpenID Connect Client Initiated Backchannel Authentication Flow -
  * 	   Core 1.0
- *     <li>OpenID Connect Federation 1.0 (draft 22)
+ *     <li>OpenID Connect Federation 1.0
  * </ul>
  */
 public class ClientMetadata {
@@ -527,7 +525,7 @@ public class ClientMetadata {
 	 * Gets the redirection URIs for this client as strings. Corresponds to
 	 * the {@code redirect_uris} client metadata field.
 	 *
-	 * <p>This short-hand method is intended to enable string-based URI
+	 * <p>This shorthand method is intended to enable string-based URI
 	 * comparison.
 	 *
 	 * @return The redirection URIs as strings, {@code null} if not

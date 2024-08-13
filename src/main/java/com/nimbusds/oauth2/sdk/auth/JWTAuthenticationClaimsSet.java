@@ -18,16 +18,15 @@
 package com.nimbusds.oauth2.sdk.auth;
 
 
-import java.util.Date;
-import java.util.List;
-
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.assertions.jwt.JWTAssertionDetails;
 import com.nimbusds.oauth2.sdk.id.*;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.minidev.json.JSONObject;
+
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -66,9 +65,9 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 3.2.1.
+ *     <li>OAuth 2.0 (RFC 6749)
  *     <li>JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7523).
+ *         Authorization Grants (RFC 7523)
  * </ul>
  */
 public class JWTAuthenticationClaimsSet extends JWTAssertionDetails {

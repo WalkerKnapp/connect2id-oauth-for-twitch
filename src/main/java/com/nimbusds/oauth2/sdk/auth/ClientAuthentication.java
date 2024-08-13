@@ -28,6 +28,7 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
 import javax.security.auth.x500.X500Principal;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -37,11 +38,11 @@ import java.util.Set;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 2.3.
+ *     <li>OAuth 2.0 (RFC 6749)
  *     <li>JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7523), section 2.2.
+ *         Authorization Grants (RFC 7523)
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
- *         Access Tokens (draft-ietf-oauth-mtls-15), section 2.
+ *         Access Tokens (RFC 8705)
  * </ul>
  */
 public abstract class ClientAuthentication {
@@ -68,16 +69,8 @@ public abstract class ClientAuthentication {
 	 */
 	protected ClientAuthentication(final ClientAuthenticationMethod method, final ClientID clientID) {
 	
-		if (method == null)
-			throw new IllegalArgumentException("The client authentication method must not be null");
-		
-		this.method = method;
-
-
-		if (clientID == null)
-			throw new IllegalArgumentException("The client identifier must not be null");
-
-		this.clientID = clientID;
+		this.method = Objects.requireNonNull(method);
+		this.clientID = Objects.requireNonNull(clientID);
 	}
 	
 	

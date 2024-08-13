@@ -33,10 +33,10 @@ import com.nimbusds.oauth2.sdk.as.ReadOnlyAuthorizationServerEndpointMetadata;
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
  *         Access Tokens (RFC 8705)
  *     <li>OAuth 2.0 Device Authorization Grant (RFC 8628)
- *     <li>OpenID Connect Discovery 1.0, section 3.
- *     <li>OpenID Connect Session Management 1.0, section 2.1.
- *     <li>OpenID Connect Front-Channel Logout 1.0, section 3.
- *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.1.
+ *     <li>OpenID Connect Discovery 1.0
+ *     <li>OpenID Connect Session Management 1.0
+ *     <li>OpenID Connect Front-Channel Logout 1.0
+ *     <li>OpenID Connect Back-Channel Logout 1.0
  * </ul>
  */
 public interface ReadOnlyOIDCProviderEndpointMetadata extends ReadOnlyAuthorizationServerEndpointMetadata {

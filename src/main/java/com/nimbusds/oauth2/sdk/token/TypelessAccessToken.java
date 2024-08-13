@@ -18,9 +18,8 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
-import net.minidev.json.JSONObject;
-
 import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
 
 
 /**
@@ -30,7 +29,7 @@ import net.jcip.annotations.Immutable;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), sections 1.4 and 5.1.
+ *     <li>OAuth 2.0 (RFC 6749)
  * </ul>
  */
 @Immutable

@@ -18,14 +18,14 @@
 package com.nimbusds.oauth2.sdk.assertions.saml2;
 
 
-import java.util.Date;
-import java.util.Set;
-
-import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.jwt.proc.ClockSkewAware;
+import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import net.jcip.annotations.Immutable;
+
+import java.util.Date;
+import java.util.Set;
 
 
 /**
@@ -43,7 +43,7 @@ import net.jcip.annotations.Immutable;
  *
  * <ul>
  *     <li>Security Assertion Markup Language (SAML) 2.0 Profile for OAuth 2.0
- *         Client Authentication and Authorization Grants (RFC 7522).
+ *         Client Authentication and Authorization Grants (RFC 7522)
  * </ul>
  */
 @Immutable

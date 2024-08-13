@@ -18,12 +18,13 @@
 package com.nimbusds.oauth2.sdk.client;
 
 
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import net.jcip.annotations.Immutable;
+
+import java.util.Objects;
 
 
 /**
@@ -59,10 +60,8 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Dynamic Client Registration Management Protocol (RFC
- *         7592), section 3.1.
- *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591), section
- *         3.2.1.
+ *     <li>OAuth 2.0 Dynamic Client Registration Management Protocol (RFC 7592)
+ *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591)
  * </ul>
  */
 @Immutable
@@ -94,11 +93,7 @@ public class ClientInformationResponse
 	public ClientInformationResponse(final ClientInformation clientInfo,
 					 final boolean forNewClient) {
 
-		if (clientInfo == null)
-			throw new IllegalArgumentException("The client information must not be null");
-
-		this.clientInfo = clientInfo;
-		
+		this.clientInfo = Objects.requireNonNull(clientInfo);
 		this.forNewClient = forNewClient;
 	}
 
@@ -141,7 +136,7 @@ public class ClientInformationResponse
 		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
 		httpResponse.setCacheControl("no-store");
 		httpResponse.setPragma("no-cache");
-		httpResponse.setContent(clientInfo.toJSONObject().toString());
+		httpResponse.setBody(clientInfo.toJSONObject().toString());
 		return httpResponse;
 	}
 
@@ -161,7 +156,7 @@ public class ClientInformationResponse
 		throws ParseException {
 
 		httpResponse.ensureStatusCode(HTTPResponse.SC_OK, HTTPResponse.SC_CREATED);
-		ClientInformation clientInfo = ClientInformation.parse(httpResponse.getContentAsJSONObject());
+		ClientInformation clientInfo = ClientInformation.parse(httpResponse.getBodyAsJSONObject());
 		boolean forNewClient = HTTPResponse.SC_CREATED == httpResponse.getStatusCode();
 		return new ClientInformationResponse(clientInfo, forNewClient);
 	}

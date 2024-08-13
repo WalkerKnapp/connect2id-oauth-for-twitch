@@ -19,6 +19,7 @@ package com.nimbusds.openid.connect.sdk.claims;
 
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -54,7 +55,7 @@ import net.minidev.json.JSONObject;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, sections 5.1 and 5.6.2.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 public class DistributedClaims extends ExternalClaims {
@@ -107,13 +108,7 @@ public class DistributedClaims extends ExternalClaims {
 	public DistributedClaims(final String sourceID, final Set<String> names, final URI sourceEndpoint, final AccessToken accessToken) {
 		
 		super(sourceID, names);
-		
-		if (sourceEndpoint == null) {
-			throw new IllegalArgumentException("The claims source URI must not be null");
-		}
-		
-		this.sourceEndpoint = sourceEndpoint;
-		
+		this.sourceEndpoint = Objects.requireNonNull(sourceEndpoint);
 		this.accessToken = accessToken;
 	}
 	

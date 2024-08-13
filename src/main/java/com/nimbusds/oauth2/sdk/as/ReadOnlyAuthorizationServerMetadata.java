@@ -65,9 +65,9 @@ import com.nimbusds.openid.connect.sdk.op.EndpointName;
  *     <li>OpenID Connect Client Initiated Backchannel Authentication Flow -
  * 	   Core 1.0
  *     <li>OAuth 2.0 Incremental Authorization
- *         (draft-ietf-oauth-incremental-authz-04)
+ *         (draft-ietf-oauth-incremental-authz)
  *     <li>Initiating User Registration via OpenID Connect 1.0
- *     <li>OpenID Connect Federation 1.0 (draft 22)
+ *     <li>OpenID Connect Federation 1.0
  * </ul>
  */
 public interface ReadOnlyAuthorizationServerMetadata extends ReadOnlyAuthorizationServerEndpointMetadata {

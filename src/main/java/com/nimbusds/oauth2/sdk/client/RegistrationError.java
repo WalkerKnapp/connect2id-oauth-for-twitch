@@ -37,10 +37,10 @@ public final class RegistrationError {
 	
 	
 	/**
-	 * Client registration: The value of one of the client meta data fields
+	 * Client registration: The value of one of the client metadata fields
 	 * is invalid and the server has rejected this request. Note that an 
 	 * authorisation server may choose to substitute a valid value for any 
-	 * requested parameter of a client's meta data. 
+	 * requested parameter of a client's metadata.
 	 */
 	public static final ErrorObject	INVALID_CLIENT_METADATA =
 		new ErrorObject("invalid_client_metadata", "Invalid client metadata field", HTTPResponse.SC_BAD_REQUEST);

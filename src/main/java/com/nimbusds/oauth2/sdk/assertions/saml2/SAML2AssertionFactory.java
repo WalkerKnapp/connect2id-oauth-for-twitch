@@ -18,12 +18,6 @@
 package com.nimbusds.oauth2.sdk.assertions.saml2;
 
 
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-
-import static com.nimbusds.oauth2.sdk.assertions.saml2.SAML2Utils.buildSAMLObject;
-import static net.shibboleth.utilities.java.support.xml.SerializeSupport.nodeToString;
-
 import com.nimbusds.oauth2.sdk.SerializeException;
 import net.jcip.annotations.ThreadSafe;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
@@ -38,6 +32,12 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Element;
 
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+
+import static com.nimbusds.oauth2.sdk.assertions.saml2.SAML2Utils.buildSAMLObject;
+import static net.shibboleth.utilities.java.support.xml.SerializeSupport.nodeToString;
+
 
 /**
  * Static SAML 2.0 bearer assertion factory.
@@ -46,9 +46,9 @@ import org.w3c.dom.Element;
  *
  * <ul>
  *     <li>Assertion Framework for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7521).
+ *         Authorization Grants (RFC 7521)
  *     <li>Security Assertion Markup Language (SAML) 2.0 Profile for OAuth 2.0
- *         Client Authentication and Authorization Grants (RFC 7522).
+ *         Client Authentication and Authorization Grants (RFC 7522)
  * </ul>
  */
 @ThreadSafe

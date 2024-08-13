@@ -25,10 +25,7 @@ import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import net.minidev.json.JSONObject;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -38,9 +35,9 @@ import java.util.Set;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), sections 1.4 and 5.1.
- *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 7.
- *     <li>OAuth 2.0 Token Exchange (RFC 8693), section 3.
+ *     <li>OAuth 2.0 (RFC 6749)
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
+ *     <li>OAuth 2.0 Token Exchange (RFC 8693)
  * </ul>
  */
 public abstract class AccessToken extends Token {
@@ -194,11 +191,7 @@ public abstract class AccessToken extends Token {
 
 		super(byteLength);
 
-		if (type == null)
-			throw new IllegalArgumentException("The access token type must not be null");
-
-		this.type = type;
-
+		this.type = Objects.requireNonNull(type);
 		this.lifetime = lifetime;
 		this.scope = scope;
 		this.authorizationDetails = authorizationDetails;
@@ -284,12 +277,7 @@ public abstract class AccessToken extends Token {
 			   final TokenTypeURI issuedTokenType) {
 
 		super(value);
-
-		if (type == null)
-			throw new IllegalArgumentException("The access token type must not be null");
-
-		this.type = type;
-
+		this.type = Objects.requireNonNull(type);
 		this.lifetime = lifetime;
 		this.scope = scope;
 		this.authorizationDetails = authorizationDetails;

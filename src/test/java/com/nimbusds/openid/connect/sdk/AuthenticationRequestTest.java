@@ -2581,8 +2581,8 @@ public class AuthenticationRequestTest extends TestCase {
 		try {
 			new AuthenticationRequest.Builder(new ResponseType("code"), new Scope("openid"), null, URI.create("https://example.com/cb"));
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The client ID must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 

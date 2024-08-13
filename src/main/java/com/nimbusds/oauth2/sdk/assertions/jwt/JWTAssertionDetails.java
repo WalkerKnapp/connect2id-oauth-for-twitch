@@ -59,7 +59,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  *
  * <ul>
  *     <li>JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7523), section 3.
+ *         Authorization Grants (RFC 7523)
  * </ul>
  */
 @Immutable

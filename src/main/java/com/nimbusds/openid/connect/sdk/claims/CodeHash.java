@@ -32,7 +32,7 @@ import com.nimbusds.oauth2.sdk.ResponseType;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 3.3.2.11.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 @Immutable
@@ -46,7 +46,7 @@ public final class CodeHash extends HashClaim {
 	 * Checks if an authorisation code hash claim must be included in ID
 	 * tokens for the specified response type.
 	 *
-	 * @param responseType The he OpenID Connect response type. Must not be
+	 * @param responseType The OpenID Connect response type. Must not be
 	 *                     {@code null}.
 	 *
 	 * @return {@code true} if the code hash is required, else

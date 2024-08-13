@@ -57,8 +57,8 @@ import com.nimbusds.openid.connect.sdk.assurance.claims.VerifiedClaimsSet;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, sections 5.1 and 5.6.
- *     <li>OpenID Connect for Identity Assurance 1.0, section 3.1.
+ *     <li>OpenID Connect Core 1.0
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 public class UserInfo extends PersonClaims {

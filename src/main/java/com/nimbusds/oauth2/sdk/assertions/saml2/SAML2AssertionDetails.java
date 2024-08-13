@@ -18,12 +18,6 @@
 package com.nimbusds.oauth2.sdk.assertions.saml2;
 
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.*;
-
-import static com.nimbusds.oauth2.sdk.assertions.saml2.SAML2Utils.buildSAMLObject;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.assertions.AssertionDetails;
@@ -43,6 +37,12 @@ import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.core.xml.schema.impl.XSStringBuilder;
 import org.opensaml.saml.saml2.core.*;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.*;
+
+import static com.nimbusds.oauth2.sdk.assertions.saml2.SAML2Utils.buildSAMLObject;
 
 
 /**
@@ -89,8 +89,7 @@ import org.opensaml.saml.saml2.core.*;
  *
  * <ul>
  *     <li>Security Assertion Markup Language (SAML) 2.0 Profile for OAuth 2.0
- *         Client Authentication and Authorization Grants (RFC 7522), section
- *         3.
+ *         Client Authentication and Authorization Grants (RFC 7522)
  * </ul>
  */
 @Immutable
@@ -196,16 +195,7 @@ public class SAML2AssertionDetails extends AssertionDetails {
 				     final InetAddress clientAddress,
 				     final Map<String,List<String>> attrStatement) {
 
-		super(issuer, subject, audience, iat, exp, id);
-
-		if (iat == null) {
-			throw new IllegalArgumentException("The issue time must not be null");
-		}
-
-		if (id == null) {
-			throw new IllegalArgumentException("The assertion identifier must not be null");
-		}
-
+		super(issuer, subject, audience, Objects.requireNonNull(iat), exp, Objects.requireNonNull(id));
 		this.subjectFormat = subjectFormat;
 		this.subjectAuthTime = subjectAuthTime;
 		this.subjectACR = subjectACR;

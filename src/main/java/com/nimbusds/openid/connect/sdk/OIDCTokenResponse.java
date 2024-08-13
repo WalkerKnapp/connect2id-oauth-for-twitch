@@ -18,15 +18,15 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 import net.jcip.annotations.Immutable;
 import net.minidev.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -60,8 +60,8 @@ import net.minidev.json.JSONObject;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 3.1.3.3.
- *     <li>OAuth 2.0 (RFC 6749), sections 4.1.4 and 5.1.
+ *     <li>OpenID Connect Core 1.0
+ *     <li>OAuth 2.0 (RFC 6749)
  * </ul>
  */
 @Immutable
@@ -192,7 +192,7 @@ public class OIDCTokenResponse extends AccessTokenResponse {
 		throws ParseException {
 		
 		httpResponse.ensureStatusCode(HTTPResponse.SC_OK);
-		JSONObject jsonObject = httpResponse.getContentAsJSONObject();
+		JSONObject jsonObject = httpResponse.getBodyAsJSONObject();
 		return parse(jsonObject);
 	}
 }

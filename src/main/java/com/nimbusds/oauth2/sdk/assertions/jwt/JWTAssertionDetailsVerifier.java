@@ -51,7 +51,7 @@ import java.util.Set;
  *
  * <ul>
  *     <li>JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7523).
+ *         Authorization Grants (RFC 7523)
  * </ul>
  */
 @Immutable

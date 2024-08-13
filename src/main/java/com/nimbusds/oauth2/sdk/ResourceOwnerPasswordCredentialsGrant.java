@@ -18,15 +18,11 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+import net.jcip.annotations.Immutable;
+
+import java.util.*;
 
 
 /**
@@ -36,7 +32,7 @@ import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 4.3.2.
+ *     <li>OAuth 2.0 (RFC 6749)
  * </ul>
  */
 @Immutable
@@ -73,16 +69,8 @@ public class ResourceOwnerPasswordCredentialsGrant extends AuthorizationGrant {
 						     final Secret password) {
 
 		super(GRANT_TYPE);
-
-		if (username == null)
-			throw new IllegalArgumentException("The username must not be null");
-
-		this.username = username;
-
-		if (password == null)
-			throw new IllegalArgumentException("The password must not be null");
-
-		this.password = password;
+		this.username = Objects.requireNonNull(username);
+		this.password = Objects.requireNonNull(password);
 	}
 
 

@@ -18,11 +18,6 @@
 package com.nimbusds.oauth2.sdk.ciba;
 
 
-import java.net.URI;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
@@ -30,6 +25,11 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.Objects;
 
 
 /**
@@ -69,7 +69,7 @@ import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
  * <p>Related specifications:
  *
  * <ul>
- *      <li>OpenID Connect CIBA Flow - Core 1.0, section 10.3.1.
+ *      <li>OpenID Connect CIBA Flow - Core 1.0
  * </ul>
  */
 @Immutable
@@ -99,11 +99,7 @@ public class CIBATokenDelivery extends CIBAPushCallback {
 				 final Tokens tokens) {
 		
 		super(endpoint, accessToken, authRequestID);
-		
-		if (tokens == null) {
-			throw new IllegalArgumentException("The tokens must not be null");
-		}
-		this.tokens = tokens;
+		this.tokens = Objects.requireNonNull(tokens);
 	}
 	
 	
@@ -124,11 +120,7 @@ public class CIBATokenDelivery extends CIBAPushCallback {
 				 final OIDCTokens oidcTokens) {
 		
 		super(endpoint, accessToken, authRequestID);
-		
-		if (oidcTokens == null) {
-			throw new IllegalArgumentException("The OpenID Connect tokens must not be null");
-		}
-		this.tokens = oidcTokens;
+		this.tokens = Objects.requireNonNull(oidcTokens);
 	}
 	
 	
@@ -192,14 +184,11 @@ public class CIBATokenDelivery extends CIBAPushCallback {
 		httpRequest.ensureEntityContentType(ContentType.APPLICATION_JSON);
 		
 		BearerAccessToken clientNotificationToken = BearerAccessToken.parse(httpRequest);
-		
-		AuthRequestID authRequestID = new AuthRequestID(
-			JSONObjectUtils.getString(
-				httpRequest.getQueryAsJSONObject(),
-				"auth_req_id"));
-		
-		JSONObject jsonObject = httpRequest.getQueryAsJSONObject();
-		
+
+		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
+
+		AuthRequestID authRequestID = AuthRequestID.parse(JSONObjectUtils.getString(jsonObject, "auth_req_id"));
+
 		if (jsonObject.get("id_token") != null) {
 			return new CIBATokenDelivery(
 				uri,

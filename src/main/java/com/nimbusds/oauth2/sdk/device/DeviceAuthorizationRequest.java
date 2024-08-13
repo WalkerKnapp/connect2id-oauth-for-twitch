@@ -326,10 +326,7 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 	                                  final Scope scope,
 	                                  final Map<String, List<String>> customParams) {
 
-		super(uri, clientAuth);
-
-		if (clientAuth == null)
-			throw new IllegalArgumentException("The client authentication must not be null");
+		super(uri, Objects.requireNonNull(clientAuth));
 
 		this.scope = scope;
 
@@ -346,7 +343,7 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 	 * request parameter names.
 	 *
 	 * @return The registered OAuth 2.0 device authorization request
-	 *         parameter names, as a unmodifiable set.
+	 *         parameter names, as an unmodifiable set.
 	 */
 	public static Set<String> getRegisteredParameterNames() {
 
@@ -368,7 +365,7 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 	/**
 	 * Returns the additional custom parameters.
 	 *
-	 * @return The additional custom parameters as a unmodifiable map,
+	 * @return The additional custom parameters as an unmodifiable map,
 	 *         empty map if none.
 	 */
 	public Map<String, List<String>> getCustomParameters() {

@@ -27,6 +27,8 @@ import junit.framework.TestCase;
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
+import javax.naming.NoPermissionException;
+
 
 public class PushedAuthorizationErrorResponseTest extends TestCase {
 	
@@ -127,8 +129,8 @@ public class PushedAuthorizationErrorResponseTest extends TestCase {
 		try {
 			new PushedAuthorizationErrorResponse(null);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The error must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	

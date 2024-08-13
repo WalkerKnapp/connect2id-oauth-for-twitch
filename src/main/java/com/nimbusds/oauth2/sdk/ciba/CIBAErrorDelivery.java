@@ -18,14 +18,6 @@
 package com.nimbusds.oauth2.sdk.ciba;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
@@ -33,6 +25,14 @@ import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -41,7 +41,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * <p>Related specifications:
  *
  * <ul>
- *      <li>OpenID Connect CIBA Flow - Core 1.0, section 12.
+ *      <li>OpenID Connect CIBA Flow - Core 1.0
  * </ul>
  */
 @Immutable
@@ -95,11 +95,7 @@ public class CIBAErrorDelivery extends CIBAPushCallback {
 				 final ErrorObject errorObject) {
 		
 		super(endpoint, accessToken, authRequestID);
-		
-		if (endpoint == null) {
-			throw new IllegalArgumentException("The error object must not be null");
-		}
-		this.errorObject = errorObject;
+		this.errorObject = Objects.requireNonNull(errorObject);
 	}
 	
 	
@@ -155,7 +151,7 @@ public class CIBAErrorDelivery extends CIBAPushCallback {
 		
 		AuthRequestID authRequestID = new AuthRequestID(
 			JSONObjectUtils.getString(
-				httpRequest.getQueryAsJSONObject(),
+				httpRequest.getBodyAsJSONObject(),
 				"auth_req_id")
 		);
 		

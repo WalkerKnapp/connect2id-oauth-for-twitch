@@ -51,9 +51,9 @@ import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
  *
  * <ul>
  *     <li>Assertion Framework for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7521), section 4.1.
+ *         Authorization Grants (RFC 7521)
  *     <li>JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7523), section-2.1.
+ *         Authorization Grants (RFC 7523)
  * </ul>
  */
 @Immutable

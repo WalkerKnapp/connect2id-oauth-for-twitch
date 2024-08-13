@@ -28,7 +28,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 3.1.2.6.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 public final class OIDCError {

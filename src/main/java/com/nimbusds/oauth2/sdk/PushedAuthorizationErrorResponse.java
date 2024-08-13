@@ -18,10 +18,11 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import net.jcip.annotations.Immutable;
+
+import java.util.Objects;
 
 
 /**
@@ -62,11 +63,7 @@ public class PushedAuthorizationErrorResponse extends PushedAuthorizationRespons
 	 * @param error The error. Must not be {@code null}.
 	 */
 	public PushedAuthorizationErrorResponse(final ErrorObject error) {
-		
-		if (error == null)
-			throw new IllegalArgumentException("The error must not be null");
-		
-		this.error = error;
+		this.error = Objects.requireNonNull(error);
 	}
 	
 	

@@ -59,7 +59,7 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Token Revocation (RFC 7009), section 2.1.
+ *     <li>OAuth 2.0 Token Revocation (RFC 7009)
  * </ul>
  */
 @Immutable

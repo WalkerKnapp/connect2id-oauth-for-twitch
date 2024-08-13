@@ -71,7 +71,7 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Token Introspection (RFC 7662).
+ *     <li>OAuth 2.0 Token Introspection (RFC 7662)
  * </ul>
  */
 @Immutable

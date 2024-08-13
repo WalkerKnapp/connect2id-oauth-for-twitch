@@ -56,7 +56,5 @@ class OIDCResponseTypeValidator {
 	/**
 	 * Prevents public instantiation.
 	 */
-	private OIDCResponseTypeValidator() {
-		
-	}
+	private OIDCResponseTypeValidator() {}
 }

@@ -27,13 +27,13 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * Authentication Method Reference ({@code amr}). It identifies the method
  * used in authentication.
  *
- * <p>The AMR is represented by a string or an URI string.
+ * <p>The AMR is represented by a string or a URI string.
  *
  * <p>Related specifications:
  *
  * <ul>
- *     <li>RFC 8176.
- *     <li>OpenID Connect Core 1.0, section 2.
+ *     <li>Authentication Method Reference Values (RFC 8176)
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 @Immutable

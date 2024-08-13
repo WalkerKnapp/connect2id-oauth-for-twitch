@@ -19,6 +19,7 @@ package com.nimbusds.openid.connect.sdk;
 
 
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 
 /**
@@ -27,7 +28,7 @@ import com.nimbusds.oauth2.sdk.ParseException;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 8.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 public enum SubjectType {
@@ -71,19 +72,14 @@ public enum SubjectType {
         public static SubjectType parse(final String s)
                 throws ParseException {
 
-                if (s == null || s.trim().isEmpty())
+                if (StringUtils.isBlank(s))
                         throw new ParseException("Null or empty subject type string");
 
 		if ("pairwise".equals(s)) {
-
 			return PAIRWISE;
-
 		} else if ("public".equals(s)) {
-
 			return PUBLIC;
-
 		} else {
-
 			throw new ParseException("Unknown subject type: " + s);
 		}
         }

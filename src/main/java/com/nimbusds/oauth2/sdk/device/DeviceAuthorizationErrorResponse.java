@@ -18,14 +18,6 @@
 package com.nimbusds.oauth2.sdk.device;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ErrorResponse;
@@ -33,6 +25,13 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -181,7 +180,7 @@ public class DeviceAuthorizationErrorResponse extends DeviceAuthorizationRespons
 		httpResponse.setCacheControl("no-store");
 		httpResponse.setPragma("no-cache");
 
-		httpResponse.setContent(toJSONObject().toString());
+		httpResponse.setBody(toJSONObject().toString());
 
 		return httpResponse;
 	}

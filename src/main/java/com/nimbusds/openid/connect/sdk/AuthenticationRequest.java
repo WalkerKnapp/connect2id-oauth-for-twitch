@@ -37,6 +37,7 @@ import com.nimbusds.oauth2.sdk.util.*;
 import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 import net.jcip.annotations.Immutable;
+import org.bouncycastle.asn1.cmp.OOBCert;
 
 import java.net.URI;
 import java.util.*;
@@ -62,20 +63,19 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 3.1.2.1.
- *     <li>Proof Key for Code Exchange by OAuth Public Clients (RFC 7636).
- *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396).
+ *     <li>OpenID Connect Core 1.0
+ *     <li>Proof Key for Code Exchange by OAuth Public Clients (RFC 7636)
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
  *     <li>Resource Indicators for OAuth 2.0 (RFC 8707)
- *     <li>OAuth 2.0 Incremental Authorization
- *         (draft-ietf-oauth-incremental-authz-04)
+ *     <li>OAuth 2.0 Incremental Authorization (draft-ietf-oauth-incremental-authz)
  *     <li>The OAuth 2.0 Authorization Framework: JWT Secured Authorization
  *         Request (JAR) (RFC 9101)
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
  *         OAuth 2.0 (JARM)
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
- *         (DPoP) (RFC 9449).
- *     <li>OpenID Connect Federation 1.0, section 10.1.
- *     <li>OpenID Connect for Identity Assurance 1.0, section 8.
+ *         (DPoP) (RFC 9449)
+ *     <li>OpenID Connect Federation 1.0
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 @Immutable
@@ -413,10 +413,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 
 			this.scope = scope;
 
-			if (clientID == null)
-				throw new IllegalArgumentException("The client ID must not be null");
-
-			this.clientID = clientID;
+			this.clientID = Objects.requireNonNull(clientID);
 
 			// Check presence at build time
 			this.redirectURI = redirectURI;
@@ -434,15 +431,8 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 */
 		public Builder(final JWT requestObject, final ClientID clientID) {
 			
-			if (requestObject == null)
-				throw new IllegalArgumentException("The request object must not be null");
-
-			this.requestObject = requestObject;
-			
-			if (clientID == null)
-				throw new IllegalArgumentException("The client ID must not be null");
-			
-			this.clientID = clientID;
+			this.requestObject = Objects.requireNonNull(requestObject);
+			this.clientID = Objects.requireNonNull(clientID);
 		}
 
 
@@ -456,15 +446,8 @@ public class AuthenticationRequest extends AuthorizationRequest {
 		 */
 		public Builder(final URI requestURI, final ClientID clientID) {
 			
-			if (requestURI == null)
-				throw new IllegalArgumentException("The request URI must not be null");
-
-			this.requestURI = requestURI;
-			
-			if (clientID == null)
-				throw new IllegalArgumentException("The client ID must not be null");
-			
-			this.clientID = clientID;
+			this.requestURI = Objects.requireNonNull(requestURI);
+			this.clientID = Objects.requireNonNull(clientID);
 		}
 		
 		
@@ -2434,7 +2417,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 	public static AuthenticationRequest parse(final HTTPRequest httpRequest)
 		throws ParseException {
 		
-		String query = httpRequest.getQuery();
+		String query = httpRequest.getQuery(); // TODO
 		
 		if (query == null)
 			throw new ParseException("Missing URI query string");

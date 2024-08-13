@@ -30,7 +30,7 @@ import com.nimbusds.oauth2.sdk.id.State;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, sections 3.1.2.5. and 3.1.2.6.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 public interface AuthenticationResponse extends Response {

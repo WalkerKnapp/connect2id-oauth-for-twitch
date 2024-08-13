@@ -18,20 +18,19 @@
 package com.nimbusds.oauth2.sdk.auth;
 
 
-import java.security.cert.X509Certificate;
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.Objects;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jose.util.X509CertUtils;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.cnf.AbstractConfirmation;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.security.cert.X509Certificate;
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -54,12 +53,7 @@ public final class X509CertificateConfirmation extends AbstractConfirmation {
 	 *                be {@code null}.
 	 */
 	public X509CertificateConfirmation(final Base64URL x5tS256) {
-		
-		if (x5tS256 == null) {
-			throw new IllegalArgumentException("The X.509 certificate thumbprint must not be null");
-		}
-		
-		this.x5tS256 = x5tS256;
+		this.x5tS256 = Objects.requireNonNull(x5tS256);
 	}
 	
 	

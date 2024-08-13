@@ -18,19 +18,18 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.oauth2.sdk.id.Identifier;
+import net.jcip.annotations.Immutable;
 
 
 /**
- * Authorisation code. A maximum authorization code lifetime of 10 minutes is 
+ * Authorisation code. A maximum authorisation code lifetime of 10 minutes is
  * recommended.
  *
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 1.3.1.
+ *     <li>OAuth 2.0 (RFC 6749)
  * </ul>
  */
 @Immutable

@@ -124,12 +124,13 @@ public class SelfSignedTLSClientAuthenticationTest extends TestCase {
 		throws Exception {
 		
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, new URL("https://c2id.com/token"));
+		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
 		
 		try {
 			SelfSignedTLSClientAuthentication.parse(httpRequest);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Missing HTTP POST request entity body", e.getMessage());
+			assertEquals("Missing client_id parameter", e.getMessage());
 		}
 	}
 	

@@ -34,7 +34,7 @@ import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect for Identity Assurance 1.0, section 4.1.
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 public final class Birthplace extends ClaimsSet {

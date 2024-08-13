@@ -18,17 +18,17 @@
 package com.nimbusds.oauth2.sdk.ciba;
 
 
-import java.net.URI;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ProtectedResourceRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.Objects;
 
 
 /**
@@ -50,7 +50,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * <p>Related specifications:
  *
  * <ul>
- *      <li>OpenID Connect CIBA Flow - Core 1.0, section 10.2
+ *      <li>OpenID Connect CIBA Flow - Core 1.0
  * </ul>
  */
 @Immutable
@@ -76,11 +76,7 @@ public class CIBAPingCallback extends ProtectedResourceRequest {
 				final BearerAccessToken accessToken,
 				final AuthRequestID authRequestID) {
 		super(endpoint, accessToken);
-		
-		if (authRequestID == null) {
-			throw new IllegalArgumentException("The auth_req_id must not be null");
-		}
-		this.authRequestID = authRequestID;
+		this.authRequestID = Objects.requireNonNull(authRequestID);
 	}
 	
 	
@@ -128,7 +124,7 @@ public class CIBAPingCallback extends ProtectedResourceRequest {
 		
 		AuthRequestID authRequestID = new AuthRequestID(
 			JSONObjectUtils.getString(
-			httpRequest.getQueryAsJSONObject(),
+			httpRequest.getBodyAsJSONObject(),
 			"auth_req_id")
 		);
 		

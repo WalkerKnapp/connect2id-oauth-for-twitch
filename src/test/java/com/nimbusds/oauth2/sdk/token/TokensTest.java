@@ -163,13 +163,13 @@ public class TokensTest extends TestCase {
 	}
 
 
-	public void testMissingAccessTokenException() {
+	public void testMissingAccessToken() {
 
 		try {
 			new Tokens(null, null);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The access token must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	

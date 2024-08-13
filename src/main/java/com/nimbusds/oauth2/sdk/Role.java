@@ -24,7 +24,7 @@ package com.nimbusds.oauth2.sdk;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 1.1.
+ *     <li>OAuth 2.0 (RFC 6749)
  * </ul>
  */
 public enum Role {

@@ -33,7 +33,7 @@ import net.jcip.annotations.ThreadSafe;
  *
  * <ul>
  *     <li>Financial Services – Financial API - Part 2: Read and Write API
- *         Security Profile, section 5.1.
+ *         Security Profile
  * </ul>
  */
 @ThreadSafe

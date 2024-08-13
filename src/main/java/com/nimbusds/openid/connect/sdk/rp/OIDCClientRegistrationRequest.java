@@ -64,9 +64,8 @@ import java.net.URI;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Dynamic Client Registration 1.0, section 3.1.
- *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591), sections
- *         2 and 3.1.
+ *     <li>OpenID Connect Dynamic Client Registration 1.0
+ *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591)
  * </ul>
  */
 @Immutable
@@ -147,7 +146,7 @@ public class OIDCClientRegistrationRequest extends ClientRegistrationRequest {
 		httpRequest.ensureMethod(HTTPRequest.Method.POST);
 
 		// Get the JSON object content
-		JSONObject jsonObject = httpRequest.getQueryAsJSONObject();
+		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
 
 		// Extract the software statement if any
 		SignedJWT stmt = null;

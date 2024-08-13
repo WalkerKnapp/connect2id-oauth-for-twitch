@@ -29,7 +29,7 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect for Identity Assurance 1.0, section 5.1.1.
+ *     <li>OpenID Connect for Identity Assurance 1.0
  *     <li>https://bitbucket.org/openid/ekyc-ida/wiki/identifiers
  * </ul>
  */

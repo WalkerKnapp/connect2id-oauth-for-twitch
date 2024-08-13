@@ -65,8 +65,8 @@ public class PushedAuthorizationSuccessResponseTest extends TestCase {
 		try {
 			new PushedAuthorizationSuccessResponse(null, 3600);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The request URI must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	

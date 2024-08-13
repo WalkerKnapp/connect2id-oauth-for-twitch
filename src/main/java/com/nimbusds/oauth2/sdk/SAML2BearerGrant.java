@@ -18,10 +18,7 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import net.jcip.annotations.Immutable;
 
@@ -37,9 +34,9 @@ import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
  *
  * <ul>
  *     <li>Assertion Framework for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7521), section 4.1.
+ *         Authorization Grants (RFC 7521)
  *     <li>SAML 2.0 Profile for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7522), section-2.1.
+ *         Authorization Grants (RFC 7522)
  * </ul>
  */
 @Immutable
@@ -67,11 +64,7 @@ public class SAML2BearerGrant extends AssertionGrant {
 	public SAML2BearerGrant(final Base64URL assertion) {
 
 		super(GRANT_TYPE);
-
-		if (assertion == null)
-			throw new IllegalArgumentException("The SAML 2.0 bearer assertion must not be null");
-
-		this.assertion = assertion;
+		this.assertion = Objects.requireNonNull(assertion);
 	}
 
 

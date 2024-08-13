@@ -61,14 +61,14 @@ public class JWKThumbprintConfirmationTest extends TestCase {
 	
 	public void testConstructor_rejectNull() {
 		
-		IllegalArgumentException exception = null;
+		NullPointerException exception = null;
 		try {
 			new JWKThumbprintConfirmation(null);
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (NullPointerException e) {
 			exception = e;
 		}
-		assertEquals("The JWK thumbprint must not be null", exception.getMessage());
+		assertNull(exception.getMessage());
 	}
 
 

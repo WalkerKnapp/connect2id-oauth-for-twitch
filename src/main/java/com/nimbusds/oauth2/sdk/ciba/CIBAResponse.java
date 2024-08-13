@@ -17,11 +17,10 @@
 
 package com.nimbusds.oauth2.sdk.ciba;
 
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Response;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import net.minidev.json.JSONObject;
 
 /**
  * CIBA response from an OpenID provider / OAuth 2.0 authorisation server
@@ -30,7 +29,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
  * <p>Related specifications:
  *
  * <ul>
- *      <li>OpenID Connect CIBA Flow - Core 1.0, section 7.3 and 13.
+ *      <li>OpenID Connect CIBA Flow - Core 1.0
  * </ul>
  */
 public abstract class CIBAResponse implements Response {

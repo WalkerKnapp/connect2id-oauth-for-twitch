@@ -71,9 +71,9 @@ import java.util.*;
  *     <li>OpenID Connect Client Initiated Backchannel Authentication Flow -
  * 	   Core 1.0
  *     <li>OAuth 2.0 Incremental Authorization
- *         (draft-ietf-oauth-incremental-authz-04)
+ *         (draft-ietf-oauth-incremental-authz)
  *     <li>Initiating User Registration via OpenID Connect 1.0
- *     <li>OpenID Connect Federation 1.0 (draft 23).
+ *     <li>OpenID Connect Federation 1.0
  * </ul>
  */
 public class AuthorizationServerMetadata extends AuthorizationServerEndpointMetadata implements ReadOnlyAuthorizationServerMetadata {

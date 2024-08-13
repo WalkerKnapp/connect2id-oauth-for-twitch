@@ -32,7 +32,7 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 8.1.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 @Immutable

@@ -54,10 +54,10 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 5.3.1.
- *     <li>OAuth 2.0 Bearer Token Usage (RFC6750), section 2.
+ *     <li>OpenID Connect Core 1.0
+ *     <li>OAuth 2.0 Bearer Token Usage (RFC6750)
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
- *         (DPoP) (RFC 9449), section 7.
+ *         (DPoP) (RFC 9449)
  * </ul>
  */
 @Immutable

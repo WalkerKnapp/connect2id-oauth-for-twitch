@@ -32,7 +32,7 @@ import net.jcip.annotations.ThreadSafe;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 3.3.2.10.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 @ThreadSafe

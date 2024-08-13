@@ -32,7 +32,7 @@ import com.nimbusds.oauth2.sdk.Scope;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Token Exchange (RFC 8693), section 2.2.1.
+ *     <li>OAuth 2.0 Token Exchange (RFC 8693)
  * </ul>
  */
 @Immutable

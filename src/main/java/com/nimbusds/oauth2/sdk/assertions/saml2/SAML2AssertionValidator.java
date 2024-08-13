@@ -18,18 +18,8 @@
 package com.nimbusds.oauth2.sdk.assertions.saml2;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.security.PublicKey;
-import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPublicKey;
-import javax.crypto.SecretKey;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import net.jcip.annotations.ThreadSafe;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
@@ -48,8 +38,18 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.id.Issuer;
+import javax.crypto.SecretKey;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.security.PublicKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Objects;
 
 
 /**
@@ -83,10 +83,7 @@ public class SAML2AssertionValidator {
 	 *                        not be {@code null}.
 	 */
 	public SAML2AssertionValidator(final SAML2AssertionDetailsVerifier detailsVerifier) {
-		if (detailsVerifier == null) {
-			throw new IllegalArgumentException("The SAML 2.0 assertion details verifier must not be null");
-		}
-		this.detailsVerifier = detailsVerifier;
+		this.detailsVerifier = Objects.requireNonNull(detailsVerifier);
 	}
 
 

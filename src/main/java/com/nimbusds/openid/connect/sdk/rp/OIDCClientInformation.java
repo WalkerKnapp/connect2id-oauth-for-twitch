@@ -50,11 +50,9 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Dynamic Client Registration 1.0.
- *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591), section
- *         3.2.1.
- *     <li>OAuth 2.0 Dynamic Client Registration Management Protocol (RFC
- *         7592), section 3.
+ *     <li>OpenID Connect Dynamic Client Registration 1.0
+ *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591)
+ *     <li>OAuth 2.0 Dynamic Client Registration Management Protocol (RFC 7592)
  * </ul>
  */
 @Immutable

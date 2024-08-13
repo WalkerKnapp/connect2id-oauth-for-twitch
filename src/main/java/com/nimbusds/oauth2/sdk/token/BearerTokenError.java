@@ -18,13 +18,12 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
-import java.net.URI;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
 
 
 /**
@@ -53,9 +52,8 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Bearer Token Usage (RFC 6750), section 3.1.
- *     <li>Hypertext Transfer Protocol (HTTP/1.1): Authentication (RFC 7235),
- *         section 4.1.
+ *     <li>OAuth 2.0 Bearer Token Usage (RFC 6750)
+ *     <li>Hypertext Transfer Protocol (HTTP/1.1): Authentication (RFC 7235)
  * </ul>
  */
 @Immutable

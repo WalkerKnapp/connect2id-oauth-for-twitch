@@ -18,13 +18,6 @@
 package com.nimbusds.oauth2.sdk.dpop;
 
 
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.Objects;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.util.Base64URL;
@@ -32,6 +25,12 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.cnf.AbstractConfirmation;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -53,12 +52,7 @@ public final class JWKThumbprintConfirmation extends AbstractConfirmation {
 	 * @param jkt The JWK SHA-256 thumbprint. Must not be {@code null}.
 	 */
 	public JWKThumbprintConfirmation(final Base64URL jkt) {
-		
-		if (jkt == null) {
-			throw new IllegalArgumentException("The JWK thumbprint must not be null");
-		}
-		
-		this.jkt = jkt;
+		this.jkt = Objects.requireNonNull(jkt);
 	}
 	
 	

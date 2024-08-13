@@ -18,14 +18,15 @@
 package com.nimbusds.oauth2.sdk.ciba;
 
 
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.util.Objects;
 
 
 /**
@@ -49,7 +50,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * <p>Related specifications:
  *
  * <ul>
- *      <li>OpenID Connect CIBA Flow - Core 1.0, section 7.3.
+ *      <li>OpenID Connect CIBA Flow - Core 1.0
  * </ul>
  */
 @Immutable
@@ -99,10 +100,7 @@ public class CIBARequestAcknowledgement extends CIBAResponse implements SuccessR
 		
 		super();
 		
-		if (authRequestID == null) {
-			throw new IllegalArgumentException("The auth_req_id must not be null");
-		}
-		this.authRequestID = authRequestID;
+		this.authRequestID = Objects.requireNonNull(authRequestID);
 		
 		if (expiresIn < 1) {
 			throw new IllegalArgumentException("The expiration must be a positive integer");
@@ -178,7 +176,7 @@ public class CIBARequestAcknowledgement extends CIBAResponse implements SuccessR
 		httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
 		httpResponse.setCacheControl("no-store");
 		httpResponse.setPragma("no-cache");
-		httpResponse.setContent(toJSONObject().toString());
+		httpResponse.setBody(toJSONObject().toString());
 		return httpResponse;
 	}
 
@@ -232,7 +230,7 @@ public class CIBARequestAcknowledgement extends CIBAResponse implements SuccessR
 		throws ParseException {
 
 		httpResponse.ensureStatusCode(HTTPResponse.SC_OK);
-		JSONObject jsonObject = httpResponse.getContentAsJSONObject();
+		JSONObject jsonObject = httpResponse.getBodyAsJSONObject();
 		return parse(jsonObject);
 	}
 }

@@ -52,11 +52,11 @@ import java.util.Map;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), sections 1.4 and 5.1.
+ *     <li>OAuth 2.0 (RFC 6749)
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
  *         (DPoP) (RFC 9449)
- *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 7.
- *     <li>OAuth 2.0 Token Exchange (RFC 8693), section 3.
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
+ *     <li>OAuth 2.0 Token Exchange (RFC 8693)
  * </ul>
  */
 @Immutable
@@ -225,7 +225,6 @@ public class DPoPAccessToken extends AccessToken {
 	}
 	
 	
-	
 	/**
 	 * Parses an HTTP request for a DPoP access token.
 	 * 
@@ -248,7 +247,7 @@ public class DPoPAccessToken extends AccessToken {
 
 		// Try alternative token locations, form and query string are
 		// parameters are not differentiated here
-		Map<String,List<String>> params = request.getQueryStringParameters();
+		Map<String,List<String>> params = request.getQueryParameters();
 		return parse(params);
 	}
 }

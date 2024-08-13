@@ -27,7 +27,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
  * <p>Related specifications:
  *
  * <ul>
- *      <li>OpenID Connect CIBA Flow - Core 1.0, sections 12 and 13.
+ *      <li>OpenID Connect CIBA Flow - Core 1.0
  * </ul>
  */
 public final class CIBAError {

@@ -32,7 +32,7 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>Proof Key for Code Exchange by OAuth Public Clients (RFC 7636).
+ *     <li>Proof Key for Code Exchange by OAuth Public Clients (RFC 7636)
  * </ul>
  */
 public class CodeChallenge extends Identifier {

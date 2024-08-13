@@ -29,8 +29,7 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect for Identity Assurance 1.0, sections 4.1.1.1 and
- *         11.2.
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 @Deprecated

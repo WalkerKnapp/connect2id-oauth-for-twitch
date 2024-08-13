@@ -18,12 +18,6 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ErrorResponse;
@@ -34,6 +28,12 @@ import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 import com.nimbusds.oauth2.sdk.token.DPoPTokenError;
 import com.nimbusds.oauth2.sdk.token.TokenSchemeError;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import net.jcip.annotations.Immutable;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -60,10 +60,10 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 5.3.3.
- *     <li>OAuth 2.0 Bearer Token Usage (RFC 6750), section 3.1.
+ *     <li>OpenID Connect Core 1.0
+ *     <li>OAuth 2.0 Bearer Token Usage (RFC 6750)
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
- *         (DPoP) (RFC 9449), section 7.
+ *         (DPoP) (RFC 9449)
  * </ul>
  */
 @Immutable
@@ -139,10 +139,7 @@ public class UserInfoErrorResponse
 	 */
 	public UserInfoErrorResponse(final ErrorObject error) {
 		
-		if (error == null)
-			throw new IllegalArgumentException("The error must not be null");
-		
-		this.error = error;
+		this.error = Objects.requireNonNull(error);
 	}
 
 
@@ -190,7 +187,7 @@ public class UserInfoErrorResponse
 			httpResponse.setWWWAuthenticate(((TokenSchemeError) error).toWWWAuthenticateHeader());
 		} else if (error != null){
 			httpResponse.setEntityContentType(ContentType.APPLICATION_JSON);
-			httpResponse.setContent(error.toJSONObject().toJSONString());
+			httpResponse.setBody(error.toJSONObject().toJSONString());
 		}
 
 		return httpResponse;

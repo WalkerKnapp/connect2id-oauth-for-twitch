@@ -26,7 +26,7 @@ package com.nimbusds.oauth2.sdk;
  *
  * <ul>
  *     <li>Assertion Framework for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7521), section 4.1.
+ *         Authorization Grants (RFC 7521)
  * </ul>
  */
 public abstract class AssertionGrant extends AuthorizationGrant {

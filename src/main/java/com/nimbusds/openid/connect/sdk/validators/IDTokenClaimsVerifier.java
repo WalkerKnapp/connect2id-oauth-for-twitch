@@ -20,6 +20,7 @@ package com.nimbusds.openid.connect.sdk.validators;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import net.jcip.annotations.ThreadSafe;
 
@@ -94,18 +95,9 @@ public class IDTokenClaimsVerifier implements JWTClaimsSetVerifier, ClockSkewAwa
 				     final Nonce nonce,
 				     final int maxClockSkew) {
 
-		if (issuer == null) {
-			throw new IllegalArgumentException("The expected ID token issuer must not be null");
-		}
-		this.expectedIssuer = issuer;
-
-		if (clientID == null) {
-			throw new IllegalArgumentException("The client ID must not be null");
-		}
-		this.expectedClientID = clientID;
-
+		this.expectedIssuer = Objects.requireNonNull(issuer);
+		this.expectedClientID = Objects.requireNonNull(clientID);
 		this.expectedNonce = nonce;
-
 		setMaxClockSkew(maxClockSkew);
 	}
 

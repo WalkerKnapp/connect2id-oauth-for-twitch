@@ -18,6 +18,12 @@
 package com.nimbusds.oauth2.sdk.auth;
 
 
+import com.nimbusds.jose.util.Base64;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.id.ClientID;
+import net.jcip.annotations.Immutable;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -25,13 +31,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Set;
-
-import net.jcip.annotations.Immutable;
-
-import com.nimbusds.jose.util.Base64;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.http.HTTPRequest;
-import com.nimbusds.oauth2.sdk.id.ClientID;
 
 
 /**
@@ -48,10 +47,10 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), sections 2.3.1 and 3.2.1.
- *     <li>OpenID Connect Core 1.0, section 9.
+ *     <li>OAuth 2.0 (RFC 6749)
+ *     <li>OpenID Connect Core 1.0
  *     <li>HTTP Authentication: Basic and Digest Access Authentication 
- *         (RFC 2617).
+ *         (RFC 2617)
  * </ul>
  */
 @Immutable

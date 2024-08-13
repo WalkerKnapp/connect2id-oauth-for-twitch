@@ -1581,8 +1581,8 @@ public class AuthorizationRequestTest extends TestCase {
 		try {
 			new AuthorizationRequest.Builder((JWT)null, new ClientID("123"));
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The request object must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	
@@ -1592,8 +1592,8 @@ public class AuthorizationRequestTest extends TestCase {
 		try {
 			new AuthorizationRequest.Builder(PlainJWT.parse("eyJhbGciOiJub25lIn0.eyJyZXNwb25zZV90eXBlIjoiY29kZSIsImNsaWVudF9pZCI6IjEyMyJ9."), null);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The client ID must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	
@@ -1603,8 +1603,8 @@ public class AuthorizationRequestTest extends TestCase {
 		try {
 			new AuthorizationRequest.Builder((URI)null, new ClientID("123"));
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The request URI must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	
@@ -1614,8 +1614,8 @@ public class AuthorizationRequestTest extends TestCase {
 		try {
 			new AuthorizationRequest.Builder(URI.create("urn:requests:ahy4ohgo"), null);
 			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("The client ID must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	

@@ -18,19 +18,18 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
-import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -62,9 +61,8 @@ import com.nimbusds.oauth2.sdk.util.CollectionUtils;
  *
  * <ul>
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
- *         (DPoP) (RFC 9449), section 7.1.
- *     <li>Hypertext Transfer Protocol (HTTP/1.1): Authentication (RFC 7235),
- *         section 4.1.
+ *         (DPoP) (RFC 9449)
+ *     <li>Hypertext Transfer Protocol (HTTP/1.1): Authentication (RFC 7235)
  * </ul>
  */
 @Immutable

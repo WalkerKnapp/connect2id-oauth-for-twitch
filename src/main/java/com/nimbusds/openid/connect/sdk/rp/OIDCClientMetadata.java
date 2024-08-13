@@ -48,22 +48,20 @@ import com.nimbusds.openid.connect.sdk.id.SectorID;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Dynamic Client Registration 1.0, section 2.
- *     <li>OpenID Connect Session Management 1.0, section 5.1.1.
- *     <li>OpenID Connect Front-Channel Logout 1.0, section 2.
- *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.2.
- *     <li>OpenID Connect for Identity Assurance 1.0 (draft 12).
- *     <li>OpenID Federation 1.0 (draft 14).
- *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591), section
- *         2.
+ *     <li>OpenID Connect Dynamic Client Registration 1.0
+ *     <li>OpenID Connect Session Management 1.0
+ *     <li>OpenID Connect Front-Channel Logout 1.0
+ *     <li>OpenID Connect Back-Channel Logout 1.0
+ *     <li>OpenID Connect for Identity Assurance 1.0
+ *     <li>OpenID Federation 1.0
+ *     <li>OAuth 2.0 Dynamic Client Registration Protocol (RFC 7591)
  *     <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound
- *         Access Tokens (RFC 8705), sections 2.1.2 and 3.4.
- *     <li>OAuth 2.0 Demonstrating Proof of Possession (DPoP) (RFC 9449),
- *        section 5.2.
+ *         Access Tokens (RFC 8705)
+ *     <li>OAuth 2.0 Demonstrating Proof of Possession (DPoP) (RFC 9449)
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
  *         OAuth 2.0 (JARM)
  *     <li>OAuth 2.0 Pushed Authorization Requests (RFC 9126)
- *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 10.
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
  * </ul>
  */
 public class OIDCClientMetadata extends ClientMetadata {

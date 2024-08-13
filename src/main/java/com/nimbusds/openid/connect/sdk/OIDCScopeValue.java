@@ -34,7 +34,7 @@ import com.nimbusds.openid.connect.sdk.claims.ClaimsSetRequest;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 5.2.
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 public class OIDCScopeValue extends Scope.Value {
@@ -184,7 +184,7 @@ public class OIDCScopeValue extends Scope.Value {
 	 * Gets the claims request JSON object for this OpenID Connect scope 
 	 * value.
 	 * 
-	 * <p>See OpenID Connect Core 1.0, section 5.1.
+	 * <p>See OpenID Connect Core 1.0
 	 * 
 	 * <p>Example JSON object for "openid" scope value:
 	 * 
@@ -235,7 +235,7 @@ public class OIDCScopeValue extends Scope.Value {
 	/**
 	 * Gets the claims request entries for this OpenID Connect scope value.
 	 * 
-	 * <p>See OpenID Connect Core 1.0, section 5.1.
+	 * <p>See OpenID Connect Core 1.0
 	 *
 	 * @see #toClaimsSetRequestEntries()
 	 * 
@@ -262,7 +262,7 @@ public class OIDCScopeValue extends Scope.Value {
 	 * Gets the OpenID claims request entries for this OpenID Connect scope
 	 * value.
 	 *
-	 * <p>See OpenID Connect Core 1.0, section 5.1.
+	 * <p>See OpenID Connect Core 1.0
 	 *
 	 * @return The OpenID claims request entries, {@code null} if not
 	 *         applicable (for scope values {@link #OPENID} and

@@ -29,7 +29,7 @@ import net.minidev.json.JSONObject;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 3.2.
+ *     <li>OAuth 2.0 (RFC 6749)
  * </ul>
  */
 public abstract class TokenResponse implements Response {

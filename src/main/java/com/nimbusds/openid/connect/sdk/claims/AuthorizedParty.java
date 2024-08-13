@@ -36,8 +36,8 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 2.
- *     <li>OAuth 2.0 (RFC 6749), section 2.2.
+ *     <li>OpenID Connect Core 1.0
+ *     <li>OAuth 2.0 (RFC 6749)
  * </ul>
  */
 @Immutable

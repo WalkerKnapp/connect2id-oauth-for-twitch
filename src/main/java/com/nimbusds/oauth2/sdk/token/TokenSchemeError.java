@@ -18,14 +18,15 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -137,11 +138,7 @@ public abstract class TokenSchemeError extends ErrorObject {
 		
 		super(code, description, httpStatusCode, uri);
 		
-		if (scheme == null) {
-			throw new IllegalArgumentException("The token scheme must not be null");
-		}
-		this.scheme = scheme;
-		
+		this.scheme = Objects.requireNonNull(scheme);
 		this.realm = realm;
 		this.scope = scope;
 		

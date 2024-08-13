@@ -65,21 +65,21 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), sections 4.1.1 and 4.2.1.
- *     <li>OAuth 2.0 Multiple Response Type Encoding Practices 1.0.
- *     <li>OAuth 2.0 Form Post Response Mode 1.0.
- *     <li>Proof Key for Code Exchange by OAuth Public Clients (RFC 7636).
- *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396).
+ *     <li>OAuth 2.0 (RFC 6749)
+ *     <li>OAuth 2.0 Multiple Response Type Encoding Practices 1.0
+ *     <li>OAuth 2.0 Form Post Response Mode 1.0
+ *     <li>Proof Key for Code Exchange by OAuth Public Clients (RFC 7636)
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
  *     <li>Resource Indicators for OAuth 2.0 (RFC 8707)
  *     <li>OAuth 2.0 Incremental Authorization
- *         (draft-ietf-oauth-incremental-authz-04)
+ *         (draft-ietf-oauth-incremental-authz)
  *     <li>The OAuth 2.0 Authorization Framework: JWT Secured Authorization
  *         Request (JAR) (RFC 9101)
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
  *         OAuth 2.0 (JARM)
  *     <li>OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer
- *         (DPoP) (RFC 9449).
- *     <li>OpenID Connect Federation 1.0, section 10.1.
+ *         (DPoP) (RFC 9449)
+ *     <li>OpenID Connect Federation 1.0
  * </ul>
  */
 @Immutable
@@ -346,16 +346,8 @@ public class AuthorizationRequest extends AbstractRequest {
 		 *                 {@code null}.
 		 */
 		public Builder(final ResponseType rt, final ClientID clientID) {
-
-			if (rt == null)
-				throw new IllegalArgumentException("The response type must not be null");
-
-			this.rt = rt;
-
-			if (clientID == null)
-				throw new IllegalArgumentException("The client ID must not be null");
-
-			this.clientID = clientID;
+			this.rt = Objects.requireNonNull(rt);
+			this.clientID = Objects.requireNonNull(clientID);
 		}
 		
 		
@@ -369,16 +361,8 @@ public class AuthorizationRequest extends AbstractRequest {
 		 *                      {@code null}.
 		 */
 		public Builder(final JWT requestObject, final ClientID clientID) {
-			
-			if (requestObject == null)
-				throw new IllegalArgumentException("The request object must not be null");
-			
-			this.requestObject = requestObject;
-			
-			if (clientID == null)
-				throw new IllegalArgumentException("The client ID must not be null");
-			
-			this.clientID = clientID;
+			this.requestObject = Objects.requireNonNull(requestObject);
+			this.clientID = Objects.requireNonNull(clientID);
 		}
 		
 		
@@ -391,16 +375,8 @@ public class AuthorizationRequest extends AbstractRequest {
 		 * @param clientID   The client ID. Must not be {@code null}.
 		 */
 		public Builder(final URI requestURI, final ClientID clientID) {
-			
-			if (requestURI == null)
-				throw new IllegalArgumentException("The request URI must not be null");
-			
-			this.requestURI = requestURI;
-			
-			if (clientID == null)
-				throw new IllegalArgumentException("The client ID must not be null");
-			
-			this.clientID = clientID;
+			this.requestURI = Objects.requireNonNull(requestURI);
+			this.clientID = Objects.requireNonNull(clientID);
 		}
 		
 		
@@ -2039,7 +2015,7 @@ public class AuthorizationRequest extends AbstractRequest {
 	public static AuthorizationRequest parse(final HTTPRequest httpRequest) 
 		throws ParseException {
 		
-		String query = httpRequest.getQuery();
+		String query = httpRequest.getQuery(); // TODO GET + POST
 		
 		if (query == null)
 			throw new ParseException("Missing URI query string");

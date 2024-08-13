@@ -29,8 +29,8 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>Security Event Token (SET) (RFC 8417), section 2.2.
- *     <li>OpenID Connect for Identity Assurance 1.0, section 4.2.
+ *     <li>Security Event Token (SET) (RFC 8417)
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 @Immutable

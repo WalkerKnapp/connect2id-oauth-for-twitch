@@ -64,7 +64,7 @@ import com.nimbusds.openid.connect.sdk.rp.OIDCClientInformation;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Back-Channel Logout 1.0, section 2.4.
+ *     <li>OpenID Connect Back-Channel Logout 1.0
  * </ul>
  */
 @ThreadSafe

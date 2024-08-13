@@ -55,11 +55,11 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Core 1.0, section 2.
- *     <li>OpenID Connect Front-Channel Logout 1.0, section 3.
+ *     <li>OpenID Connect Core 1.0
+ *     <li>OpenID Connect Front-Channel Logout 1.0
  *     <li>OpenID Connect Native SSO for Mobile Apps 1.0
  *     <li>Financial Services – Financial API - Part 2: Read and Write API
- *         Security Profile, section 5.1.
+ *         Security Profile
  * </ul>
  */
 public class IDTokenClaimsSet extends CommonOIDCTokenClaimsSet {

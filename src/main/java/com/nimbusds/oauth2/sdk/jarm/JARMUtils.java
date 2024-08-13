@@ -18,8 +18,6 @@
 package com.nimbusds.oauth2.sdk.jarm;
 
 
-import java.util.*;
-
 import com.nimbusds.jwt.*;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -29,6 +27,8 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+
+import java.util.*;
 
 
 /**
@@ -97,14 +97,10 @@ public final class JARMUtils {
 						  final Date exp,
 						  final AuthorizationResponse response) {
 	
-		if (exp == null) {
-			throw new IllegalArgumentException("The expiration time must not be null");
-		}
-		
 		JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder()
 			.issuer(iss.getValue())
 			.audience(aud.getValue())
-			.expirationTime(exp);
+			.expirationTime(Objects.requireNonNull(exp));
 		
 		for (Map.Entry<String, ?> en: MultivaluedMapUtils.toSingleValuedMap(response.toParameters()).entrySet()) {
 			

@@ -314,8 +314,8 @@ public class JARMUtilsTest extends TestCase {
 					null
 				)
 			);
-		} catch (IllegalArgumentException e) {
-			assertEquals("The expiration time must not be null", e.getMessage());
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
 		}
 	}
 	

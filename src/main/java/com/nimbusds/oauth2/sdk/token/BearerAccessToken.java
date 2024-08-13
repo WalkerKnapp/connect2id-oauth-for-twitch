@@ -52,10 +52,10 @@ import java.util.Map;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), sections 1.4 and 5.1.
- *     <li>OAuth 2.0 Bearer Token Usage (RFC 6750).
- *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396), section 7.
- *     <li>OAuth 2.0 Token Exchange (RFC 8693), section 3.
+ *     <li>OAuth 2.0 (RFC 6749)
+ *     <li>OAuth 2.0 Bearer Token Usage (RFC 6750)
+ *     <li>OAuth 2.0 Rich Authorization Requests (RFC 9396)
+ *     <li>OAuth 2.0 Token Exchange (RFC 8693)
  * </ul>
  */
 @Immutable

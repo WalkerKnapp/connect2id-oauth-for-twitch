@@ -52,7 +52,7 @@ This SDK version implements the following standards and drafts:
 
 * The OAuth 2.0 Authorization Framework (RFC 6749)
 
-* The OAuth 2.1 Authorization Framework (draft-ietf-oauth-v2-1-09)
+* The OAuth 2.1 Authorization Framework (draft-ietf-oauth-v2-1-11)
 
 * The OAuth 2.0 Authorization Framework: Bearer Token Usage (RFC 6750)
 
@@ -122,6 +122,9 @@ This SDK version implements the following standards and drafts:
 
 * OpenID Connect Native SSO for Mobile Apps 1.0 - draft 06
 
+* OpenID Connect Client Initiated Backchannel Authentication (CIBA) Flow -
+  Core 1.0
+
 * OpenID Connect Extended Authentication Profile (EAP) ACR Values 1.0 -
   draft 00
 
@@ -129,7 +132,7 @@ This SDK version implements the following standards and drafts:
 
 * OpenID Connect Federation 1.0 - draft 29
 
-* Initiating User Registration via OpenID Connect 1.0
+* Initiating User Registration via OpenID Connect 1.0 (2022-12-02)
 
 * OAuth 2.0 Multiple Response Type Encoding Practices 1.0 (2014-02-25)
 
@@ -141,9 +144,6 @@ This SDK version implements the following standards and drafts:
 
 * Financial-grade API: JWT Secured Authorization Response Mode for OAuth
   2.0 (JARM) (2018-10-17)
-
-* OpenID Connect Client Initiated Backchannel Authentication (CIBA) Flow - 
-  Core 1.0
 
 
 ## Questions or comments? 

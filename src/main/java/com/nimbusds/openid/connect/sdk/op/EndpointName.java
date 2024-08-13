@@ -31,7 +31,7 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect Federation 1.0 (draft 23).
+ *     <li>OpenID Connect Federation 1.0
  * </ul>
  */
 @Immutable

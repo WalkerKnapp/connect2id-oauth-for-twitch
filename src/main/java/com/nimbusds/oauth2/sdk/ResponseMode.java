@@ -29,10 +29,10 @@ import com.nimbusds.oauth2.sdk.id.Identifier;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 Multiple Response Type Encoding Practices 1.0.
- *     <li>OAuth 2.0 Form Post Response Mode 1.0.
+ *     <li>OAuth 2.0 Multiple Response Type Encoding Practices 1.0
+ *     <li>OAuth 2.0 Form Post Response Mode 1.0
  *     <li>Financial-grade API: JWT Secured Authorization Response Mode for
- *         OAuth 2.0 (JARM).
+ *         OAuth 2.0 (JARM)
  * </ul>
  */
 @Immutable

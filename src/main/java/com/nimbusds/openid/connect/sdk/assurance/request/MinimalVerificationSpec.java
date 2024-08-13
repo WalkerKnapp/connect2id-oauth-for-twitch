@@ -66,7 +66,7 @@ import com.nimbusds.openid.connect.sdk.assurance.IdentityTrustFramework;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OpenID Connect for Identity Assurance 1.0, section 6.
+ *     <li>OpenID Connect for Identity Assurance 1.0
  * </ul>
  */
 @Immutable

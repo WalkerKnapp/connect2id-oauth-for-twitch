@@ -36,5 +36,5 @@ public enum ParameterRequirement {
 	/**
 	 * The parameter is not allowed.
 	 */
-	NOT_ALLOWED;
+	NOT_ALLOWED
 }

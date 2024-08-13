@@ -41,10 +41,10 @@ import java.util.*;
  * <p>Related specifications:
  *
  * <ul>
- *     <li>OAuth 2.0 (RFC 6749), section 3.2.1.
+ *     <li>OAuth 2.0 (RFC 6749)
  *     <li>JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and
- *         Authorization Grants (RFC 7523).
- *     <li>OpenID Connect Core 1.0, section 9.
+ *         Authorization Grants (RFC 7523)
+ *     <li>OpenID Connect Core 1.0
  * </ul>
  */
 public abstract class JWTAuthentication extends ClientAuthentication {
