@@ -18,6 +18,7 @@
 package com.nimbusds.oauth2.sdk.token;
 
 
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
@@ -519,9 +520,16 @@ public abstract class AccessToken extends Token {
 			throw new ParseException("Couldn't determine access token type from Authorization header");
 		}
 		
-		// Try alternative token locations, form and query string are
-		// parameters are not differentiated here
-		Map<String, List<String>> params = request.getQueryParameters(); // TODO switch to non-deprecated method
+		// Try alternative token locations
+		Map<String, List<String>> params;
+		if (ContentType.APPLICATION_URLENCODED.matches(request.getEntityContentType())) {
+			// Form parameters
+			params = request.getBodyAsFormParameters();
+		} else {
+			// Query string parameters
+			params = request.getQueryStringParameters();
+		}
+
 		return new TypelessAccessToken(AccessTokenUtils.parseValueFromQueryParameters(params));
 	}
 }
