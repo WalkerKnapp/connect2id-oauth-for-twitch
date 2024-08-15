@@ -136,7 +136,7 @@ public class TokenExchangeGrant extends AuthorizationGrant {
 	 * Returns the subject token representing the identity of the party on
 	 * behalf of whom the request is being made.
 	 *
-	 * @return The subject token, {@code null} if not specified.
+	 * @return The subject token.
 	 */
 	public Token getSubjectToken() {
 		
