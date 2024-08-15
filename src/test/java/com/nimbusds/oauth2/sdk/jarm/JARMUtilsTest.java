@@ -103,7 +103,7 @@ public class JARMUtilsTest extends TestCase {
 		ClientID clientID = new ClientID("123");
 		Date exp = new Date(); // now
 		AuthorizationSuccessResponse response = new AuthorizationSuccessResponse(
-			URI.create("https://exmaple.com?cb"),
+			URI.create("https://example.com?cb"),
 			new AuthorizationCode(),
 			null,
 			new State(),
@@ -134,7 +134,7 @@ public class JARMUtilsTest extends TestCase {
 		ClientID clientID = new ClientID("123");
 		Date exp = new Date(); // now
 		AuthenticationSuccessResponse response = new AuthenticationSuccessResponse(
-			URI.create("https://exmaple.com?cb"),
+			URI.create("https://example.com?cb"),
 			new AuthorizationCode(),
 			null,
 			null,
@@ -168,7 +168,7 @@ public class JARMUtilsTest extends TestCase {
 		ClientID clientID = new ClientID("123");
 		Date exp = new Date(); // now
 		AuthorizationErrorResponse response = new AuthorizationErrorResponse(
-			URI.create("https://exmaple.com?cb"),
+			URI.create("https://example.com?cb"),
 			OAuth2Error.ACCESS_DENIED,
 			new State(),
 			null
@@ -200,7 +200,7 @@ public class JARMUtilsTest extends TestCase {
 		ClientID clientID = new ClientID("123");
 		Date exp = new Date(); // now
 		AuthorizationSuccessResponse response = new AuthorizationSuccessResponse(
-			URI.create("https://exmaple.com?cb"),
+			URI.create("https://example.com?cb"),
 			new AuthorizationCode(),
 			null,
 			new State(),
@@ -233,7 +233,7 @@ public class JARMUtilsTest extends TestCase {
 		ClientID clientID = new ClientID("123");
 		Date exp = new Date(); // now
 		AuthorizationSuccessResponse response = new AuthorizationSuccessResponse(
-			URI.create("https://exmaple.com?cb"),
+			URI.create("https://example.com?cb"),
 			new AuthorizationCode(),
 			null,
 			new State(),
@@ -265,7 +265,7 @@ public class JARMUtilsTest extends TestCase {
 				new ClientID("123"),
 				new Date(),
 				new AuthorizationSuccessResponse(
-					URI.create("https://exmaple.com?cb"),
+					URI.create("https://example.com?cb"),
 					new AuthorizationCode(),
 					null,
 					new State(),
@@ -286,7 +286,7 @@ public class JARMUtilsTest extends TestCase {
 				null,
 				new Date(),
 				new AuthorizationSuccessResponse(
-					URI.create("https://exmaple.com?cb"),
+					URI.create("https://example.com?cb"),
 					new AuthorizationCode(),
 					null,
 					new State(),
@@ -307,7 +307,7 @@ public class JARMUtilsTest extends TestCase {
 				new ClientID("123"),
 				null,
 				new AuthorizationSuccessResponse(
-					URI.create("https://exmaple.com?cb"),
+					URI.create("https://example.com?cb"),
 					new AuthorizationCode(),
 					null,
 					new State(),
@@ -324,7 +324,7 @@ public class JARMUtilsTest extends TestCase {
 		throws Exception {
 		
 		AuthorizationErrorResponse response = new AuthorizationErrorResponse(
-			URI.create("https://exmaple.com?cb"),
+			URI.create("https://example.com?cb"),
 			OAuth2Error.ACCESS_DENIED,
 			new State(),
 			null
@@ -352,7 +352,7 @@ public class JARMUtilsTest extends TestCase {
 	public void testImpliesAuthorizationErrorResponse_rejectPlain() {
 		
 		AuthorizationErrorResponse response = new AuthorizationErrorResponse(
-			URI.create("https://exmaple.com?cb"),
+			URI.create("https://example.com?cb"),
 			OAuth2Error.ACCESS_DENIED,
 			new State(),
 			null
@@ -374,7 +374,7 @@ public class JARMUtilsTest extends TestCase {
 		throws Exception {
 		
 		AuthorizationErrorResponse response = new AuthorizationErrorResponse(
-			URI.create("https://exmaple.com?cb"),
+			URI.create("https://example.com?cb"),
 			OAuth2Error.ACCESS_DENIED,
 			new State(),
 			null

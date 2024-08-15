@@ -18,11 +18,6 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.*;
@@ -35,6 +30,11 @@ import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URIUtils;
 import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -434,6 +434,6 @@ public class AuthenticationSuccessResponse
 	public static AuthenticationSuccessResponse parse(final HTTPRequest httpRequest)
 		throws ParseException {
 
-		return parse(httpRequest.getURI(), parseResponseParameters(httpRequest));
+		return parse(URIUtils.getBaseURI(httpRequest.getURI()), parseResponseParameters(httpRequest));
 	}
 }

@@ -18,14 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import junit.framework.TestCase;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -46,6 +38,13 @@ import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+import junit.framework.TestCase;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 public class AuthorizationSuccessResponseTest extends TestCase {
@@ -468,5 +467,27 @@ public class AuthorizationSuccessResponseTest extends TestCase {
 
 		assertEquals("cVIe4g4D1J3tYtZgnTL-Po9QpozQJdikDCBp7KJorIQ", response.getState().getValue());
 		assertEquals("1nf1ljB0JkPIbhMcYMeoT9Q5oGt28ggDsUiWLvCL81YTqCZMzAbVCGLUPrDHouda4cELZRujcS7d8rUNcZVl7HxUXdDsOUtc65s2knGbxSo=", response.getAuthorizationCode().getValue());
+	}
+
+
+	public void testParse_httpRequest() throws Exception {
+
+		AuthorizationSuccessResponse response = new AuthorizationSuccessResponse(
+			URI.create("https://example.com/cb"),
+			new AuthorizationCode(),
+			null,
+			new State(),
+			null,
+			ResponseMode.FORM_POST
+		);
+
+		HTTPRequest httpRequest = response.toHTTPRequest();
+
+		AuthorizationSuccessResponse parsedResponse = AuthorizationSuccessResponse.parse(httpRequest);
+
+		assertEquals(response.getRedirectionURI(), parsedResponse.getRedirectionURI());
+		assertEquals(response.getState(), parsedResponse.getState());
+		assertNull(parsedResponse.getIssuer());
+		assertNull(parsedResponse.getResponseMode());
 	}
 }

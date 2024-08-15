@@ -18,20 +18,21 @@
 package com.nimbusds.openid.connect.sdk;
 
 
+import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
+import com.nimbusds.oauth2.sdk.ErrorObject;
+import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.ResponseMode;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.oauth2.sdk.util.URLUtils;
+import junit.framework.TestCase;
+
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
-import com.nimbusds.oauth2.sdk.ErrorObject;
-import com.nimbusds.oauth2.sdk.OAuth2Error;
-import com.nimbusds.oauth2.sdk.ResponseMode;
-import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.id.State;
-import com.nimbusds.oauth2.sdk.util.URLUtils;
-import junit.framework.TestCase;
 
 
 public class AuthenticationErrorResponseTest extends TestCase {
@@ -195,5 +196,26 @@ public class AuthenticationErrorResponseTest extends TestCase {
 		assertEquals(Collections.singletonList(OAuth2Error.ACCESS_DENIED.getDescription()), params.get("error_description"));
 		assertEquals(Collections.singletonList(state.getValue()), params.get("state"));
 		assertEquals(4, params.size());
+	}
+
+
+	public void testParse_httpRequest() throws Exception {
+
+		AuthenticationErrorResponse response = new AuthenticationErrorResponse(
+			URI.create("https://example.com/cb"),
+			OAuth2Error.ACCESS_DENIED,
+			new State(),
+			ResponseMode.FORM_POST
+		);
+
+		HTTPRequest httpRequest = response.toHTTPRequest();
+
+		AuthenticationErrorResponse parsedResponse = AuthenticationErrorResponse.parse(httpRequest);
+
+		assertEquals(response.getRedirectionURI(), parsedResponse.getRedirectionURI());
+		assertEquals(OAuth2Error.ACCESS_DENIED, parsedResponse.getErrorObject());
+		assertEquals(response.getState(), parsedResponse.getState());
+		assertNull(parsedResponse.getIssuer());
+		assertNull(parsedResponse.getResponseMode());
 	}
 }

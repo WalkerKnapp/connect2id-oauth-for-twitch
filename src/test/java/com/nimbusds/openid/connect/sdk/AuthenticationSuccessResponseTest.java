@@ -18,19 +18,6 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.net.URI;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import junit.framework.TestCase;
-
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -41,12 +28,24 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.ResponseMode;
 import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.jarm.JARMUtils;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+import junit.framework.TestCase;
+
+import java.net.URI;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 public class AuthenticationSuccessResponseTest extends TestCase {
@@ -435,5 +434,28 @@ public class AuthenticationSuccessResponseTest extends TestCase {
 		assertEquals(successResponse.getRedirectionURI(), jwtSuccessResponse.getRedirectionURI());
 		assertEquals(((JWT) signedJWT).serialize(), jwtSuccessResponse.getJWTResponse().serialize());
 		assertEquals(ResponseMode.JWT, jwtSuccessResponse.getResponseMode());
+	}
+
+
+	public void testParse_httpRequest() throws Exception {
+
+		AuthenticationSuccessResponse response = new AuthenticationSuccessResponse(
+			URI.create("https://example.com/cb"),
+			new AuthorizationCode(),
+			null,
+			null,
+			new State(),
+			null,
+			ResponseMode.FORM_POST
+		);
+
+		HTTPRequest httpRequest = response.toHTTPRequest();
+
+		AuthenticationSuccessResponse parsedResponse = AuthenticationSuccessResponse.parse(httpRequest);
+
+		assertEquals(response.getRedirectionURI(), parsedResponse.getRedirectionURI());
+		assertEquals(response.getState(), parsedResponse.getState());
+		assertNull(parsedResponse.getIssuer());
+		assertNull(parsedResponse.getResponseMode());
 	}
 }

@@ -107,7 +107,7 @@ public class AccessTokenResponseTest extends TestCase {
 
 		HTTPResponse httpResponse = response.toHTTPResponse();
 		
-		JSONObject jsonObject = httpResponse.getContentAsJSONObject();
+		JSONObject jsonObject = httpResponse.getBodyAsJSONObject();
 		assertEquals(accessToken.getType().getValue(), jsonObject.get("token_type"));
 		assertEquals(accessToken.getValue(), jsonObject.get("access_token"));
 		assertEquals(accessToken.getLifetime(), jsonObject.get("expires_in"));
@@ -154,7 +154,7 @@ public class AccessTokenResponseTest extends TestCase {
 
 		HTTPResponse httpResponse = response.toHTTPResponse();
 		
-		JSONObject jsonObject = httpResponse.getContentAsJSONObject();
+		JSONObject jsonObject = httpResponse.getBodyAsJSONObject();
 		assertEquals(naToken.getType().getValue(), jsonObject.get("token_type"));
 		assertEquals(naToken.getValue(), jsonObject.get("access_token"));
 		assertEquals(naToken.getIssuedTokenType().toString(), jsonObject.get("issued_token_type"));
@@ -236,7 +236,7 @@ public class AccessTokenResponseTest extends TestCase {
 		o.put("sub_sid", "abc");
 		o.put("priority", 10);
 
-		httpResponse.setContent(o.toString());
+		httpResponse.setBody(o.toString());
 
 
 		AccessTokenResponse atr = AccessTokenResponse.parse(httpResponse);
@@ -274,7 +274,7 @@ public class AccessTokenResponseTest extends TestCase {
 		assertEquals("no-store", httpResponse.getCacheControl());
 		assertEquals("no-cache", httpResponse.getPragma());
 
-		o = httpResponse.getContentAsJSONObject();
+		o = httpResponse.getBodyAsJSONObject();
 
 		assertEquals(accessTokenString, o.get("access_token"));
 		assertEquals("Bearer", o.get("token_type"));
@@ -302,7 +302,7 @@ public class AccessTokenResponseTest extends TestCase {
 
 		o.put("token_type", "bearer");
 
-		httpResponse.setContent(o.toString());
+		httpResponse.setBody(o.toString());
 
 		AccessTokenResponse atr = AccessTokenResponse.parse(httpResponse);
 
@@ -322,7 +322,7 @@ public class AccessTokenResponseTest extends TestCase {
 		assertEquals("no-store", httpResponse.getCacheControl());
 		assertEquals("no-cache", httpResponse.getPragma());
 
-		o = httpResponse.getContentAsJSONObject();
+		o = httpResponse.getBodyAsJSONObject();
 
 		assertEquals(accessTokenString, o.get("access_token"));
 		assertEquals("Bearer", o.get("token_type"));
@@ -347,7 +347,7 @@ public class AccessTokenResponseTest extends TestCase {
 		List<AuthorizationDetail> authorizationDetails = Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("example_api")).build());
 		o.put("authorization_details", AuthorizationDetail.toJSONArray(authorizationDetails));
 
-		httpResponse.setContent(o.toString());
+		httpResponse.setBody(o.toString());
 
 		AccessTokenResponse atr = AccessTokenResponse.parse(httpResponse);
 
@@ -368,7 +368,7 @@ public class AccessTokenResponseTest extends TestCase {
 		assertEquals("no-store", httpResponse.getCacheControl());
 		assertEquals("no-cache", httpResponse.getPragma());
 
-		o = httpResponse.getContentAsJSONObject();
+		o = httpResponse.getBodyAsJSONObject();
 
 		assertEquals(accessTokenString, o.get("access_token"));
 		assertEquals("Bearer", o.get("token_type"));
@@ -394,9 +394,8 @@ public class AccessTokenResponseTest extends TestCase {
 		jsonObject.put("expires_in", 3600);
 		jsonObject.put("refresh_token", "tGzv3JOkF0XG5Qx2TlKWIA");
 		jsonObject.put("example_parameter", "example_value");
-		
-		Set<String> keys = new HashSet<>();
-		keys.addAll(jsonObject.keySet());
+
+                Set<String> keys = jsonObject.keySet();
 		
 		AccessTokenResponse response = AccessTokenResponse.parse(jsonObject);
 		assertEquals("2YotnFZFEjr1zCsicMWpAA", response.getTokens().getBearerAccessToken().getValue());

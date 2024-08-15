@@ -129,8 +129,7 @@ public abstract class AuthorizationResponse implements Response {
 	/**
 	 * Returns the base redirection URI.
 	 *
-	 * @return The base redirection URI (without the appended error
-	 *         response parameters).
+	 * @return The base redirection URI.
 	 */
 	public URI getRedirectionURI() {
 
@@ -475,12 +474,12 @@ public abstract class AuthorizationResponse implements Response {
 	 */
 	public static AuthorizationResponse parse(final URI uri, final JARMValidator jarmValidator)
 		throws ParseException {
-		
-		if (jarmValidator == null) {
-			throw new IllegalArgumentException("The JARM validator must not be null");
-		}
 
-		return parse(URIUtils.getBaseURI(uri), parseResponseParameters(uri), jarmValidator);
+		return parse(
+			URIUtils.getBaseURI(uri),
+			parseResponseParameters(uri),
+			Objects.requireNonNull(jarmValidator)
+		);
 	}
 
 
@@ -583,7 +582,7 @@ public abstract class AuthorizationResponse implements Response {
 	public static AuthorizationResponse parse(final HTTPRequest httpRequest)
 		throws ParseException {
 		
-		return parse(httpRequest.getURI(), parseResponseParameters(httpRequest));
+		return parse(URIUtils.getBaseURI(httpRequest.getURI()), parseResponseParameters(httpRequest));
 	}
 
 
@@ -617,12 +616,8 @@ public abstract class AuthorizationResponse implements Response {
 	public static AuthorizationResponse parse(final HTTPRequest httpRequest,
 						  final JARMValidator jarmValidator)
 		throws ParseException {
-		
-		if (jarmValidator == null) {
-			throw new IllegalArgumentException("The JARM validator must not be null");
-		}
 
-		return parse(httpRequest.getURI(), parseResponseParameters(httpRequest), jarmValidator);
+		return parse(URIUtils.getBaseURI(httpRequest.getURI()), parseResponseParameters(httpRequest), jarmValidator);
 	}
 	
 	

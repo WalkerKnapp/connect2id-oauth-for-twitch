@@ -18,6 +18,13 @@
 package com.nimbusds.oauth2.sdk;
 
 
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.oauth2.sdk.util.URLUtils;
+import junit.framework.TestCase;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -25,13 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import junit.framework.TestCase;
-
-import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.id.State;
-import com.nimbusds.oauth2.sdk.util.URLUtils;
 
 
 public class AuthorizationErrorResponseTest extends TestCase {
@@ -374,5 +374,26 @@ public class AuthorizationErrorResponseTest extends TestCase {
 		assertEquals(Collections.singletonList(OAuth2Error.ACCESS_DENIED.getDescription()), params.get("error_description"));
 		assertEquals(Collections.singletonList(state.getValue()), params.get("state"));
 		assertEquals(4, params.size());
+	}
+
+
+	public void testParse_httpRequest() throws Exception {
+
+		AuthorizationErrorResponse response = new AuthorizationErrorResponse(
+			URI.create("https://example.com/cb"),
+			OAuth2Error.ACCESS_DENIED,
+			new State(),
+			ResponseMode.FORM_POST
+		);
+
+		HTTPRequest httpRequest = response.toHTTPRequest();
+
+		AuthorizationErrorResponse parsedResponse = AuthorizationErrorResponse.parse(httpRequest);
+
+		assertEquals(response.getRedirectionURI(), parsedResponse.getRedirectionURI());
+		assertEquals(OAuth2Error.ACCESS_DENIED, parsedResponse.getErrorObject());
+		assertEquals(response.getState(), parsedResponse.getState());
+		assertNull(parsedResponse.getIssuer());
+		assertNull(parsedResponse.getResponseMode());
 	}
 }

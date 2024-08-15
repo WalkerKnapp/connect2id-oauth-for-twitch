@@ -378,6 +378,6 @@ public class AuthorizationErrorResponse
 	public static AuthorizationErrorResponse parse(final HTTPRequest httpRequest)
 		throws ParseException {
 
-		return parse(httpRequest.getURI(), parseResponseParameters(httpRequest));
+		return parse(URIUtils.getBaseURI(httpRequest.getURI()), parseResponseParameters(httpRequest));
 	}
 }

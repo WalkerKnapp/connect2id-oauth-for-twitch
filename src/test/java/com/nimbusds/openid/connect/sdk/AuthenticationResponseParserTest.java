@@ -18,20 +18,10 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.net.URI;
-import java.net.URL;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -41,6 +31,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ResponseMode;
+import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -52,10 +43,18 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import junit.framework.TestCase;
 
+import java.net.URI;
+import java.net.URL;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
-/**
- * Tests the OpenID Connect authentication response parser.
- */
+
 public class AuthenticationResponseParserTest extends TestCase {
 
 
@@ -495,5 +494,74 @@ public class AuthenticationResponseParserTest extends TestCase {
 		
 		assertEquals(errorResponse.getErrorObject(), validatedResponse.getErrorObject());
 		assertEquals(errorResponse.getState(), validatedResponse.getState());
+	}
+
+
+	public void testParse_httpRequest() throws Exception {
+
+		AuthenticationSuccessResponse response = new AuthenticationSuccessResponse(
+			URI.create("https://example.com/cb"),
+			new AuthorizationCode(),
+			null,
+			null,
+			new State(),
+			null,
+			ResponseMode.FORM_POST
+		);
+
+		HTTPRequest httpRequest = response.toHTTPRequest();
+
+		AuthenticationSuccessResponse parsedResponse = AuthenticationResponseParser.parse(httpRequest).toSuccessResponse();
+
+		assertEquals(response.getRedirectionURI(), parsedResponse.getRedirectionURI());
+		assertEquals(response.getState(), parsedResponse.getState());
+		assertNull(parsedResponse.getIssuer());
+		assertNull(parsedResponse.getResponseMode());
+	}
+
+
+	public void testParse_httpRequest_jarmValidator() throws Exception {
+
+		Issuer issuer = new Issuer("https://c2id.com");
+		ClientID clientID = new ClientID("123");
+		Date exp = new Date(); // now
+		AuthenticationSuccessResponse response = new AuthenticationSuccessResponse(
+			URI.create("https://example.com/cb"),
+			new AuthorizationCode(),
+			null,
+			null,
+			new State(),
+			null,
+			null
+		);
+
+		JWTClaimsSet jwtClaimsSet = JARMUtils.toJWTClaimsSet(
+			issuer,
+			clientID,
+			exp,
+			response
+		);
+
+		Secret clientSecret = new Secret();
+
+		SignedJWT jarm = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), jwtClaimsSet);
+		jarm.sign(new MACSigner(clientSecret.getValueBytes()));
+
+		AuthenticationSuccessResponse jarmResponse = new AuthenticationSuccessResponse(
+			response.getRedirectionURI(),
+			jarm,
+			ResponseMode.FORM_POST_JWT
+		);
+
+		HTTPRequest httpRequest = jarmResponse.toHTTPRequest();
+
+		JARMValidator jarmValidator = new JARMValidator(issuer, clientID, JWSAlgorithm.HS256, clientSecret);
+
+		AuthenticationSuccessResponse parsedResponse = AuthenticationResponseParser.parse(httpRequest, jarmValidator).toSuccessResponse();
+
+		assertEquals(response.getRedirectionURI(), parsedResponse.getRedirectionURI());
+		assertEquals(response.getState(), parsedResponse.getState());
+		assertEquals(issuer, parsedResponse.getIssuer());
+		assertEquals(response.getResponseMode(), parsedResponse.getResponseMode());
 	}
 }

@@ -18,10 +18,6 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -32,6 +28,10 @@ import com.nimbusds.oauth2.sdk.jarm.JARMValidator;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URIUtils;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -292,7 +292,7 @@ public class AuthenticationResponseParser {
 	public static AuthenticationResponse parse(final HTTPRequest httpRequest)
 		throws ParseException {
 		
-		return parse(httpRequest.getURI(), AuthorizationResponse.parseResponseParameters(httpRequest));
+		return parse(URIUtils.getBaseURI(httpRequest.getURI()), AuthorizationResponse.parseResponseParameters(httpRequest));
 	}
 	
 	
@@ -331,7 +331,7 @@ public class AuthenticationResponseParser {
 			throw new IllegalArgumentException("The JARM validator must not be null");
 		}
 		
-		return parse(httpRequest.getURI(), AuthorizationResponse.parseResponseParameters(httpRequest), jarmValidator);
+		return parse(URIUtils.getBaseURI(httpRequest.getURI()), AuthorizationResponse.parseResponseParameters(httpRequest), jarmValidator);
 	}
 	
 	

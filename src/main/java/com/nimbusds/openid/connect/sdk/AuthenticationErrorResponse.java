@@ -18,17 +18,17 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.net.URI;
-import java.util.*;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.oauth2.sdk.util.URIUtils;
+import net.jcip.annotations.Immutable;
+
+import java.net.URI;
+import java.util.*;
 
 
 /**
@@ -345,6 +345,6 @@ public class AuthenticationErrorResponse
 	public static AuthenticationErrorResponse parse(final HTTPRequest httpRequest)
 		throws ParseException {
 
-		return parse(httpRequest.getURI(), parseResponseParameters(httpRequest));
+		return parse(URIUtils.getBaseURI(httpRequest.getURI()), parseResponseParameters(httpRequest));
 	}
 }

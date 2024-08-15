@@ -18,6 +18,28 @@
 package com.nimbusds.oauth2.sdk;
 
 
+import com.nimbusds.common.contenttype.ContentType;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.oauth2.sdk.jarm.JARMUtils;
+import com.nimbusds.oauth2.sdk.jarm.JARMValidator;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+import junit.framework.TestCase;
+
 import java.net.URI;
 import java.net.URL;
 import java.security.KeyPair;
@@ -28,25 +50,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import com.nimbusds.common.contenttype.ContentType;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.oauth2.sdk.http.HTTPRequest;
-import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.id.State;
-import com.nimbusds.oauth2.sdk.jarm.JARMUtils;
-import com.nimbusds.oauth2.sdk.jarm.JARMValidator;
-import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
-import junit.framework.TestCase;
 
 
 /**
@@ -254,31 +257,29 @@ public class AuthorizationResponseTest extends TestCase {
 		
 		SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), jwtClaimsSet);
 		signedJWT.sign(new RSASSASigner(RSA_PRIVATE_KEY));
-		
-		JWT jwt = signedJWT;
-		
-		AuthorizationSuccessResponse jwtSuccessResponse = new AuthorizationSuccessResponse(
+
+                AuthorizationSuccessResponse jwtSuccessResponse = new AuthorizationSuccessResponse(
 			successResponse.getRedirectionURI(),
-			jwt,
+                        signedJWT,
 			successResponse.getResponseMode());
 		
 		assertEquals(successResponse.getRedirectionURI(), jwtSuccessResponse.getRedirectionURI());
-		assertEquals(jwt, jwtSuccessResponse.getJWTResponse());
+		assertEquals(signedJWT, jwtSuccessResponse.getJWTResponse());
 		assertEquals(successResponse.getResponseMode(), jwtSuccessResponse.getResponseMode());
 		
 		Map<String,List<String>> params = jwtSuccessResponse.toParameters();
-		assertEquals(jwt.serialize(), MultivaluedMapUtils.getFirstValue(params, "response"));
+		assertEquals(((JWT) signedJWT).serialize(), MultivaluedMapUtils.getFirstValue(params, "response"));
 		assertEquals(1, params.size());
 		
 		URI uri = jwtSuccessResponse.toURI();
 		
 		assertTrue(uri.toString().startsWith(successResponse.getRedirectionURI().toString()));
-		assertEquals("response=" + jwt.serialize(), uri.getQuery());
+		assertEquals("response=" + ((JWT) signedJWT).serialize(), uri.getQuery());
 		assertNull(uri.getFragment());
 		
 		jwtSuccessResponse = AuthorizationResponse.parse(uri).toSuccessResponse();
 		assertEquals(successResponse.getRedirectionURI(), jwtSuccessResponse.getRedirectionURI());
-		assertEquals(jwt.serialize(), jwtSuccessResponse.getJWTResponse().serialize());
+		assertEquals(((JWT) signedJWT).serialize(), jwtSuccessResponse.getJWTResponse().serialize());
 		assertEquals(ResponseMode.JWT, jwtSuccessResponse.getResponseMode());
 		
 		// Parse with validator now
@@ -313,31 +314,29 @@ public class AuthorizationResponseTest extends TestCase {
 		
 		SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), jwtClaimsSet);
 		signedJWT.sign(new RSASSASigner(RSA_PRIVATE_KEY));
-		
-		JWT jwt = signedJWT;
-		
-		AuthorizationSuccessResponse jwtSuccessResponse = new AuthorizationSuccessResponse(
+
+                AuthorizationSuccessResponse jwtSuccessResponse = new AuthorizationSuccessResponse(
 			successResponse.getRedirectionURI(),
-			jwt,
+                        signedJWT,
 			successResponse.getResponseMode());
 		
 		assertEquals(successResponse.getRedirectionURI(), jwtSuccessResponse.getRedirectionURI());
-		assertEquals(jwt, jwtSuccessResponse.getJWTResponse());
+		assertEquals(signedJWT, jwtSuccessResponse.getJWTResponse());
 		assertEquals(successResponse.getResponseMode(), jwtSuccessResponse.getResponseMode());
 		
 		Map<String,List<String>> params = jwtSuccessResponse.toParameters();
-		assertEquals(jwt.serialize(), MultivaluedMapUtils.getFirstValue(params, "response"));
+		assertEquals(((JWT) signedJWT).serialize(), MultivaluedMapUtils.getFirstValue(params, "response"));
 		assertEquals(1, params.size());
 		
 		URI uri = jwtSuccessResponse.toURI();
 		
 		assertTrue(uri.toString().startsWith(successResponse.getRedirectionURI().toString()));
 		assertNull(uri.getQuery());
-		assertEquals("response=" + jwt.serialize(), uri.getFragment());
+		assertEquals("response=" + ((JWT) signedJWT).serialize(), uri.getFragment());
 		
 		jwtSuccessResponse = AuthorizationResponse.parse(uri).toSuccessResponse();
 		assertEquals(successResponse.getRedirectionURI(), jwtSuccessResponse.getRedirectionURI());
-		assertEquals(jwt.serialize(), jwtSuccessResponse.getJWTResponse().serialize());
+		assertEquals(((JWT) signedJWT).serialize(), jwtSuccessResponse.getJWTResponse().serialize());
 		assertEquals(ResponseMode.JWT, jwtSuccessResponse.getResponseMode());
 		
 		// Parse with validator now
@@ -371,31 +370,29 @@ public class AuthorizationResponseTest extends TestCase {
 		
 		SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), jwtClaimsSet);
 		signedJWT.sign(new RSASSASigner(RSA_PRIVATE_KEY));
-		
-		JWT jwt = signedJWT;
-		
-		AuthorizationErrorResponse jwtErrorResponse = new AuthorizationErrorResponse(
+
+                AuthorizationErrorResponse jwtErrorResponse = new AuthorizationErrorResponse(
 			errorResponse.getRedirectionURI(),
-			jwt,
+                        signedJWT,
 			errorResponse.getResponseMode());
 		
 		assertEquals(errorResponse.getRedirectionURI(), jwtErrorResponse.getRedirectionURI());
-		assertEquals(jwt, jwtErrorResponse.getJWTResponse());
+		assertEquals(signedJWT, jwtErrorResponse.getJWTResponse());
 		assertEquals(errorResponse.getResponseMode(), jwtErrorResponse.getResponseMode());
 		
 		Map<String,List<String>> params = jwtErrorResponse.toParameters();
-		assertEquals(jwt.serialize(), MultivaluedMapUtils.getFirstValue(params, "response"));
+		assertEquals(((JWT) signedJWT).serialize(), MultivaluedMapUtils.getFirstValue(params, "response"));
 		assertEquals(1, params.size());
 		
 		URI uri = jwtErrorResponse.toURI();
 		
 		assertTrue(uri.toString().startsWith(errorResponse.getRedirectionURI().toString()));
-		assertEquals("response=" + jwt.serialize(), uri.getQuery());
+		assertEquals("response=" + ((JWT) signedJWT).serialize(), uri.getQuery());
 		assertNull(uri.getFragment());
 		
 		jwtErrorResponse = AuthorizationResponse.parse(uri).toErrorResponse();
 		assertEquals(errorResponse.getRedirectionURI(), jwtErrorResponse.getRedirectionURI());
-		assertEquals(jwt.serialize(), jwtErrorResponse.getJWTResponse().serialize());
+		assertEquals(((JWT) signedJWT).serialize(), jwtErrorResponse.getJWTResponse().serialize());
 		assertEquals(ResponseMode.JWT, jwtErrorResponse.getResponseMode());
 		
 		// Parse with validator now
@@ -429,31 +426,29 @@ public class AuthorizationResponseTest extends TestCase {
 		
 		SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), jwtClaimsSet);
 		signedJWT.sign(new RSASSASigner(RSA_PRIVATE_KEY));
-		
-		JWT jwt = signedJWT;
-		
-		AuthorizationErrorResponse jwtErrorResponse = new AuthorizationErrorResponse(
+
+                AuthorizationErrorResponse jwtErrorResponse = new AuthorizationErrorResponse(
 			errorResponse.getRedirectionURI(),
-			jwt,
+                        signedJWT,
 			errorResponse.getResponseMode());
 		
 		assertEquals(errorResponse.getRedirectionURI(), jwtErrorResponse.getRedirectionURI());
-		assertEquals(jwt, jwtErrorResponse.getJWTResponse());
+		assertEquals(signedJWT, jwtErrorResponse.getJWTResponse());
 		assertEquals(errorResponse.getResponseMode(), jwtErrorResponse.getResponseMode());
 		
 		Map<String,List<String>> params = jwtErrorResponse.toParameters();
-		assertEquals(jwt.serialize(), MultivaluedMapUtils.getFirstValue(params, "response"));
+		assertEquals(((JWT) signedJWT).serialize(), MultivaluedMapUtils.getFirstValue(params, "response"));
 		assertEquals(1, params.size());
 		
 		URI uri = jwtErrorResponse.toURI();
 		
 		assertTrue(uri.toString().startsWith(errorResponse.getRedirectionURI().toString()));
 		assertNull(uri.getQuery());
-		assertEquals("response=" + jwt.serialize(), uri.getFragment());
+		assertEquals("response=" + ((JWT) signedJWT).serialize(), uri.getFragment());
 		
 		jwtErrorResponse = AuthorizationResponse.parse(uri).toErrorResponse();
 		assertEquals(errorResponse.getRedirectionURI(), jwtErrorResponse.getRedirectionURI());
-		assertEquals(jwt.serialize(), jwtErrorResponse.getJWTResponse().serialize());
+		assertEquals(((JWT) signedJWT).serialize(), jwtErrorResponse.getJWTResponse().serialize());
 		assertEquals(ResponseMode.JWT, jwtErrorResponse.getResponseMode());
 		
 		// Parse with validator now
@@ -505,5 +500,95 @@ public class AuthorizationResponseTest extends TestCase {
 			ResponseMode.QUERY);
 		
 		assertEquals(successResponse.getRedirectionURI().toString() + "code=" + successResponse.getAuthorizationCode(), successResponse.toURI().toString());
+	}
+
+
+	public void testParse_uri_jarmValidatorNull() throws ParseException {
+
+		try {
+			AuthorizationResponse.parse(URI.create("https://localhost/cb?code=123&state=abc"), (JARMValidator) null);
+			fail();
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
+		}
+	}
+
+
+	public void testParse_httpResponse_jarmValidatorNull() throws ParseException {
+
+		HTTPResponse httpResponse = new HTTPResponse(HTTPResponse.SC_FOUND);
+		httpResponse.setLocation(URI.create("https://localhost/cb?code=123&state=abc"));
+
+		try {
+			AuthorizationResponse.parse(httpResponse, null);
+			fail();
+		} catch (NullPointerException e) {
+			assertNull(e.getMessage());
+		}
+	}
+
+
+	public void testParse_httpRequest_jarmValidator() throws Exception {
+
+		Issuer issuer = new Issuer("https://c2id.com");
+		ClientID clientID = new ClientID("123");
+		Date exp = new Date(); // now
+		AuthorizationSuccessResponse response = new AuthorizationSuccessResponse(
+			URI.create("https://example.com/cb"),
+			new AuthorizationCode(),
+			null,
+			new State(),
+			null
+		);
+
+		JWTClaimsSet jwtClaimsSet = JARMUtils.toJWTClaimsSet(
+			issuer,
+			clientID,
+			exp,
+			response
+		);
+
+		Secret clientSecret = new Secret();
+
+		SignedJWT jarm = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), jwtClaimsSet);
+		jarm.sign(new MACSigner(clientSecret.getValueBytes()));
+
+		AuthorizationSuccessResponse jarmResponse = new AuthorizationSuccessResponse(
+			response.getRedirectionURI(),
+			jarm,
+			ResponseMode.FORM_POST_JWT
+		);
+
+		HTTPRequest httpRequest = jarmResponse.toHTTPRequest();
+
+		JARMValidator jarmValidator = new JARMValidator(issuer, clientID, JWSAlgorithm.HS256, clientSecret);
+
+		AuthorizationResponse parsedResponse = AuthorizationResponse.parse(httpRequest, jarmValidator);
+
+		assertEquals(response.getRedirectionURI(), parsedResponse.getRedirectionURI());
+		assertEquals(response.getState(), parsedResponse.getState());
+		assertEquals(issuer, parsedResponse.getIssuer());
+		assertEquals(response.getResponseMode(), parsedResponse.getResponseMode());
+	}
+
+
+	public void testParse_httpRequest() throws Exception {
+
+		AuthorizationSuccessResponse response = new AuthorizationSuccessResponse(
+			URI.create("https://example.com/cb"),
+			new AuthorizationCode(),
+			null,
+			new State(),
+			ResponseMode.FORM_POST
+		);
+
+		HTTPRequest httpRequest = response.toHTTPRequest();
+
+		AuthorizationResponse parsedResponse = AuthorizationResponse.parse(httpRequest);
+
+		assertEquals(response.getRedirectionURI(), parsedResponse.getRedirectionURI());
+		assertEquals(response.getState(), parsedResponse.getState());
+		assertNull(parsedResponse.getIssuer());
+		assertNull(parsedResponse.getResponseMode());
 	}
 }

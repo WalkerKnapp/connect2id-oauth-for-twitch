@@ -18,15 +18,6 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
@@ -36,6 +27,14 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.URIUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -399,6 +398,6 @@ public class AuthorizationSuccessResponse
 	public static AuthorizationSuccessResponse parse(final HTTPRequest httpRequest)
 		throws ParseException {
 
-		return parse(httpRequest.getURI(), parseResponseParameters(httpRequest));
+		return parse(URIUtils.getBaseURI(httpRequest.getURI()), parseResponseParameters(httpRequest));
 	}
 }
