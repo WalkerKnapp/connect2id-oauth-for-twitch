@@ -2458,7 +2458,11 @@ version 11.15 (2024-08-13)
     * Removes specification section references in JavaDocs to reduce
       maintenance effort (iss #475).
 
-version 11.15.1 (2024-08-15)
+version 11.16 (2024-08-15)
+    * Adds AuthenticationResponse.getIssuer interface method.
+    * Adds AuthenticationResponse.getJWTResponse interface method.
+    * Adds AuthenticationResponse.getResponseMode interface method.
+    * Adds AuthenticationResponse.impliedResponseMode interface method.
     * Fixes base URI (redirect_uri) extraction in AuthorizationResponse.parse,
       AuthorizationSuccessResponse.parse, AuthorizationErrorResponse.parse,
       AuthenticationResponseParser.parse, AuthenticationSuccessResponse.parse

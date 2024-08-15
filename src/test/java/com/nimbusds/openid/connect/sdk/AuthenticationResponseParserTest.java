@@ -62,8 +62,8 @@ public class AuthenticationResponseParserTest extends TestCase {
 		throws Exception {
 
 		URI redirectURI = new URI("https://example.com/in");
-		AuthorizationCode code = new AuthorizationCode("123");
-		State state = new State("xyz");
+		AuthorizationCode code = new AuthorizationCode();
+		State state = new State();
 
 		AuthenticationSuccessResponse successResponse = new AuthenticationSuccessResponse(
 			redirectURI,
@@ -81,6 +81,46 @@ public class AuthenticationResponseParserTest extends TestCase {
 		assertTrue(response.indicatesSuccess());
 		assertEquals(redirectURI, response.getRedirectionURI());
 		assertEquals(state, response.getState());
+		assertNull(response.getIssuer());
+		assertNull(response.getJWTResponse());
+		assertNull(response.getResponseMode());
+		assertEquals(ResponseMode.QUERY, response.impliedResponseMode());
+
+		successResponse = response.toSuccessResponse();
+		assertEquals(code, successResponse.getAuthorizationCode());
+		assertEquals(state, successResponse.getState());
+	}
+
+
+	public void testParseSuccess_withIssuer()
+		throws Exception {
+
+		URI redirectURI = new URI("https://example.com/in");
+		AuthorizationCode code = new AuthorizationCode();
+		State state = new State();
+		Issuer issuer = new Issuer("https://c2id.com");
+
+		AuthenticationSuccessResponse successResponse = new AuthenticationSuccessResponse(
+			redirectURI,
+			code,
+			null,
+			null,
+			state,
+			null,
+			issuer,
+			null);
+
+		HTTPResponse httpResponse = successResponse.toHTTPResponse();
+
+		AuthenticationResponse response = AuthenticationResponseParser.parse(httpResponse);
+
+		assertTrue(response.indicatesSuccess());
+		assertEquals(redirectURI, response.getRedirectionURI());
+		assertEquals(state, response.getState());
+		assertEquals(issuer, response.getIssuer());
+		assertNull(response.getJWTResponse());
+		assertNull(response.getResponseMode());
+		assertEquals(ResponseMode.QUERY, response.impliedResponseMode());
 
 		successResponse = response.toSuccessResponse();
 		assertEquals(code, successResponse.getAuthorizationCode());
@@ -109,6 +149,10 @@ public class AuthenticationResponseParserTest extends TestCase {
 		assertFalse(response.indicatesSuccess());
 		assertEquals(redirectURI, response.getRedirectionURI());
 		assertEquals(state, response.getState());
+		assertNull(response.getIssuer());
+		assertNull(response.getJWTResponse());
+		assertNull(response.getResponseMode());
+		assertEquals(ResponseMode.QUERY, response.impliedResponseMode());
 
 		errorResponse = response.toErrorResponse();
 		assertEquals(OAuth2Error.ACCESS_DENIED, errorResponse.getErrorObject());
@@ -143,6 +187,13 @@ public class AuthenticationResponseParserTest extends TestCase {
 			"KhW3P_9wjvI0K20gdoTNbNlP9Z41mhart4BqraIoI8e-L_EfAHfhCG_DDDv7Yg");
 		
 		AuthenticationResponse response = AuthenticationResponseParser.parse(uri);
+		assertTrue(response.indicatesSuccess());
+		assertEquals(URI.create("https://client.example.com/cb"), response.getRedirectionURI());
+		assertNull(response.getState());
+		assertNull(response.getIssuer());
+		assertTrue(response.getJWTResponse() instanceof SignedJWT);
+		assertEquals(ResponseMode.JWT, response.getResponseMode());
+		assertEquals(ResponseMode.JWT, response.impliedResponseMode());
 		
 		AuthenticationSuccessResponse successResponse = response.toSuccessResponse();
 		assertNull(successResponse.getAuthorizationCode());

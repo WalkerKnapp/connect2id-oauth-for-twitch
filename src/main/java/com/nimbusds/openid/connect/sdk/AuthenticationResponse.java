@@ -18,10 +18,13 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.net.URI;
-
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.Response;
+import com.nimbusds.oauth2.sdk.ResponseMode;
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.State;
+
+import java.net.URI;
 
 
 /**
@@ -37,20 +40,54 @@ public interface AuthenticationResponse extends Response {
 
 
 	/**
-	 * Gets the base redirection URI.
+	 * Returns the base redirection URI.
 	 *
-	 * @return The base redirection URI (without the appended error
-	 *         response parameters).
+	 * @return The base redirection URI.
 	 */
 	URI getRedirectionURI();
 
 
 	/**
-	 * Gets the optional state.
+	 * Returns the optional state.
 	 *
-	 * @return The state, {@code null} if not requested.
+	 * @return The state, {@code null} if not requested or if the response
+	 *         is JWT-secured in which case the state parameter may be
+	 *         included as a JWT claim.
 	 */
 	State getState();
+
+
+	/**
+	 * Returns the optional issuer.
+	 *
+	 * @return The issuer, {@code null} if not specified.
+	 */
+	Issuer getIssuer();
+
+
+	/**
+	 * Returns the JSON Web Token (JWT) secured response.
+	 *
+	 * @return The JWT-secured response, {@code null} for a regular
+	 *         authorisation response.
+	 */
+	JWT getJWTResponse();
+
+
+	/**
+	 * Returns the optional explicit response mode.
+	 *
+	 * @return The response mode, {@code null} if not specified.
+	 */
+	ResponseMode getResponseMode();
+
+
+	/**
+	 * Determines the implied response mode.
+	 *
+	 * @return The implied response mode.
+	 */
+	ResponseMode impliedResponseMode();
 	
 	
 	/**
