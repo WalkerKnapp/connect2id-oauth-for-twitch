@@ -2467,3 +2467,7 @@ version 11.16 (2024-08-15)
       AuthorizationSuccessResponse.parse, AuthorizationErrorResponse.parse,
       AuthenticationResponseParser.parse, AuthenticationSuccessResponse.parse
       and AuthenticationErrorResponse.parse (iss #477).
+
+version 11.16.1 (2024-08-16)
+    * Adds extra IDTokenClaimsSet constructor "aud", "exp" and "iat" argument
+      checks.

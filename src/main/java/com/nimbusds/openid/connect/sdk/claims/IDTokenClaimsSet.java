@@ -179,6 +179,10 @@ public class IDTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 		setClaim(ISS_CLAIM_NAME, iss.getValue());
 		setClaim(SUB_CLAIM_NAME, sub.getValue());
 
+		if (aud.isEmpty()) {
+			throw new IllegalArgumentException("The aud must not be empty");
+		}
+
 		JSONArray audList = new JSONArray();
 
 		for (Audience a: aud)
@@ -186,8 +190,12 @@ public class IDTokenClaimsSet extends CommonOIDCTokenClaimsSet {
 
 		setClaim(AUD_CLAIM_NAME, audList);
 
-		setDateClaim(EXP_CLAIM_NAME, exp);
-		setDateClaim(IAT_CLAIM_NAME, iat);
+		if (exp.before(iat) || exp.equals(iat)) {
+			throw new IllegalArgumentException("The exp must be after iat");
+		}
+
+		setDateClaim(EXP_CLAIM_NAME, Objects.requireNonNull(exp));
+		setDateClaim(IAT_CLAIM_NAME, Objects.requireNonNull(iat));
 	}
 
 

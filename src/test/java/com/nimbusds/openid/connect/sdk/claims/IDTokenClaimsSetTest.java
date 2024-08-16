@@ -28,24 +28,25 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.openid.connect.sdk.Nonce;
-import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 
-public class IDTokenClaimsSetTest extends TestCase {
+public class IDTokenClaimsSetTest {
 
 
-	public void testClaimNameConstants() {
+        @Test
+        public void testClaimNameConstants() {
 
 		assertEquals("acr", IDTokenClaimsSet.ACR_CLAIM_NAME);
 		assertEquals("amr", IDTokenClaimsSet.AMR_CLAIM_NAME);
@@ -67,7 +68,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testStdClaims() {
+        @Test
+        public void testStdClaims() {
 
 		Set<String> stdClaimNames = IDTokenClaimsSet.getStandardClaimNames();
 
@@ -92,7 +94,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testReadOnlyJWTClaimsSetConstructor()
+        @Test
+        public void testReadOnlyJWTClaimsSetConstructor()
 		throws Exception {
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
@@ -112,7 +115,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testParseRoundTrip()
+        @Test
+        public void testParseRoundTrip()
 		throws Exception {
 
 		// Example from messages spec
@@ -167,7 +171,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testGettersAndSetters()
+        @Test
+        public void testGettersAndSetters()
 		throws Exception {
 
 		Issuer issuer = new Issuer("iss");
@@ -176,12 +181,12 @@ public class IDTokenClaimsSetTest extends TestCase {
 		List<Audience> audList = new LinkedList<>();
 		audList.add(new Audience("aud"));
 
-		Date expirationTime = DateUtils.fromSecondsSinceEpoch(100000L);
-		Date issueTime = DateUtils.fromSecondsSinceEpoch(200000L);
+		Date expirationTime = DateUtils.fromSecondsSinceEpoch(3L);
+		Date issueTime = DateUtils.fromSecondsSinceEpoch(2L);
 
 		IDTokenClaimsSet idTokenClaimsSet = new IDTokenClaimsSet(issuer, subject, audList, expirationTime, issueTime);
 
-		Date authenticationTime = DateUtils.fromSecondsSinceEpoch(300000L);
+		Date authenticationTime = DateUtils.fromSecondsSinceEpoch(1L);
 		idTokenClaimsSet.setAuthenticationTime(authenticationTime);
 
 		Nonce nonce = new Nonce();
@@ -213,11 +218,11 @@ public class IDTokenClaimsSetTest extends TestCase {
 		assertEquals("iss", idTokenClaimsSet.getIssuer().getValue());
 		assertEquals("sub", idTokenClaimsSet.getSubject().getValue());
 		assertEquals("aud", idTokenClaimsSet.getAudience().get(0).getValue());
-		assertEquals(100000L, idTokenClaimsSet.getExpirationTime().getTime() / 1000);
-		assertEquals(200000L, idTokenClaimsSet.getIssueTime().getTime() / 1000);
+		assertEquals(3L, idTokenClaimsSet.getExpirationTime().getTime() / 1000);
+		assertEquals(2L, idTokenClaimsSet.getIssueTime().getTime() / 1000);
 
 		// Optional claims
-		assertEquals(300000L, idTokenClaimsSet.getAuthenticationTime().getTime() / 1000);
+		assertEquals(1L, idTokenClaimsSet.getAuthenticationTime().getTime() / 1000);
 		assertEquals(nonce.getValue(), idTokenClaimsSet.getNonce().getValue());
 		assertEquals(accessTokenHash.getValue(), idTokenClaimsSet.getAccessTokenHash().getValue());
 		assertEquals(codeHash.getValue(), idTokenClaimsSet.getCodeHash().getValue());
@@ -240,11 +245,11 @@ public class IDTokenClaimsSetTest extends TestCase {
 		assertEquals("iss", idTokenClaimsSet.getIssuer().getValue());
 		assertEquals("sub", idTokenClaimsSet.getSubject().getValue());
 		assertEquals("aud", idTokenClaimsSet.getAudience().get(0).getValue());
-		assertEquals(100000L, idTokenClaimsSet.getExpirationTime().getTime() / 1000);
-		assertEquals(200000L, idTokenClaimsSet.getIssueTime().getTime() / 1000);
+		assertEquals(3L, idTokenClaimsSet.getExpirationTime().getTime() / 1000);
+		assertEquals(2L, idTokenClaimsSet.getIssueTime().getTime() / 1000);
 
 		// Optional claims
-		assertEquals(300000L, idTokenClaimsSet.getAuthenticationTime().getTime() / 1000);
+		assertEquals(1L, idTokenClaimsSet.getAuthenticationTime().getTime() / 1000);
 		assertEquals(nonce.getValue(), idTokenClaimsSet.getNonce().getValue());
 		assertEquals(accessTokenHash.getValue(), idTokenClaimsSet.getAccessTokenHash().getValue());
 		assertEquals(codeHash.getValue(), idTokenClaimsSet.getCodeHash().getValue());
@@ -254,9 +259,10 @@ public class IDTokenClaimsSetTest extends TestCase {
 		assertEquals("A", idTokenClaimsSet.getAMR().get(0).getValue());
 		assertEquals(authorizedParty.getValue(), idTokenClaimsSet.getAuthorizedParty().getValue());
 	}
-	
-	
-	public void testStateHash()
+
+
+        @Test
+        public void testStateHash()
 		throws Exception {
 		
 		IDTokenClaimsSet idTokenClaimsSet = new IDTokenClaimsSet(
@@ -296,7 +302,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testDeviceSecretHash()
+        @Test
+        public void testDeviceSecretHash()
 		throws Exception {
 
 		IDTokenClaimsSet idTokenClaimsSet = new IDTokenClaimsSet(
@@ -335,7 +342,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testSingleAudSetAndGetWorkaround() {
+        @Test
+        public void testSingleAudSetAndGetWorkaround() {
 
 		Issuer issuer = new Issuer("iss");
 		Subject subject = new Subject("sub");
@@ -343,8 +351,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 		List<Audience> audList = new LinkedList<>();
 		audList.add(new Audience("aud"));
 
-		Date expirationTime = DateUtils.fromSecondsSinceEpoch(100000L);
-		Date issueTime = DateUtils.fromSecondsSinceEpoch(200000L);
+		Date expirationTime = DateUtils.fromSecondsSinceEpoch(10L);
+		Date issueTime = DateUtils.fromSecondsSinceEpoch(5L);
 
 		IDTokenClaimsSet idTokenClaimsSet = new IDTokenClaimsSet(issuer, subject, audList, expirationTime, issueTime);
 
@@ -354,7 +362,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testHasRequiredClaimsCodeFlow()
+        @Test
+        public void testHasRequiredClaimsCodeFlow()
 		throws Exception {
 
 		// See http://openid.net/specs/openid-connect-core-1_0.html#CodeIDToken
@@ -366,8 +375,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 			new Issuer("iss"),
 			new Subject("sub"),
 			new Audience("aud").toSingleAudienceList(),
-			new Date(),
-			new Date());
+			DateUtils.fromSecondsSinceEpoch(2),
+			DateUtils.fromSecondsSinceEpoch(1));
 
 		// c_hash not required, at_hash optional in response_type=code
 		assertTrue(claimsSet.hasRequiredClaims(rt_code, iatAuthzEndpoint));
@@ -380,7 +389,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testHasRequiredClaimsImplicitFlow()
+        @Test
+        public void testHasRequiredClaimsImplicitFlow()
 		throws Exception {
 
 		// See http://openid.net/specs/openid-connect-core-1_0.html#ImplicitIDToken
@@ -393,18 +403,18 @@ public class IDTokenClaimsSetTest extends TestCase {
 			new Issuer("iss"),
 			new Subject("sub"),
 			new Audience("aud").toSingleAudienceList(),
-			new Date(),
-			new Date());
+			DateUtils.fromSecondsSinceEpoch(2),
+			DateUtils.fromSecondsSinceEpoch(1));
 
 		// nonce always required
-		assertFalse(claimsSet.hasRequiredClaims(rt_idToken, iatAuthzEndpoint));
-		assertFalse(claimsSet.hasRequiredClaims(rt_idToken_token, iatAuthzEndpoint));
+		Assert.assertFalse(claimsSet.hasRequiredClaims(rt_idToken, iatAuthzEndpoint));
+		Assert.assertFalse(claimsSet.hasRequiredClaims(rt_idToken_token, iatAuthzEndpoint));
 
 		claimsSet.setNonce(new Nonce());
 
 		// at_hash required in id_token token, not in id_token
 		assertTrue(claimsSet.hasRequiredClaims(rt_idToken, iatAuthzEndpoint));
-		assertFalse(claimsSet.hasRequiredClaims(rt_idToken_token, iatAuthzEndpoint));
+		Assert.assertFalse(claimsSet.hasRequiredClaims(rt_idToken_token, iatAuthzEndpoint));
 
 		claimsSet.setAccessTokenHash(new AccessTokenHash("at_hash"));
 
@@ -413,7 +423,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testHasRequiredClaimsHybridFlow()
+        @Test
+        public void testHasRequiredClaimsHybridFlow()
 		throws Exception {
 
 		// See http://openid.net/specs/openid-connect-core-1_0.html#HybridIDToken
@@ -427,16 +438,16 @@ public class IDTokenClaimsSetTest extends TestCase {
 			new Issuer("iss"),
 			new Subject("sub"),
 			new Audience("aud").toSingleAudienceList(),
-			new Date(),
-			new Date());
+			DateUtils.fromSecondsSinceEpoch(2),
+			DateUtils.fromSecondsSinceEpoch(1));
 
 		// Nonce always required in hybrid flow, regardless of issue endpoint
-		assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken, true));
-		assertFalse(claimsSet.hasRequiredClaims(rt_code_token, true));
-		assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken_token, true));
-		assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken, false));
-		assertFalse(claimsSet.hasRequiredClaims(rt_code_token, false));
-		assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken_token, false));
+		Assert.assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken, true));
+		Assert.assertFalse(claimsSet.hasRequiredClaims(rt_code_token, true));
+		Assert.assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken_token, true));
+		Assert.assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken, false));
+		Assert.assertFalse(claimsSet.hasRequiredClaims(rt_code_token, false));
+		Assert.assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken_token, false));
 
 		claimsSet.setNonce(new Nonce());
 
@@ -446,16 +457,16 @@ public class IDTokenClaimsSetTest extends TestCase {
 		assertTrue(claimsSet.hasRequiredClaims(rt_code_idToken_token, false));
 
 		// c_hash required with 'code id_token' and 'code id_token token' issued at authz endpoint
-		assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken, true));
+		Assert.assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken, true));
 		assertTrue(claimsSet.hasRequiredClaims(rt_code_token, true));
-		assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken_token, true));
+		Assert.assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken_token, true));
 
 		claimsSet.setCodeHash(new CodeHash("c_hash"));
 
 		// at_hash required with 'code id_token token' issued at authz endpoint
 		assertTrue(claimsSet.hasRequiredClaims(rt_code_idToken, true));
 		assertTrue(claimsSet.hasRequiredClaims(rt_code_token, true));
-		assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken_token, true));
+		Assert.assertFalse(claimsSet.hasRequiredClaims(rt_code_idToken_token, true));
 
 		claimsSet.setAccessTokenHash(new AccessTokenHash("at_hash"));
 
@@ -465,7 +476,8 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testRequiredClaims_unsupportedResponseType() {
+        @Test
+        public void testRequiredClaims_unsupportedResponseType() {
 
 		ResponseType responseType = new ResponseType("token");
 
@@ -473,27 +485,28 @@ public class IDTokenClaimsSetTest extends TestCase {
 			new Issuer("iss"),
 			new Subject("sub"),
 			new Audience("aud").toSingleAudienceList(),
-			new Date(),
-			new Date());
+			DateUtils.fromSecondsSinceEpoch(2),
+			DateUtils.fromSecondsSinceEpoch(1));
 
 		try {
 			claimsSet.hasRequiredClaims(responseType, true);
-			fail();
+			Assert.fail();
 		} catch (IllegalArgumentException e) {
 			assertEquals("Unsupported response_type: token", e.getMessage());
 		}
 	}
 
 
-	public void testSubjectJWK()
+        @Test
+        public void testSubjectJWK()
 		throws Exception {
 
 		IDTokenClaimsSet claimsSet = new IDTokenClaimsSet(
 			new Issuer("iss"),
 			new Subject("sub"),
 			new Audience("aud").toSingleAudienceList(),
-			new Date(),
-			new Date());
+			DateUtils.fromSecondsSinceEpoch(2),
+			DateUtils.fromSecondsSinceEpoch(1));
 
 		assertNull(claimsSet.getSubjectJWK());
 
@@ -529,15 +542,16 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testRejectPrivateSubjectJWK()
+        @Test
+        public void testRejectPrivateSubjectJWK()
 		throws Exception {
 
 		IDTokenClaimsSet claimsSet = new IDTokenClaimsSet(
 			new Issuer("iss"),
 			new Subject("sub"),
 			new Audience("aud").toSingleAudienceList(),
-			new Date(),
-			new Date());
+			DateUtils.fromSecondsSinceEpoch(2),
+			DateUtils.fromSecondsSinceEpoch(1));
 
 		assertNull(claimsSet.getSubjectJWK());
 
@@ -554,7 +568,7 @@ public class IDTokenClaimsSetTest extends TestCase {
 		try {
 			claimsSet.setSubjectJWK(rsaJWK);
 
-			fail();
+			Assert.fail();
 
 		} catch (IllegalArgumentException e) {
 			// ok
@@ -562,14 +576,15 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testStringClaim() {
+        @Test
+        public void testStringClaim() {
 
 		IDTokenClaimsSet claimsSet = new IDTokenClaimsSet(
 			new Issuer("iss"),
 			new Subject("sub"),
 			new Audience("aud").toSingleAudienceList(),
-			new Date(),
-			new Date());
+			DateUtils.fromSecondsSinceEpoch(2),
+			DateUtils.fromSecondsSinceEpoch(1));
 
 		claimsSet.setClaim("xString", "apples");
 
@@ -579,14 +594,15 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testNumberClaim() {
+        @Test
+        public void testNumberClaim() {
 
 		IDTokenClaimsSet claimsSet = new IDTokenClaimsSet(
 			new Issuer("iss"),
 			new Subject("sub"),
 			new Audience("aud").toSingleAudienceList(),
-			new Date(),
-			new Date());
+			DateUtils.fromSecondsSinceEpoch(2),
+			DateUtils.fromSecondsSinceEpoch(1));
 
 		claimsSet.setClaim("xInteger", 10);
 
@@ -596,20 +612,108 @@ public class IDTokenClaimsSetTest extends TestCase {
 	}
 
 
-	public void testURLClaim()
+        @Test
+        public void testURLClaim()
 		throws Exception {
 
 		IDTokenClaimsSet claimsSet = new IDTokenClaimsSet(
 			new Issuer("iss"),
 			new Subject("sub"),
 			new Audience("aud").toSingleAudienceList(),
-			new Date(),
-			new Date());
+			DateUtils.fromSecondsSinceEpoch(2),
+			DateUtils.fromSecondsSinceEpoch(1));
 
 		claimsSet.setURLClaim("xURL", new URL("http://example.com"));
 
 		assertEquals("http://example.com", claimsSet.getURLClaim("xURL").toString());
 
 		assertNull(claimsSet.getURLClaim("sub"));
+	}
+
+
+        @Test
+        public void testParameterConstructor_rejectEmptyAudience() {
+
+		try {
+			new IDTokenClaimsSet(
+				new Issuer("https://c2id.com"),
+				new Subject("alice"),
+				Collections.<Audience>emptyList(),
+				new Date(DateUtils.nowWithSecondsPrecision().getTime() + 60_000),
+				DateUtils.nowWithSecondsPrecision());
+			Assert.fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("The aud must not be empty", e.getMessage());
+		}
+	}
+
+
+        @Test(expected = NullPointerException.class)
+        public void testParameterConstructor_rejectAudienceWithNullValue() {
+
+		new IDTokenClaimsSet(
+			new Issuer("https://c2id.com"),
+			new Subject("alice"),
+			Arrays.asList(new Audience("123"), null),
+			new Date(DateUtils.nowWithSecondsPrecision().getTime() + 60_000),
+			DateUtils.nowWithSecondsPrecision());
+	}
+
+
+        @Test(expected = NullPointerException.class)
+        public void testParameterConstructor_rejectNullExp() {
+
+		new IDTokenClaimsSet(
+			new Issuer("https://c2id.com"),
+			new Subject("alice"),
+			new Audience("123").toSingleAudienceList(),
+			null,
+			DateUtils.nowWithSecondsPrecision());
+	}
+
+
+        @Test(expected = NullPointerException.class)
+        public void testParameterConstructor_rejectNullIat() {
+
+		new IDTokenClaimsSet(
+			new Issuer("https://c2id.com"),
+			new Subject("alice"),
+			new Audience("123").toSingleAudienceList(),
+			new Date(DateUtils.nowWithSecondsPrecision().getTime() + 60_000),
+			null);
+	}
+
+
+	@Test
+	public void testParameterConstructor_rejectIatAfterExp() {
+
+		try {
+			new IDTokenClaimsSet(
+				new Issuer("https://c2id.com"),
+				new Subject("alice"),
+				new Audience("123").toSingleAudienceList(),
+				DateUtils.fromSecondsSinceEpoch(1), // exp
+				DateUtils.fromSecondsSinceEpoch(2)); // iat
+			Assert.fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("The exp must be after iat", e.getMessage());
+		}
+	}
+
+
+	@Test
+	public void testParameterConstructor_rejectIatEqualsExp() {
+
+		try {
+			new IDTokenClaimsSet(
+				new Issuer("https://c2id.com"),
+				new Subject("alice"),
+				new Audience("123").toSingleAudienceList(),
+				DateUtils.fromSecondsSinceEpoch(1), // exp
+				DateUtils.fromSecondsSinceEpoch(1)); // iat
+			Assert.fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("The exp must be after iat", e.getMessage());
+		}
 	}
 }
