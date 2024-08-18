@@ -400,6 +400,7 @@ public class DeviceAuthorizationRequest extends AbstractOptionallyIdentifiedRequ
 
 		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.POST, getEndpointURI());
 		httpRequest.setEntityContentType(ContentType.APPLICATION_URLENCODED);
+		httpRequest.setAccept(ContentType.APPLICATION_JSON.getType()); // iss #451
 
 		if (getClientAuthentication() != null) {
 			getClientAuthentication().applyTo(httpRequest);

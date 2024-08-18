@@ -65,6 +65,8 @@ public class DeviceAuthorizationRequestTest extends TestCase {
 		HTTPRequest httpReq = req.toHTTPRequest();
 		Map<String, List<String>> params = httpReq.getBodyAsFormParameters();
 		assertEquals(HTTPRequest.Method.POST, httpReq.getMethod());
+		assertEquals(ContentType.APPLICATION_URLENCODED, httpReq.getEntityContentType());
+		assertEquals("application/json", httpReq.getAccept());
 		assertEquals(uri, httpReq.getURL().toURI());
 		assertEquals(params.size(), 1);
 
@@ -101,6 +103,8 @@ public class DeviceAuthorizationRequestTest extends TestCase {
 		HTTPRequest httpReq = req.toHTTPRequest();
 		Map<String, List<String>> params = httpReq.getBodyAsFormParameters();
 		assertEquals(HTTPRequest.Method.POST, httpReq.getMethod());
+		assertEquals(ContentType.APPLICATION_URLENCODED, httpReq.getEntityContentType());
+		assertEquals("application/json", httpReq.getAccept());
 		assertEquals(5, params.size());
 
 		req = DeviceAuthorizationRequest.parse(httpReq);
@@ -141,6 +145,8 @@ public class DeviceAuthorizationRequestTest extends TestCase {
 		HTTPRequest httpReq = req.toHTTPRequest();
 		Map<String, List<String>> params = httpReq.getBodyAsFormParameters();
 		assertEquals(HTTPRequest.Method.POST, httpReq.getMethod());
+		assertEquals(ContentType.APPLICATION_URLENCODED, httpReq.getEntityContentType());
+		assertEquals("application/json", httpReq.getAccept());
 		assertEquals(3, params.size());
 
 		req = DeviceAuthorizationRequest.parse(httpReq);
