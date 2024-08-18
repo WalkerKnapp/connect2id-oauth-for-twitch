@@ -2471,3 +2471,6 @@ version 11.16 (2024-08-15)
 version 11.16.1 (2024-08-16)
     * Adds extra IDTokenClaimsSet constructor "aud", "exp" and "iat" argument
       checks.
+
+version 11.17 (2024-08-18)
+    * Adds DeviceSSOScopeValue.
