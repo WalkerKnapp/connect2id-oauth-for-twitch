@@ -18,6 +18,26 @@
 package com.nimbusds.openid.connect.sdk.rp.statement;
 
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.RemoteJWKSet;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.client.ClientMetadata;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.SoftwareID;
+import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
@@ -27,25 +47,6 @@ import java.util.HashSet;
 
 import static net.jadler.Jadler.*;
 import static org.junit.Assert.*;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.oauth2.sdk.client.ClientMetadata;
-import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.id.SoftwareID;
-import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
 
 
 public class SoftwareStatementProcessorTest {
@@ -290,6 +291,198 @@ public class SoftwareStatementProcessorTest {
 			fail();
 		} catch (InvalidSoftwareStatementException e) {
 			assertEquals("Missing required software statement", e.getMessage());
+		}
+	}
+
+
+	@Test
+	public void testRS256_jwtType_explicitJWT()
+		throws Exception {
+
+		Issuer issuer = new Issuer("https://issuer.com");
+
+		OIDCClientMetadata clientMetadata = new OIDCClientMetadata();
+		URI redirectURI = URI.create("https://example.com/cb");
+		clientMetadata.setRedirectionURI(redirectURI);
+
+		ClientMetadata signedClientMetadata = new ClientMetadata();
+		SoftwareID softwareID = new SoftwareID("4NRB1-0XZABZI9E6-5SM3R");
+		signedClientMetadata.setSoftwareID(softwareID);
+		String name = "Example Statement-based Client";
+		signedClientMetadata.setName(name);
+		URI uri = URI.create("https://client.example.net/");
+		signedClientMetadata.setURI(uri);
+
+		SignedJWT softwareStatement = new SignedJWT(
+			new JWSHeader.Builder(JWSAlgorithm.RS256)
+				.type(JOSEObjectType.JWT)
+				.keyID(RSA_JWK.getKeyID())
+				.build(),
+			new JWTClaimsSet.Builder(JWTClaimsSet.parse(signedClientMetadata.toJSONObject()))
+				.issuer(issuer.getValue())
+				.build());
+		softwareStatement.sign(new RSASSASigner(RSA_JWK));
+		clientMetadata.setSoftwareStatement(softwareStatement);
+
+		for (boolean required: Arrays.asList(true, false)) {
+
+			SoftwareStatementProcessor processor = new SoftwareStatementProcessor(
+				issuer,
+				required,
+				Collections.singleton(JWSAlgorithm.RS256),
+				new JWKSet(RSA_JWK.toPublicJWK()));
+
+			OIDCClientMetadata out = processor.process(clientMetadata);
+			assertEquals(Collections.singleton(redirectURI), out.getRedirectionURIs());
+			assertEquals(softwareID, out.getSoftwareID());
+			assertEquals(name, out.getName());
+			assertEquals(uri, out.getURI());
+			assertEquals(4, out.toJSONObject().size());
+		}
+	}
+
+
+	@Test
+	public void testRS256_jwtType_explicitNotJWT()
+		throws Exception {
+
+		Issuer issuer = new Issuer("https://issuer.com");
+
+		OIDCClientMetadata clientMetadata = new OIDCClientMetadata();
+		URI redirectURI = URI.create("https://example.com/cb");
+		clientMetadata.setRedirectionURI(redirectURI);
+
+		ClientMetadata signedClientMetadata = new ClientMetadata();
+		SoftwareID softwareID = new SoftwareID("4NRB1-0XZABZI9E6-5SM3R");
+		signedClientMetadata.setSoftwareID(softwareID);
+		String name = "Example Statement-based Client";
+		signedClientMetadata.setName(name);
+		URI uri = URI.create("https://client.example.net/");
+		signedClientMetadata.setURI(uri);
+
+		SignedJWT softwareStatement = new SignedJWT(
+			new JWSHeader.Builder(JWSAlgorithm.RS256)
+				.type(new JOSEObjectType("some-jwt-type"))
+				.keyID(RSA_JWK.getKeyID())
+				.build(),
+			new JWTClaimsSet.Builder(JWTClaimsSet.parse(signedClientMetadata.toJSONObject()))
+				.issuer(issuer.getValue())
+				.build());
+		softwareStatement.sign(new RSASSASigner(RSA_JWK));
+		clientMetadata.setSoftwareStatement(softwareStatement);
+
+		for (boolean required: Arrays.asList(true, false)) {
+
+			SoftwareStatementProcessor processor = new SoftwareStatementProcessor(
+				issuer,
+				required,
+				Collections.singleton(JWSAlgorithm.RS256),
+				new JWKSet(RSA_JWK.toPublicJWK()));
+
+			try {
+				processor.process(clientMetadata);
+				fail();
+			} catch (InvalidSoftwareStatementException e) {
+				assertEquals("Invalid software statement JWT: JOSE header typ (type) some-jwt-type not allowed", e.getMessage());
+			}
+		}
+	}
+
+
+	@Test
+	public void testRS256_jwtType_explicitCustom()
+		throws Exception {
+
+		Issuer issuer = new Issuer("https://issuer.com");
+
+		OIDCClientMetadata clientMetadata = new OIDCClientMetadata();
+		URI redirectURI = URI.create("https://example.com/cb");
+		clientMetadata.setRedirectionURI(redirectURI);
+
+		ClientMetadata signedClientMetadata = new ClientMetadata();
+		SoftwareID softwareID = new SoftwareID("4NRB1-0XZABZI9E6-5SM3R");
+		signedClientMetadata.setSoftwareID(softwareID);
+		String name = "Example Statement-based Client";
+		signedClientMetadata.setName(name);
+		URI uri = URI.create("https://client.example.net/");
+		signedClientMetadata.setURI(uri);
+
+		SignedJWT softwareStatement = new SignedJWT(
+			new JWSHeader.Builder(JWSAlgorithm.RS256)
+				.type(new JOSEObjectType("software-statement+jwt"))
+				.keyID(RSA_JWK.getKeyID())
+				.build(),
+			new JWTClaimsSet.Builder(JWTClaimsSet.parse(signedClientMetadata.toJSONObject()))
+				.issuer(issuer.getValue())
+				.build());
+		softwareStatement.sign(new RSASSASigner(RSA_JWK));
+		clientMetadata.setSoftwareStatement(softwareStatement);
+
+		for (boolean required: Arrays.asList(true, false)) {
+
+			SoftwareStatementProcessor processor = new SoftwareStatementProcessor(
+				issuer,
+				required,
+				Collections.singleton(JWSAlgorithm.RS256),
+				Collections.singleton(new JOSEObjectType("software-statement+jwt")),
+				new ImmutableJWKSet(new JWKSet(RSA_JWK.toPublicJWK())),
+				null);
+
+			OIDCClientMetadata out = processor.process(clientMetadata);
+			assertEquals(Collections.singleton(redirectURI), out.getRedirectionURIs());
+			assertEquals(softwareID, out.getSoftwareID());
+			assertEquals(name, out.getName());
+			assertEquals(uri, out.getURI());
+			assertEquals(4, out.toJSONObject().size());
+		}
+	}
+
+
+	@Test
+	public void testRS256_jwtType_explicitCustomNotAllowed()
+		throws Exception {
+
+		Issuer issuer = new Issuer("https://issuer.com");
+
+		OIDCClientMetadata clientMetadata = new OIDCClientMetadata();
+		URI redirectURI = URI.create("https://example.com/cb");
+		clientMetadata.setRedirectionURI(redirectURI);
+
+		ClientMetadata signedClientMetadata = new ClientMetadata();
+		SoftwareID softwareID = new SoftwareID("4NRB1-0XZABZI9E6-5SM3R");
+		signedClientMetadata.setSoftwareID(softwareID);
+		String name = "Example Statement-based Client";
+		signedClientMetadata.setName(name);
+		URI uri = URI.create("https://client.example.net/");
+		signedClientMetadata.setURI(uri);
+
+		SignedJWT softwareStatement = new SignedJWT(
+			new JWSHeader.Builder(JWSAlgorithm.RS256)
+				.type(new JOSEObjectType("some-jwt-type"))
+				.keyID(RSA_JWK.getKeyID())
+				.build(),
+			new JWTClaimsSet.Builder(JWTClaimsSet.parse(signedClientMetadata.toJSONObject()))
+				.issuer(issuer.getValue())
+				.build());
+		softwareStatement.sign(new RSASSASigner(RSA_JWK));
+		clientMetadata.setSoftwareStatement(softwareStatement);
+
+		for (boolean required: Arrays.asList(true, false)) {
+
+			SoftwareStatementProcessor processor = new SoftwareStatementProcessor(
+				issuer,
+				required,
+				Collections.singleton(JWSAlgorithm.RS256),
+				Collections.singleton(new JOSEObjectType("software-statement+jwt")),
+				new ImmutableJWKSet(new JWKSet(RSA_JWK.toPublicJWK())),
+				null);
+
+			try {
+				processor.process(clientMetadata);
+				fail();
+			} catch (InvalidSoftwareStatementException e) {
+				assertEquals("Invalid software statement JWT: JOSE header typ (type) some-jwt-type not allowed", e.getMessage());
+			}
 		}
 	}
 

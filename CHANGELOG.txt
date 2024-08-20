@@ -2476,3 +2476,6 @@ version 11.17 (2024-08-18)
     * Adds DeviceSSOScopeValue.
     * The DeviceAuthorizationRequest should set the HTTP Accept header to
       "application/json" (iss #451)
+
+version 11.18 (2024-08-20)
+    * Adds explicit JWT "typ" (checking) support to SoftwareStatementProcessor.

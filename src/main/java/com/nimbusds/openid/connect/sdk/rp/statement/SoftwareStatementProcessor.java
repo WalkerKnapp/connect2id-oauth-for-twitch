@@ -18,15 +18,8 @@
 package com.nimbusds.openid.connect.sdk.rp.statement;
 
 
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import net.jcip.annotations.ThreadSafe;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -34,6 +27,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.util.DefaultResourceRetriever;
@@ -46,6 +40,13 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
+import net.jcip.annotations.ThreadSafe;
+import net.minidev.json.JSONObject;
+
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -72,7 +73,7 @@ public class SoftwareStatementProcessor <C extends SecurityContext> {
 	/**
 	 * Creates a new software statement processor.
 	 *
-	 * @param issuer   The expected software statement issuer. Must not be
+	 * @param issuer   The allowed software statement issuer. Must not be
 	 *                 {@code null}.
 	 * @param required If {@code true} the processed client metadata must
 	 *                 include a software statement and if missing this
@@ -80,7 +81,7 @@ public class SoftwareStatementProcessor <C extends SecurityContext> {
 	 *                 error. If {@code false} client metadata with missing
 	 *                 software statement will be returned unmodified by
 	 *                 the processor.
-	 * @param jwsAlgs  The expected JWS algorithms of the software
+	 * @param jwsAlgs  The allowed JWS algorithms of the software
 	 *                 statements. Must not be empty or {@code null}.
 	 * @param jwkSet   The public JWK set for verifying the software
 	 *                 statement signatures.
@@ -97,7 +98,7 @@ public class SoftwareStatementProcessor <C extends SecurityContext> {
 	/**
 	 * Creates a new software statement processor.
 	 *
-	 * @param issuer           The expected software statement issuer. Must
+	 * @param issuer           The allowed software statement issuer. Must
 	 *                         not be {@code null}.
 	 * @param required         If {@code true} the processed client
 	 *                         metadata must include a software statement
@@ -106,7 +107,7 @@ public class SoftwareStatementProcessor <C extends SecurityContext> {
 	 *                         {@code false} client metadata with missing
 	 *                         software statement will be returned
 	 *                         unmodified by the processor.
-	 * @param jwsAlgs          The expected JWS algorithms of the software
+	 * @param jwsAlgs          The allowed JWS algorithms of the software
 	 *                         statements. Must not be empty or
 	 *                         {@code null}.
 	 * @param jwkSetURL        The public JWK set URL for verifying the
@@ -144,7 +145,7 @@ public class SoftwareStatementProcessor <C extends SecurityContext> {
 	/**
 	 * Creates a new software statement processor.
 	 *
-	 * @param issuer    The expected software statement issuer. Must not be
+	 * @param issuer    The allowed software statement issuer. Must not be
 	 *                  {@code null}.
 	 * @param required  If {@code true} the processed client metadata must
 	 *                  include a software statement and if missing this
@@ -152,7 +153,7 @@ public class SoftwareStatementProcessor <C extends SecurityContext> {
 	 *                  error. If {@code false} client metadata with
 	 *                  missing software statement will be returned
 	 *                  unmodified by the processor.
-	 * @param jwsAlgs   The expected JWS algorithms of the software
+	 * @param jwsAlgs   The allowed JWS algorithms of the software
 	 *                  statements. Must not be empty or {@code null}.
 	 * @param jwkSource The public JWK source to use for verifying the
 	 *                  software statement signatures.
@@ -169,7 +170,7 @@ public class SoftwareStatementProcessor <C extends SecurityContext> {
 	/**
 	 * Creates a new software statement processor.
 	 *
-	 * @param issuer                   The expected software statement
+	 * @param issuer                   The allowed software statement
 	 *                                 issuer. Must not be {@code null}.
 	 * @param required                 If {@code true} the processed client
 	 *                                 metadata must include a software
@@ -180,9 +181,50 @@ public class SoftwareStatementProcessor <C extends SecurityContext> {
 	 *                                 metadata with missing software
 	 *                                 statement will be returned
 	 *                                 unmodified by the processor.
-	 * @param jwsAlgs                  The expected JWS algorithms of the
+	 * @param jwsAlgs                  The allowed JWS algorithms of the
 	 *                                 software statements. Must not be
 	 *                                 empty or {@code null}.
+	 * @param jwkSource                The public JWK source to use for
+	 *                                 verifying the software statement
+	 *                                 signatures.
+	 * @param additionalRequiredClaims The names of any additional JWT
+	 *                                 claims other than "iss" (issuer)
+	 *                                 that must be present in the software
+	 *                                 statement, empty or {@code null} if
+	 *                                 none.
+	 */
+	@Deprecated
+	public SoftwareStatementProcessor(final Issuer issuer,
+					  final boolean required,
+					  final Set<JWSAlgorithm> jwsAlgs,
+					  final JWKSource<C> jwkSource,
+					  final Set<String> additionalRequiredClaims) {
+		
+		this(issuer, required, jwsAlgs, null, jwkSource, additionalRequiredClaims);
+	}
+
+
+	/**
+	 * Creates a new software statement processor.
+	 *
+	 * @param issuer                   The allowed software statement
+	 *                                 issuer. Must not be {@code null}.
+	 * @param required                 If {@code true} the processed client
+	 *                                 metadata must include a software
+	 *                                 statement and if missing this will
+	 *                                 result in a
+	 *                                 {@code invalid_software_statement}
+	 *                                 error. If {@code false} client
+	 *                                 metadata with missing software
+	 *                                 statement will be returned
+	 *                                 unmodified by the processor.
+	 * @param jwsAlgs                  The allowed JWS algorithms of the
+	 *                                 software statements. Must not be
+	 *                                 empty or {@code null}.
+	 * @param jwtTypes                 The allowed JWT "typ" (type) header
+	 *                                 values of the software statements,
+	 *                                 {@code null} or empty to accept
+	 *                                 {@code JWT} or none.
 	 * @param jwkSource                The public JWK source to use for
 	 *                                 verifying the software statement
 	 *                                 signatures.
@@ -195,18 +237,23 @@ public class SoftwareStatementProcessor <C extends SecurityContext> {
 	public SoftwareStatementProcessor(final Issuer issuer,
 					  final boolean required,
 					  final Set<JWSAlgorithm> jwsAlgs,
+					  final Set<JOSEObjectType> jwtTypes,
 					  final JWKSource<C> jwkSource,
 					  final Set<String> additionalRequiredClaims) {
-		
+
 		this.required = required;
-		
+
 		Set<String> allRequiredClaims = new HashSet<>();
 		allRequiredClaims.add("iss");
 		if (CollectionUtils.isNotEmpty(additionalRequiredClaims)) {
 			allRequiredClaims.addAll(additionalRequiredClaims);
 		}
-		
+
 		processor = new DefaultJWTProcessor<>();
+
+		if (CollectionUtils.isNotEmpty(jwtTypes)) {
+			processor.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<C>(jwtTypes));
+		}
 		processor.setJWSKeySelector(new JWSVerificationKeySelector<>(jwsAlgs, jwkSource));
 		processor.setJWTClaimsSetVerifier(new DefaultJWTClaimsVerifier<C>(
 			new JWTClaimsSet.Builder()
