@@ -18,14 +18,12 @@
 package com.nimbusds.openid.connect.sdk;
 
 
-import java.util.*;
-
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.oauth2.sdk.Scope;
-
 import com.nimbusds.openid.connect.sdk.claims.ClaimRequirement;
 import com.nimbusds.openid.connect.sdk.claims.ClaimsSetRequest;
+import net.minidev.json.JSONObject;
+
+import java.util.*;
 
 
 /**
@@ -123,6 +121,56 @@ public class OIDCScopeValue extends Scope.Value {
 	public static OIDCScopeValue[] values() {
 
 		return new OIDCScopeValue[]{ OPENID, PROFILE, EMAIL, ADDRESS, PHONE, OFFLINE_ACCESS };
+	}
+
+
+	/**
+	 * Resolves the claim names for all scope values that expand to claims.
+	 * Recognises all standard OpenID Connect scope values as well as any
+	 * that are additionally specified in the optional map.
+	 *
+	 * @param scope The scope, {@code null} if not specified.
+	 *
+	 * @return The resolved claim names, as an unmodifiable set, empty set
+	 *         if none.
+	 */
+	public static Set<String> resolveClaimNames(final Scope scope) {
+
+		return resolveClaimNames(scope, null);
+	}
+
+
+	/**
+	 * Resolves the claim names for all scope values that expand to claims.
+	 * Recognises all standard OpenID Connect scope values as well as any
+	 * that are additionally specified in the optional map.
+	 *
+	 * @param scope        The scope, {@code null} if not specified.
+	 * @param customClaims Custom scope value to set of claim names map,
+	 *                     {@code null} if not specified.
+	 *
+	 * @return The resolved claim names, as an unmodifiable set, empty set
+	 *         if none.
+	 */
+	public static Set<String> resolveClaimNames(final Scope scope,
+						    final Map<Scope.Value, Set<String>> customClaims) {
+
+		Set<String> claimNames = new HashSet<>();
+
+		if (scope != null) {
+			for (Scope.Value value: scope) {
+				for (OIDCScopeValue oidcValue: OIDCScopeValue.values()) {
+					if (oidcValue.equals(value)) {
+						claimNames.addAll(oidcValue.getClaimNames());
+					}
+				}
+				if (customClaims != null && customClaims.get(value) != null) {
+					claimNames.addAll(customClaims.get(value));
+				}
+			}
+		}
+
+		return Collections.unmodifiableSet(claimNames);
 	}
 
 

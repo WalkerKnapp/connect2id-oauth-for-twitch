@@ -18,9 +18,12 @@
 package com.nimbusds.openid.connect.sdk;
 
 
+import com.nimbusds.oauth2.sdk.Scope;
 import junit.framework.TestCase;
 
 import net.minidev.json.JSONObject;
+
+import java.util.*;
 
 
 /**
@@ -101,5 +104,38 @@ public class OIDCScopeValueTest extends TestCase {
 		assertEquals(2, o.size());
 
 		assertNull(OIDCScopeValue.OFFLINE_ACCESS.toClaimsRequestJSONObject());
+	}
+
+
+	public void testResolveMethods_toEmpty() {
+
+		assertTrue(OIDCScopeValue.resolveClaimNames(null).isEmpty());
+		assertTrue(OIDCScopeValue.resolveClaimNames(null, null).isEmpty());
+
+		assertTrue(OIDCScopeValue.resolveClaimNames(new Scope()).isEmpty());
+		assertTrue(OIDCScopeValue.resolveClaimNames(new Scope(), null).isEmpty());
+		assertTrue(OIDCScopeValue.resolveClaimNames(new Scope(), new HashMap<Scope.Value, Set<String>>()).isEmpty());
+	}
+
+
+	public void testResolveMethods_toSet() {
+
+		Set<String> claims = new HashSet<>(Arrays.asList("sub", "email", "email_verified"));
+
+		assertEquals(claims, OIDCScopeValue.resolveClaimNames(new Scope("openid", "email", "read")));
+		assertEquals(claims, OIDCScopeValue.resolveClaimNames(new Scope("openid", "email", "read"), null));
+		assertEquals(claims, OIDCScopeValue.resolveClaimNames(new Scope("openid", "email", "read"), new HashMap<Scope.Value, Set<String>>()));
+	}
+
+
+	public void testResolveMethods_toSet_withCustomMap() {
+
+		HashMap<Scope.Value, Set<String>> map = new HashMap<>();
+		map.put(new Scope.Value("office"), new HashSet<>(Arrays.asList("floor", "location")));
+		map.put(new Scope.Value("geo"), new HashSet<>(Arrays.asList("geo_lat", "get_long")));
+
+		Set<String> claims = new HashSet<>(Arrays.asList("sub", "email", "email_verified", "geo_lat", "get_long"));
+
+		assertEquals(claims, OIDCScopeValue.resolveClaimNames(new Scope("openid", "email", "read", "geo"), map));
 	}
 }
