@@ -160,6 +160,9 @@ public class OIDCScopeValue extends Scope.Value {
 		if (scope != null) {
 			for (Scope.Value value: scope) {
 				for (OIDCScopeValue oidcValue: OIDCScopeValue.values()) {
+					if (OIDCScopeValue.OPENID.equals(oidcValue)) {
+						continue; // skip
+					}
 					if (oidcValue.equals(value)) {
 						claimNames.addAll(oidcValue.getClaimNames());
 					}

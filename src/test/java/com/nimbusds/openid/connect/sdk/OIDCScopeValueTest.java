@@ -120,7 +120,7 @@ public class OIDCScopeValueTest extends TestCase {
 
 	public void testResolveMethods_toSet() {
 
-		Set<String> claims = new HashSet<>(Arrays.asList("sub", "email", "email_verified"));
+		Set<String> claims = new HashSet<>(Arrays.asList("email", "email_verified"));
 
 		assertEquals(claims, OIDCScopeValue.resolveClaimNames(new Scope("openid", "email", "read")));
 		assertEquals(claims, OIDCScopeValue.resolveClaimNames(new Scope("openid", "email", "read"), null));
@@ -134,7 +134,7 @@ public class OIDCScopeValueTest extends TestCase {
 		map.put(new Scope.Value("office"), new HashSet<>(Arrays.asList("floor", "location")));
 		map.put(new Scope.Value("geo"), new HashSet<>(Arrays.asList("geo_lat", "get_long")));
 
-		Set<String> claims = new HashSet<>(Arrays.asList("sub", "email", "email_verified", "geo_lat", "get_long"));
+		Set<String> claims = new HashSet<>(Arrays.asList("email", "email_verified", "geo_lat", "get_long"));
 
 		assertEquals(claims, OIDCScopeValue.resolveClaimNames(new Scope("openid", "email", "read", "geo"), map));
 	}
