@@ -108,8 +108,8 @@ public class OIDCProviderMetadata extends AuthorizationServerMetadata implements
 		p.add("backchannel_logout_supported");
 		p.add("backchannel_logout_session_supported");
 		p.add("frontchannel_logout_supported");
-		p.add("native_sso_supported");
 		p.add("frontchannel_logout_session_supported");
+		p.add("native_sso_supported");
 		p.add("verified_claims_supported");
 		p.add("trust_frameworks_supported");
 		p.add("evidence_supported");
