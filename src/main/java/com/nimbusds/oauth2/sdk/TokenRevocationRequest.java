@@ -26,6 +26,8 @@ import com.nimbusds.oauth2.sdk.token.*;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+import com.nimbusds.openid.connect.sdk.nativesso.DeviceSecret;
+import com.nimbusds.openid.connect.sdk.nativesso.DeviceSecretToken;
 import net.jcip.annotations.Immutable;
 
 import java.net.URI;
@@ -33,7 +35,8 @@ import java.util.*;
 
 
 /**
- * Token revocation request. Used to revoke an issued access or refresh token.
+ * Token revocation request. Used to revoke an issued access token, refresh
+ * token or device secret.
  *
  * <p>Example token revocation request for a confidential client:
  *
@@ -80,8 +83,8 @@ public final class TokenRevocationRequest extends AbstractOptionallyIdentifiedRe
 	 *                   is not going to be used.
 	 * @param clientAuth The client authentication. Must not be
 	 *                   {@code null}.
-	 * @param token      The access or refresh token to revoke. Must not be
-	 *                   {@code null}.
+	 * @param token      The access token, refresh token or device secret
+	 *                   to revoke. Must not be {@code null}.
 	 */
 	public TokenRevocationRequest(final URI endpoint,
 				      final ClientAuthentication clientAuth,
@@ -99,8 +102,8 @@ public final class TokenRevocationRequest extends AbstractOptionallyIdentifiedRe
 	 *                 {@code null} if the {@link #toHTTPRequest} method
 	 *                 is not going to be used.
 	 * @param clientID The client ID. Must not be {@code null}.
-	 * @param token    The access or refresh token to revoke. Must not be
-	 *                 {@code null}.
+	 * @param token    The access token, refresh token or device secret to
+	 *                 revoke. Must not be {@code null}.
 	 */
 	public TokenRevocationRequest(final URI endpoint,
 				      final ClientID clientID,
@@ -115,9 +118,10 @@ public final class TokenRevocationRequest extends AbstractOptionallyIdentifiedRe
 	 * Returns the token to revoke. The {@code instanceof} operator can be
 	 * used to infer the token type. If it's neither
 	 * {@link com.nimbusds.oauth2.sdk.token.AccessToken} nor
-	 * {@link com.nimbusds.oauth2.sdk.token.RefreshToken} the
-	 * {@code token_type_hint} has not been provided as part of the token
-	 * revocation request.
+	 * {@link com.nimbusds.oauth2.sdk.token.RefreshToken} or
+	 * {@link com.nimbusds.openid.connect.sdk.nativesso.DeviceSecretToken}
+	 * the {@code token_type_hint} has not been provided as part of the
+	 * token revocation request.
 	 *
 	 * @return The token.
 	 */
@@ -149,6 +153,8 @@ public final class TokenRevocationRequest extends AbstractOptionallyIdentifiedRe
 			params.put("token_type_hint", Collections.singletonList("access_token"));
 		} else if (token instanceof RefreshToken) {
 			params.put("token_type_hint", Collections.singletonList("refresh_token"));
+		} else if (token instanceof DeviceSecretToken) {
+			params.put("token_type_hint", Collections.singletonList("device_secret"));
 		}
 
 		httpRequest.setBody(URLUtils.serializeParameters(params));
@@ -195,8 +201,10 @@ public final class TokenRevocationRequest extends AbstractOptionallyIdentifiedRe
 			token = new TypelessAccessToken(tokenValue);
 		} else if ("refresh_token".equals(tokenTypeHint)) {
 			token = new RefreshToken(tokenValue);
+		} else if ("device_secret".equals(tokenTypeHint)) {
+			token = new DeviceSecretToken(new DeviceSecret(tokenValue));
 		} else {
-			// Can be both access or refresh token
+			// Any token
 			token = new TypelessToken(tokenValue);
 		}
 

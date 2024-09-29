@@ -2488,6 +2488,7 @@ version 11.19.1 (2024-09-05)
       scope value that resolves to "sub".
 
 version 11.20 (2024-09-29)
+    * TokenRevocationRequest supports device_secret as token.
     * Adds DeviceSecretToken class to represent DeviceSecret instances as a
       Token.
     * Adds JSONObjectUtils.getNonBlankString method.

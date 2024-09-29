@@ -26,20 +26,16 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.*;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+import com.nimbusds.openid.connect.sdk.nativesso.DeviceSecret;
+import com.nimbusds.openid.connect.sdk.nativesso.DeviceSecretToken;
 import junit.framework.TestCase;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
-/**
- * Tests the token revocation request.
- */
 public class TokenRevocationRequestTest extends TestCase {
 
 
@@ -139,6 +135,39 @@ public class TokenRevocationRequestTest extends TestCase {
 		assertEquals(new ClientID("123"), request.getClientID());
 		assertEquals(token.getValue(), request.getToken().getValue());
 		assertTrue(request.getToken() instanceof RefreshToken);
+	}
+
+
+	public void testWithDeviceSecret_publicClient()
+		throws Exception {
+
+		URI endpointURI = new URI("https://c2id.com/token/revoke");
+		DeviceSecret deviceSecret = new DeviceSecret("WYqFXK7Q4HFnJv0hiT3Fgw.-oVkvSXgalUuMQDfEsh1lw");
+		Token token = new DeviceSecretToken(deviceSecret);
+
+		TokenRevocationRequest request = new TokenRevocationRequest(endpointURI, new ClientID("123"), token);
+		assertEquals(endpointURI, request.getEndpointURI());
+		assertNull(request.getClientAuthentication());
+		assertEquals(new ClientID("123"), request.getClientID());
+		assertEquals(token, request.getToken());
+
+		HTTPRequest httpRequest = request.toHTTPRequest();
+		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
+		assertEquals(endpointURI.toURL().toString(), httpRequest.getURL().toString());
+		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
+		assertNull(httpRequest.getAuthorization());
+
+		assertEquals(Collections.singletonList(token.getValue()), httpRequest.getQueryParameters().get("token"));
+		assertEquals(Collections.singletonList("device_secret"), httpRequest.getQueryParameters().get("token_type_hint"));
+		assertEquals(Collections.singletonList("123"), httpRequest.getQueryParameters().get("client_id"));
+		assertEquals(3, httpRequest.getQueryParameters().size());
+
+		request = TokenRevocationRequest.parse(httpRequest);
+		assertEquals(endpointURI, request.getEndpointURI());
+		assertNull(request.getClientAuthentication());
+		assertEquals(new ClientID("123"), request.getClientID());
+		assertEquals(token.getValue(), request.getToken().getValue());
+		assertTrue(request.getToken() instanceof DeviceSecretToken);
 	}
 
 
@@ -254,6 +283,25 @@ public class TokenRevocationRequestTest extends TestCase {
 		assertEquals(new ClientID("123"), request.getClientAuthentication().getClientID());
 		assertEquals(new Secret("secret"), ((ClientSecretBasic)request.getClientAuthentication()).getClientSecret());
 		assertNull(request.getClientID());
+	}
+
+
+	public void testConstructorWithTypelessToken() {
+
+		URI endpointURI = URI.create("https://c2id.com/token/revoke");
+		Token token = new TypelessToken(UUID.randomUUID().toString());
+		TokenRevocationRequest request = new TokenRevocationRequest(endpointURI, new ClientID("123"), token);
+
+		HTTPRequest httpRequest = request.toHTTPRequest();
+
+		assertEquals(HTTPRequest.Method.POST, httpRequest.getMethod());
+		assertEquals(endpointURI, httpRequest.getURI());
+		assertEquals(ContentType.APPLICATION_URLENCODED.toString(), httpRequest.getEntityContentType().toString());
+		assertNull(httpRequest.getAuthorization());
+
+		assertEquals(Collections.singletonList(token.getValue()), httpRequest.getQueryParameters().get("token"));
+		assertEquals(Collections.singletonList("123"), httpRequest.getQueryParameters().get("client_id"));
+		assertEquals(2, httpRequest.getQueryParameters().size());
 	}
 
 
