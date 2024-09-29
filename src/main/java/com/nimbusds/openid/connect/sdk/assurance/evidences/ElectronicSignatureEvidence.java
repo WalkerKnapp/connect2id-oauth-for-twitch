@@ -188,11 +188,11 @@ public class ElectronicSignatureEvidence extends IdentityEvidence {
 		
 		ensureType(IdentityEvidenceType.ELECTRONIC_SIGNATURE, jsonObject);
 		
-		SignatureType signatureType = new SignatureType(JSONObjectUtils.getString(jsonObject, "signature_type"));
+		SignatureType signatureType = new SignatureType(JSONObjectUtils.getNonBlankString(jsonObject, "signature_type"));
 		
 		Issuer issuer = null;
 		if (jsonObject.get("issuer") != null) {
-			issuer = new Issuer(JSONObjectUtils.getString(jsonObject, "issuer"));
+			issuer = new Issuer(JSONObjectUtils.getNonBlankString(jsonObject, "issuer"));
 		}
 		
 		SerialNumber serialNumber = null;
@@ -202,7 +202,7 @@ public class ElectronicSignatureEvidence extends IdentityEvidence {
 		
 		DateWithTimeZoneOffset createdAt = null;
 		if (jsonObject.get("created_at") != null) {
-			createdAt = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getString(jsonObject, "created_at"));
+			createdAt = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "created_at"));
 		}
 		
 		List<Attachment> attachments = null;

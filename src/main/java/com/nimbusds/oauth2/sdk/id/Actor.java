@@ -215,12 +215,12 @@ public final class Actor implements Serializable, Comparable<Actor>, JSONAware {
 	public static Actor parse(final JSONObject jsonObject)
 		throws ParseException {
 
-		Subject sub = new Subject(JSONObjectUtils.getString(jsonObject, "sub"));
+		Subject sub = new Subject(JSONObjectUtils.getNonBlankString(jsonObject, "sub"));
 
 		Issuer iss = null;
 
 		if (jsonObject.containsKey("iss")) {
-			iss = new Issuer(JSONObjectUtils.getString(jsonObject, "iss"));
+			iss = new Issuer(JSONObjectUtils.getNonBlankString(jsonObject, "iss"));
 		}
 
 		Actor parent = parseTopLevel(jsonObject);

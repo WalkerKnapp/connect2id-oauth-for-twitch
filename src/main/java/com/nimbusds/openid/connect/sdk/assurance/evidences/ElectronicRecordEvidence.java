@@ -227,7 +227,7 @@ public class ElectronicRecordEvidence extends IdentityEvidence {
 		}
 		DateWithTimeZoneOffset dtz = null;
 		if (jsonObject.get("time") != null) {
-			dtz = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getString(jsonObject, "time"));
+			dtz = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "time"));
 		}
 		
 		ElectronicRecordDetails recordDetails = null;

@@ -158,14 +158,14 @@ public class QESEvidence extends IdentityEvidence {
 		
 		Issuer issuer = null;
 		if (jsonObject.get("issuer") != null) {
-			issuer = new Issuer(JSONObjectUtils.getString(jsonObject, "issuer"));
+			issuer = new Issuer(JSONObjectUtils.getNonBlankString(jsonObject, "issuer"));
 		}
 		
 		String serialNumber = JSONObjectUtils.getString(jsonObject, "serial_number", null);
 		
 		DateWithTimeZoneOffset createdAt = null;
 		if (jsonObject.get("created_at") != null) {
-			createdAt = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getString(jsonObject, "created_at"));
+			createdAt = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "created_at"));
 		}
 		
 		return new QESEvidence(issuer, serialNumber, createdAt);

@@ -173,7 +173,7 @@ public class EmbeddedAttachmentTest extends TestCase {
 			EmbeddedAttachment.parse(jsonObject);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Empty or blank content", e.getMessage());
+			assertEquals("Empty or blank JSON object member with key content", e.getMessage());
 		}
 	}
 	
@@ -188,7 +188,7 @@ public class EmbeddedAttachmentTest extends TestCase {
 			EmbeddedAttachment.parse(jsonObject);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Empty or blank content", e.getMessage());
+			assertEquals("Empty or blank JSON object member with key content", e.getMessage());
 		}
 	}
 	

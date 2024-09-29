@@ -18,16 +18,15 @@
 package com.nimbusds.openid.connect.sdk.assurance.evidences.attachment;
 
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Objects;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.util.Base64;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 
 /**
@@ -187,8 +186,8 @@ public final class Digest {
 	public static Digest parse(final JSONObject jsonObject)
 		throws ParseException {
 		
-		HashAlgorithm alg = new HashAlgorithm(JSONObjectUtils.getString(jsonObject, "alg"));
-		Base64 value = new Base64(JSONObjectUtils.getString(jsonObject, "value"));
+		HashAlgorithm alg = new HashAlgorithm(JSONObjectUtils.getNonBlankString(jsonObject, "alg"));
+		Base64 value = new Base64(JSONObjectUtils.getNonBlankString(jsonObject, "value"));
 		return new Digest(alg, value);
 	}
 }

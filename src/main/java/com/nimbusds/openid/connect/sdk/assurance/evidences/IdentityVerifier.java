@@ -179,12 +179,12 @@ public class IdentityVerifier implements JSONAware {
 		
 		Organization org = null;
 		if (jsonObject.get("organization") != null) {
-			org = new Organization(JSONObjectUtils.getString(jsonObject, "organization"));
+			org = new Organization(JSONObjectUtils.getNonBlankString(jsonObject, "organization"));
 		}
 		
 		TXN txn = null;
 		if (jsonObject.get("txn") != null) {
-			txn = new TXN(JSONObjectUtils.getString(jsonObject, "txn"));
+			txn = new TXN(JSONObjectUtils.getNonBlankString(jsonObject, "txn"));
 		}
 		
 		return new IdentityVerifier(org, txn);

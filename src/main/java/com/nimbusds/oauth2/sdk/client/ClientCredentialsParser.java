@@ -47,7 +47,7 @@ public class ClientCredentialsParser {
 	public static ClientID parseID(final JSONObject jsonObject)
 		throws ParseException {
 
-		return new ClientID(JSONObjectUtils.getString(jsonObject, "client_id"));
+		return new ClientID(JSONObjectUtils.getNonBlankString(jsonObject, "client_id"));
 	}
 
 
@@ -88,7 +88,7 @@ public class ClientCredentialsParser {
 
 		if (jsonObject.containsKey("client_secret")) {
 
-			String value = JSONObjectUtils.getString(jsonObject, "client_secret");
+			String value = JSONObjectUtils.getNonBlankString(jsonObject, "client_secret");
 
 			Date exp = null;
 
@@ -139,9 +139,8 @@ public class ClientCredentialsParser {
 		throws ParseException {
 
 		if (jsonObject.containsKey("registration_access_token")) {
-
 			return new BearerAccessToken(
-				JSONObjectUtils.getString(jsonObject, "registration_access_token"));
+				JSONObjectUtils.getNonBlankString(jsonObject, "registration_access_token"));
 		} else {
 			return null;
 		}

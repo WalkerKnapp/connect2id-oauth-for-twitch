@@ -216,19 +216,19 @@ public class Voucher {
 		try {
 			Name name = null;
 			if (jsonObject.get("name") != null) {
-				name = new Name(JSONObjectUtils.getString(jsonObject, "name"));
+				name = new Name(JSONObjectUtils.getNonBlankString(jsonObject, "name"));
 			}
 			
 			String birthdateString = JSONObjectUtils.getString(jsonObject, "birthdate", null);
 			
 			Occupation occupation = null;
 			if (jsonObject.get("occupation") != null) {
-				occupation = new Occupation(JSONObjectUtils.getString(jsonObject, "occupation"));
+				occupation = new Occupation(JSONObjectUtils.getNonBlankString(jsonObject, "occupation"));
 			}
 			
 			Organization organization = null;
 			if (jsonObject.get("organization") != null) {
-				organization = new Organization(JSONObjectUtils.getString(jsonObject, "organization"));
+				organization = new Organization(JSONObjectUtils.getNonBlankString(jsonObject, "organization"));
 			}
 			
 			Address address = null;

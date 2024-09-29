@@ -213,7 +213,7 @@ public abstract class IdentityEvidence implements JSONAware {
 	public static IdentityEvidence parse(final JSONObject jsonObject)
 		throws ParseException {
 		
-		IdentityEvidenceType type = new IdentityEvidenceType(JSONObjectUtils.getString(jsonObject, "type"));
+		IdentityEvidenceType type = new IdentityEvidenceType(JSONObjectUtils.getNonBlankString(jsonObject, "type"));
 		
 		if (IdentityEvidenceType.DOCUMENT.equals(type)) {
 			return DocumentEvidence.parse(jsonObject);
@@ -247,7 +247,7 @@ public abstract class IdentityEvidence implements JSONAware {
 	protected static void ensureType(final IdentityEvidenceType expectedType, JSONObject jsonObject)
 		throws ParseException {
 		
-		String parsedType = JSONObjectUtils.getString(jsonObject, "type");
+		String parsedType = JSONObjectUtils.getNonBlankString(jsonObject, "type");
 		
 		if (! expectedType.getValue().equals(parsedType)) {
 			throw new ParseException("The identity evidence type must be " + expectedType);

@@ -18,18 +18,17 @@
 package com.nimbusds.oauth2.sdk.util;
 
 
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.oauth2.sdk.ParseException;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
-
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.oauth2.sdk.ParseException;
 
 
 /**
@@ -137,8 +136,8 @@ public final class JSONObjectUtils {
 	 *
 	 * @param o     The JSON object. Must not be {@code null}.
 	 * @param key   The JSON object member key. Must not be {@code null}.
-	 * @param clazz The expected class of the JSON object member value. Must
-	 *              not be {@code null}.
+	 * @param clazz The expected class of the JSON object member value.
+	 *              Must not be {@code null}.
 	 *
 	 * @return The JSON object member value.
 	 *
@@ -149,7 +148,7 @@ public final class JSONObjectUtils {
 		throws ParseException {
 	
 		if (! o.containsKey(key))
-			throw new ParseException("Missing JSON object member with key " + key + "");
+			throw new ParseException("Missing JSON object member with key " + key);
 		
 		Object value = o.get(key);
 		
@@ -160,7 +159,7 @@ public final class JSONObjectUtils {
 		try {
 			return JSONUtils.to(value, clazz);
 		} catch (ParseException e) {
-			throw new ParseException("Unexpected type of JSON object member with key " + key + "", e);
+			throw new ParseException("Unexpected type of JSON object member with key " + key, e);
 		}
 	}
 
@@ -449,6 +448,28 @@ public final class JSONObjectUtils {
 		}
 		
 		return def;
+	}
+
+
+	/**
+	 * Gets a string member of a JSON object.
+	 *
+	 * @param o   The JSON object. Must not be {@code null}.
+	 * @param key The JSON object member key. Must not be {@code null}.
+	 *
+	 * @return The member value.
+	 *
+	 * @throws ParseException If the value is missing, {@code null}, not of
+	 *                        the expected type, empty or blank.
+	 */
+	public static String getNonBlankString(final JSONObject o, final String key)
+		throws ParseException {
+
+		String value = getString(o, key);
+		if (StringUtils.isBlank(value)) {
+			throw new ParseException("Empty or blank JSON object member with key " + key);
+		}
+		return value;
 	}
 
 

@@ -18,14 +18,6 @@
 package com.nimbusds.openid.connect.sdk.assurance.evidences.attachment;
 
 
-import java.io.IOException;
-import java.net.URI;
-import java.security.NoSuchAlgorithmException;
-import java.util.Objects;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.util.Base64;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
@@ -33,6 +25,13 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.io.IOException;
+import java.net.URI;
+import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 
 /**
@@ -268,7 +267,7 @@ public class ExternalAttachment extends Attachment {
 		BearerAccessToken accessToken = null;
 		if (jsonObject.get("access_token") != null) {
 			
-			String tokenValue = JSONObjectUtils.getString(jsonObject, "access_token");
+			String tokenValue = JSONObjectUtils.getNonBlankString(jsonObject, "access_token");
 			
 			if (expiresIn > 0) {
 				accessToken = new BearerAccessToken(tokenValue, expiresIn, null);

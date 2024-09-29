@@ -162,7 +162,7 @@ public class DocumentDetailsTest extends TestCase {
 			DocumentDetails.parse(jsonObject);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("The value must not be null or empty string", e.getMessage());
+			assertEquals("Empty or blank JSON object member with key type", e.getMessage());
 		}
 	}
 }

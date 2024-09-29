@@ -234,7 +234,7 @@ public class VouchEvidence extends IdentityEvidence {
 		
 		DateWithTimeZoneOffset time = null;
 		if (jsonObject.get("time") != null) {
-			time = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getString(jsonObject, "time"));
+			time = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "time"));
 		}
 		
 		Attestation attestation = null;

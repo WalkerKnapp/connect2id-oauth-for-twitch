@@ -187,7 +187,7 @@ public class CIBATokenDelivery extends CIBAPushCallback {
 
 		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
 
-		AuthRequestID authRequestID = AuthRequestID.parse(JSONObjectUtils.getString(jsonObject, "auth_req_id"));
+		AuthRequestID authRequestID = AuthRequestID.parse(JSONObjectUtils.getNonBlankString(jsonObject, "auth_req_id"));
 
 		if (jsonObject.get("id_token") != null) {
 			return new CIBATokenDelivery(

@@ -194,7 +194,7 @@ public class CIBARequestAcknowledgement extends CIBAResponse implements SuccessR
 	public static CIBARequestAcknowledgement parse(final JSONObject jsonObject)
 		throws ParseException {
 
-		AuthRequestID authRequestID = AuthRequestID.parse(JSONObjectUtils.getString(jsonObject, "auth_req_id"));
+		AuthRequestID authRequestID = AuthRequestID.parse(JSONObjectUtils.getNonBlankString(jsonObject, "auth_req_id"));
 		
 		int expiresIn = JSONObjectUtils.getInt(jsonObject, "expires_in");
 		

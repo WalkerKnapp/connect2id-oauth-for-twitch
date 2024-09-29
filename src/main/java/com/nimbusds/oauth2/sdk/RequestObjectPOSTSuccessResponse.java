@@ -198,8 +198,8 @@ public final class RequestObjectPOSTSuccessResponse extends RequestObjectPOSTRes
 		throws ParseException {
 		
 		return new RequestObjectPOSTSuccessResponse(
-			new Issuer(JSONObjectUtils.getString(jsonObject, "iss")),
-			new Audience(JSONObjectUtils.getString(jsonObject, "aud")),
+			new Issuer(JSONObjectUtils.getNonBlankString(jsonObject, "iss")),
+			new Audience(JSONObjectUtils.getNonBlankString(jsonObject, "aud")),
 			JSONObjectUtils.getURI(jsonObject, "request_uri"),
 			DateUtils.fromSecondsSinceEpoch(JSONObjectUtils.getLong(jsonObject, "exp")));
 	}

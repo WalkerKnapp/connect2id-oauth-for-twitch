@@ -206,7 +206,7 @@ public class AuthorizationDetail {
          */
         public AuthorizationType getType() {
                 try {
-                        return new AuthorizationType(JSONObjectUtils.getString(jsonObject, "type"));
+                        return new AuthorizationType(JSONObjectUtils.getNonBlankString(jsonObject, "type"));
                 } catch (Exception e) {
                         throw new RuntimeException(e);
                 }
@@ -278,7 +278,7 @@ public class AuthorizationDetail {
         public Identifier getIdentifier() {
                 String value;
                 try {
-                        value = JSONObjectUtils.getString(jsonObject, "identifier");
+                        value = JSONObjectUtils.getNonBlankString(jsonObject, "identifier");
                 } catch (ParseException e) {
                         return null;
                 }
@@ -330,7 +330,7 @@ public class AuthorizationDetail {
          */
         public String getStringField(final String name) {
                 try {
-                        return JSONObjectUtils.getString(jsonObject, name);
+                        return JSONObjectUtils.getNonBlankString(jsonObject, name);
                 } catch (ParseException e) {
                         return null;
                 }

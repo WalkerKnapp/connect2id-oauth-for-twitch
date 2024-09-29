@@ -273,13 +273,13 @@ public final class OIDCTokens extends Tokens {
 
 		DeviceSecret deviceSecret = null;
 		if (jsonObject.get("device_secret") != null) {
-			deviceSecret = DeviceSecret.parse(JSONObjectUtils.getString(jsonObject, "device_secret"));
+			deviceSecret = DeviceSecret.parse(JSONObjectUtils.getNonBlankString(jsonObject, "device_secret"));
 		}
 		
 		if (jsonObject.get("id_token") != null) {
 			JWT idToken;
 			try {
-				idToken = JWTParser.parse(JSONObjectUtils.getString(jsonObject, "id_token"));
+				idToken = JWTParser.parse(JSONObjectUtils.getNonBlankString(jsonObject, "id_token"));
 			} catch (java.text.ParseException e) {
 				throw new ParseException("Couldn't parse ID token: " + e.getMessage(), e);
 			}

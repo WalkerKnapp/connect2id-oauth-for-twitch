@@ -209,21 +209,21 @@ public class ElectronicRecordDetails {
 		throws ParseException {
 		
 		try {
-			ElectronicRecordType type = new ElectronicRecordType(JSONObjectUtils.getString(jsonObject, "type"));
+			ElectronicRecordType type = new ElectronicRecordType(JSONObjectUtils.getNonBlankString(jsonObject, "type"));
 			
 			PersonalNumber personalNumber = null;
 			if (jsonObject.get("personal_number") != null) {
-				personalNumber = new PersonalNumber(JSONObjectUtils.getString(jsonObject, "personal_number"));
+				personalNumber = new PersonalNumber(JSONObjectUtils.getNonBlankString(jsonObject, "personal_number"));
 			}
 			
 			DateWithTimeZoneOffset createdAt = null;
 			if (jsonObject.get("created_at") != null) {
-				createdAt = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getString(jsonObject, "created_at"));
+				createdAt = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "created_at"));
 			}
 			
 			SimpleDate dateOfExpiry = null;
 			if (jsonObject.get("date_of_expiry") != null) {
-				dateOfExpiry = SimpleDate.parseISO8601String(JSONObjectUtils.getString(jsonObject, "date_of_expiry"));
+				dateOfExpiry = SimpleDate.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "date_of_expiry"));
 			}
 			
 			ElectronicRecordSource source = null;

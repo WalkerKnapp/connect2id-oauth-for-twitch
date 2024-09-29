@@ -2490,3 +2490,6 @@ version 11.19.1 (2024-09-05)
 version 11.20 (2024-09-29)
     * Adds DeviceSecretToken class to represent DeviceSecret instances as a
       Token.
+    * Certain parse methods must prevent unchecked IllegalArgumentExceptions
+      due to empty or blank String (iss #479).
+    * Adds JSONObjectUtils.getNonBlankString method.

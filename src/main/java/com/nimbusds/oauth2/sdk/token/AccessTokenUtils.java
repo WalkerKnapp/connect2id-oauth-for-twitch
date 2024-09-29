@@ -49,7 +49,7 @@ class AccessTokenUtils {
 	static void parseAndEnsureType(final JSONObject params, final AccessTokenType type)
 		throws ParseException {
 		
-		if (! new AccessTokenType(JSONObjectUtils.getString(params, "token_type")).equals(type)) {
+		if (! new AccessTokenType(JSONObjectUtils.getNonBlankString(params, "token_type")).equals(type)) {
 			throw new ParseException("Token type must be " + type);
 		}
 	}
@@ -67,7 +67,7 @@ class AccessTokenUtils {
 	static String parseValue(final JSONObject params)
 		throws ParseException {
 		
-		return JSONObjectUtils.getString(params, "access_token");
+		return JSONObjectUtils.getNonBlankString(params, "access_token");
 	}
 	
 	
@@ -89,7 +89,7 @@ class AccessTokenUtils {
 			if (params.get("expires_in") instanceof Number) {
 				return JSONObjectUtils.getLong(params, "expires_in");
 			} else {
-				String lifetimeStr = JSONObjectUtils.getString(params, "expires_in");
+				String lifetimeStr = JSONObjectUtils.getNonBlankString(params, "expires_in");
 				try {
 					return Long.parseLong(lifetimeStr);
 				} catch (NumberFormatException e) {

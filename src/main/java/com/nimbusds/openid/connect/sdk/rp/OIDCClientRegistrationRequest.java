@@ -154,7 +154,7 @@ public class OIDCClientRegistrationRequest extends ClientRegistrationRequest {
 		if (jsonObject.containsKey("software_statement")) {
 
 			try {
-				stmt = SignedJWT.parse(JSONObjectUtils.getString(jsonObject, "software_statement"));
+				stmt = SignedJWT.parse(JSONObjectUtils.getNonBlankString(jsonObject, "software_statement"));
 
 			} catch (java.text.ParseException e) {
 

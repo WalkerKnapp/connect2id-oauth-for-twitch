@@ -18,13 +18,12 @@
 package com.nimbusds.openid.connect.sdk.assurance.evidences;
 
 
-import java.util.Objects;
-
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.oauth2.sdk.util.date.SimpleDate;
+import net.minidev.json.JSONObject;
+
+import java.util.Objects;
 
 
 /**
@@ -261,44 +260,39 @@ public class DocumentDetails {
 	 */
 	public static DocumentDetails parse(final JSONObject jsonObject)
 		throws ParseException {
-		
-		try {
-			DocumentType type = new DocumentType(JSONObjectUtils.getString(jsonObject, "type"));
-			
-			DocumentNumber documentNumber = null;
-			if (jsonObject.get("document_number") != null) {
-				documentNumber = new DocumentNumber(JSONObjectUtils.getString(jsonObject, "document_number"));
-			}
-			
-			PersonalNumber personalNumber = null;
-			if (jsonObject.get("personal_number") != null) {
-				personalNumber = new PersonalNumber(JSONObjectUtils.getString(jsonObject, "personal_number"));
-			}
-			
-			SerialNumber serialNumber = null;
-			if (jsonObject.get("serial_number") != null) {
-				serialNumber = new SerialNumber(JSONObjectUtils.getString(jsonObject, "serial_number"));
-			}
-			
-			SimpleDate dateOfIssuance = null;
-			if (jsonObject.get("date_of_issuance") != null) {
-				dateOfIssuance = SimpleDate.parseISO8601String(JSONObjectUtils.getString(jsonObject, "date_of_issuance"));
-			}
-			
-			SimpleDate dateOfExpiry = null;
-			if (jsonObject.get("date_of_expiry") != null) {
-				dateOfExpiry = SimpleDate.parseISO8601String(JSONObjectUtils.getString(jsonObject, "date_of_expiry"));
-			}
-			
-			DocumentIssuer issuer = null;
-			if (jsonObject.get("issuer") != null) {
-				issuer = DocumentIssuer.parse(JSONObjectUtils.getJSONObject(jsonObject, "issuer"));
-			}
-			
-			return new DocumentDetails(type, documentNumber, personalNumber, serialNumber, dateOfIssuance, dateOfExpiry, issuer);
-			
-		} catch (Exception e) {
-			throw new ParseException(e.getMessage(), e);
+
+		DocumentType type = new DocumentType(JSONObjectUtils.getNonBlankString(jsonObject, "type"));
+
+		DocumentNumber documentNumber = null;
+		if (jsonObject.get("document_number") != null) {
+			documentNumber = new DocumentNumber(JSONObjectUtils.getNonBlankString(jsonObject, "document_number"));
 		}
+
+		PersonalNumber personalNumber = null;
+		if (jsonObject.get("personal_number") != null) {
+			personalNumber = new PersonalNumber(JSONObjectUtils.getNonBlankString(jsonObject, "personal_number"));
+		}
+
+		SerialNumber serialNumber = null;
+		if (jsonObject.get("serial_number") != null) {
+			serialNumber = new SerialNumber(JSONObjectUtils.getNonBlankString(jsonObject, "serial_number"));
+		}
+
+		SimpleDate dateOfIssuance = null;
+		if (jsonObject.get("date_of_issuance") != null) {
+			dateOfIssuance = SimpleDate.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "date_of_issuance"));
+		}
+
+		SimpleDate dateOfExpiry = null;
+		if (jsonObject.get("date_of_expiry") != null) {
+			dateOfExpiry = SimpleDate.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "date_of_expiry"));
+		}
+
+		DocumentIssuer issuer = null;
+		if (jsonObject.get("issuer") != null) {
+			issuer = DocumentIssuer.parse(JSONObjectUtils.getJSONObject(jsonObject, "issuer"));
+		}
+
+		return new DocumentDetails(type, documentNumber, personalNumber, serialNumber, dateOfIssuance, dateOfExpiry, issuer);
 	}
 }

@@ -391,8 +391,8 @@ public class DeviceAuthorizationSuccessResponse extends DeviceAuthorizationRespo
 	 */
 	public static DeviceAuthorizationSuccessResponse parse(final JSONObject jsonObject) throws ParseException {
 
-		DeviceCode deviceCode = new DeviceCode(JSONObjectUtils.getString(jsonObject, "device_code"));
-		UserCode userCode = new UserCode(JSONObjectUtils.getString(jsonObject, "user_code"));
+		DeviceCode deviceCode = new DeviceCode(JSONObjectUtils.getNonBlankString(jsonObject, "device_code"));
+		UserCode userCode = new UserCode(JSONObjectUtils.getNonBlankString(jsonObject, "user_code"));
 		URI verificationURI = JSONObjectUtils.getURI(jsonObject, "verification_uri");
 		URI verificationURIComplete = JSONObjectUtils.getURI(jsonObject, "verification_uri_complete", null);
 
@@ -402,7 +402,7 @@ public class DeviceAuthorizationSuccessResponse extends DeviceAuthorizationRespo
 
 			lifetime = JSONObjectUtils.getLong(jsonObject, "expires_in");
 		} else {
-			String lifetimeStr = JSONObjectUtils.getString(jsonObject, "expires_in");
+			String lifetimeStr = JSONObjectUtils.getNonBlankString(jsonObject, "expires_in");
 
 			try {
 				lifetime = Long.parseLong(lifetimeStr);
@@ -420,7 +420,7 @@ public class DeviceAuthorizationSuccessResponse extends DeviceAuthorizationRespo
 
 				interval = JSONObjectUtils.getLong(jsonObject, "interval");
 			} else {
-				String intervalStr = JSONObjectUtils.getString(jsonObject, "interval");
+				String intervalStr = JSONObjectUtils.getNonBlankString(jsonObject, "interval");
 
 				try {
 					interval = Long.parseLong(intervalStr);

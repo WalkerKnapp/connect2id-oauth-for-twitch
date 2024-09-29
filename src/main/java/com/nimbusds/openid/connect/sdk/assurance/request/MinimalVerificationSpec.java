@@ -194,7 +194,7 @@ public class MinimalVerificationSpec implements VerificationSpec {
 		
 		String value = null;
 		if (tfSpec.containsKey("value")) {
-			value = JSONObjectUtils.getString(tfSpec, "value");
+			value = JSONObjectUtils.getNonBlankString(tfSpec, "value");
 		}
 		
 		List<String> values = null;

@@ -250,7 +250,7 @@ public class IDDocumentDescription implements JSONAware {
 	public static IDDocumentDescription parse(final JSONObject jsonObject)
 		throws ParseException {
 		
-		IDDocumentType type = new IDDocumentType(JSONObjectUtils.getString(jsonObject, "type"));
+		IDDocumentType type = new IDDocumentType(JSONObjectUtils.getNonBlankString(jsonObject, "type"));
 		String number = JSONObjectUtils.getString(jsonObject, "number", null);
 		
 		JSONObject issuerObject = JSONObjectUtils.getJSONObject(jsonObject, "issuer", null);
@@ -260,18 +260,18 @@ public class IDDocumentDescription implements JSONAware {
 		if (issuerObject != null) {
 			issuerName = JSONObjectUtils.getString(issuerObject, "name", null);
 			if (issuerObject.get("country") != null) {
-				issuerCountry = ISO3166_1Alpha2CountryCode.parse(JSONObjectUtils.getString(issuerObject, "country"));
+				issuerCountry = ISO3166_1Alpha2CountryCode.parse(JSONObjectUtils.getNonBlankString(issuerObject, "country"));
 			}
 		}
 		
 		SimpleDate dateOfIssuance = null;
 		if (jsonObject.get("date_of_issuance") != null) {
-			dateOfIssuance = SimpleDate.parseISO8601String(JSONObjectUtils.getString(jsonObject, "date_of_issuance"));
+			dateOfIssuance = SimpleDate.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "date_of_issuance"));
 		}
 		
 		SimpleDate dateOfExpiry = null;
 		if (jsonObject.get("date_of_expiry") != null) {
-			dateOfExpiry = SimpleDate.parseISO8601String(JSONObjectUtils.getString(jsonObject, "date_of_expiry"));
+			dateOfExpiry = SimpleDate.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "date_of_expiry"));
 		}
 		
 		return new IDDocumentDescription(type, number, issuerName, issuerCountry, dateOfIssuance, dateOfExpiry);

@@ -233,7 +233,7 @@ public final class RequestObjectPOSTRequest extends AbstractOptionallyAuthentica
 				throw new ParseException("Missing client_id in JSON object");
 			}
 			
-			ClientID clientID = new ClientID(JSONObjectUtils.getString(jsonObject, "client_id"));
+			ClientID clientID = new ClientID(JSONObjectUtils.getNonBlankString(jsonObject, "client_id"));
 			
 			TLSClientAuthentication tlsClientAuth;
 			if (httpRequest.getClientX509Certificate() != null && httpRequest.getClientX509CertificateSubjectDN() != null &&

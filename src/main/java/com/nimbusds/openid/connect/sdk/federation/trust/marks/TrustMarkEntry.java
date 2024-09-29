@@ -18,17 +18,16 @@
 package com.nimbusds.openid.connect.sdk.federation.trust.marks;
 
 
-import java.util.Map;
-import java.util.Objects;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -136,8 +135,8 @@ public final class TrustMarkEntry implements Map.Entry<Identifier, SignedJWT> {
 	public static TrustMarkEntry parse(final JSONObject jsonObject)
 		throws ParseException {
 		
-		String idString = JSONObjectUtils.getString(jsonObject, "id");
-		String jwtString = JSONObjectUtils.getString(jsonObject, "trust_mark");
+		String idString = JSONObjectUtils.getNonBlankString(jsonObject, "id");
+		String jwtString = JSONObjectUtils.getNonBlankString(jsonObject, "trust_mark");
 		try {
 			return new TrustMarkEntry(new Identifier(idString), SignedJWT.parse(jwtString));
 		} catch (java.text.ParseException e) {

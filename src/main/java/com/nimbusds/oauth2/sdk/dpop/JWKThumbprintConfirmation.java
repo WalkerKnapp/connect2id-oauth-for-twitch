@@ -155,7 +155,7 @@ public final class JWKThumbprintConfirmation extends AbstractConfirmation {
 		}
 		
 		try {
-			String jktString = JSONObjectUtils.getString(cnf, "jkt");
+			String jktString = JSONObjectUtils.getNonBlankString(cnf, "jkt");
 			return new JWKThumbprintConfirmation(new Base64URL(jktString));
 		} catch (ParseException e) {
 			return null;

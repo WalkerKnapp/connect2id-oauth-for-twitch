@@ -170,17 +170,17 @@ class CommonOriginatorAttributes {
 		try {
 			Name name = null;
 			if (jsonObject.get("name") != null) {
-				name = new Name(JSONObjectUtils.getString(jsonObject, "name"));
+				name = new Name(JSONObjectUtils.getNonBlankString(jsonObject, "name"));
 			}
 			
 			CountryCode countryCode = null;
 			if (jsonObject.get("country_code") != null) {
-				countryCode = CountryCode.parse(JSONObjectUtils.getString(jsonObject, "country_code"));
+				countryCode = CountryCode.parse(JSONObjectUtils.getNonBlankString(jsonObject, "country_code"));
 			}
 			
 			Jurisdiction jurisdiction = null;
 			if (jsonObject.get("jurisdiction") != null) {
-				jurisdiction = new Jurisdiction(JSONObjectUtils.getString(jsonObject, "jurisdiction"));
+				jurisdiction = new Jurisdiction(JSONObjectUtils.getNonBlankString(jsonObject, "jurisdiction"));
 			}
 			
 			Address address = null;

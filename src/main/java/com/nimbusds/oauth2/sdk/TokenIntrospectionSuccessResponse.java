@@ -459,7 +459,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 	public ClientID getClientID() {
 
 		try {
-			return new ClientID(JSONObjectUtils.getString(params, "client_id"));
+			return new ClientID(JSONObjectUtils.getNonBlankString(params, "client_id"));
 		} catch (ParseException e) {
 			return null;
 		}
@@ -491,7 +491,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 	public AccessTokenType getTokenType() {
 
 		try {
-			return new AccessTokenType(JSONObjectUtils.getString(params, "token_type"));
+			return new AccessTokenType(JSONObjectUtils.getNonBlankString(params, "token_type"));
 		} catch (ParseException e) {
 			return null;
 		}
@@ -556,7 +556,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 	public Subject getSubject() {
 
 		try {
-			return new Subject(JSONObjectUtils.getString(params, "sub"));
+			return new Subject(JSONObjectUtils.getNonBlankString(params, "sub"));
 		} catch (ParseException e) {
 			return null;
 		}
@@ -575,7 +575,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 			return Audience.create(JSONObjectUtils.getStringList(params, "aud"));
 		} catch (ParseException e) {
 			try {
-				return new Audience(JSONObjectUtils.getString(params, "aud")).toSingleAudienceList();
+				return new Audience(JSONObjectUtils.getNonBlankString(params, "aud")).toSingleAudienceList();
 			} catch (ParseException e2) {
 				return null;
 			}
@@ -591,7 +591,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 	public Issuer getIssuer() {
 
 		try {
-			return new Issuer(JSONObjectUtils.getString(params, "iss"));
+			return new Issuer(JSONObjectUtils.getNonBlankString(params, "iss"));
 		} catch (ParseException e) {
 			return null;
 		}
@@ -607,7 +607,7 @@ public class TokenIntrospectionSuccessResponse extends TokenIntrospectionRespons
 	public JWTID getJWTID() {
 
 		try {
-			return new JWTID(JSONObjectUtils.getString(params, "jti"));
+			return new JWTID(JSONObjectUtils.getNonBlankString(params, "jti"));
 		} catch (ParseException e) {
 			return null;
 		}

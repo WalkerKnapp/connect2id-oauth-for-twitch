@@ -150,7 +150,7 @@ public class CIBAErrorDelivery extends CIBAPushCallback {
 		BearerAccessToken clientNotificationToken = BearerAccessToken.parse(httpRequest);
 		
 		AuthRequestID authRequestID = new AuthRequestID(
-			JSONObjectUtils.getString(
+			JSONObjectUtils.getNonBlankString(
 				httpRequest.getBodyAsJSONObject(),
 				"auth_req_id")
 		);

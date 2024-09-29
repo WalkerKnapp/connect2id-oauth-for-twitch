@@ -123,18 +123,18 @@ public final class VerificationMethod extends CommonMethodAttributes {
 		throws ParseException {
 		
 		try {
-			VerificationMethodType type = new VerificationMethodType(JSONObjectUtils.getString(jsonObject, "type"));
+			VerificationMethodType type = new VerificationMethodType(JSONObjectUtils.getNonBlankString(jsonObject, "type"));
 			Policy policy = null;
 			if (jsonObject.get("policy") != null) {
-				policy = new Policy(JSONObjectUtils.getString(jsonObject, "policy"));
+				policy = new Policy(JSONObjectUtils.getNonBlankString(jsonObject, "policy"));
 			}
 			Procedure procedure = null;
 			if (jsonObject.get("procedure") != null) {
-				procedure = new Procedure(JSONObjectUtils.getString(jsonObject, "procedure"));
+				procedure = new Procedure(JSONObjectUtils.getNonBlankString(jsonObject, "procedure"));
 			}
 			Status status = null;
 			if (jsonObject.get("status") != null) {
-				status = new Status(JSONObjectUtils.getString(jsonObject, "status"));
+				status = new Status(JSONObjectUtils.getNonBlankString(jsonObject, "status"));
 			}
 			return new VerificationMethod(type, policy, procedure, status);
 		} catch (IllegalArgumentException e) {

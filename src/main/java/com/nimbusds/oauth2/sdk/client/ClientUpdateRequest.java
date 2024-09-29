@@ -197,14 +197,14 @@ public class ClientUpdateRequest extends ProtectedResourceRequest {
 		
 		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
 		
-		ClientID id = new ClientID(JSONObjectUtils.getString(jsonObject, "client_id"));
+		ClientID id = new ClientID(JSONObjectUtils.getNonBlankString(jsonObject, "client_id"));
 
 		ClientMetadata metadata = ClientMetadata.parse(jsonObject);
 		
 		Secret clientSecret = null;
 		
 		if (jsonObject.get("client_secret") != null)
-			clientSecret = new Secret(JSONObjectUtils.getString(jsonObject, "client_secret"));
+			clientSecret = new Secret(JSONObjectUtils.getNonBlankString(jsonObject, "client_secret"));
 			
 		return new ClientUpdateRequest(httpRequest.getURI(), id, accessToken, metadata, clientSecret);
 	}

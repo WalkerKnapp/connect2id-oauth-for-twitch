@@ -123,7 +123,7 @@ public class CIBAPingCallback extends ProtectedResourceRequest {
 		BearerAccessToken accessToken = BearerAccessToken.parse(httpRequest);
 		
 		AuthRequestID authRequestID = new AuthRequestID(
-			JSONObjectUtils.getString(
+			JSONObjectUtils.getNonBlankString(
 			httpRequest.getBodyAsJSONObject(),
 			"auth_req_id")
 		);

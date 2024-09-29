@@ -127,14 +127,14 @@ public class OIDCClientUpdateRequest extends ClientUpdateRequest {
 		
 		JSONObject jsonObject = httpRequest.getBodyAsJSONObject();
 		
-		ClientID id = new ClientID(JSONObjectUtils.getString(jsonObject, "client_id"));
+		ClientID id = new ClientID(JSONObjectUtils.getNonBlankString(jsonObject, "client_id"));
 
 		OIDCClientMetadata metadata = OIDCClientMetadata.parse(jsonObject);
 		
 		Secret clientSecret = null;
 		
 		if (jsonObject.get("client_secret") != null)
-			clientSecret = new Secret(JSONObjectUtils.getString(jsonObject, "client_secret"));
+			clientSecret = new Secret(JSONObjectUtils.getNonBlankString(jsonObject, "client_secret"));
 
 
 		URI endpointURI = httpRequest.getURI();

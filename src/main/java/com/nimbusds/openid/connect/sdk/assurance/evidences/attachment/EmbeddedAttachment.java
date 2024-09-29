@@ -18,15 +18,14 @@
 package com.nimbusds.openid.connect.sdk.assurance.evidences.attachment;
 
 
-import java.util.Objects;
-
-import net.jcip.annotations.Immutable;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.util.Base64;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
+
+import java.util.Objects;
 
 
 /**
@@ -114,11 +113,7 @@ public class EmbeddedAttachment extends Attachment {
 			throw new ParseException("Invalid content_type: " + e.getMessage(), e);
 		}
 		
-		Base64 base64 = Base64.from(JSONObjectUtils.getString(jsonObject, "content"));
-		
-		if (base64.toString().trim().isEmpty()) {
-			throw new ParseException("Empty or blank content");
-		}
+		Base64 base64 = Base64.from(JSONObjectUtils.getNonBlankString(jsonObject, "content"));
 		
 		String description = JSONObjectUtils.getString(jsonObject, "desc", null);
 		

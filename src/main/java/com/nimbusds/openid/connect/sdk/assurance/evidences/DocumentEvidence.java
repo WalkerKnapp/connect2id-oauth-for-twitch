@@ -250,7 +250,7 @@ public class DocumentEvidence extends IdentityEvidence {
 		}
 		IdentityVerificationMethod method = null;
 		if (jsonObject.get("method") != null) {
-			method = new IdentityVerificationMethod(JSONObjectUtils.getString(jsonObject, "method"));
+			method = new IdentityVerificationMethod(JSONObjectUtils.getNonBlankString(jsonObject, "method"));
 		}
 		IdentityVerifier verifier = null;
 		if (jsonObject.get("verifier") != null) {
@@ -258,7 +258,7 @@ public class DocumentEvidence extends IdentityEvidence {
 		}
 		DateWithTimeZoneOffset dtz = null;
 		if (jsonObject.get("time") != null) {
-			dtz = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getString(jsonObject, "time"));
+			dtz = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "time"));
 		}
 		
 		DocumentDetails documentDetails = null;

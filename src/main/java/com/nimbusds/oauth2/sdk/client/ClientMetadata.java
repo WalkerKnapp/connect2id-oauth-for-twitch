@@ -2511,7 +2511,7 @@ public class ClientMetadata {
 
 			if (jsonObject.get("token_endpoint_auth_method") != null) {
 				metadata.setTokenEndpointAuthMethod(ClientAuthenticationMethod.parse(
-					JSONObjectUtils.getString(jsonObject, "token_endpoint_auth_method")));
+					JSONObjectUtils.getNonBlankString(jsonObject, "token_endpoint_auth_method")));
 
 				jsonObject.remove("token_endpoint_auth_method");
 			}
@@ -2519,7 +2519,7 @@ public class ClientMetadata {
 
 			if (jsonObject.get("token_endpoint_auth_signing_alg") != null) {
 				metadata.setTokenEndpointAuthJWSAlg(JWSAlgorithm.parse(
-					JSONObjectUtils.getString(jsonObject, "token_endpoint_auth_signing_alg")));
+					JSONObjectUtils.getNonBlankString(jsonObject, "token_endpoint_auth_signing_alg")));
 
 				jsonObject.remove("token_endpoint_auth_signing_alg");
 			}
@@ -2563,27 +2563,27 @@ public class ClientMetadata {
 			
 			if (jsonObject.get("request_object_signing_alg") != null) {
 				metadata.setRequestObjectJWSAlg(JWSAlgorithm.parse(
-					JSONObjectUtils.getString(jsonObject, "request_object_signing_alg")));
+					JSONObjectUtils.getNonBlankString(jsonObject, "request_object_signing_alg")));
 				
 				jsonObject.remove("request_object_signing_alg");
 			}
 			
 			if (jsonObject.get("request_object_encryption_alg") != null) {
 				metadata.setRequestObjectJWEAlg(JWEAlgorithm.parse(
-					JSONObjectUtils.getString(jsonObject, "request_object_encryption_alg")));
+					JSONObjectUtils.getNonBlankString(jsonObject, "request_object_encryption_alg")));
 				
 				jsonObject.remove("request_object_encryption_alg");
 			}
 			
 			if (jsonObject.get("request_object_encryption_enc") != null) {
 				metadata.setRequestObjectJWEEnc(EncryptionMethod.parse(
-					JSONObjectUtils.getString(jsonObject, "request_object_encryption_enc")));
+					JSONObjectUtils.getNonBlankString(jsonObject, "request_object_encryption_enc")));
 				
 				jsonObject.remove("request_object_encryption_enc");
 			}
 
 			if (jsonObject.get("software_id") != null) {
-				metadata.setSoftwareID(new SoftwareID(JSONObjectUtils.getString(jsonObject, "software_id")));
+				metadata.setSoftwareID(new SoftwareID(JSONObjectUtils.getNonBlankString(jsonObject, "software_id")));
 				jsonObject.remove("software_id");
 			}
 
@@ -2610,27 +2610,27 @@ public class ClientMetadata {
 			}
 			
 			if (jsonObject.get("tls_client_auth_subject_dn") != null) {
-				metadata.setTLSClientAuthSubjectDN(JSONObjectUtils.getString(jsonObject, "tls_client_auth_subject_dn"));
+				metadata.setTLSClientAuthSubjectDN(JSONObjectUtils.getNonBlankString(jsonObject, "tls_client_auth_subject_dn"));
 				jsonObject.remove("tls_client_auth_subject_dn");
 			}
 			
 			if (jsonObject.get("tls_client_auth_san_dns") != null) {
-				metadata.setTLSClientAuthSanDNS(JSONObjectUtils.getString(jsonObject, "tls_client_auth_san_dns"));
+				metadata.setTLSClientAuthSanDNS(JSONObjectUtils.getNonBlankString(jsonObject, "tls_client_auth_san_dns"));
 				jsonObject.remove("tls_client_auth_san_dns");
 			}
 			
 			if (jsonObject.get("tls_client_auth_san_uri") != null) {
-				metadata.setTLSClientAuthSanURI(JSONObjectUtils.getString(jsonObject, "tls_client_auth_san_uri"));
+				metadata.setTLSClientAuthSanURI(JSONObjectUtils.getNonBlankString(jsonObject, "tls_client_auth_san_uri"));
 				jsonObject.remove("tls_client_auth_san_uri");
 			}
 			
 			if (jsonObject.get("tls_client_auth_san_ip") != null) {
-				metadata.setTLSClientAuthSanIP(JSONObjectUtils.getString(jsonObject, "tls_client_auth_san_ip"));
+				metadata.setTLSClientAuthSanIP(JSONObjectUtils.getNonBlankString(jsonObject, "tls_client_auth_san_ip"));
 				jsonObject.remove("tls_client_auth_san_ip");
 			}
 			
 			if (jsonObject.get("tls_client_auth_san_email") != null) {
-				metadata.setTLSClientAuthSanEmail(JSONObjectUtils.getString(jsonObject, "tls_client_auth_san_email"));
+				metadata.setTLSClientAuthSanEmail(JSONObjectUtils.getNonBlankString(jsonObject, "tls_client_auth_san_email"));
 				jsonObject.remove("tls_client_auth_san_email");
 			}
 			
@@ -2646,17 +2646,17 @@ public class ClientMetadata {
 			// JARM
 			
 			if (jsonObject.get("authorization_signed_response_alg") != null) {
-				metadata.setAuthorizationJWSAlg(JWSAlgorithm.parse(JSONObjectUtils.getString(jsonObject, "authorization_signed_response_alg")));
+				metadata.setAuthorizationJWSAlg(JWSAlgorithm.parse(JSONObjectUtils.getNonBlankString(jsonObject, "authorization_signed_response_alg")));
 				jsonObject.remove("authorization_signed_response_alg");
 			}
 			
 			if (jsonObject.get("authorization_encrypted_response_alg") != null) {
-				metadata.setAuthorizationJWEAlg(JWEAlgorithm.parse(JSONObjectUtils.getString(jsonObject, "authorization_encrypted_response_alg")));
+				metadata.setAuthorizationJWEAlg(JWEAlgorithm.parse(JSONObjectUtils.getNonBlankString(jsonObject, "authorization_encrypted_response_alg")));
 				jsonObject.remove("authorization_encrypted_response_alg");
 			}
 			
 			if (jsonObject.get("authorization_encrypted_response_enc") != null) {
-				metadata.setAuthorizationJWEEnc(EncryptionMethod.parse(JSONObjectUtils.getString(jsonObject, "authorization_encrypted_response_enc")));
+				metadata.setAuthorizationJWEEnc(EncryptionMethod.parse(JSONObjectUtils.getNonBlankString(jsonObject, "authorization_encrypted_response_enc")));
 				jsonObject.remove("authorization_encrypted_response_enc");
 			}
 			
@@ -2681,7 +2681,7 @@ public class ClientMetadata {
 			// CIBA
 			
 			if (jsonObject.get("backchannel_token_delivery_mode") != null) {
-				metadata.setBackChannelTokenDeliveryMode(BackChannelTokenDeliveryMode.parse(JSONObjectUtils.getString(jsonObject, "backchannel_token_delivery_mode")));
+				metadata.setBackChannelTokenDeliveryMode(BackChannelTokenDeliveryMode.parse(JSONObjectUtils.getNonBlankString(jsonObject, "backchannel_token_delivery_mode")));
 				jsonObject.remove("backchannel_token_delivery_mode");
 			}
 			
@@ -2691,7 +2691,7 @@ public class ClientMetadata {
 			}
 			
 			if (jsonObject.get("backchannel_authentication_request_signing_alg") != null) {
-				metadata.setBackChannelAuthRequestJWSAlg(JWSAlgorithm.parse(JSONObjectUtils.getString(jsonObject, "backchannel_authentication_request_signing_alg")));
+				metadata.setBackChannelAuthRequestJWSAlg(JWSAlgorithm.parse(JSONObjectUtils.getNonBlankString(jsonObject, "backchannel_authentication_request_signing_alg")));
 				jsonObject.remove("backchannel_authentication_request_signing_alg");
 			}
 			

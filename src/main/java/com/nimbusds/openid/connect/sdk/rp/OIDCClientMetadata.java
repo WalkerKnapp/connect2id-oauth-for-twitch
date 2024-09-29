@@ -18,17 +18,10 @@
 package com.nimbusds.openid.connect.sdk.rp;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-
-import com.nimbusds.oauth2.sdk.ErrorObject;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ciba.BackChannelTokenDeliveryMode;
 import com.nimbusds.oauth2.sdk.client.ClientMetadata;
@@ -40,6 +33,12 @@ import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.assurance.evidences.attachment.HashAlgorithm;
 import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.id.SectorID;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 
 
 /**
@@ -1060,42 +1059,42 @@ public class OIDCClientMetadata extends ClientMetadata {
 
 			if (jsonObject.get("id_token_signed_response_alg") != null) {
 				metadata.setIDTokenJWSAlg(JWSAlgorithm.parse(
-					JSONObjectUtils.getString(jsonObject, "id_token_signed_response_alg")));
+					JSONObjectUtils.getNonBlankString(jsonObject, "id_token_signed_response_alg")));
 
 				oidcFields.remove("id_token_signed_response_alg");
 			}
 
 			if (jsonObject.get("id_token_encrypted_response_alg") != null) {
 				metadata.setIDTokenJWEAlg(JWEAlgorithm.parse(
-					JSONObjectUtils.getString(jsonObject, "id_token_encrypted_response_alg")));
+					JSONObjectUtils.getNonBlankString(jsonObject, "id_token_encrypted_response_alg")));
 
 				oidcFields.remove("id_token_encrypted_response_alg");
 			}
 
 			if (jsonObject.get("id_token_encrypted_response_enc") != null) {
 				metadata.setIDTokenJWEEnc(EncryptionMethod.parse(
-					JSONObjectUtils.getString(jsonObject, "id_token_encrypted_response_enc")));
+					JSONObjectUtils.getNonBlankString(jsonObject, "id_token_encrypted_response_enc")));
 
 				oidcFields.remove("id_token_encrypted_response_enc");
 			}
 
 			if (jsonObject.get("userinfo_signed_response_alg") != null) {
 				metadata.setUserInfoJWSAlg(JWSAlgorithm.parse(
-					JSONObjectUtils.getString(jsonObject, "userinfo_signed_response_alg")));
+					JSONObjectUtils.getNonBlankString(jsonObject, "userinfo_signed_response_alg")));
 
 				oidcFields.remove("userinfo_signed_response_alg");
 			}
 
 			if (jsonObject.get("userinfo_encrypted_response_alg") != null) {
 				metadata.setUserInfoJWEAlg(JWEAlgorithm.parse(
-					JSONObjectUtils.getString(jsonObject, "userinfo_encrypted_response_alg")));
+					JSONObjectUtils.getNonBlankString(jsonObject, "userinfo_encrypted_response_alg")));
 
 				oidcFields.remove("userinfo_encrypted_response_alg");
 			}
 
 			if (jsonObject.get("userinfo_encrypted_response_enc") != null) {
 				metadata.setUserInfoJWEEnc(EncryptionMethod.parse(
-					JSONObjectUtils.getString(jsonObject, "userinfo_encrypted_response_enc")));
+					JSONObjectUtils.getNonBlankString(jsonObject, "userinfo_encrypted_response_enc")));
 
 				oidcFields.remove("userinfo_encrypted_response_enc");
 			}
@@ -1184,7 +1183,7 @@ public class OIDCClientMetadata extends ClientMetadata {
 			}
 			
 			if (jsonObject.get("digest_algorithm") != null) {
-				metadata.setAttachmentDigestAlg(new HashAlgorithm(JSONObjectUtils.getString(jsonObject, "digest_algorithm")));
+				metadata.setAttachmentDigestAlg(new HashAlgorithm(JSONObjectUtils.getNonBlankString(jsonObject, "digest_algorithm")));
 				oidcFields.remove("digest_algorithm");
 			}
 			

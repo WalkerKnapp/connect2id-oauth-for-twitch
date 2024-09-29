@@ -424,7 +424,7 @@ public abstract class AccessToken extends Token {
 	public static AccessToken parse(final JSONObject jsonObject)
 		throws ParseException {
 
-		AccessTokenType tokenType = new AccessTokenType(JSONObjectUtils.getString(jsonObject, "token_type"));
+		AccessTokenType tokenType = new AccessTokenType(JSONObjectUtils.getNonBlankString(jsonObject, "token_type"));
 		
 		if (AccessTokenType.BEARER.equals(tokenType)) {
 			return BearerAccessToken.parse(jsonObject);

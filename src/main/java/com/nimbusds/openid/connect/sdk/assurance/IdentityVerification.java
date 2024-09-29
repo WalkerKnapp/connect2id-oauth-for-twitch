@@ -330,7 +330,7 @@ public final class IdentityVerification implements JSONAware {
 	public static IdentityVerification parse(final JSONObject jsonObject)
 		throws ParseException {
 		
-		IdentityTrustFramework trustFramework = new IdentityTrustFramework(JSONObjectUtils.getString(jsonObject, "trust_framework"));
+		IdentityTrustFramework trustFramework = new IdentityTrustFramework(JSONObjectUtils.getNonBlankString(jsonObject, "trust_framework"));
 		
 		IdentityAssuranceLevel assuranceLevel = null;
 		String stringValue = JSONObjectUtils.getString(jsonObject, "assurance_level", null);

@@ -275,13 +275,13 @@ public class JWTAssertionDetails extends AssertionDetails {
 		throws ParseException {
 		
 		// Parse required claims
-		Issuer iss = new Issuer(JSONObjectUtils.getString(jsonObject, "iss"));
-		Subject sub = new Subject(JSONObjectUtils.getString(jsonObject, "sub"));
+		Issuer iss = new Issuer(JSONObjectUtils.getNonBlankString(jsonObject, "iss"));
+		Subject sub = new Subject(JSONObjectUtils.getNonBlankString(jsonObject, "sub"));
 
 		List<Audience> aud;
 
 		if (jsonObject.get("aud") instanceof String) {
-			aud = new Audience(JSONObjectUtils.getString(jsonObject, "aud")).toSingleAudienceList();
+			aud = new Audience(JSONObjectUtils.getNonBlankString(jsonObject, "aud")).toSingleAudienceList();
 		} else {
 			aud = Audience.create(JSONObjectUtils.getStringList(jsonObject, "aud"));
 		}
@@ -304,7 +304,7 @@ public class JWTAssertionDetails extends AssertionDetails {
 		JWTID jti = null;
 
 		if (jsonObject.containsKey("jti"))
-			jti = new JWTID(JSONObjectUtils.getString(jsonObject, "jti"));
+			jti = new JWTID(JSONObjectUtils.getNonBlankString(jsonObject, "jti"));
 
 		// Parse custom claims
 		Map<String,Object> other = null;

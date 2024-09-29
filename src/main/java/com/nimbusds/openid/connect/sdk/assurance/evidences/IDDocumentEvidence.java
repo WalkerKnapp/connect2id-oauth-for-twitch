@@ -190,12 +190,12 @@ public class IDDocumentEvidence extends IdentityEvidence {
 		
 		IdentityVerificationMethod method = null;
 		if (jsonObject.get("method") != null) {
-			method = new IdentityVerificationMethod(JSONObjectUtils.getString(jsonObject, "method"));
+			method = new IdentityVerificationMethod(JSONObjectUtils.getNonBlankString(jsonObject, "method"));
 		}
 		
 		DateWithTimeZoneOffset dtz = null;
 		if (jsonObject.get("time") != null) {
-			dtz = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getString(jsonObject, "time"));
+			dtz = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "time"));
 		}
 		
 		IdentityVerifier verifier = null;

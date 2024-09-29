@@ -229,26 +229,26 @@ public class Attestation {
 		throws ParseException {
 		
 		try {
-			VouchType type = new VouchType(JSONObjectUtils.getString(jsonObject, "type"));
+			VouchType type = new VouchType(JSONObjectUtils.getNonBlankString(jsonObject, "type"));
 			
 			ReferenceNumber referenceNumber = null;
 			if (jsonObject.get("reference_number") != null) {
-				referenceNumber = new ReferenceNumber(JSONObjectUtils.getString(jsonObject, "reference_number"));
+				referenceNumber = new ReferenceNumber(JSONObjectUtils.getNonBlankString(jsonObject, "reference_number"));
 			}
 			
 			PersonalNumber personalNumber = null;
 			if (jsonObject.get("personal_number") != null) {
-				personalNumber = new PersonalNumber(JSONObjectUtils.getString(jsonObject, "personal_number"));
+				personalNumber = new PersonalNumber(JSONObjectUtils.getNonBlankString(jsonObject, "personal_number"));
 			}
 			
 			SimpleDate dateOfIssuance = null;
 			if (jsonObject.get("date_of_issuance") != null) {
-				dateOfIssuance = SimpleDate.parseISO8601String(JSONObjectUtils.getString(jsonObject, "date_of_issuance"));
+				dateOfIssuance = SimpleDate.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "date_of_issuance"));
 			}
 			
 			SimpleDate dateOfExpiry = null;
 			if (jsonObject.get("date_of_expiry") != null) {
-				dateOfExpiry = SimpleDate.parseISO8601String(JSONObjectUtils.getString(jsonObject, "date_of_expiry"));
+				dateOfExpiry = SimpleDate.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "date_of_expiry"));
 			}
 			
 			Voucher voucher = null;

@@ -156,7 +156,7 @@ public final class X509CertificateConfirmation extends AbstractConfirmation {
 		}
 		
 		try {
-			String x5tString = JSONObjectUtils.getString(cnf, "x5t#S256");
+			String x5tString = JSONObjectUtils.getNonBlankString(cnf, "x5t#S256");
 			return new X509CertificateConfirmation(new Base64URL(x5tString));
 			
 		} catch (ParseException e) {

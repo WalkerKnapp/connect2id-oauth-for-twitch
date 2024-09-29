@@ -264,17 +264,17 @@ public class UtilityBillEvidence extends IdentityEvidence {
 		
 		SimpleDate date = null;
 		if (jsonObject.get("date") != null) {
-			date = SimpleDate.parseISO8601String(JSONObjectUtils.getString(jsonObject, "date"));
+			date = SimpleDate.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "date"));
 		}
 		
 		DateWithTimeZoneOffset dtz = null;
 		if (jsonObject.get("time") != null) {
-			dtz = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getString(jsonObject, "time"));
+			dtz = DateWithTimeZoneOffset.parseISO8601String(JSONObjectUtils.getNonBlankString(jsonObject, "time"));
 		}
 		
 		IdentityVerificationMethod method = null;
 		if (jsonObject.get("method") != null) {
-			method = new IdentityVerificationMethod(JSONObjectUtils.getString(jsonObject, "method"));
+			method = new IdentityVerificationMethod(JSONObjectUtils.getNonBlankString(jsonObject, "method"));
 		}
 		
 		List<Attachment> attachments = null;
