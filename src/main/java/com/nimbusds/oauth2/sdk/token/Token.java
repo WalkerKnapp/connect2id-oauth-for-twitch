@@ -27,8 +27,8 @@ import java.util.Set;
 
 
 /**
- * The base abstract class for access and refresh tokens. Concrete extending
- * classes should be immutable.
+ * The base abstract class for access, refresh and other tokens. Concrete
+ * extending classes should be immutable.
  * 
  * <p>Related specifications:
  *

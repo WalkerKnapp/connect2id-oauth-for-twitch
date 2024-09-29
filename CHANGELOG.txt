@@ -2486,3 +2486,7 @@ version 11.19 (2024-08-29)
 version 11.19.1 (2024-09-05)
     * OIDCScopeValue.resolveClaimNames(Scope, ...) must ignore the "openid"
       scope value that resolves to "sub".
+
+version 11.20 (2024-09-29)
+    * Adds DeviceSecretToken class to represent DeviceSecret instances as a
+      Token.
