@@ -3,8 +3,8 @@
 Copyright (c) Connect2id Ltd., 2012 - 2024
 
 This open source SDK is your starting point for developing OAuth 2.0 and OpenID
-Connect based applications in Java. It is provided under the terms of the 
-[Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0).
+Connect applications in Java. It is provided under the terms of the [Apache 2.0 
+license](https://www.apache.org/licenses/LICENSE-2.0).
 
 ## About OAuth 2.0 and 2.1
 
@@ -130,7 +130,7 @@ This SDK version implements the following standards and drafts:
 
 * OpenID Connect for Identity Assurance 1.0 - draft 12
 
-* OpenID Connect Federation 1.0 - draft 29
+* OpenID Federation 1.0 - draft 29
 
 * Initiating User Registration via OpenID Connect 1.0 (2022-12-02)
 
@@ -148,4 +148,4 @@ This SDK version implements the following standards and drafts:
 
 ## Questions or comments? 
 
-Email support@connect2id.com
+Email [Connect2id tech support](https://connect2id.com/contact#support).
