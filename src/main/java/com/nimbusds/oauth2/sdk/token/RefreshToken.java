@@ -115,7 +115,11 @@ public final class RefreshToken extends Token {
 		
 		if (value == null) return null;
 
-		return new RefreshToken(value);
+		try {
+			return new RefreshToken(value);
+		} catch (Exception e) {
+			throw new ParseException("Illegal refresh token", e);
+		}
 	}
 
 

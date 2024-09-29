@@ -19,13 +19,11 @@ package com.nimbusds.oauth2.sdk.token;
 
 
 import com.nimbusds.jose.util.Base64;
+import com.nimbusds.oauth2.sdk.ParseException;
 import junit.framework.TestCase;
 import net.minidev.json.JSONObject;
 
 
-/**
- * Tests the refresh token class.
- */
 public class RefreshTokenTest extends TestCase {
 
 
@@ -65,5 +63,33 @@ public class RefreshTokenTest extends TestCase {
 		assertEquals(rt.getValue(), jsonObject.get("refresh_token"));
 		assertEquals(3600L, jsonObject.get("refresh_token_expires_in"));
 		assertEquals(2, jsonObject.size());
+	}
+
+
+	public void testParseEmpty() {
+
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("refresh_token", "");
+
+		try {
+			RefreshToken.parse(jsonObject);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Illegal refresh token", e.getMessage());
+		}
+	}
+
+
+	public void testParseBlank() {
+
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("refresh_token", "");
+
+		try {
+			RefreshToken.parse(jsonObject);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Illegal refresh token", e.getMessage());
+		}
 	}
 }
