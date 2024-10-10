@@ -2496,3 +2496,12 @@ version 11.20 (2024-09-29)
       due to empty or blank String (iss #479).
     * RefreshToken.parse(JSONObject) must not throw unchecked exception on
       empty or blank String (iss #480).
+
+version 11.20.1 (2024-10-10)
+    * OIDCResponseTypeValidator.validate must not include the response type
+      value in the thrown IllegalArgumentException, the exception message is
+      used to construct ErrorObject instances (iss #483).
+    * AuthenticationRequest.parse must not include the max_age value in
+      ParseException instances (iss #482).
+    * Display.parse must not include the value in ParseException instances (iss
+      #484).

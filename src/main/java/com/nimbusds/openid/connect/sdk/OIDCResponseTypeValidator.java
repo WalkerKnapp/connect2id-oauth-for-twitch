@@ -48,7 +48,7 @@ class OIDCResponseTypeValidator {
 			if (! rtValue.equals(ResponseType.Value.CODE) &&
 			    ! rtValue.equals(ResponseType.Value.TOKEN) &&
 			    ! rtValue.equals(OIDCResponseTypeValue.ID_TOKEN) )
-				throw new IllegalArgumentException("Unsupported OpenID Connect response type value: " + rtValue);
+				throw new IllegalArgumentException("Unsupported OpenID Connect response type value");
 		}
 	}
 	

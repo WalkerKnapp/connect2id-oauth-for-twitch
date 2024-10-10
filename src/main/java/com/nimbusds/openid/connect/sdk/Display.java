@@ -114,6 +114,6 @@ public enum Display {
 		if (s.equals("wap"))
 			return WAP;
 			
-		throw new ParseException("Unknown display type: " + s);
+		throw new ParseException("Unknown display type");
 	}
 }

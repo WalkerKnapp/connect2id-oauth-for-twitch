@@ -1357,6 +1357,29 @@ public class AuthenticationRequestTest extends TestCase {
 		assertNull(request.getPrompt());
 		assertEquals(4, request.toParameters().size());
 	}
+
+
+	public void testParseInvalidResponseType() {
+
+		AuthenticationRequest request = new AuthenticationRequest.Builder(
+			ResponseType.CODE,
+			new Scope("openid"),
+			new ClientID("123"),
+			URI.create("https://example.com/cb"))
+			.build();
+
+		Map<String, List<String>> params = request.toParameters();
+
+		// Illegal response_type
+		params.put("response_type", Collections.singletonList("'...\"id_token\"???...'"));
+
+                try {
+                        AuthenticationRequest.parse(params);
+			fail();
+                } catch (ParseException e) {
+                        assertEquals("Unsupported response_type parameter: Unsupported OpenID Connect response type value", e.getMessage());
+                }
+        }
 	
 	
 	// https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/issues/345/token-and-authz-request-must-fail-with-400
@@ -1466,9 +1489,9 @@ public class AuthenticationRequestTest extends TestCase {
 			AuthenticationRequest.parse(query);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Invalid display parameter: Unknown display type: mobile", e.getMessage());
+			assertEquals("Invalid display parameter: Unknown display type", e.getMessage());
 			assertEquals(OAuth2Error.INVALID_REQUEST.getCode(), e.getErrorObject().getCode());
-			assertEquals("Invalid request: Invalid display parameter: Unknown display type: mobile", e.getErrorObject().getDescription());
+			assertEquals("Invalid request: Invalid display parameter: Unknown display type", e.getErrorObject().getDescription());
 			assertEquals(ResponseMode.QUERY, e.getResponseMode());
 			assertNull(e.getErrorObject().getURI());
 		}
@@ -1477,7 +1500,8 @@ public class AuthenticationRequestTest extends TestCase {
 
 	public void testParseInvalidMaxAge() {
 
-		String query = "response_type=code" +
+		String query =
+			"response_type=code" +
 			"&client_id=s6BhdRkqt3" +
 			"&redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb" +
 			"&scope=openid%20profile" +
@@ -1488,9 +1512,9 @@ public class AuthenticationRequestTest extends TestCase {
 			AuthenticationRequest.parse(query);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Invalid max_age parameter: zero", e.getMessage());
+			assertEquals("Invalid max_age parameter", e.getMessage());
 			assertEquals(OAuth2Error.INVALID_REQUEST.getCode(), e.getErrorObject().getCode());
-			assertEquals("Invalid request: Invalid max_age parameter: zero", e.getErrorObject().getDescription());
+			assertEquals("Invalid request: Invalid max_age parameter", e.getErrorObject().getDescription());
 			assertEquals(ResponseMode.QUERY, e.getResponseMode());
 			assertNull(e.getErrorObject().getURI());
 		}

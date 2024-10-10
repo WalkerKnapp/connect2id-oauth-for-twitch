@@ -2184,7 +2184,7 @@ public class AuthenticationRequest extends AuthorizationRequest {
 				maxAge = Integer.parseInt(v);
 
 			} catch (NumberFormatException e) {
-				String msg = "Invalid max_age parameter: " + v;
+				String msg = "Invalid max_age parameter";
 				throw new ParseException(msg, OAuth2Error.INVALID_REQUEST.appendDescription(": " + msg),
 					                 ar.getClientID(), ar.getRedirectionURI(), ar.impliedResponseMode(), ar.getState(), e);
 			}

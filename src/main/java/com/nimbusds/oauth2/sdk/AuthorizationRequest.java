@@ -1713,7 +1713,7 @@ public class AuthorizationRequest extends AbstractRequest {
 		}
 		
 		// Parse response_mode, response_type, client_id, redirect_uri and state first,
-		// needed if parsing results in a error response
+		// needed if parsing results in an error response
 		final ClientID clientID;
 		URI redirectURI = null;
 		State state = State.parse(MultivaluedMapUtils.getFirstValue(params, "state"));
