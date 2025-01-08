@@ -2505,3 +2505,9 @@ version 11.20.1 (2024-10-10)
       ParseException instances (iss #482).
     * Display.parse must not include the value in ParseException instances (iss
       #484).
+
+version 11.20.2 (2025-01-08)
+    * Hardens AuthorizationRequest.parse when dealing with an illegal URI
+      representation in the redirect_uri parameter. URISyntaxException messages
+      must not be included in the error_description to avoid illegal chars
+      according to RFC 6749, section 5.2 (iss #487).

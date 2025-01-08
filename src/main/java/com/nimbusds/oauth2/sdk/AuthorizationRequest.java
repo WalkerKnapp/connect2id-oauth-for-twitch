@@ -1745,7 +1745,7 @@ public class AuthorizationRequest extends AbstractRequest {
 
 			} catch (URISyntaxException | IllegalArgumentException e) {
 				// No automatic redirection https://tools.ietf.org/html/rfc6749#section-4.1.2.1
-				String msg = "Invalid redirect_uri parameter: " + e.getMessage();
+				String msg = "Illegal redirect_uri parameter";
 				throw new ParseException(msg, OAuth2Error.INVALID_REQUEST.appendDescription(": " + msg));
 			}
 		}

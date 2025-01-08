@@ -774,9 +774,24 @@ public class AuthorizationRequestTest extends TestCase {
 			AuthorizationRequest.parse(requestURI);
 			fail();
 		} catch (ParseException e) {
-			assertTrue(e.getMessage().startsWith("Invalid redirect_uri parameter"));
 			assertEquals(OAuth2Error.INVALID_REQUEST.getCode(), e.getErrorObject().getCode());
-			assertTrue(e.getErrorObject().getDescription().startsWith("Invalid request: Invalid redirect_uri parameter"));
+			assertEquals("Invalid request: Illegal redirect_uri parameter", e.getErrorObject().getDescription());
+			assertNull(e.getErrorObject().getURI());
+		}
+	}
+
+
+	public void testParseExceptionInvalidRedirectionURI_2()
+		throws Exception {
+
+		URI requestURI = new URI("https://server.example.com/authorize?client_id=1c97efd4-f030-481b-b7f3-ec4b31c80e0c&redirect_uri=/%09/example.com&response_type=code&prompt=login&scope=openid%20profile&code_challenge=iXlrYp9McDDeIk9aofZLhBiijK-rqhvLZweb3HM_EL4&code_challenge_method=S256&response_mode=form_post&nonce=638417822591109740.NTRlMWRjMDctMTNlOS00MzcwLWJmZjQtYWIwMDVlZmI3YmYyYTZhMDRiNGEtOWUzMS00NDhiLWE0NzUtMWE4NzYxY2UwMWRi&state=CfDJ8Kmwd5vY0CdJhsRp3a9AbJOkGVa8w7aa2mfTmL6oYD4LhR3hMah8OF4S0LqHXTXLgdVDjCqxzFaSTnbbqi3eo0EeI9jF7z3mooH_ysw3YduMy96caH05GCDX1Qp55WSm6Q5bbkS3JNRwcIi4N1cherGtI2IkIDRYfYd6NMx0fxY9rSD38tgl2-gzD-jaNeF5Sdj1-XwY60CU4pJGvOghWeq6VxKCC78NL3GCti8YWh3QlZXXcK3Q2tqlosBqWmDJmoGWE_JNTwHkGAE7wvplOFAD8CWbo79_XJUVNixqxz1KZmFFzN_avEqKqGzyv__gFjY3MdXQGif5TcxH9lNupYdlQQyPcyh0HdqwYOwQEqZqKwEP7zpGwnZvPp-SzTBXTTf4W3Su75u82eyHHl1qFHUEELWAZXVV1Fv6tCTlrqwGtxiqCqRNk8-dZxRXqr3pB50asXURcB_OrWCQzRkOtrOISYomIuGFjUIUzJNfk_5f5xrL9LVwoK7VTSGcm62CsSknzMm6_h9W7ega7ZKe3H2BqnFW6uqQB7f3LsrNwSmh2fweLo4kOdpDBtegNSNy1lg_ej6pz1jwwArSjdYYtefYRHny8pwcnGenyxUwt410SEE4KYsVhXELItInhSKuQBmIZ0y-hMZtoKpnw9_8h5PEuxqTjyS3HvIzIjLvcOr8ZuETLupLMTNgGzT2ubKzmfEVOuWOaBxdjAaHgRedAwAL8HVINQcZ7nsnnjVRDZDREtTLxU2-T0LDt-SEInWNwHw-mLC5NrUM5kdnSPwPhr-XfhoQ0GiwaWDa14U1yE2uIpPFX7b4M8LEWE6xavcRFIrGzGJeFRwYNnMai5iNHkPsls4P34hAIfp0su7dJbGbYKqNz7lGq7vON_i-JO_efqsJvYDW2SYoIRrwpUJRVQJFqp-tpx263R0x5zfQcCWl2aUnYq2VUua5jrWHTv73997GcJy6RvgsGxv99-S8a9oLVnWGkEJOTyVIuE3Z6oRB");
+
+		try {
+			AuthorizationRequest.parse(requestURI);
+			fail();
+		} catch (ParseException e) {
+			assertEquals(OAuth2Error.INVALID_REQUEST.getCode(), e.getErrorObject().getCode());
+			assertEquals("Invalid request: Illegal redirect_uri parameter", e.getErrorObject().getDescription());
 			assertNull(e.getErrorObject().getURI());
 		}
 	}
@@ -2073,7 +2088,7 @@ public class AuthorizationRequestTest extends TestCase {
 			AuthorizationRequest.parse(parameters);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Invalid redirect_uri parameter: The redirect_uri must not contain fragment", e.getMessage());
+			assertEquals("Invalid request: Illegal redirect_uri parameter", e.getErrorObject().getDescription());
 		}
 	}
 
@@ -2107,7 +2122,7 @@ public class AuthorizationRequestTest extends TestCase {
 				AuthorizationRequest.parse(parameters);
 				fail();
 			} catch (ParseException e) {
-				assertEquals("Invalid redirect_uri parameter: The URI scheme " + scheme + " is prohibited", e.getMessage());
+				assertEquals("Invalid request: Illegal redirect_uri parameter", e.getErrorObject().getDescription());
 			}
 		}
 	}
@@ -2142,7 +2157,9 @@ public class AuthorizationRequestTest extends TestCase {
 				AuthorizationRequest.parse(parameters);
 				fail();
 			} catch (ParseException e) {
-				assertEquals("Invalid redirect_uri parameter: The query parameter " + queryParam + " is prohibited", e.getMessage());
+				assertEquals("Illegal redirect_uri parameter", e.getMessage());
+				assertEquals(OAuth2Error.INVALID_REQUEST.getCode(), e.getErrorObject().getCode());
+				assertEquals("Invalid request: Illegal redirect_uri parameter", e.getErrorObject().getDescription());
 			}
 		}
 	}
