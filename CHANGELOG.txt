@@ -2511,3 +2511,6 @@ version 11.20.2 (2025-01-08)
       representation in the redirect_uri parameter. URISyntaxException messages
       must not be included in the error_description to avoid illegal chars
       according to RFC 6749, section 5.2 (iss #487).
+    * Updates to Nimbus JOSE+JWT 10.0.1
+    * Updates to Tink 1.16.0
+    * Updates to BouncyCastle 1.79

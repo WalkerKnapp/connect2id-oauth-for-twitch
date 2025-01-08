@@ -986,7 +986,7 @@ public class TrustChainTest extends TestCase {
 			TrustChain.parseSerialized(Arrays.asList("abc.def.ghi", "111.222.333"));
 			fail();
 		} catch (ParseException e) {
-			assertTrue(e.getMessage().startsWith("Invalid JWT in trust chain: Invalid JWS header: Invalid JSON:"));
+			assertEquals("Invalid JWT in trust chain: Invalid JWS header: Invalid JSON object", e.getMessage());
 		}
 	}
 	

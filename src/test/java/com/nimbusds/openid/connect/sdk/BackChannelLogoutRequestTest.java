@@ -179,7 +179,7 @@ public class BackChannelLogoutRequestTest extends TestCase {
 			BackChannelLogoutRequest.parse(httpRequest);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Invalid logout token: Invalid unsecured/JWS/JWE header: Invalid JSON: java.io.EOFException: End of input at line 1 column 2 path $.", e.getMessage());
+			assertEquals("Invalid logout token: Invalid unsecured/JWS/JWE header: Invalid JSON object", e.getMessage());
 		}
 	}
 	
