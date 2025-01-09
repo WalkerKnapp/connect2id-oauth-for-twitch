@@ -19,7 +19,7 @@ public class TokenTypeURITest extends TestCase {
 		assertEquals(URI.create("urn:ietf:params:oauth:token-type:saml1"), TokenTypeURI.SAML1.getURI());
 		assertEquals(URI.create("urn:ietf:params:oauth:token-type:saml2"), TokenTypeURI.SAML2.getURI());
 		assertEquals(URI.create("urn:ietf:params:oauth:token-type:jwt"), TokenTypeURI.JWT.getURI());
-		assertEquals(URI.create("urn:x-oath:params:oauth:token-type:device-secret"), TokenTypeURI.DEVICE_SECRET.getURI());
+		assertEquals(URI.create("urn:openid:params:token-type:device-secret"), TokenTypeURI.DEVICE_SECRET.getURI());
 	}
 	
 	

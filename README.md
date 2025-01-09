@@ -1,6 +1,6 @@
 # Nimbus OAuth 2.0 & 2.1 SDK with OpenID Connect extensions
 
-Copyright (c) Connect2id Ltd., 2012 - 2024
+Copyright (c) Connect2id Ltd., 2012 - 2025
 
 This open source SDK is your starting point for developing OAuth 2.0 and OpenID
 Connect applications in Java. It is provided under the terms of the [Apache 2.0 
@@ -120,7 +120,7 @@ This SDK version implements the following standards and drafts:
 
 * OpenID Connect Back-Channel Logout 1.0 (2023-12-15)
 
-* OpenID Connect Native SSO for Mobile Apps 1.0 - draft 06
+* OpenID Connect Native SSO for Mobile Apps 1.0 - draft 07
 
 * OpenID Connect Client Initiated Backchannel Authentication (CIBA) Flow -
   Core 1.0

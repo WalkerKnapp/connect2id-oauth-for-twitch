@@ -2514,3 +2514,8 @@ version 11.20.2 (2025-01-08)
     * Updates to Nimbus JOSE+JWT 10.0.1
     * Updates to Tink 1.16.0
     * Updates to BouncyCastle 1.79
+
+version 11.21 (2025-01-09)
+    * TokenTypeURI.DEVICE_SECRET is changed to
+      `urn:openid:params:token-type:device-secret` (OpenID Connect Native SSO
+      for Mobile Apps 1.0 - draft 07).

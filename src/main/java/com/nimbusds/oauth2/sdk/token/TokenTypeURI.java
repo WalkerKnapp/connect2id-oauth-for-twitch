@@ -71,7 +71,7 @@ public final class TokenTypeURI implements Serializable {
 	 * The token type URI for a {@code device_secret} for OpenID Connect
 	 * native SSO.
 	 */
-	public static final TokenTypeURI DEVICE_SECRET = new TokenTypeURI(URI.create("urn:x-oath:params:oauth:token-type:device-secret"));
+	public static final TokenTypeURI DEVICE_SECRET = new TokenTypeURI(URI.create("urn:openid:params:token-type:device-secret"));
 	
 	
 	private static final Map<String, TokenTypeURI> KNOWN_TOKEN_TYPE_URIS;
