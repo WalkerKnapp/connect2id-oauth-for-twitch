@@ -71,7 +71,7 @@ public class PrivateKeyJWTTest extends TestCase {
 
 		Issuer iss = new Issuer("https://sts.c2id.com");
 		ClientID clientID = new ClientID("123");
-		URI tokenEndpoint = new URI("https://c2id.com/token");
+		URI opIssuerURL = new URI("https://server.c2id.com");
 		
 		RSAKey rsaJWK = new RSAKeyGenerator(2048)
 			.generate();
@@ -85,9 +85,9 @@ public class PrivateKeyJWTTest extends TestCase {
 				
 				PrivateKeyJWT privateKeyJWT;
 				if (issAndSubSame) {
-					privateKeyJWT = new PrivateKeyJWT(clientID, tokenEndpoint, alg, priv, null, null);
+					privateKeyJWT = new PrivateKeyJWT(clientID, opIssuerURL, alg, priv, null, null);
 				} else {
-					privateKeyJWT = new PrivateKeyJWT(iss, clientID, tokenEndpoint, alg, priv, null, null);
+					privateKeyJWT = new PrivateKeyJWT(iss, clientID, opIssuerURL, alg, priv, null, null);
 				}
 				
 				assertEquals(new HashSet<>(Arrays.asList("client_id", "client_assertion", "client_assertion_type")), privateKeyJWT.getFormParameterNames());
@@ -105,7 +105,7 @@ public class PrivateKeyJWTTest extends TestCase {
 					assertEquals(iss, privateKeyJWT.getJWTAuthenticationClaimsSet().getIssuer());
 				}
 				assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
-				assertEquals(tokenEndpoint.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
+				assertEquals(opIssuerURL.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
 
 				// 55s < exp < 65s
 				final long now = new Date().getTime();
@@ -127,7 +127,7 @@ public class PrivateKeyJWTTest extends TestCase {
 
 		Issuer iss = new Issuer("https://sts.c2id.com");
 		ClientID clientID = new ClientID("123");
-		URI tokenEndpoint = new URI("https://c2id.com/token");
+		URI opIssuerURL = new URI("https://server.c2id.com");
 		
 		RSAKey rsaJWK = new RSAKeyGenerator(2048)
 			.keyID("1")
@@ -157,9 +157,9 @@ public class PrivateKeyJWTTest extends TestCase {
 			PrivateKeyJWT privateKeyJWT;
 			
 			if (issAndSubSame) {
-				privateKeyJWT = new PrivateKeyJWT(clientID, tokenEndpoint, JWSAlgorithm.RS256, priv, rsaJWK.getKeyID(), x5c, x5t256, null);
+				privateKeyJWT = new PrivateKeyJWT(clientID, opIssuerURL, JWSAlgorithm.RS256, priv, rsaJWK.getKeyID(), x5c, x5t256, null);
 			} else {
-				privateKeyJWT = new PrivateKeyJWT(iss, clientID, tokenEndpoint, JWSAlgorithm.RS256, priv, rsaJWK.getKeyID(), x5c, x5t256, null);
+				privateKeyJWT = new PrivateKeyJWT(iss, clientID, opIssuerURL, JWSAlgorithm.RS256, priv, rsaJWK.getKeyID(), x5c, x5t256, null);
 			}
 			
 			assertEquals(JWSAlgorithm.RS256, privateKeyJWT.getClientAssertion().getHeader().getAlgorithm());
@@ -185,7 +185,7 @@ public class PrivateKeyJWTTest extends TestCase {
 			}
 			assertEquals(clientID, privateKeyJWT.getJWTAuthenticationClaimsSet().getClientID());
 			assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
-			assertEquals(tokenEndpoint.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
+			assertEquals(opIssuerURL.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
 			
 			// 55s < exp < 65s
 			final Date minFromNow = new Date(now.getTime() + 55_000L);
@@ -203,7 +203,7 @@ public class PrivateKeyJWTTest extends TestCase {
 		throws Exception {
 
 		ClientID clientID = new ClientID("123");
-		URI tokenEndpoint = new URI("https://c2id.com/token");
+		URI opIssuerURL = new URI("https://server.c2id.com");
 		
 		RSAKey rsaJWK = new RSAKeyGenerator(2048)
 			.keyID("1")
@@ -228,7 +228,7 @@ public class PrivateKeyJWTTest extends TestCase {
 		Base64URL x5t256 = X509CertUtils.computeSHA256Thumbprint(cert);
 
 		try {
-			new PrivateKeyJWT(clientID, tokenEndpoint, new JWSAlgorithm("xxx"), priv, rsaJWK.getKeyID(), x5c, x5t256, null);
+			new PrivateKeyJWT(clientID, opIssuerURL, new JWSAlgorithm("xxx"), priv, rsaJWK.getKeyID(), x5c, x5t256, null);
 			fail();
 		} catch (JOSEException e) {
 			assertEquals("Unsupported JWS algorithm: xxx", e.getMessage());
@@ -240,14 +240,14 @@ public class PrivateKeyJWTTest extends TestCase {
 		throws Exception {
 
 		ClientID clientID = new ClientID("123");
-		URI tokenEndpoint = new URI("https://c2id.com/token");
+		URI opIssuerURL = new URI("https://server.c2id.com");
 
 		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
 		KeyPair pair = keyGen.generateKeyPair();
 		ECPrivateKey priv = (ECPrivateKey)pair.getPrivate();
 		ECPublicKey pub = (ECPublicKey)pair.getPublic();
 
-		PrivateKeyJWT privateKeyJWT = new PrivateKeyJWT(clientID, tokenEndpoint, JWSAlgorithm.ES256, priv, null, null);
+		PrivateKeyJWT privateKeyJWT = new PrivateKeyJWT(clientID, opIssuerURL, JWSAlgorithm.ES256, priv, null, null);
 
 		privateKeyJWT = PrivateKeyJWT.parse(privateKeyJWT.toParameters());
 
@@ -256,7 +256,7 @@ public class PrivateKeyJWTTest extends TestCase {
 		assertEquals(clientID, privateKeyJWT.getJWTAuthenticationClaimsSet().getClientID());
 		assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getIssuer().getValue());
 		assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
-		assertEquals(tokenEndpoint.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
+		assertEquals(opIssuerURL.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
 
 		// 55s < exp < 65s
 		final long now = new Date().getTime();
@@ -274,14 +274,14 @@ public class PrivateKeyJWTTest extends TestCase {
 		throws Exception {
 
 		ClientID clientID = new ClientID("123");
-		URI tokenEndpoint = new URI("https://c2id.com/token");
+		URI opIssuerURL = new URI("https://server.c2id.com");
 
 		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
 		KeyPair pair = keyGen.generateKeyPair();
 		ECPrivateKey priv = (ECPrivateKey)pair.getPrivate();
 		ECPublicKey pub = (ECPublicKey)pair.getPublic();
 
-		PrivateKeyJWT privateKeyJWT = new PrivateKeyJWT(clientID, tokenEndpoint, JWSAlgorithm.ES256, priv, "1", null);
+		PrivateKeyJWT privateKeyJWT = new PrivateKeyJWT(clientID, opIssuerURL, JWSAlgorithm.ES256, priv, "1", null);
 		assertEquals("1", privateKeyJWT.getClientAssertion().getHeader().getKeyID());
 
 		privateKeyJWT = PrivateKeyJWT.parse(privateKeyJWT.toParameters());
@@ -293,7 +293,7 @@ public class PrivateKeyJWTTest extends TestCase {
 		assertEquals(clientID, privateKeyJWT.getJWTAuthenticationClaimsSet().getClientID());
 		assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getIssuer().getValue());
 		assertEquals(clientID.getValue(), privateKeyJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
-		assertEquals(tokenEndpoint.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
+		assertEquals(opIssuerURL.toString(), privateKeyJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
 
 		// 55s < exp < 65s
 		final long now = new Date().getTime();
@@ -311,13 +311,13 @@ public class PrivateKeyJWTTest extends TestCase {
 		throws Exception {
 		
 		ClientID clientID = new ClientID("123");
-		URI tokenEndpoint = new URI("https://c2id.com/token");
+		URI opIssuerURL = new URI("https://server.c2id.com");
 		
 		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 		KeyPair pair = keyGen.generateKeyPair();
 		PrivateKey priv = pair.getPrivate();
 		
-		PrivateKeyJWT privateKeyJWT = new PrivateKeyJWT(clientID, tokenEndpoint, JWSAlgorithm.RS256, priv, null, null);
+		PrivateKeyJWT privateKeyJWT = new PrivateKeyJWT(clientID, opIssuerURL, JWSAlgorithm.RS256, priv, null, null);
 		
 		Map<String,List<String>> params = privateKeyJWT.toParameters();
 		
