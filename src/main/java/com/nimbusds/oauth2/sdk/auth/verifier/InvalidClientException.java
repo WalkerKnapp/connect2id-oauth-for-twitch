@@ -98,9 +98,8 @@ public class InvalidClientException extends GeneralException {
 	 * Creates a new invalid client exception.
 	 *
 	 * @param message The message. Will not be appended to the OAuth 2.0
-	 *                error description to be prevent exposing details
-	 *                about why authentication didn't succeed to the
-	 *                client.
+	 *                error description to prevent exposing information
+	 *                about the authentication failure to the client.
 	 */
 	public InvalidClientException(final String message) {
 		super(message);
