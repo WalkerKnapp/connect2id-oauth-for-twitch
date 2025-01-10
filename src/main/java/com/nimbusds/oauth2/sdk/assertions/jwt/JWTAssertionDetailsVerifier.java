@@ -74,45 +74,41 @@ public class JWTAssertionDetailsVerifier extends DefaultJWTClaimsVerifier {
 	/**
 	 * Creates a new JWT bearer assertion details (claims set) verifier.
 	 *
-	 * @param expectedAudience The expected audience (aud) claim values.
-	 *                         Must not be empty or {@code null}. Should
-	 *                         typically contain the token endpoint URI and
-	 *                         for OpenID provider it may also include the
-	 *                         issuer URI.
+	 * @param aud The permitted audience (aud) claim. Must not be empty or
+	 *            {@code null}. Should be the identity of the recipient,
+	 *            such as the issuer URI for an OpenID provider.
 	 */
-	public JWTAssertionDetailsVerifier(final Set<Audience> expectedAudience) {
+	public JWTAssertionDetailsVerifier(final Set<Audience> aud) {
 
-		this(expectedAudience, -1L);
+		this(aud, -1L);
 	}
 
 
 	/**
 	 * Creates a new JWT bearer assertion details (claims set) verifier.
 	 *
-	 * @param expectedAudience The expected audience (aud) claim values.
-	 *                         Must not be empty or {@code null}. Should
-	 *                         typically contain the token endpoint URI and
-	 *                         for OpenID provider it may also include the
-	 *                         issuer URI.
-	 * @param expMaxAhead      The maximum number of seconds the expiration
-	 *                         time (exp) claim can be ahead of the current
-	 *                         time, if zero or negative this check is
-	 *                         disabled.
+	 * @param aud         The permitted audience (aud) claim. Must not be
+	 *                    empty or {@code null}. Should be the identity of
+	 *                    the recipient, such as the issuer URI for an
+	 *                    OpenID provider.
+	 * @param expMaxAhead The maximum number of seconds the expiration time
+	 *                    (exp) claim can be ahead of the current time, if
+	 *                    zero or negative this check is disabled.
 	 */
-	public JWTAssertionDetailsVerifier(final Set<Audience> expectedAudience,
+	public JWTAssertionDetailsVerifier(final Set<Audience> aud,
 					   final long expMaxAhead) {
 
 		super(
-                        new HashSet<>(Identifier.toStringList(expectedAudience)),
+                        new HashSet<>(Identifier.toStringList(aud)),
 			null,
                         new HashSet<>(Arrays.asList("aud", "exp", "sub", "iss")),
 			null);
 
-		if (CollectionUtils.isEmpty(expectedAudience)) {
+		if (CollectionUtils.isEmpty(aud)) {
 			throw new IllegalArgumentException("The expected audience set must not be null or empty");
 		}
 
-		this.expectedAudience = expectedAudience;
+		this.expectedAudience = aud;
 
 		this.expMaxAhead = expMaxAhead;
 	}
@@ -144,7 +140,7 @@ public class JWTAssertionDetailsVerifier extends DefaultJWTClaimsVerifier {
 
 
 	@Override
-	public void verify(JWTClaimsSet claimsSet, SecurityContext context)
+	public void verify(final JWTClaimsSet claimsSet, final SecurityContext context)
 		throws BadJWTException {
 
 		super.verify(claimsSet, context);
