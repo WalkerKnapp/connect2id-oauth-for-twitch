@@ -79,9 +79,9 @@ public final class ClientSecretJWT extends JWTAuthentication {
 	 *
 	 * @param clientID      The client identifier. Must not be
 	 *                      {@code null}.
-	 * @param endpoint      The endpoint URI where the client will submit
-	 *                      the JWT authentication, for example the token
-	 *                      endpoint. Must not be {@code null}.
+	 * @param audience      The identity of the audience, for example the
+	 *                      issuer URI of the authorisation server. Must
+	 *                      not be {@code null}.
 	 * @param jwsAlgorithm  The expected HMAC algorithm (HS256, HS384 or
 	 *                      HS512) for the client secret JWT assertion.
 	 *                      Must be supported and not {@code null}.
@@ -92,12 +92,12 @@ public final class ClientSecretJWT extends JWTAuthentication {
 	 *                       computation failed.
 	 */
 	public ClientSecretJWT(final ClientID clientID,
-			       final URI endpoint,
+			       final URI audience,
 			       final JWSAlgorithm jwsAlgorithm,
 			       final Secret clientSecret)
 		throws JOSEException {
 
-		this(new Issuer(clientID), clientID, endpoint, jwsAlgorithm, clientSecret);
+		this(new Issuer(clientID), clientID, audience, jwsAlgorithm, clientSecret);
 	}
 
 
@@ -111,9 +111,9 @@ public final class ClientSecretJWT extends JWTAuthentication {
 	 *                      identifier. Must not be {@code null}.
 	 * @param clientID      The client identifier. Must not be
 	 *                      {@code null}.
-	 * @param endpoint      The endpoint URI where the client will submit
-	 *                      the JWT authentication, for example the token
-	 *                      endpoint. Must not be {@code null}.
+	 * @param audience      The identity of the audience, for example the
+	 *                      issuer URI of the authorisation server. Must
+	 *                      not be {@code null}.
 	 * @param jwsAlgorithm  The expected HMAC algorithm (HS256, HS384 or
 	 *                      HS512) for the client secret JWT assertion.
 	 *                      Must be supported and not {@code null}.
@@ -125,13 +125,13 @@ public final class ClientSecretJWT extends JWTAuthentication {
 	 */
 	public ClientSecretJWT(final Issuer iss,
 			       final ClientID clientID,
-			       final URI endpoint,
+			       final URI audience,
 			       final JWSAlgorithm jwsAlgorithm,
 			       final Secret clientSecret)
 		throws JOSEException {
 
 		this(JWTAssertionFactory.create(
-			new JWTAuthenticationClaimsSet(iss, clientID, new Audience(endpoint.toString())),
+			new JWTAuthenticationClaimsSet(iss, clientID, new Audience(audience)),
 			jwsAlgorithm,
 			clientSecret));
 	}
@@ -188,10 +188,8 @@ public final class ClientSecretJWT extends JWTAuthentication {
 		
 		ClientID clientID = JWTAuthentication.parseClientID(params);
 
-		if (clientID != null) {
-
-			if (! clientID.equals(clientSecretJWT.getClientID()))
-				throw new ParseException("Invalid client secret JWT authentication: The client identifier doesn't match the client assertion subject");
+		if (clientID != null && ! clientID.equals(clientSecretJWT.getClientID())) {
+			throw new ParseException("Invalid client secret JWT authentication: The client identifier doesn't match the client assertion subject");
 		}
 
 		return clientSecretJWT;
