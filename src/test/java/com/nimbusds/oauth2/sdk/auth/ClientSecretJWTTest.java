@@ -59,7 +59,7 @@ public class ClientSecretJWTTest extends TestCase {
 		
 		Issuer iss = new Issuer("https://sts.c2id.com");
 		ClientID clientID = new ClientID("https://client.com");
-		Audience audience = new Audience("https://idp.com");
+		Audience audience = new Audience("https://server.c2id.com");
 		Date exp = DateUtils.fromSecondsSinceEpoch(new Date().getTime() / 1000 + 3600);
 		Date nbf = DateUtils.fromSecondsSinceEpoch(new Date().getTime() / 1000);
 		Date iat = DateUtils.fromSecondsSinceEpoch(new Date().getTime() / 1000);
@@ -128,16 +128,16 @@ public class ClientSecretJWTTest extends TestCase {
 		
 		Issuer iss = new Issuer("https://sts.c2id.com");
 		ClientID clientID = new ClientID("123");
-		URI tokenEndpoint = new URI("https://c2id.com/token");
+		URI opIssuerURL = new URI("https://server.c2id.com");
 		Secret secret = new Secret(256 / 8); // generate 256 bit secret
 		
 		for (boolean issAndSubSame: Arrays.asList(true, false)) {
 			
 			ClientSecretJWT clientSecretJWT;
 			if (issAndSubSame) {
-				clientSecretJWT = new ClientSecretJWT(clientID, tokenEndpoint, JWSAlgorithm.HS256, secret);
+				clientSecretJWT = new ClientSecretJWT(clientID, opIssuerURL, JWSAlgorithm.HS256, secret);
 			} else {
-				clientSecretJWT = new ClientSecretJWT(iss, clientID, tokenEndpoint, JWSAlgorithm.HS256, secret);
+				clientSecretJWT = new ClientSecretJWT(iss, clientID, opIssuerURL, JWSAlgorithm.HS256, secret);
 			}
 			
 			clientSecretJWT = ClientSecretJWT.parse(clientSecretJWT.toParameters());
@@ -151,7 +151,7 @@ public class ClientSecretJWTTest extends TestCase {
 			}
 			assertEquals(clientID, clientSecretJWT.getJWTAuthenticationClaimsSet().getClientID());
 			assertEquals(clientID.getValue(), clientSecretJWT.getJWTAuthenticationClaimsSet().getSubject().getValue());
-			assertEquals(tokenEndpoint.toString(), clientSecretJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
+			assertEquals(opIssuerURL.toString(), clientSecretJWT.getJWTAuthenticationClaimsSet().getAudience().get(0).getValue());
 			
 			// 55s < exp < 65s
 			final long now = new Date().getTime();
@@ -170,10 +170,10 @@ public class ClientSecretJWTTest extends TestCase {
 		throws Exception {
 		
 		ClientID clientID = new ClientID("123");
-		URI tokenEndpoint = new URI("https://c2id.com/token");
+		URI opIssuerURL = new URI("https://server.c2id.com");
 		Secret secret = new Secret(256 / 8); // generate 256 bit secret
 		
-		ClientSecretJWT clientSecretJWT = new ClientSecretJWT(clientID, tokenEndpoint, JWSAlgorithm.HS256, secret);
+		ClientSecretJWT clientSecretJWT = new ClientSecretJWT(clientID, opIssuerURL, JWSAlgorithm.HS256, secret);
 		
 		Map<String,List<String>> params = clientSecretJWT.toParameters();
 		
