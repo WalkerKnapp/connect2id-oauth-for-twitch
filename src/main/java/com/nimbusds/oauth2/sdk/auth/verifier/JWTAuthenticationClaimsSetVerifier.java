@@ -86,7 +86,7 @@ class JWTAuthenticationClaimsSetVerifier extends JWTAssertionDetailsVerifier {
 	 */
 	public JWTAuthenticationClaimsSetVerifier(final Set<Audience> aud,
 						  final long expMaxAhead) {
-		this(aud, JWTAudienceCheck.LEGACY,  expMaxAhead);
+		this(aud, JWTAudienceCheck.LEGACY, expMaxAhead);
 	}
 
 
@@ -108,6 +108,16 @@ class JWTAuthenticationClaimsSetVerifier extends JWTAssertionDetailsVerifier {
 						  final long expMaxAhead) {
 		super(aud, expMaxAhead);
 		this.audCheck = Objects.requireNonNull(audCheck);
+	}
+
+
+	/**
+	 * Returns the configured audience check.
+	 *
+	 * @return The type of audience (aud) check.
+	 */
+	public JWTAudienceCheck getAudienceCheck() {
+		return audCheck;
 	}
 
 

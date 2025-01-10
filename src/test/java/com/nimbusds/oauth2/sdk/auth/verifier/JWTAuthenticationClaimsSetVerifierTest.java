@@ -81,8 +81,8 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 		JWTAuthenticationClaimsSetVerifier verifier = create();
 
-		assertTrue(verifier.getExpectedAudience().contains(new Audience(ISSUER)));
-		assertEquals(1, verifier.getExpectedAudience().size());
+		assertEquals(Collections.singleton(new Audience(ISSUER)), verifier.getExpectedAudience());
+		assertEquals(JWTAudienceCheck.STRICT, verifier.getAudienceCheck());
 	}
 
 
@@ -105,6 +105,8 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 	public void testHappy_legacy_multipleAudienceValues()
 		throws BadJWTException {
+
+		assertEquals(JWTAudienceCheck.LEGACY, createLegacy().getAudienceCheck());
 
 		Date now = new Date();
 		Date in5min = new Date(now.getTime() + 5*60*1000);
