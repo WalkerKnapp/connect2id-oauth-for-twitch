@@ -58,7 +58,7 @@ public class JWTAuthenticationClaimsSetTest extends TestCase {
 		throws Exception {
 
 		ClientID clientID = new ClientID("123");
-		Audience aud = new Audience("https://c2id.com/token");
+		Audience aud = new Audience("https://server.c2id.com");
 
 		JWTAuthenticationClaimsSet claimsSet = new JWTAuthenticationClaimsSet(clientID, aud);
 
@@ -87,9 +87,7 @@ public class JWTAuthenticationClaimsSetTest extends TestCase {
 		JSONObject jsonObject = claimsSet.toJSONObject();
 		assertEquals("123", jsonObject.get("iss"));
 		assertEquals("123", jsonObject.get("sub"));
-		List<String> audList = JSONObjectUtils.getStringList(jsonObject, "aud");
-		assertEquals("https://c2id.com/token", audList.get(0));
-		assertEquals(1, audList.size());
+		assertEquals("https://server.c2id.com", JSONObjectUtils.getString(jsonObject, "aud"));
 		assertEquals(claimsSet.getExpirationTime().getTime() / 1000L, JSONObjectUtils.getLong(jsonObject, "exp"));
 		assertEquals(claimsSet.getJWTID().getValue(), jsonObject.get("jti"));
 		assertEquals(5, jsonObject.size());
@@ -98,7 +96,7 @@ public class JWTAuthenticationClaimsSetTest extends TestCase {
 		JWTClaimsSet jwtClaimsSet = claimsSet.toJWTClaimsSet();
 		assertEquals("123", jwtClaimsSet.getIssuer());
 		assertEquals("123", jwtClaimsSet.getSubject());
-		assertEquals("https://c2id.com/token", jwtClaimsSet.getAudience().get(0));
+		assertEquals("https://server.c2id.com", jwtClaimsSet.getAudience().get(0));
 		assertEquals(1, jwtClaimsSet.getAudience().size());
 		assertEquals(claimsSet.getExpirationTime().getTime() / 1000L, jwtClaimsSet.getExpirationTime().getTime() / 1000L);
 		assertEquals(claimsSet.getJWTID().getValue(), jwtClaimsSet.getJWTID());
@@ -123,7 +121,7 @@ public class JWTAuthenticationClaimsSetTest extends TestCase {
 		
 		Issuer iss = new Issuer("https://sts.c2id.com");
 		ClientID clientID = new ClientID("123");
-		Audience aud = new Audience("https://c2id.com/token");
+		Audience aud = new Audience("https://server.c2id.com");
 
 		JWTAuthenticationClaimsSet claimsSet = new JWTAuthenticationClaimsSet(iss, clientID, aud);
 
@@ -152,9 +150,7 @@ public class JWTAuthenticationClaimsSetTest extends TestCase {
 		JSONObject jsonObject = claimsSet.toJSONObject();
 		assertEquals("https://sts.c2id.com", jsonObject.get("iss"));
 		assertEquals("123", jsonObject.get("sub"));
-		List<String> audList = JSONObjectUtils.getStringList(jsonObject, "aud");
-		assertEquals("https://c2id.com/token", audList.get(0));
-		assertEquals(1, audList.size());
+		assertEquals("https://server.c2id.com", JSONObjectUtils.getString(jsonObject, "aud"));
 		assertEquals(claimsSet.getExpirationTime().getTime() / 1000L, JSONObjectUtils.getLong(jsonObject, "exp"));
 		assertEquals(claimsSet.getJWTID().getValue(), jsonObject.get("jti"));
 		assertEquals(5, jsonObject.size());
@@ -163,7 +159,7 @@ public class JWTAuthenticationClaimsSetTest extends TestCase {
 		JWTClaimsSet jwtClaimsSet = claimsSet.toJWTClaimsSet();
 		assertEquals("https://sts.c2id.com", jwtClaimsSet.getIssuer());
 		assertEquals("123", jwtClaimsSet.getSubject());
-		assertEquals("https://c2id.com/token", jwtClaimsSet.getAudience().get(0));
+		assertEquals("https://server.c2id.com", jwtClaimsSet.getAudience().get(0));
 		assertEquals(1, jwtClaimsSet.getAudience().size());
 		assertEquals(claimsSet.getExpirationTime().getTime() / 1000L, jwtClaimsSet.getExpirationTime().getTime() / 1000L);
 		assertEquals(claimsSet.getJWTID().getValue(), jwtClaimsSet.getJWTID());
@@ -187,7 +183,7 @@ public class JWTAuthenticationClaimsSetTest extends TestCase {
 		throws Exception {
 
 		ClientID clientID = new ClientID("123");
-		List<Audience> audienceList = Arrays.asList(new Audience("https://c2id.com"), new Audience("https://c2id.com/token"));
+		List<Audience> audienceList = Arrays.asList(new Audience("https://server.c2id.com"), new Audience("https://server.c2id.com/token"));
 		final long now = new Date().getTime() / 1000L * 1000L; // reduce precision
 		final Date fiveMinutesFromNow = new Date(now + 4*60* 1000L);
 
@@ -209,8 +205,8 @@ public class JWTAuthenticationClaimsSetTest extends TestCase {
 		assertEquals("123", jsonObject.get("iss"));
 		assertEquals("123", jsonObject.get("sub"));
 		List<String> audList = JSONObjectUtils.getStringList(jsonObject, "aud");
-		assertEquals("https://c2id.com", audList.get(0));
-		assertEquals("https://c2id.com/token", audList.get(1));
+		assertEquals("https://server.c2id.com", audList.get(0));
+		assertEquals("https://server.c2id.com/token", audList.get(1));
 		assertEquals(2, audList.size());
 		assertEquals(fiveMinutesFromNow.getTime() / 1000L, JSONObjectUtils.getLong(jsonObject, "exp"));
 		assertEquals(4, jsonObject.size());
@@ -219,8 +215,8 @@ public class JWTAuthenticationClaimsSetTest extends TestCase {
 		JWTClaimsSet jwtClaimsSet = claimsSet.toJWTClaimsSet();
 		assertEquals("123", jwtClaimsSet.getIssuer());
 		assertEquals("123", jwtClaimsSet.getSubject());
-		assertEquals("https://c2id.com", jwtClaimsSet.getAudience().get(0));
-		assertEquals("https://c2id.com/token", jwtClaimsSet.getAudience().get(1));
+		assertEquals("https://server.c2id.com", jwtClaimsSet.getAudience().get(0));
+		assertEquals("https://server.c2id.com/token", jwtClaimsSet.getAudience().get(1));
 		assertEquals(2, jwtClaimsSet.getAudience().size());
 		assertEquals(fiveMinutesFromNow.getTime() / 1000L, jwtClaimsSet.getExpirationTime().getTime() / 1000);
 		assertEquals(4, jwtClaimsSet.toJSONObject().size());
@@ -265,7 +261,7 @@ public class JWTAuthenticationClaimsSetTest extends TestCase {
 		JSONObject jsonObject = claimsSet.toJSONObject();
 		assertEquals("https://sts.c2id.com", jsonObject.get("iss"));
 		assertEquals("123", jsonObject.get("sub"));
-		assertEquals(Collections.singletonList("https://c2id.com"), JSONObjectUtils.getStringList(jsonObject, "aud"));
+		assertEquals("https://c2id.com", JSONObjectUtils.getString(jsonObject, "aud"));
 		assertEquals(fiveMinutesFromNow.getTime() / 1000L, JSONObjectUtils.getLong(jsonObject, "exp"));
 		assertEquals(4, jsonObject.size());
 
@@ -298,7 +294,7 @@ public class JWTAuthenticationClaimsSetTest extends TestCase {
 
 		JWTAuthenticationClaimsSet claimsSet = new JWTAuthenticationClaimsSet(
 			new ClientID("123"),
-			new Audience("https://c2id.com/token").toSingleAudienceList(),
+			new Audience("https://server.c2id.com").toSingleAudienceList(),
 			fiveMinutesFromNow,
 			null, // nbf
 			null, // iat

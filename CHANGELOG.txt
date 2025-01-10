@@ -2515,7 +2515,9 @@ version 11.20.2 (2025-01-08)
     * Updates to Tink 1.16.0
     * Updates to BouncyCastle 1.79
 
-version 11.21 (2025-01-09)
+version 11.21 (2025-01-10)
+    * JWTAssertionDetails.toJSONObject() must return a string "aud" claim when
+      the audience is single valued (iss #488).
     * TokenTypeURI.DEVICE_SECRET is changed to
       `urn:openid:params:token-type:device-secret` (OpenID Connect Native SSO
       for Mobile Apps 1.0 - draft 07).

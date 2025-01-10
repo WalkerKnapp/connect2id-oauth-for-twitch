@@ -42,7 +42,7 @@ import java.util.List;
  * {
  *   "iss" : "https://client.example.com",
  *   "sub" : "https://client.example.com",
- *   "aud" : [ "https://idp.example.com/token" ],
+ *   "aud" : "https://server.c2id.com",
  *   "jti" : "d396036d-c4d9-40d8-8e98-f7e8327002d9",
  *   "exp" : 1311281970,
  *   "iat" : 1311280970
@@ -55,7 +55,7 @@ import java.util.List;
  * {
  *   "iss" : "https://sts.example.com",
  *   "sub" : "https://client.example.com",
- *   "aud" : [ "https://idp.example.com/token" ],
+ *   "aud" : "https://server.c2id.com",
  *   "jti" : "d396036d-c4d9-40d8-8e98-f7e8327002d9",
  *   "exp" : 1311281970,
  *   "iat" : 1311280970
@@ -81,9 +81,8 @@ public class JWTAuthenticationClaimsSet extends JWTAssertionDetails {
 	 *
 	 * @param clientID The client identifier. Used to specify the issuer
 	 *                 and the subject. Must not be {@code null}.
-	 * @param aud      The audience identifier, typically the URI of the
-	 *                 authorisation server's Token endpoint. Must not be
-	 *                 {@code null}.
+	 * @param aud      The audience, typically the authorisation server
+	 *                 issuer URI. Must not be {@code null}.
 	 */
 	public JWTAuthenticationClaimsSet(final ClientID clientID,
 					  final Audience aud) {
@@ -103,9 +102,8 @@ public class JWTAuthenticationClaimsSet extends JWTAssertionDetails {
 	 *                 not be {@code null}.
 	 * @param clientID The client identifier. Used to specify the issuer
 	 *                 and the subject. Must not be {@code null}.
-	 * @param aud      The audience identifier, typically the URI of the
-	 *                 authorisation server's Token endpoint. Must not be
-	 *                 {@code null}.
+	 * @param aud      The audience, typically the authorisation server
+	 *                 issuer URI. Must not be {@code null}.
 	 */
 	public JWTAuthenticationClaimsSet(final Issuer iss,
 					  final ClientID clientID,
@@ -120,8 +118,8 @@ public class JWTAuthenticationClaimsSet extends JWTAssertionDetails {
 	 *
 	 * @param clientID The client identifier. Used to specify the issuer 
 	 *                 and the subject. Must not be {@code null}.
-	 * @param aud      The audience, typically including the URI of the
-	 *                 authorisation server's Token endpoint. Must not be 
+	 * @param aud      The audience, typically a singleton list with the
+	 *                 authorisation server issuer URI. Must not be
 	 *                 {@code null}.
 	 * @param exp      The expiration time. Must not be {@code null}.
 	 * @param nbf      The time before which the token must not be 
@@ -151,8 +149,8 @@ public class JWTAuthenticationClaimsSet extends JWTAssertionDetails {
 	 *                 not be {@code null}.
 	 * @param clientID The client identifier. Used to specify the subject.
 	 *                 Must not be {@code null}.
-	 * @param aud      The audience, typically including the URI of the
-	 *                 authorisation server's Token endpoint. Must not be
+	 * @param aud      The audience, typically a singleton list with the
+	 *                 authorisation server issuer URI. Must not be
 	 *                 {@code null}.
 	 * @param exp      The expiration time. Must not be {@code null}.
 	 * @param nbf      The time before which the token must not be

@@ -48,7 +48,7 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
  * {
  *   "iss" : "https://client.example.com",
  *   "sub" : "https://client.example.com",
- *   "aud" : [ "https://idp.example.com/token" ],
+ *   "aud" : "https://server.c2id.com",
  *   "jti" : "d396036d-c4d9-40d8-8e98-f7e8327002d9",
  *   "exp" : 1311281970,
  *   "iat" : 1311280970
@@ -118,9 +118,8 @@ public class JWTAssertionDetails extends AssertionDetails {
 	 *
 	 * @param iss The issuer identifier. Must not be {@code null}.
 	 * @param sub The subject. Must not be {@code null}.
-	 * @param aud The audience identifier, typically the URI of the
-	 *            authorisation server's Token endpoint. Must not be
-	 *            {@code null}.
+	 * @param aud The audience, typically the authorisation server issuer
+	 *            URI. Must not be {@code null}.
 	 */
 	public JWTAssertionDetails(final Issuer iss,
 				   final Subject sub,
@@ -135,8 +134,8 @@ public class JWTAssertionDetails extends AssertionDetails {
 	 *
 	 * @param iss   The issuer identifier. Must not be {@code null}.
 	 * @param sub   The subject. Must not be {@code null}.
-	 * @param aud   The audience, typically including the URI of the
-	 *              authorisation server's token endpoint. Must not be
+	 * @param aud   The audience, typically a singleton list with the
+	 *              authorisation server issuer URI. Must not be
 	 *              {@code null}.
 	 * @param exp   The expiration time. Must not be {@code null}.
 	 * @param nbf   The time before which the token must not be accepted
@@ -212,7 +211,14 @@ public class JWTAssertionDetails extends AssertionDetails {
 		
 		o.put("iss", getIssuer().getValue());
 		o.put("sub", getSubject().getValue());
-		o.put("aud", Audience.toStringList(getAudience()));
+		List<String> audStringList = Audience.toStringList(getAudience());
+		if (audStringList != null) {
+			if (audStringList.size() == 1) {
+				o.put("aud", audStringList.get(0));
+			} else {
+				o.put("aud", audStringList);
+			}
+		}
 		o.put("exp", DateUtils.toSecondsSinceEpoch(getExpirationTime()));
 
 		if (nbf != null)

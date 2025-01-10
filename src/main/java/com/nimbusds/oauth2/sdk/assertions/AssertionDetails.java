@@ -141,8 +141,8 @@ public abstract class AssertionDetails {
 	/**
 	 * Returns the audience.
 	 *
-	 * @return The audience, typically including the URI of the
-	 *         authorisation server's token endpoint.
+	 * @return The audience, typically a singleton list with the
+	 *         authorisation server issuer URI.
 	 */
 	public List<Audience> getAudience() {
 		
