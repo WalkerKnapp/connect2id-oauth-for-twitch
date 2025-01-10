@@ -25,7 +25,9 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.utils.ConstantTimeUtils;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.assertions.jwt.JWTAssertionDetails;
 import com.nimbusds.oauth2.sdk.assertions.jwt.JWTAssertionFactory;
 import com.nimbusds.oauth2.sdk.auth.*;
@@ -34,6 +36,7 @@ import com.nimbusds.oauth2.sdk.http.X509CertificateGenerator;
 import com.nimbusds.oauth2.sdk.id.*;
 import com.nimbusds.oauth2.sdk.util.X509CertificateUtils;
 import junit.framework.TestCase;
+import org.checkerframework.checker.units.qual.A;
 import org.mockito.ArgumentCaptor;
 
 import javax.net.ssl.SSLSocketFactory;
@@ -62,7 +65,10 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 	private static final Secret VALID_CLIENT_SECRET = new Secret();
 
 
-	private static final Set<Audience> EXPECTED_JWT_AUDIENCE = new LinkedHashSet<>(Arrays.asList(
+	private static final Set<Audience> EXPECTED_JWT_AUDIENCE = Collections.singleton(new Audience("https://c2id.com"));
+
+
+	private static final Set<Audience> LEGACY_EXPECTED_JWT_AUDIENCE = new LinkedHashSet<>(Arrays.asList(
 		new Audience("https://c2id.com/token"),
 		new Audience("https://c2id.com")));
 	
@@ -183,43 +189,49 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		ClientCredentialsSelector<?> selector = new ClientCredentialsSelector() {
 			@Override
-			public List<Secret> selectClientSecrets(ClientID claimedClientID, ClientAuthenticationMethod authMethod, Context context) throws InvalidClientException {
+			public List<Secret> selectClientSecrets(ClientID claimedClientID, ClientAuthenticationMethod authMethod, Context context) {
 				return null;
 			}
 
 
 			@Override
-			public List<? extends PublicKey> selectPublicKeys(ClientID claimedClientID, ClientAuthenticationMethod authMethod, JWSHeader jwsHeader, boolean forceRefresh, Context context) throws InvalidClientException {
+			public List<? extends PublicKey> selectPublicKeys(ClientID claimedClientID, ClientAuthenticationMethod authMethod, JWSHeader jwsHeader, boolean forceRefresh, Context context) {
 				return null;
 			}
 		};
 
-		Set<Audience> audienceSet = new HashSet<>();
-		audienceSet.add(new Audience("https://c2id.com/token"));
+		Set<Audience> audienceSet =Collections.singleton(new Audience("https://c2id.com"));
 
-		ClientAuthenticationVerifier<?> verifier = new ClientAuthenticationVerifier<>(selector, audienceSet);
+		ClientAuthenticationVerifier<?> verifier = new ClientAuthenticationVerifier<>(selector, audienceSet, JWTAudienceCheck.STRICT);
 
 		assertEquals(selector, verifier.getClientCredentialsSelector());
 		assertNull(verifier.getClientX509CertificateBindingVerifier());
 		assertEquals(audienceSet, verifier.getExpectedAudience());
+		assertEquals(JWTAudienceCheck.STRICT, verifier.getJWTAudienceCheck());
 	}
 
 
 	private static ClientAuthenticationVerifier<ClientMetadata> createBasicVerifier() {
 
-		return new ClientAuthenticationVerifier<>(CLIENT_CREDENTIALS_SELECTOR, EXPECTED_JWT_AUDIENCE);
+		return new ClientAuthenticationVerifier<>(CLIENT_CREDENTIALS_SELECTOR, EXPECTED_JWT_AUDIENCE, JWTAudienceCheck.STRICT);
+	}
+
+
+	private static ClientAuthenticationVerifier<ClientMetadata> createBasicLegacyVerifier() {
+
+		return new ClientAuthenticationVerifier<>(CLIENT_CREDENTIALS_SELECTOR, LEGACY_EXPECTED_JWT_AUDIENCE, JWTAudienceCheck.LEGACY);
 	}
 
 
 	private static ClientAuthenticationVerifier<ClientMetadata> createBasicVerifierWithReusePrevention(final ExpendedJTIChecker<ClientMetadata> jtiChecker) {
 
-		return new ClientAuthenticationVerifier<>(CLIENT_CREDENTIALS_SELECTOR, EXPECTED_JWT_AUDIENCE, jtiChecker);
+		return new ClientAuthenticationVerifier<>(CLIENT_CREDENTIALS_SELECTOR, EXPECTED_JWT_AUDIENCE, JWTAudienceCheck.STRICT, jtiChecker);
 	}
 	
 	
 	private static ClientAuthenticationVerifier<ClientMetadata> createVerifierWithPKIBoundCertSupport() {
 		
-		return new ClientAuthenticationVerifier<>(CLIENT_CREDENTIALS_SELECTOR, CERT_BINDING_VERIFIER, EXPECTED_JWT_AUDIENCE);
+		return new ClientAuthenticationVerifier<>(CLIENT_CREDENTIALS_SELECTOR, CERT_BINDING_VERIFIER, EXPECTED_JWT_AUDIENCE, JWTAudienceCheck.STRICT);
 	}
 
 
@@ -286,11 +298,49 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		ClientAuthentication clientAuthentication = new ClientSecretJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://c2id.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.HS256,
 			VALID_CLIENT_SECRET);
 
-		createBasicVerifier().verify(clientAuthentication, null, null);
+		ClientAuthenticationVerifier<ClientMetadata> verifier = createBasicVerifier();
+		assertEquals(EXPECTED_JWT_AUDIENCE, verifier.getExpectedAudience());
+		assertEquals(JWTAudienceCheck.STRICT, verifier.getJWTAudienceCheck());
+
+		verifier.verify(clientAuthentication, null, null);
+
+		verifier = createBasicLegacyVerifier();
+		assertEquals(LEGACY_EXPECTED_JWT_AUDIENCE, verifier.getExpectedAudience());
+		assertEquals(JWTAudienceCheck.LEGACY, verifier.getJWTAudienceCheck());
+
+		verifier.verify(clientAuthentication, null, null);
+	}
+
+
+	public void testHappyClientSecretJWT_legacy()
+		throws Exception {
+
+		for (List<Audience> audList: Arrays.asList(
+			new Audience("https://c2id.com").toSingleAudienceList(),
+			new Audience("https://c2id.com/token").toSingleAudienceList(),
+			Audience.create("https://c2id.com", "https://c2id.com/token"),
+			Audience.create("https://c2id.com", "https://c2id.com/token", "https://other.com/token"),
+			Audience.create("https://c2id.com/token", "https://other.com/token"),
+			Audience.create("https://c2id.com", "https://other.com/token"))) {
+
+			SignedJWT jwt = new SignedJWT(
+				new JWSHeader(JWSAlgorithm.HS256),
+				new JWTClaimsSet.Builder()
+					.issuer(VALID_CLIENT_ID.getValue())
+					.subject(VALID_CLIENT_ID.getValue())
+					.audience(Audience.toStringList(audList))
+					.expirationTime(DateUtils.fromSecondsSinceEpoch(new Date().getTime() + 60_000L))
+					.build());
+			jwt.sign(new MACSigner(VALID_CLIENT_SECRET.getValueBytes()));
+
+			ClientAuthentication clientAuthentication = new ClientSecretJWT(jwt);
+
+			createBasicLegacyVerifier().verify(clientAuthentication, null, null);
+		}
 	}
 
 
@@ -299,7 +349,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		ClientAuthentication clientAuthentication = new ClientSecretJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://c2id.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.HS256,
 			VALID_CLIENT_SECRET);
 
@@ -324,7 +374,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		ClientAuthentication clientAuthentication = new ClientSecretJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://c2id.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.HS256,
 			VALID_CLIENT_SECRET);
 
@@ -344,7 +394,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		ClientSecretJWT clientAuthentication = new ClientSecretJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://c2id.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.HS256,
 			VALID_CLIENT_SECRET);
 
@@ -389,7 +439,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		ClientAuthentication clientAuthentication = new ClientSecretJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://c2id.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.HS256,
 			VALID_CLIENT_SECRET);
 
@@ -407,13 +457,42 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		ClientAuthentication clientAuthentication = new PrivateKeyJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://c2id.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.RS256,
 			VALID_RSA_KEY_PAIR_1.toRSAPrivateKey(),
 			null,
 			null);
 
 		createBasicVerifier().verify(clientAuthentication, null, null);
+		createBasicLegacyVerifier().verify(clientAuthentication, null, null);
+	}
+
+
+	public void testHappyPrivateKeyJWT_legacy()
+		throws Exception {
+
+		for (List<Audience> audList: Arrays.asList(
+			new Audience("https://c2id.com").toSingleAudienceList(),
+			new Audience("https://c2id.com/token").toSingleAudienceList(),
+			Audience.create("https://c2id.com", "https://c2id.com/token"),
+			Audience.create("https://c2id.com", "https://c2id.com/token", "https://other.com/token"),
+			Audience.create("https://c2id.com/token", "https://other.com/token"),
+			Audience.create("https://c2id.com", "https://other.com/token"))) {
+
+			SignedJWT jwt = new SignedJWT(
+				new JWSHeader(JWSAlgorithm.RS256),
+				new JWTClaimsSet.Builder()
+					.issuer(VALID_CLIENT_ID.getValue())
+					.subject(VALID_CLIENT_ID.getValue())
+					.audience(Audience.toStringList(audList))
+					.expirationTime(DateUtils.fromSecondsSinceEpoch(new Date().getTime() + 60_000L))
+					.build());
+			jwt.sign(new RSASSASigner(VALID_RSA_KEY_PAIR_1));
+
+			ClientAuthentication clientAuthentication = new PrivateKeyJWT(jwt);
+
+			createBasicLegacyVerifier().verify(clientAuthentication, null, null);
+		}
 	}
 
 
@@ -422,7 +501,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		PrivateKeyJWT clientAuthentication = new PrivateKeyJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://c2id.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.RS256,
 			VALID_RSA_KEY_PAIR_1.toRSAPrivateKey(),
 			null,
@@ -450,7 +529,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		PrivateKeyJWT clientAuthentication = new PrivateKeyJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://c2id.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.RS256,
 			VALID_RSA_KEY_PAIR_1.toRSAPrivateKey(),
 			null,
@@ -465,7 +544,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		ClientSecretJWT clientAuthentication = new ClientSecretJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://c2id.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.HS256,
 			VALID_CLIENT_SECRET);
 
@@ -501,7 +580,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 				new JWTAssertionDetails(
 					new Issuer(VALID_CLIENT_ID.getValue()),
 					new Subject(VALID_CLIENT_ID.getValue()),
-					new Audience(URI.create("https://c2id.com/token")).toSingleAudienceList(),
+					new Audience(URI.create("https://c2id.com")).toSingleAudienceList(),
 					new Date(now.getTime() + 60_000),
 					null,
 					null,
@@ -524,7 +603,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		PrivateKeyJWT clientAuthentication = new PrivateKeyJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://c2id.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.RS256,
 			VALID_RSA_KEY_PAIR_1.toRSAPrivateKey(),
 			null,
@@ -557,7 +636,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		ClientAuthentication clientAuthentication = new ClientSecretJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://c2id.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.HS256,
 			VALID_CLIENT_SECRET);
 
@@ -579,7 +658,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		ClientAuthentication clientAuthentication = new PrivateKeyJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://c2id.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.RS256,
 			VALID_RSA_KEY_PAIR_1.toRSAPrivateKey(),
 			null,
@@ -629,7 +708,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 		ClientAuthentication clientAuthentication = new ClientSecretJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://c2id.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.HS256,
 			new Secret());
 
@@ -645,7 +724,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 		throws JOSEException {
 
 		ClientAuthentication clientAuthentication = new PrivateKeyJWT(
-			VALID_CLIENT_ID, URI.create("https://c2id.com/token"),
+			VALID_CLIENT_ID, URI.create("https://c2id.com"),
 			JWSAlgorithm.RS256,
 			INVALID_RSA_KEY_PAIR.toRSAPrivateKey(),
 			null,
@@ -666,7 +745,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 			VALID_CLIENT_ID,
 			URI.create("https://other.com/token"),
 			JWSAlgorithm.HS256,
-			new Secret());
+			VALID_CLIENT_SECRET);
 
 		try {
 			createBasicVerifier().verify(clientAuthentication, null, null);
@@ -676,16 +755,80 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 	}
 
 
+	public void testClientSecretRejectMultipleJWTAudiences()
+                throws JOSEException, InvalidClientException {
+
+		ClientAuthentication clientAuthentication = new ClientSecretJWT(
+			VALID_CLIENT_ID,
+			URI.create("https://c2id.com"),
+			JWSAlgorithm.HS256,
+			VALID_CLIENT_SECRET);
+
+		createBasicVerifier().verify(clientAuthentication, null, null);
+
+		SignedJWT jwt = new SignedJWT(
+			new JWSHeader(JWSAlgorithm.HS256),
+			new JWTClaimsSet.Builder()
+				.issuer(VALID_CLIENT_ID.getValue())
+				.subject(VALID_CLIENT_ID.getValue())
+				.audience(Arrays.asList("https://c2id.com", "https://other.com"))
+				.expirationTime(DateUtils.fromSecondsSinceEpoch(new Date().getTime() + 60_000L))
+				.build()
+		);
+		jwt.sign(new MACSigner(VALID_CLIENT_SECRET.getValueBytes()));
+
+		clientAuthentication = new ClientSecretJWT(jwt);
+
+		try {
+			createBasicVerifier().verify(clientAuthentication, null, null);
+		} catch (InvalidClientException e) {
+			assertEquals("Bad / expired JWT claims: JWT multi-valued audience rejected: [https://c2id.com, https://other.com]", e.getMessage());
+		}
+	}
+
+
 	public void testPrivateKeyJWTBadAudience()
-		throws JOSEException {
+                throws JOSEException, InvalidClientException {
 
 		ClientAuthentication clientAuthentication = new PrivateKeyJWT(
 			VALID_CLIENT_ID,
-			URI.create("https://other.com/token"),
+			URI.create("https://c2id.com"),
 			JWSAlgorithm.RS256,
-			INVALID_RSA_KEY_PAIR.toRSAPrivateKey(),
+			VALID_RSA_KEY_PAIR_1.toRSAPrivateKey(),
 			null,
 			null);
+
+		try {
+			createBasicVerifier().verify(clientAuthentication, null, null);
+		} catch (InvalidClientException e) {
+			assertEquals("Bad / expired JWT claims: JWT audience rejected: [https://other.com/token]", e.getMessage());
+		}
+	}
+
+
+	public void testPrivateKeyRejectMultipleJWTAudiences()
+                throws JOSEException, InvalidClientException {
+
+		ClientAuthentication clientAuthentication = new PrivateKeyJWT(
+			VALID_CLIENT_ID,
+			URI.create("https://c2id.com"),
+			JWSAlgorithm.RS256,
+			VALID_RSA_KEY_PAIR_1.toRSAPrivateKey(),
+			null,
+			null);
+
+		createBasicVerifier().verify(clientAuthentication, null, null);
+
+		SignedJWT jwt = new SignedJWT(
+			new JWSHeader(JWSAlgorithm.RS256),
+			new JWTClaimsSet.Builder()
+				.issuer(VALID_CLIENT_ID.getValue())
+				.subject(VALID_CLIENT_ID.getValue())
+				.audience(Arrays.asList("https://c2id.com", "https://other.com"))
+				.expirationTime(DateUtils.fromSecondsSinceEpoch(new Date().getTime() + 60_000L))
+				.build()
+		);
+		jwt.sign(new RSASSASigner(VALID_RSA_KEY_PAIR_1));
 
 		try {
 			createBasicVerifier().verify(clientAuthentication, null, null);
@@ -753,7 +896,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 		throws Exception {
 
 		ClientAuthentication clientAuthentication = new PrivateKeyJWT(
-			VALID_CLIENT_ID, URI.create("https://c2id.com/token"),
+			VALID_CLIENT_ID, URI.create("https://c2id.com"),
 			JWSAlgorithm.RS256,
 			VALID_RSA_KEY_PAIR_2.toRSAPrivateKey(),
 			null,
@@ -767,7 +910,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 		throws Exception {
 
 		ClientAuthentication clientAuthentication = new PrivateKeyJWT(
-			VALID_CLIENT_ID, URI.create("https://c2id.com/token"),
+			VALID_CLIENT_ID, URI.create("https://c2id.com"),
 			JWSAlgorithm.RS256,
 			VALID_RSA_KEY_PAIR_2.toRSAPrivateKey(),
 			null,
@@ -790,7 +933,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 		throws Exception {
 
 		ClientAuthentication clientAuthentication = new PrivateKeyJWT(
-			VALID_CLIENT_ID, URI.create("https://c2id.com/token"),
+			VALID_CLIENT_ID, URI.create("https://c2id.com"),
 			JWSAlgorithm.RS256,
 			INVALID_RSA_KEY_PAIR.toRSAPrivateKey(),
 			null,

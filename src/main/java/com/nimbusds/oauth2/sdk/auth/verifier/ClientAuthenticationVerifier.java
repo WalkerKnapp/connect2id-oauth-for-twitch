@@ -106,22 +106,20 @@ public class ClientAuthenticationVerifier<T> {
 	 *                                  binding verifier for
 	 *                                  {@code tls_client_auth},
 	 *                                  {@code null} if not supported.
-	 * @param expectedAudience          The permitted audience (aud) claim
-	 *                                  values in JWT authentication
-	 *                                  assertions. Must not be empty or
-	 *                                  {@code null}. Should typically
-	 *                                  contain the token endpoint URI and
-	 *                                  for OpenID provider it may also
-	 *                                  include the issuer URI.
+	 * @param aud                       The permitted audience (aud) claim.
+	 *                                  Must not be empty or {@code null}.
+	 *                                  Should be the identity of the
+	 *                                  recipient, such as the issuer URI
+	 *                                  for an OpenID provider.
 	 *
 	 * @deprecated Use the constructor with {@link PKIClientX509CertificateBindingVerifier}
 	 */
 	@Deprecated
 	public ClientAuthenticationVerifier(final ClientCredentialsSelector<T> clientCredentialsSelector,
 					    final ClientX509CertificateBindingVerifier<T> certBindingVerifier,
-					    final Set<Audience> expectedAudience) {
+					    final Set<Audience> aud) {
 
-		claimsSetVerifier = new JWTAuthenticationClaimsSetVerifier(expectedAudience);
+		claimsSetVerifier = new JWTAuthenticationClaimsSetVerifier(aud);
 		this.certBindingVerifier = certBindingVerifier;
 		this.pkiCertBindingVerifier = null;
 		this.clientCredentialsSelector = Objects.requireNonNull(clientCredentialsSelector);
@@ -131,22 +129,22 @@ public class ClientAuthenticationVerifier<T> {
 	
 	/**
 	 * Creates a new client authentication verifier without support for
-	 * {@code tls_client_auth}.
+	 * {@code tls_client_auth}. The audience check is
+	 * {@link JWTAudienceCheck#LEGACY legacy}.
 	 *
 	 * @param clientCredentialsSelector The client credentials selector.
 	 *                                  Must not be {@code null}.
-	 * @param expectedAudience          The permitted audience (aud) claim
-	 *                                  values in JWT authentication
-	 *                                  assertions. Must not be empty or
-	 *                                  {@code null}. Should typically
-	 *                                  contain the token endpoint URI and
-	 *                                  for OpenID provider it may also
-	 *                                  include the issuer URI.
+	 * @param aud                       The permitted audience (aud) claim.
+	 *                                  Must not be empty or {@code null}.
+	 *                                  Should be the identity of the
+	 *                                  recipient, such as the issuer URI
+	 *                                  for an OpenID provider.
 	 */
+	@Deprecated
 	public ClientAuthenticationVerifier(final ClientCredentialsSelector<T> clientCredentialsSelector,
-					    final Set<Audience> expectedAudience) {
+					    final Set<Audience> aud) {
 
-		this(clientCredentialsSelector, expectedAudience, null);
+		this(clientCredentialsSelector, aud, JWTAudienceCheck.LEGACY);
 	}
 
 
@@ -156,22 +154,66 @@ public class ClientAuthenticationVerifier<T> {
 	 *
 	 * @param clientCredentialsSelector The client credentials selector.
 	 *                                  Must not be {@code null}.
-	 * @param expectedAudience          The permitted audience (aud) claim
-	 *                                  values in JWT authentication
-	 *                                  assertions. Must not be empty or
-	 *                                  {@code null}. Should typically
-	 *                                  contain the token endpoint URI and
-	 *                                  for OpenID provider it may also
-	 *                                  include the issuer URI.
+	 * @param aud                       The permitted audience (aud) claim.
+	 *                                  Must not be empty or {@code null}.
+	 *                                  Should be the identity of the
+	 *                                  recipient, such as the issuer URI
+	 *                                  for an OpenID provider.
+	 */
+	public ClientAuthenticationVerifier(final ClientCredentialsSelector<T> clientCredentialsSelector,
+					    final Set<Audience> aud,
+					    final JWTAudienceCheck audCheck) {
+
+		this(clientCredentialsSelector, aud, audCheck, null);
+	}
+
+
+	/**
+	 * Creates a new client authentication verifier without support for
+	 * {@code tls_client_auth}. The audience check is
+	 * {@link JWTAudienceCheck#LEGACY legacy}.
+	 *
+	 * @param clientCredentialsSelector The client credentials selector.
+	 *                                  Must not be {@code null}.
+	 * @param aud                       The permitted audience (aud) claim.
+	 *                                  Must not be empty or {@code null}.
+	 *                                  Should be the identity of the
+	 *                                  recipient, such as the issuer URI
+	 *                                  for an OpenID provider.
+	 * @param expendedJTIChecker        Optional expended JWT ID (jti)
+	 *                                  claim checker to prevent JWT
+	 *                                  replay, {@code null} if none.
+	 */
+	@Deprecated
+	public ClientAuthenticationVerifier(final ClientCredentialsSelector<T> clientCredentialsSelector,
+					    final Set<Audience> aud,
+					    final ExpendedJTIChecker<T> expendedJTIChecker) {
+
+		this(clientCredentialsSelector, aud, JWTAudienceCheck.LEGACY, expendedJTIChecker);
+	}
+
+
+	/**
+	 * Creates a new client authentication verifier without support for
+	 * {@code tls_client_auth}.
+	 *
+	 * @param clientCredentialsSelector The client credentials selector.
+	 *                                  Must not be {@code null}.
+	 * @param aud                       The permitted audience (aud) claim.
+	 *                                  Must not be empty or {@code null}.
+	 *                                  Should be the identity of the
+	 *                                  recipient, such as the issuer URI
+	 *                                  for an OpenID provider.
 	 * @param expendedJTIChecker        Optional expended JWT ID (jti)
 	 *                                  claim checker to prevent JWT
 	 *                                  replay, {@code null} if none.
 	 */
 	public ClientAuthenticationVerifier(final ClientCredentialsSelector<T> clientCredentialsSelector,
-					    final Set<Audience> expectedAudience,
+					    final Set<Audience> aud,
+					    final JWTAudienceCheck audCheck,
 					    final ExpendedJTIChecker<T> expendedJTIChecker) {
 
-		claimsSetVerifier = new JWTAuthenticationClaimsSetVerifier(expectedAudience);
+		claimsSetVerifier = new JWTAuthenticationClaimsSetVerifier(aud, audCheck, -1L);
 		this.certBindingVerifier = null;
 		this.pkiCertBindingVerifier = null;
 		this.clientCredentialsSelector = Objects.requireNonNull(clientCredentialsSelector);
@@ -180,7 +222,8 @@ public class ClientAuthenticationVerifier<T> {
 	
 
 	/**
-	 * Creates a new client authentication verifier.
+	 * Creates a new client authentication verifier. The audience check is
+	 * {@link JWTAudienceCheck#LEGACY legacy}.
 	 *
 	 * @param clientCredentialsSelector The client credentials selector.
 	 *                                  Must not be {@code null}.
@@ -188,19 +231,18 @@ public class ClientAuthenticationVerifier<T> {
 	 *                                  binding verifier for
 	 *                                  {@code tls_client_auth},
 	 *                                  {@code null} if not supported.
-	 * @param expectedAudience          The permitted audience (aud) claim
-	 *                                  values in JWT authentication
-	 *                                  assertions. Must not be empty or
-	 *                                  {@code null}. Should typically
-	 *                                  contain the token endpoint URI and
-	 *                                  for OpenID provider it may also
-	 *                                  include the issuer URI.
+	 * @param aud                       The permitted audience (aud) claim.
+	 *                                  Must not be empty or {@code null}.
+	 *                                  Should be the identity of the
+	 *                                  recipient, such as the issuer URI
+	 *                                  for an OpenID provider.
 	 */
+	@Deprecated
 	public ClientAuthenticationVerifier(final ClientCredentialsSelector<T> clientCredentialsSelector,
 					    final PKIClientX509CertificateBindingVerifier<T> pkiCertBindingVerifier,
-					    final Set<Audience> expectedAudience) {
+					    final Set<Audience> aud) {
 
-		this(clientCredentialsSelector, pkiCertBindingVerifier, expectedAudience, null, -1L);
+		this(clientCredentialsSelector, pkiCertBindingVerifier, aud, JWTAudienceCheck.LEGACY);
 	}
 
 
@@ -213,13 +255,71 @@ public class ClientAuthenticationVerifier<T> {
 	 *                                  binding verifier for
 	 *                                  {@code tls_client_auth},
 	 *                                  {@code null} if not supported.
-	 * @param expectedAudience          The permitted audience (aud) claim
-	 *                                  values in JWT authentication
-	 *                                  assertions. Must not be empty or
-	 *                                  {@code null}. Should typically
-	 *                                  contain the token endpoint URI and
-	 *                                  for OpenID provider it may also
-	 *                                  include the issuer URI.
+	 * @param aud                       The permitted audience (aud) claim.
+	 *                                  Must not be empty or {@code null}.
+	 *                                  Should be the identity of the
+	 *                                  recipient, such as the issuer URI
+	 *                                  for an OpenID provider.
+	 */
+	public ClientAuthenticationVerifier(final ClientCredentialsSelector<T> clientCredentialsSelector,
+					    final PKIClientX509CertificateBindingVerifier<T> pkiCertBindingVerifier,
+					    final Set<Audience> aud,
+					    final JWTAudienceCheck audCheck) {
+
+		this(clientCredentialsSelector, pkiCertBindingVerifier, aud, audCheck, null, -1L);
+	}
+
+
+	/**
+	 * Creates a new client authentication verifier. The audience check is
+	 * {@link JWTAudienceCheck#LEGACY legacy}.
+	 *
+	 * @param clientCredentialsSelector The client credentials selector.
+	 *                                  Must not be {@code null}.
+	 * @param pkiCertBindingVerifier    Optional client X.509 certificate
+	 *                                  binding verifier for
+	 *                                  {@code tls_client_auth},
+	 *                                  {@code null} if not supported.
+	 * @param aud                       The permitted audience (aud) claim.
+	 *                                  Must not be empty or {@code null}.
+	 *                                  Should be the identity of the
+	 *                                  recipient, such as the issuer URI
+	 *                                  for an OpenID provider.
+	 * @param expendedJTIChecker        Optional expended JWT ID (jti)
+	 *                                  claim checker to prevent JWT
+	 *                                  replay, {@code null} if none.
+	 * @param expMaxAhead               The maximum number of seconds the
+	 *                                  expiration time (exp) claim can be
+	 *                                  ahead of the current time, if zero
+	 *                                  or negative this check is disabled.
+	 */
+	@Deprecated
+	public ClientAuthenticationVerifier(final ClientCredentialsSelector<T> clientCredentialsSelector,
+					    final PKIClientX509CertificateBindingVerifier<T> pkiCertBindingVerifier,
+					    final Set<Audience> aud,
+					    final ExpendedJTIChecker<T> expendedJTIChecker,
+					    final long expMaxAhead) {
+
+		this(clientCredentialsSelector, pkiCertBindingVerifier, aud, JWTAudienceCheck.LEGACY, expendedJTIChecker, expMaxAhead);
+	}
+
+
+	/**
+	 * Creates a new client authentication verifier.
+	 *
+	 * @param clientCredentialsSelector The client credentials selector.
+	 *                                  Must not be {@code null}.
+	 * @param pkiCertBindingVerifier    Optional client X.509 certificate
+	 *                                  binding verifier for
+	 *                                  {@code tls_client_auth},
+	 *                                  {@code null} if not supported.
+	 * @param aud                       The permitted audience (aud) claim.
+	 *                                  Must not be empty or {@code null}.
+	 *                                  Should be the identity of the
+	 *                                  recipient, such as the issuer URI
+	 *                                  for an OpenID provider.
+	 * @param audCheck                  The type of audience (aud) check.
+	 *                                  Must not be {@code null}.
 	 * @param expendedJTIChecker        Optional expended JWT ID (jti)
 	 *                                  claim checker to prevent JWT
 	 *                                  replay, {@code null} if none.
@@ -230,11 +330,12 @@ public class ClientAuthenticationVerifier<T> {
 	 */
 	public ClientAuthenticationVerifier(final ClientCredentialsSelector<T> clientCredentialsSelector,
 					    final PKIClientX509CertificateBindingVerifier<T> pkiCertBindingVerifier,
-					    final Set<Audience> expectedAudience,
+					    final Set<Audience> aud,
+					    final JWTAudienceCheck audCheck,
 					    final ExpendedJTIChecker<T> expendedJTIChecker,
 					    final long expMaxAhead) {
 
-		claimsSetVerifier = new JWTAuthenticationClaimsSetVerifier(expectedAudience, expMaxAhead);
+		claimsSetVerifier = new JWTAuthenticationClaimsSetVerifier(aud, audCheck, expMaxAhead);
 		this.certBindingVerifier = null;
 		this.pkiCertBindingVerifier = pkiCertBindingVerifier;
 		this.clientCredentialsSelector = Objects.requireNonNull(clientCredentialsSelector);
@@ -282,14 +383,24 @@ public class ClientAuthenticationVerifier<T> {
 	
 	
 	/**
-	 * Returns the permitted audience values in JWT authentication
-	 * assertions.
+	 * Returns the permitted audience in JWT authentication assertions.
 	 *
 	 * @return The permitted audience (aud) claim values.
 	 */
 	public Set<Audience> getExpectedAudience() {
 
 		return claimsSetVerifier.getExpectedAudience();
+	}
+
+
+	/**
+	 * Returns the configured audience check.
+	 *
+	 * @return The type of audience (aud) check.
+	 */
+	public JWTAudienceCheck getJWTAudienceCheck() {
+
+		return claimsSetVerifier.getAudienceCheck();
 	}
 
 

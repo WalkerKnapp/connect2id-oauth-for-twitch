@@ -2517,6 +2517,8 @@ version 11.20.2 (2025-01-08)
 
 version 11.21 (2025-01-10)
     * Adds JWTAudienceCheck enum with values STRICT and LEGACY (iss #488).
+    * New ClientAuthenticationVerifier constructors with JWTAudienceCheck
+      argument, the previous constructors are deprecated (iss #488).
     * New JWTAuthenticationClaimsSetVerifier constructor with JWTAudienceCheck
       argument (iss #488).
     * JWTAssertionDetails.toJSONObject() must return a string "aud" claim when
