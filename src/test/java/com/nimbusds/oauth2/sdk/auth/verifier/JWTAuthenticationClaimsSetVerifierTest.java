@@ -19,11 +19,9 @@ package com.nimbusds.oauth2.sdk.auth.verifier;
 
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import junit.framework.TestCase;
 
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -37,29 +35,27 @@ import com.nimbusds.oauth2.sdk.id.Audience;
 public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 
-	// Create for simple Authorisation Server (AS)
-	private static JWTAuthenticationClaimsSetVerifier createForAS() {
+	private static final Issuer ISSUER = new Issuer("https://c2id.com");
 
-		URI tokenEndpoint = URI.create("https://c2id.com/token");
+	private static final URI ENDPOINT = URI.create(ISSUER + "/token");
 
-		Set<Audience> expectedAud = new LinkedHashSet<>();
-		expectedAud.add(new Audience(tokenEndpoint.toString()));
 
-		return new JWTAuthenticationClaimsSetVerifier(expectedAud);
+	// For an Authorisation Server (AS) / OpenID provider (OP)
+	private static JWTAuthenticationClaimsSetVerifier create() {
+
+		Set<Audience> allowedAud = new LinkedHashSet<>();
+		allowedAud.add(new Audience(ISSUER));
+		return new JWTAuthenticationClaimsSetVerifier(allowedAud, JWTAudienceCheck.STRICT, -1L);
 	}
 
 
-	// Create for OpenID provider
-	private static JWTAuthenticationClaimsSetVerifier createForOP() {
+	// Legacy for an OpenID provider (OP)
+	private static JWTAuthenticationClaimsSetVerifier createLegacy() {
 
-		URI tokenEndpoint = URI.create("https://c2id.com/token");
-		URI opIssuer = URI.create("https://c2id.com");
-
-		Set<Audience> expectedAud = new LinkedHashSet<>();
-		expectedAud.add(new Audience(tokenEndpoint.toString()));
-		expectedAud.add(new Audience(opIssuer.toString()));
-
-		return new JWTAuthenticationClaimsSetVerifier(expectedAud);
+		Set<Audience> allowedAudValues = new LinkedHashSet<>();
+		allowedAudValues.add(new Audience(ENDPOINT));
+		allowedAudValues.add(new Audience(ISSUER));
+		return new JWTAuthenticationClaimsSetVerifier(allowedAudValues);
 	}
 
 
@@ -67,14 +63,7 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 					   final String expectedMessage) {
 
 		try {
-			createForAS().verify(claimsSet, null);
-			fail();
-		} catch (BadJWTException e) {
-			assertEquals(expectedMessage, e.getMessage());
-		}
-
-		try {
-			createForOP().verify(claimsSet, null);
+			create().verify(claimsSet, null);
 			fail();
 		} catch (BadJWTException e) {
 			assertEquals(expectedMessage, e.getMessage());
@@ -84,24 +73,15 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 	public void testDefaultExpMaxAhead() {
 
-		assertEquals(-1, createForAS().getExpirationTimeMaxAhead());
+		assertEquals(-1, create().getExpirationTimeMaxAhead());
 	}
 
 
-	public void testAudForAS() {
+	public void testAud() {
 
-		JWTAuthenticationClaimsSetVerifier verifier = createForAS();
+		JWTAuthenticationClaimsSetVerifier verifier = create();
 
-		assertTrue(verifier.getExpectedAudience().contains(new Audience("https://c2id.com/token")));
-		assertEquals(1, verifier.getExpectedAudience().size());
-	}
-
-
-	public void testAudForOP() {
-
-		JWTAuthenticationClaimsSetVerifier verifier = createForAS();
-
-		assertTrue(verifier.getExpectedAudience().contains(new Audience("https://c2id.com/token")));
+		assertTrue(verifier.getExpectedAudience().contains(new Audience(ISSUER)));
 		assertEquals(1, verifier.getExpectedAudience().size());
 	}
 
@@ -114,21 +94,98 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
 			.expirationTime(in5min)
-			.audience("https://c2id.com/token")
+			.audience(ISSUER.getValue())
 			.issuer("123")
 			.subject("123")
 			.build();
 
-		createForAS().verify(claimsSet, null);
-		createForOP().verify(claimsSet, null);
+		create().verify(claimsSet, null);
+	}
+
+
+	public void testHappy_legacy_multipleAudienceValues()
+		throws BadJWTException {
+
+		Date now = new Date();
+		Date in5min = new Date(now.getTime() + 5*60*1000);
+
+		// Two values, both permitted
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+			.expirationTime(in5min)
+			.audience(Arrays.asList(ISSUER.getValue(), ENDPOINT.toString()))
+			.issuer("123")
+			.subject("123")
+			.build();
+		createLegacy().verify(claimsSet, null);
+
+		// One value
+		claimsSet = new JWTClaimsSet.Builder()
+			.expirationTime(in5min)
+			.audience(Collections.singletonList(ISSUER.getValue()))
+			.issuer("123")
+			.subject("123")
+			.build();
+		createLegacy().verify(claimsSet, null);
+
+		// Alt value
+		claimsSet = new JWTClaimsSet.Builder()
+			.expirationTime(in5min)
+			.audience(Collections.singletonList(ENDPOINT.toString()))
+			.issuer("123")
+			.subject("123")
+			.build();
+		createLegacy().verify(claimsSet, null);
+
+		// Two values, one non-recognized
+		claimsSet = new JWTClaimsSet.Builder()
+			.expirationTime(in5min)
+			.audience(Arrays.asList(ISSUER.getValue(), "xxx"))
+			.issuer("123")
+			.subject("123")
+			.build();
+		createLegacy().verify(claimsSet, null);
+	}
+
+
+	public void testRejectMultipleAudienceValues() {
+
+		Date now = new Date();
+		Date in5min = new Date(now.getTime() + 5*60*1000);
+
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+			.expirationTime(in5min)
+			.audience(Arrays.asList(ISSUER.getValue(), ENDPOINT.toString()))
+			.issuer("123")
+			.subject("123")
+			.build();
+
+		try {
+			create().verify(claimsSet, null);
+			fail();
+		} catch (BadJWTException e) {
+			assertEquals("JWT multi-valued audience rejected: [https://c2id.com, https://c2id.com/token]", e.getMessage());
+		}
+
+		claimsSet = new JWTClaimsSet.Builder()
+			.expirationTime(in5min)
+			.audience(Arrays.asList(ISSUER.getValue(), "xxx"))
+			.issuer("123")
+			.subject("123")
+			.build();
+
+		try {
+			create().verify(claimsSet, null);
+			fail();
+		} catch (BadJWTException e) {
+			assertEquals("JWT multi-valued audience rejected: [https://c2id.com, xxx]", e.getMessage());
+		}
 	}
 
 
 	public void testExpirationTooFarAhead() {
 
-		URI tokenEndpoint = URI.create("https://c2id.com/token");
 		Set<Audience> expectedAud = new LinkedHashSet<>();
-		expectedAud.add(new Audience(tokenEndpoint.toString()));
+		expectedAud.add(new Audience(ISSUER));
 
 		JWTAuthenticationClaimsSetVerifier verifier = new JWTAuthenticationClaimsSetVerifier(expectedAud, 60L);
 
@@ -137,7 +194,7 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
 			.expirationTime(in5min)
-			.audience(tokenEndpoint.toString())
+			.audience(ISSUER.getValue())
 			.issuer("123")
 			.subject("123")
 			.build();
@@ -158,7 +215,7 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
 			.expirationTime(before5min)
-			.audience(Arrays.asList("https://c2id.com", "https://c2id.com/token"))
+			.audience(ISSUER.getValue())
 			.issuer("123")
 			.subject("123")
 			.build();
@@ -170,7 +227,7 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 	public void testMissingExpiration() {
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-			.audience(Arrays.asList("https://c2id.com", "https://c2id.com/token"))
+			.audience(ISSUER.getValue())
 			.issuer("123")
 			.subject("123")
 			.build();
@@ -207,14 +264,14 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 			.build();
 
 		try {
-			createForAS().verify(claimsSet, null);
+			create().verify(claimsSet, null);
 			fail();
 		} catch (BadJWTException e) {
 			assertEquals("JWT audience rejected: [c2id.com]", e.getMessage());
 		}
 
 		try {
-			createForOP().verify(claimsSet, null);
+			createLegacy().verify(claimsSet, null);
 			fail();
 		} catch (BadJWTException e) {
 			assertEquals("JWT audience rejected: [c2id.com]", e.getMessage());
@@ -229,7 +286,7 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
 			.expirationTime(in5min)
-			.audience(Arrays.asList("https://c2id.com", "https://c2id.com/token"))
+			.audience(ISSUER.getValue())
 			.subject("123")
 			.build();
 
@@ -244,7 +301,7 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
 			.expirationTime(in5min)
-			.audience(Arrays.asList("https://c2id.com", "https://c2id.com/token"))
+			.audience(ISSUER.getValue())
 			.issuer("123")
 			.build();
 
@@ -259,7 +316,7 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
 			.expirationTime(in5min)
-			.audience(Arrays.asList("https://c2id.com", "https://c2id.com/token"))
+			.audience(ISSUER.getValue())
 			.issuer("123")
 			.subject("456")
 			.build();

@@ -18,15 +18,16 @@
 package com.nimbusds.oauth2.sdk.auth.verifier;
 
 
-import java.util.Set;
-
-import net.jcip.annotations.Immutable;
-
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.oauth2.sdk.assertions.jwt.JWTAssertionDetailsVerifier;
 import com.nimbusds.oauth2.sdk.id.Audience;
+import net.jcip.annotations.Immutable;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -53,35 +54,60 @@ class JWTAuthenticationClaimsSetVerifier extends JWTAssertionDetailsVerifier {
 
 
 	/**
-	 * Creates a new JWT client authentication claims set verifier.
-	 *
-	 * @param expectedAudience The permitted audience (aud) claim values.
-	 *                         Must not be empty or {@code null}. Should
-	 *                         typically contain the token endpoint URI and
-	 *                         for OpenID provider it may also include the
-	 *                         issuer URI.
+	 * The JWT audience (aud) check.
 	 */
-	public JWTAuthenticationClaimsSetVerifier(final Set<Audience> expectedAudience) {
-		this(expectedAudience, -1L);
+	private final JWTAudienceCheck audCheck;
+
+
+	/**
+	 * Creates a new JWT client authentication claims set verifier. The
+	 * audience check is {@link JWTAudienceCheck#LEGACY legacy}.
+	 *
+	 * @param aud The permitted audience (aud) claim. Must not be empty or
+	 *            {@code null}. Should be the identity of the recipient,
+	 *            such as the issuer URI for an OpenID provider.
+	 */
+	public JWTAuthenticationClaimsSetVerifier(final Set<Audience> aud) {
+		this(aud, JWTAudienceCheck.LEGACY, -1L);
+	}
+
+
+	/**
+	 * Creates a new JWT client authentication claims set verifier. The
+	 * audience check is {@link JWTAudienceCheck#LEGACY legacy}.
+	 *
+	 * @param aud         The permitted audience (aud) claim. Must not be
+	 *                    empty or {@code null}. Should be the identity of
+	 *                    the recipient, such as the issuer URI for an
+	 *                    OpenID provider.
+	 * @param expMaxAhead The maximum number of seconds the expiration time
+	 *                    (exp) claim can be ahead of the current time, if
+	 *                    zero or negative this check is disabled.
+	 */
+	public JWTAuthenticationClaimsSetVerifier(final Set<Audience> aud,
+						  final long expMaxAhead) {
+		this(aud, JWTAudienceCheck.LEGACY,  expMaxAhead);
 	}
 
 
 	/**
 	 * Creates a new JWT client authentication claims set verifier.
 	 *
-	 * @param expectedAudience The permitted audience (aud) claim values.
-	 *                         Must not be empty or {@code null}. Should
-	 *                         typically contain the token endpoint URI and
-	 *                         for OpenID provider it may also include the
-	 *                         issuer URI.
-	 * @param expMaxAhead      The maximum number of seconds the expiration
-	 *                         time (exp) claim can be ahead of the current
-	 *                         time, if zero or negative this check is
-	 *                         disabled.
+	 * @param aud         The permitted audience (aud) claim. Must not be
+	 *                    empty or {@code null}. Should be the identity of
+	 *                    the recipient, such as the issuer URI for an
+	 *                    OpenID provider.
+	 * @param audCheck    The type of audience (aud) check. Must not be
+	 *                    {@code null}.
+	 * @param expMaxAhead The maximum number of seconds the expiration time
+	 *                    (exp) claim can be ahead of the current time, if
+	 *                    zero or negative this check is disabled.
 	 */
-	public JWTAuthenticationClaimsSetVerifier(final Set<Audience> expectedAudience,
+	public JWTAuthenticationClaimsSetVerifier(final Set<Audience> aud,
+						  final JWTAudienceCheck audCheck,
 						  final long expMaxAhead) {
-		super(expectedAudience, expMaxAhead);
+		super(aud, expMaxAhead);
+		this.audCheck = Objects.requireNonNull(audCheck);
 	}
 
 
@@ -94,6 +120,13 @@ class JWTAuthenticationClaimsSetVerifier extends JWTAssertionDetailsVerifier {
 		// iss == sub
 		if (! claimsSet.getIssuer().equals(claimsSet.getSubject())) {
 			throw ISS_SUB_MISMATCH_EXCEPTION;
+		}
+
+		if (JWTAudienceCheck.STRICT.equals(audCheck)) {
+			List<String> audList = claimsSet.getAudience();
+			if (audList.size() != 1) {
+				throw new BadJWTException("JWT multi-valued audience rejected: " + audList);
+			}
 		}
 	}
 }

@@ -2516,6 +2516,9 @@ version 11.20.2 (2025-01-08)
     * Updates to BouncyCastle 1.79
 
 version 11.21 (2025-01-10)
+    * Adds JWTAudienceCheck enum with values STRICT and LEGACY (iss #488).
+    * New JWTAuthenticationClaimsSetVerifier constructor with JWTAudienceCheck
+      argument (iss #488).
     * JWTAssertionDetails.toJSONObject() must return a string "aud" claim when
       the audience is single valued (iss #488).
     * TokenTypeURI.DEVICE_SECRET is changed to
