@@ -41,30 +41,30 @@ public final class TokenTypeURI implements Serializable {
 	 * The token type URI for an OAuth 2.0 refresh token.
 	 */
 	public static final TokenTypeURI REFRESH_TOKEN = new TokenTypeURI(URI.create("urn:ietf:params:oauth:token-type:refresh_token"));
-	
-	
-	/**
-	 * The token type URI for an OpenID Connect ID Token.
-	 */
-	public static final TokenTypeURI ID_TOKEN = new TokenTypeURI(URI.create("urn:ietf:params:oauth:token-type:id_token"));
-	
-	
+
+
 	/**
 	 * The token type URI for a BASE64URL-encoded SAML 1.1 assertion.
 	 */
 	public static final TokenTypeURI SAML1 = new TokenTypeURI(URI.create("urn:ietf:params:oauth:token-type:saml1"));
-	
-	
+
+
 	/**
 	 * The token type URI for a BASE64URL-encoded SAML 2.0 assertion.
 	 */
 	public static final TokenTypeURI SAML2 = new TokenTypeURI(URI.create("urn:ietf:params:oauth:token-type:saml2"));
-	
-	
+
+
 	/**
 	 * The token type URI for a JSON Web Token (JWT).
 	 */
 	public static final TokenTypeURI JWT = new TokenTypeURI(URI.create("urn:ietf:params:oauth:token-type:jwt"));
+
+
+	/**
+	 * The token type URI for an OpenID Connect ID Token.
+	 */
+	public static final TokenTypeURI ID_TOKEN = new TokenTypeURI(URI.create("urn:openid:params:token-type:id_token"));
 
 
 	/**

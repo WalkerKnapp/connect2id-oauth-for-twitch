@@ -2531,3 +2531,8 @@ version 11.21.1 (2025-01-21)
     * JWTAuthenticationClaimsSetVerifier must throw IllegalArgumentException
       when created with JWTAudienceCheck.STRICT and multiple permitted
       audiences (iss #491).
+
+version 11.21.2 (2025-01-21)
+    * The TokenTypeURI.ID_TOKEN must be urn:openid:params:token-type:id_token,
+      in accordance with OpenID Connect Native SSO for Mobile Apps 1.0 - draft
+      07 (iss #492).
