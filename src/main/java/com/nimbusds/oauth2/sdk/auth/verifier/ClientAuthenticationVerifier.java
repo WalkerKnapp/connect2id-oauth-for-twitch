@@ -317,7 +317,11 @@ public class ClientAuthenticationVerifier<T> {
 	 *                                  Must not be empty or {@code null}.
 	 *                                  Should be the identity of the
 	 *                                  recipient, such as the issuer URI
-	 *                                  for an OpenID provider.
+	 *                                  for an OpenID provider. When the
+	 *                                  audience check is
+	 *                                  {@link JWTAudienceCheck#STRICT strict},
+	 *                                  the permitted audience must be
+	 *                                  single-valued.
 	 * @param audCheck                  The type of audience (aud) check.
 	 *                                  Must not be {@code null}.
 	 * @param expendedJTIChecker        Optional expended JWT ID (jti)

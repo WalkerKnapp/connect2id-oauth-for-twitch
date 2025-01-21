@@ -96,7 +96,9 @@ class JWTAuthenticationClaimsSetVerifier extends JWTAssertionDetailsVerifier {
 	 * @param aud         The permitted audience (aud) claim. Must not be
 	 *                    empty or {@code null}. Should be the identity of
 	 *                    the recipient, such as the issuer URI for an
-	 *                    OpenID provider.
+	 *                    OpenID provider. When the audience check is
+	 *                    {@link JWTAudienceCheck#STRICT strict}, the
+	 *                    permitted audience must be single-valued.
 	 * @param audCheck    The type of audience (aud) check. Must not be
 	 *                    {@code null}.
 	 * @param expMaxAhead The maximum number of seconds the expiration time
@@ -107,6 +109,9 @@ class JWTAuthenticationClaimsSetVerifier extends JWTAssertionDetailsVerifier {
 						  final JWTAudienceCheck audCheck,
 						  final long expMaxAhead) {
 		super(aud, expMaxAhead);
+		if (JWTAudienceCheck.STRICT.equals(Objects.requireNonNull(audCheck)) && aud.size() != 1) {
+			throw new IllegalArgumentException("When strict the JWT audience must be single-valued");
+		}
 		this.audCheck = Objects.requireNonNull(audCheck);
 	}
 

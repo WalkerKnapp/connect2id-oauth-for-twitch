@@ -235,6 +235,21 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 	}
 
 
+	public void testStrictCheckRequiresSingleValuedAud() {
+
+		try {
+			new ClientAuthenticationVerifier<>(
+				CLIENT_CREDENTIALS_SELECTOR,
+				LEGACY_EXPECTED_JWT_AUDIENCE,
+				JWTAudienceCheck.STRICT
+			);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("When strict the JWT audience must be single-valued", e.getMessage());
+		}
+	}
+
+
 	public void testHappyClientSecretBasic()
 		throws Exception {
 
@@ -788,7 +803,7 @@ public class ClientAuthenticationVerifierTest extends TestCase {
 
 
 	public void testPrivateKeyJWTBadAudience()
-                throws JOSEException, InvalidClientException {
+                throws JOSEException {
 
 		ClientAuthentication clientAuthentication = new PrivateKeyJWT(
 			VALID_CLIENT_ID,

@@ -77,6 +77,32 @@ public class JWTAuthenticationClaimsSetVerifierTest extends TestCase {
 	}
 
 
+	public void testStrictCheckRequiresSingleValuedAud() {
+
+		Set<Audience> allowedAudValues = new LinkedHashSet<>();
+		allowedAudValues.add(new Audience(ENDPOINT));
+		allowedAudValues.add(new Audience(ISSUER));
+
+		try {
+			new JWTAuthenticationClaimsSetVerifier(allowedAudValues, JWTAudienceCheck.STRICT, -1L);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("When strict the JWT audience must be single-valued", e.getMessage());
+		}
+	}
+
+
+	public void testEmptyAud() {
+
+		try {
+			new JWTAuthenticationClaimsSetVerifier(new HashSet<Audience>());
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("The expected audience set must not be null or empty", e.getMessage());
+		}
+	}
+
+
 	public void testAud() {
 
 		JWTAuthenticationClaimsSetVerifier verifier = create();

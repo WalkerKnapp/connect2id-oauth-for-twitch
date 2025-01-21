@@ -2526,3 +2526,8 @@ version 11.21 (2025-01-10)
     * TokenTypeURI.DEVICE_SECRET is changed to
       `urn:openid:params:token-type:device-secret` (OpenID Connect Native SSO
       for Mobile Apps 1.0 - draft 07).
+
+version 11.21.1 (2025-01-21)
+    * JWTAuthenticationClaimsSetVerifier must throw IllegalArgumentException
+      when created with JWTAudienceCheck.STRICT and multiple permitted
+      audiences (iss #491).
