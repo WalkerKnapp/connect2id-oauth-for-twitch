@@ -65,7 +65,7 @@ public class TLSUtilsTest {
 		
 		SSLSocketFactory sslSocketFactory = TLSUtils.createSSLSocketFactory(trustStore);
 		
-		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, new URL("https://c2id.net"));
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, new URL("https://c2id.net/login"));
 		httpRequest.setSSLSocketFactory(sslSocketFactory);
 		HTTPResponse httpResponse = httpRequest.send();
 		assertEquals(200, httpResponse.getStatusCode());
@@ -95,7 +95,7 @@ public class TLSUtilsTest {
 		
 		SSLSocketFactory sslSocketFactory = TLSUtils.createSSLSocketFactory(trustStore);
 		
-		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, new URL("https://c2id.net"));
+		HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, new URL("https://c2id.net/login"));
 		httpRequest.setSSLSocketFactory(sslSocketFactory);
 		HTTPResponse httpResponse = httpRequest.send();
 		assertEquals(200, httpResponse.getStatusCode());
