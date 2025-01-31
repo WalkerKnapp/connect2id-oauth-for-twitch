@@ -64,7 +64,7 @@ public final class TokenTypeURI implements Serializable {
 	/**
 	 * The token type URI for an OpenID Connect ID Token.
 	 */
-	public static final TokenTypeURI ID_TOKEN = new TokenTypeURI(URI.create("urn:openid:params:token-type:id_token"));
+	public static final TokenTypeURI ID_TOKEN = new TokenTypeURI(URI.create("urn:ietf:params:oauth:token-type:id_token"));
 
 
 	/**
