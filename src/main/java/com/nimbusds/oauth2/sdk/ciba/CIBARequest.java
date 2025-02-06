@@ -41,6 +41,7 @@ import com.nimbusds.oauth2.sdk.util.*;
 import com.nimbusds.openid.connect.sdk.OIDCClaimsRequest;
 import com.nimbusds.openid.connect.sdk.claims.ACR;
 import net.jcip.annotations.Immutable;
+import net.minidev.json.JSONObject;
 
 import java.net.URI;
 import java.util.*;
@@ -79,6 +80,8 @@ import java.util.*;
  *
  * <ul>
  *      <li>OpenID Connect CIBA Flow - Core 1.0
+ *      <li>Financial-grade API: Client Initiated Backchannel Authentication
+ *          Profile (draft 02)
  * </ul>
  */
 @Immutable
@@ -114,7 +117,8 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		p.add("purpose");
 		p.add("authorization_details");
 		p.add("resource");
-		
+		p.add("request_context");
+
 		// Signed JWT
 		p.add("request");
 
@@ -212,6 +216,12 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	 * The resource URI(s) (optional).
 	 */
 	private final List<URI> resources;
+
+
+	/**
+	 * The request context (optional).
+	 */
+	private final JSONObject requestContext;
 	
 	
 	/**
@@ -288,7 +298,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		
 		
 		/**
-		 * Human readable binding message for the display at the
+		 * Human-readable binding message for the display at the
 		 * consumption and authentication devices (optional).
 		 */
 		private String bindingMessage;
@@ -336,6 +346,12 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		 * The resource URI(s) (optional).
 		 */
 		private List<URI> resources;
+
+
+		/**
+		 * The request context (optional).
+		 */
+		private JSONObject requestContext;
 		
 		
 		/**
@@ -408,6 +424,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 			purpose = request.getPurpose();
 			authorizationDetails = request.getAuthorizationDetails();
 			resources = request.getResources();
+			requestContext = request.getContext();
 			customParams = request.getCustomParameters();
 			signedRequest = request.getRequestJWT();
 		}
@@ -494,7 +511,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		
 		
 		/**
-		 * Sets the human readable binding message for the display at
+		 * Sets the human-readable binding message for the display at
 		 * the consumption and authentication devices. Corresponds to
 		 * the {@code binding_message} parameter.
 		 *
@@ -637,6 +654,20 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 			}
 			return this;
 		}
+
+
+		/**
+		 * Sets the request context.
+		 *
+		 * @param requestContext The request context, {@code null} if
+		 *                       not specified.
+		 *
+		 * @return This builder.
+		 */
+		public Builder context(final JSONObject requestContext) {
+			this.requestContext = requestContext;
+			return this;
+		}
 		
 		
 		/**
@@ -710,6 +741,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 					purpose,
 					authorizationDetails,
 					resources,
+					requestContext,
 					customParams
 				);
 			} catch (IllegalArgumentException e) {
@@ -893,7 +925,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 			scope, clientNotificationToken, acrValues,
 			loginHintTokenString, idTokenHint, loginHint,
 			bindingMessage, userCode, requestedExpiry,
-			claims, claimsLocales, purpose, null ,resources,
+			claims, claimsLocales, purpose, null, resources,
 			customParams);
 	}
 
@@ -942,6 +974,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 	 * @param customParams            Custom parameters, empty or
 	 *                                {@code null} if not specified.
 	 */
+	@Deprecated
 	public CIBARequest(final URI endpoint,
 			   final ClientAuthentication clientAuth,
 			   final Scope scope,
@@ -959,18 +992,92 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 			   final List<AuthorizationDetail> authorizationDetails,
 			   final List<URI> resources,
 			   final Map<String, List<String>> customParams) {
-		
+
+		this(endpoint, clientAuth,
+			scope, clientNotificationToken, acrValues,
+			loginHintTokenString, idTokenHint, loginHint,
+			bindingMessage, userCode, requestedExpiry,
+			claims, claimsLocales, purpose, authorizationDetails, resources, null,
+			customParams);
+	}
+
+
+	/**
+	 * Creates a new CIBA request.
+	 *
+	 * @param endpoint                The URI of the CIBA endpoint. May be
+	 *                                {@code null} if the
+	 *                                {@link #toHTTPRequest()} method is
+	 *                                not going to be used.
+	 * @param clientAuth              The client authentication. Must not
+	 *                                be {@code null}.
+	 * @param scope                   The requested scope. Must not be
+	 *                                empty or {@code null}.
+	 * @param clientNotificationToken The client notification token,
+	 *                                {@code null} if not specified.
+	 * @param acrValues               The requested ACR values,
+	 *                                {@code null} if not specified.
+	 * @param loginHintTokenString    The login hint token string,
+	 *                                {@code null} if not specified.
+	 * @param idTokenHint             The ID Token hint, {@code null} if
+	 *                                not specified.
+	 * @param loginHint               The login hint, {@code null} if not
+	 *                                specified.
+	 * @param bindingMessage          The binding message, {@code null} if
+	 *                                not specified.
+	 * @param userCode                The user code, {@code null} if not
+	 *                                specified.
+	 * @param requestedExpiry         The required expiry (as positive
+	 *                                integer), {@code null} if not
+	 *                                specified.
+	 * @param claims                  The individual claims to be
+	 *                                returned, {@code null} if not
+	 *                                specified.
+	 * @param claimsLocales           The preferred languages and scripts
+	 *                                for claims being returned,
+	 *                                {@code null} if not specified.
+	 * @param purpose                 The transaction specific purpose,
+	 *                                {@code null} if not specified.
+	 * @param authorizationDetails    The Rich Authorisation Request (RAR)
+	 *                                details, {@code null} if not
+	 *                                specified.
+	 * @param resources               The resource URI(s), {@code null} if
+	 *                                not specified.
+	 * @param requestContext          The request context, {@code null} if
+	 *                                not specified.
+	 * @param customParams            Custom parameters, empty or
+	 *                                {@code null} if not specified.
+	 */
+	public CIBARequest(final URI endpoint,
+			   final ClientAuthentication clientAuth,
+			   final Scope scope,
+			   final BearerAccessToken clientNotificationToken,
+			   final List<ACR> acrValues,
+			   final String loginHintTokenString,
+			   final JWT idTokenHint,
+			   final String loginHint,
+			   final String bindingMessage,
+			   final Secret userCode,
+			   final Integer requestedExpiry,
+			   final OIDCClaimsRequest claims,
+			   final List<LangTag> claimsLocales,
+			   final String purpose,
+			   final List<AuthorizationDetail> authorizationDetails,
+			   final List<URI> resources,
+			   final JSONObject requestContext,
+			   final Map<String, List<String>> customParams) {
+
 		super(endpoint, clientAuth);
-		
+
 		this.scope = scope;
-		
+
 		if (clientNotificationToken != null && clientNotificationToken.getValue().length() > CLIENT_NOTIFICATION_TOKEN_MAX_LENGTH) {
 			throw new IllegalArgumentException("The client notification token must not exceed " + CLIENT_NOTIFICATION_TOKEN_MAX_LENGTH + " chars");
 		}
 		this.clientNotificationToken = clientNotificationToken;
-		
+
 		this.acrValues = acrValues;
-		
+
 		// https://openid.net/specs/openid-client-initiated-backchannel-authentication-core-1_0-03.html#rfc.section.7.1
 		// As in the CIBA flow the OP does not have an interaction with
 		// the end-user through the consumption device, it is REQUIRED
@@ -978,45 +1085,47 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		// specified above in the authentication request, that is
 		// "login_hint_token", "id_token_hint" or "login_hint".
 		int numHints = 0;
-		
+
 		if (loginHintTokenString != null) numHints++;
 		this.loginHintTokenString = loginHintTokenString;
-		
+
 		if (idTokenHint != null) numHints++;
 		this.idTokenHint = idTokenHint;
-		
+
 		if (loginHint != null) numHints++;
 		this.loginHint = loginHint;
-		
+
 		if (numHints != 1) {
 			throw new IllegalArgumentException("One user identity hist must be provided (login_hint_token, id_token_hint or login_hint)");
 		}
-		
+
 		this.bindingMessage = bindingMessage;
-		
+
 		this.userCode = userCode;
-		
+
 		if (requestedExpiry != null && requestedExpiry < 1) {
 			throw new IllegalArgumentException("The requested expiry must be a positive integer");
 		}
 		this.requestedExpiry = requestedExpiry;
-		
+
 		this.claims = claims;
-		
+
 		if (claimsLocales != null) {
 			this.claimsLocales = Collections.unmodifiableList(claimsLocales);
 		} else {
 			this.claimsLocales = null;
 		}
-		
+
 		this.purpose = purpose;
 
 		this.authorizationDetails = authorizationDetails;
-		
+
 		this.resources = ResourceUtils.ensureLegalResourceURIs(resources);
-		
+
+		this.requestContext = requestContext;
+
 		this.customParams = customParams != null ? customParams : Collections.<String, List<String>>emptyMap();
-		
+
 		signedRequest = null;
 	}
 	
@@ -1057,6 +1166,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		authorizationDetails = null;
 		purpose = null;
 		resources = null;
+		requestContext = null;
 		customParams = Collections.emptyMap();
 	}
 
@@ -1265,8 +1375,18 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		
 		return resources;
 	}
-	
-	
+
+
+	/**
+	 * Returns the request context.
+	 *
+	 * @return The request context, {@code null} if not specified.
+	 */
+	public JSONObject getContext() {
+
+		return requestContext;
+	}
+
 	/**
 	 * Returns the additional custom parameters.
 	 *
@@ -1370,6 +1490,9 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		}
 		if (getAuthorizationDetails() != null) {
 			params.put("authorization_details", Collections.singletonList(AuthorizationDetail.toJSONString(getAuthorizationDetails())));
+		}
+		if (getContext() != null) {
+			params.put("request_context", Collections.singletonList(getContext().toJSONString()));
 		}
 		if (CollectionUtils.isNotEmpty(getResources())) {
 			params.put("resource", URIUtils.toStringList(getResources(), true));
@@ -1556,6 +1679,16 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 		}
 		
 		List<URI> resources = ResourceUtils.parseResourceURIs(params.get("resource"));
+
+		JSONObject requestContext = null;
+		v = MultivaluedMapUtils.getFirstValue(params, "request_context");
+		if (StringUtils.isNotBlank(v)) {
+			try {
+				requestContext = JSONObjectUtils.parse(v);
+			} catch (ParseException e) {
+				throw new ParseException("Invalid request_context parameter", e);
+			}
+		}
 		
 		// Parse additional custom parameters
 		Map<String,List<String>> customParams = null;
@@ -1578,7 +1711,7 @@ public class CIBARequest extends AbstractAuthenticatedRequest {
 				loginHintTokenString, idTokenHint, loginHint,
 				bindingMessage, userCode, requestedExpiry,
 				claims, claimsLocales, purpose, authorizationDetails,
-				resources,
+				resources, requestContext,
 				customParams);
 		} catch (IllegalArgumentException e) {
 			throw new ParseException(e.getMessage());

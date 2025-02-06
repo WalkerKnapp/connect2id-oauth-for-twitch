@@ -2,7 +2,6 @@ package com.nimbusds.oauth2.sdk.ciba;
 
 
 import com.nimbusds.common.contenttype.ContentType;
-import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
@@ -35,6 +34,7 @@ import com.nimbusds.openid.connect.sdk.OIDCClaimsRequest;
 import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.claims.ClaimsSetRequest;
 import junit.framework.TestCase;
+import net.minidev.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -80,6 +80,8 @@ public class CIBARequestTest extends TestCase {
 	private static final List<AuthorizationDetail> RAR_DETAILS = Collections.singletonList(new AuthorizationDetail.Builder(new AuthorizationType("api_1")).build());
 	
 	private static final List<URI> RESOURCES = Arrays.asList(URI.create("https://rs1.example.com"), URI.create("https://rs2.example.com"));
+
+	private static final JSONObject REQUEST_CONTEXT;
 	
 	static {
 		try {
@@ -87,6 +89,9 @@ public class CIBARequestTest extends TestCase {
 		} catch (LangTagException e) {
 			throw new RuntimeException(e);
 		}
+
+		REQUEST_CONTEXT = new JSONObject();
+		REQUEST_CONTEXT.put("geo", "2060");
 	}
 	
 	private static final Map<String,List<String>> CUSTOM_PARAMS;
@@ -162,9 +167,10 @@ public class CIBARequestTest extends TestCase {
 		assertTrue(paramNames.contains("purpose"));
 		assertTrue(paramNames.contains("authorization_details"));
 		assertTrue(paramNames.contains("resource"));
+		assertTrue(paramNames.contains("request_context"));
 		assertTrue(paramNames.contains("request"));
 
-		assertEquals(15, paramNames.size());
+		assertEquals(16, paramNames.size());
 	}
 	
 
@@ -199,6 +205,7 @@ public class CIBARequestTest extends TestCase {
 		assertNull(request.getUserCode());
 		assertNull(request.getRequestedExpiry());
 		assertNull(request.getOIDCClaims());
+		assertNull(request.getContext());
 		assertTrue(request.getCustomParameters().isEmpty());
 		assertNull(request.getCustomParameter("no-such-param"));
 		assertFalse(request.isSigned());
@@ -238,6 +245,7 @@ public class CIBARequestTest extends TestCase {
 				PURPOSE,
 				RAR_DETAILS,
 				RESOURCES,
+				REQUEST_CONTEXT,
 				CUSTOM_PARAMS
 			);
 			
@@ -269,6 +277,8 @@ public class CIBARequestTest extends TestCase {
 			assertEquals(CLAIMS_LOCALES, request.getClaimsLocales());
 			assertEquals(PURPOSE, request.getPurpose());
 			assertEquals(RAR_DETAILS, request.getAuthorizationDetails());
+			assertEquals(RESOURCES, request.getResources());
+			assertEquals(REQUEST_CONTEXT, request.getContext());
 			assertEquals(CUSTOM_PARAMS, request.getCustomParameters());
 			assertFalse(request.isSigned());
 			assertNull(request.getRequestJWT());
@@ -311,6 +321,8 @@ public class CIBARequestTest extends TestCase {
 			assertEquals(CLAIMS_LOCALES, request.getClaimsLocales());
 			assertEquals(PURPOSE, request.getPurpose());
 			assertEquals(RAR_DETAILS, request.getAuthorizationDetails());
+			assertEquals(RESOURCES, request.getResources());
+			assertEquals(REQUEST_CONTEXT, request.getContext());
 			assertEquals(CUSTOM_PARAMS, request.getCustomParameters());
 			assertFalse(request.isSigned());
 			assertNull(request.getRequestJWT());
@@ -348,6 +360,7 @@ public class CIBARequestTest extends TestCase {
 				.purpose(PURPOSE)
 				.authorizationDetails(RAR_DETAILS)
 				.resource(RESOURCES.get(0))
+				.context(REQUEST_CONTEXT)
 				.customParameter("custom-xyz", "abc")
 				.build();
 			
@@ -380,6 +393,7 @@ public class CIBARequestTest extends TestCase {
 			assertEquals(PURPOSE, request.getPurpose());
 			assertEquals(RAR_DETAILS, request.getAuthorizationDetails());
 			assertEquals(Collections.singletonList(RESOURCES.get(0)), request.getResources());
+			assertEquals(REQUEST_CONTEXT, request.getContext());
 			assertEquals(CUSTOM_PARAMS, request.getCustomParameters());
 			
 			// Copy
@@ -414,6 +428,7 @@ public class CIBARequestTest extends TestCase {
 			assertEquals(PURPOSE, request.getPurpose());
 			assertEquals(RAR_DETAILS, request.getAuthorizationDetails());
 			assertEquals(Collections.singletonList(RESOURCES.get(0)), request.getResources());
+			assertEquals(REQUEST_CONTEXT, request.getContext());
 			assertEquals(CUSTOM_PARAMS, request.getCustomParameters());
 		}
 	}
@@ -1093,6 +1108,60 @@ public class CIBARequestTest extends TestCase {
 			fail();
 		} catch (ParseException e) {
 			assertEquals("Illegal resource parameter: Must be an absolute URI and with no query or fragment", e.getMessage());
+		}
+	}
+
+
+	public void testWithRequestContextParameter()
+		throws ParseException {
+
+		CIBARequest request = new CIBARequest.Builder(
+			CLIENT_AUTH,
+			SCOPE)
+			.endpointURI(ENDPOINT_URI)
+			.loginHint(LOGIN_HINT)
+			.context(REQUEST_CONTEXT)
+			.build();
+
+		Map<String,List<String>> params = request.toParameters();
+		assertEquals(Collections.singletonList(SCOPE.toString()), params.get("scope"));
+		assertEquals(Collections.singletonList(LOGIN_HINT), params.get("login_hint"));
+		assertEquals(Collections.singletonList(REQUEST_CONTEXT.toJSONString()), params.get("request_context"));
+		assertEquals(3, params.size());
+
+		HTTPRequest httpRequest = request.toHTTPRequest();
+
+		request = CIBARequest.parse(httpRequest);
+
+		params = request.toParameters();
+		assertEquals(Collections.singletonList(SCOPE.toString()), params.get("scope"));
+		assertEquals(Collections.singletonList(LOGIN_HINT), params.get("login_hint"));
+		assertEquals(Collections.singletonList(REQUEST_CONTEXT.toJSONString()), params.get("request_context"));
+		assertEquals(3, params.size());
+	}
+
+
+	public void testParseWithIllegalRequestContextParameter() {
+
+		CIBARequest request = new CIBARequest.Builder(
+			CLIENT_AUTH,
+			SCOPE)
+			.endpointURI(ENDPOINT_URI)
+			.loginHint(LOGIN_HINT)
+			.build();
+
+		HTTPRequest httpRequest = request.toHTTPRequest();
+
+		// Illegal resource
+		Map<String,List<String>> params = request.toParameters();
+		params.put("request_context", Collections.singletonList("xxx"));
+		httpRequest.setBody(URLUtils.serializeParameters(params));
+
+		try {
+			CIBARequest.parse(httpRequest);
+			fail();
+		} catch (ParseException e) {
+			assertEquals("Invalid request_context parameter", e.getMessage());
 		}
 	}
 }
