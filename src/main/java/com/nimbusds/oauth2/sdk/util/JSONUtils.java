@@ -47,9 +47,13 @@ public final class JSONUtils {
 		throws ParseException {
 
 		try {
-			return new JSONParser(JSONParser.USE_HI_PRECISION_FLOAT | JSONParser.ACCEPT_TAILLING_SPACE).parse(s);
+			return new JSONParser(
+				JSONParser.USE_HI_PRECISION_FLOAT |
+				JSONParser.ACCEPT_TAILLING_SPACE |
+				JSONParser.LIMIT_JSON_DEPTH
+			).parse(s);
 		} catch (net.minidev.json.parser.ParseException e) {
-			throw new ParseException("Invalid JSON: " + e.getMessage(), e);
+			throw new ParseException("Invalid JSON", e);
 		} catch (NullPointerException e) {
 			throw new ParseException("The JSON string must not be null", e);
 		} catch (Exception e) {
@@ -75,11 +79,21 @@ public final class JSONUtils {
 		throws ParseException {
 
 		try {
-			return new JSONParser(JSONParser.USE_HI_PRECISION_FLOAT | JSONParser.ACCEPT_TAILLING_SPACE).parse(s, new JsonReader().DEFAULT_ORDERED);
+			return new JSONParser(
+				JSONParser.USE_HI_PRECISION_FLOAT |
+				JSONParser.ACCEPT_TAILLING_SPACE |
+				JSONParser.LIMIT_JSON_DEPTH
+			).parse(s, new JsonReader().DEFAULT_ORDERED);
 
 		} catch (net.minidev.json.parser.ParseException e) {
-
-			throw new ParseException("Invalid JSON: " + e.getMessage(), e);
+			throw new ParseException("Invalid JSON", e);
+		} catch (NullPointerException e) {
+			throw new ParseException("The JSON string must not be null", e);
+		} catch (Exception e) {
+			throw new ParseException("Unexpected exception: " + e.getMessage(), e);
+		} catch (Error e) {
+			// Guard against unexpected java.lang.Error instances
+			throw new ParseException("Unexpected error: " + e.getMessage(), e);
 		}
 	}
 	

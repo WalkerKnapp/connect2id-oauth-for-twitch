@@ -2543,3 +2543,10 @@ version 11.21.3 (2025-01-31)
 
 version 11.22 (2025-02-06)
     * CIBARequest receives request_context parameter support (FAPI CIBA).
+
+version 11.22.1 (2025-02-09)
+    * JSONUtils prevents parsing of JSON with excessive object nesting, to
+      address CVE 2024-57699 in the JSON Smart library (iss #494).
+    * The ParseException message JSONUtils.parseJSON and parseJSONKeepingOrder
+      on invalid JSON is changed to a simple "Invalid JSON", and will no longer
+      concatenate the message of the causing exception.

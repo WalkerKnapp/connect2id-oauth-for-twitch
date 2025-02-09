@@ -168,7 +168,7 @@ public class SectorIDURIValidatorTest extends TestCase {
 			v.validate(URI.create("https://example.com/apps.json"), redirectURIs);
 			fail();
 		} catch (GeneralException e) {
-			assertEquals("Invalid JSON: Unexpected token a b c at position 5.", e.getMessage());
+			assertEquals("Invalid JSON", e.getMessage());
 		}
 	}
 

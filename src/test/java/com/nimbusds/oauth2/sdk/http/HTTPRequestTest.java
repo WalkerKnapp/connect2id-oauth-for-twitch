@@ -469,7 +469,7 @@ public class HTTPRequestTest {
 			fail();
 		} catch (ParseException e) {
 			// ok
-			assertEquals("Invalid JSON: Unexpected token  at position 1.", e.getMessage());
+			assertEquals("Invalid JSON", e.getMessage());
 		}
 	}
 

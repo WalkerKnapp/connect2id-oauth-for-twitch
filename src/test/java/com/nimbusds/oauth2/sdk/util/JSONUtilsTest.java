@@ -34,7 +34,7 @@ public class JSONUtilsTest extends TestCase {
 			JSONUtils.parseJSON(json);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Invalid JSON: Unexpected token 2e+ at position 3.", e.getMessage());
+			assertEquals("Invalid JSON", e.getMessage());
 			assertTrue(e.getCause() instanceof net.minidev.json.parser.ParseException);
 		}
 	}
@@ -50,4 +50,39 @@ public class JSONUtilsTest extends TestCase {
 			assertTrue(e.getCause() instanceof NullPointerException);
 		}
 	}
+
+
+	private static String createMaliciousCVE202457699String() {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < 10000 ; i++) {
+			sb.append("{\"a\":");
+		}
+		sb.append("1");
+		for (int i = 0; i < 10000 ; i++) {
+			sb.append("}");
+		}
+		return sb.toString();
+	}
+
+
+	public void testRestrictDepth() {
+
+                try {
+                        JSONUtils.parseJSON(createMaliciousCVE202457699String());
+			fail();
+                } catch (ParseException e) {
+                        assertEquals("Invalid JSON", e.getMessage());
+			net.minidev.json.parser.ParseException cause = (net.minidev.json.parser.ParseException) e.getCause();
+			assertEquals("Malicious payload, having non natural depths, parsing stoped on { at position 2000.", cause.getMessage());
+                }
+
+                try {
+                        JSONUtils.parseJSONKeepingOrder(createMaliciousCVE202457699String());
+			fail();
+                } catch (ParseException e) {
+                        assertEquals("Invalid JSON", e.getMessage());
+			net.minidev.json.parser.ParseException cause = (net.minidev.json.parser.ParseException) e.getCause();
+			assertEquals("Malicious payload, having non natural depths, parsing stoped on { at position 2000.", cause.getMessage());
+                }
+        }
 }

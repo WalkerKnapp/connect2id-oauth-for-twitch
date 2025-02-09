@@ -521,7 +521,7 @@ public class AuthorizationDetailTest extends TestCase {
                         AuthorizationDetail.parseList("xxx");
                         fail();
                 } catch (ParseException e) {
-                        assertEquals("Invalid authorization details: Invalid JSON: Unexpected token xxx at position 3.", e.getMessage());
+                        assertEquals("Invalid authorization details: Invalid JSON", e.getMessage());
                 }
         }
 

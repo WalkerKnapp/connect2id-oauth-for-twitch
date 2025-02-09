@@ -219,7 +219,7 @@ public class RequestObjectPOSTSuccessResponseTest extends TestCase {
 			RequestObjectPOSTSuccessResponse.parse(httpResponse);
 			fail();
 		} catch (ParseException e) {
-			assertEquals("Invalid JSON: Unexpected token text plain at position 10.", e.getMessage());
+			assertEquals("Invalid JSON", e.getMessage());
 		}
 	}
 	
