@@ -2550,3 +2550,6 @@ version 11.22.1 (2025-02-09)
     * The ParseException message JSONUtils.parseJSON and parseJSONKeepingOrder
       on invalid JSON is changed to a simple "Invalid JSON", and will no longer
       concatenate the message of the causing exception.
+
+version 11.22.2 (2025-02-12)
+    * Updates JSON Smart to 2.5.2 (release addresses CVE 2024-57699).
