@@ -28,6 +28,7 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -113,8 +114,20 @@ class AccessTokenUtils {
 	 */
 	static Scope parseScope(final JSONObject params)
 		throws ParseException {
-		
-		return Scope.parse(JSONObjectUtils.getString(params, "scope", null));
+
+		try {
+			return Scope.parse(JSONObjectUtils.getString(params, "scope", null));
+		} catch (ParseException e) {
+			// See if scope is provided as an array
+			JSONArray scopes = JSONObjectUtils.getJSONArray(params, "scope", null);
+			ArrayList<String> scopeStrings = new ArrayList<>();
+			for (Object scope : scopes) {
+				if (scope instanceof String) {
+					scopeStrings.add((String) scope);
+				}
+			}
+			return Scope.parse(scopeStrings);
+		}
 	}
 
 
