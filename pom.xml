@@ -285,7 +285,7 @@
 						</goals>
 						<configuration>
 							<source>1.7</source>
-							<target>11</target>
+							<target>1.8</target>
 							<outputDirectory>${project.build.outputDirectory}_jdk11</outputDirectory>
 						</configuration>
 					</execution>
